@@ -1,0 +1,237 @@
+# Spanish translations for PACKAGE package
+# Traducciones al español para el paquete PACKAGE.
+# Copyright (C) 2021 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# lliurex <lliurex@gva.es>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-17 12:28+0200\n"
+"PO-Revision-Date: 2021-09-17 12:30+0200\n"
+"Last-Translator: lliurex <lliurex@gva.es>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.3\n"
+
+#: ../install/rsrc/lliurex-onedrive.qml:118
+msgid ""
+"The settings of OneDrive have changed.\n"
+"Do you want apply the changes or discard them?"
+msgstr ""
+"Las preferencias de OneDrive han cambiado.\n"
+"¿Desea aplicar los cambios o descartarlos?"
+
+#: ../install/rsrc/lliurex-onedrive.qml:138 ../install/rsrc/Settings.qml:132
+msgid "Apply"
+msgstr "Aplicar"
+
+#: ../install/rsrc/lliurex-onedrive.qml:148
+msgid "Discard"
+msgstr "Descartar"
+
+#: ../install/rsrc/lliurex-onedrive.qml:159 ../install/rsrc/AccountInfo.qml:268
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../install/rsrc/AccountInfo.qml:13 ../install/rsrc/AccountOptions.qml:26
+msgid "Account"
+msgstr "Cuenta"
+
+#: ../install/rsrc/AccountInfo.qml:30
+msgid "OneDrive Folder:"
+msgstr "Carpeta Onedrive:"
+
+#: ../install/rsrc/AccountInfo.qml:58
+msgid "Click to open OneDrive Folder"
+msgstr "Haga clic para abrir la carpeta de OneDrive"
+
+#: ../install/rsrc/AccountInfo.qml:69
+msgid "Free Space:"
+msgstr "Espacio disponible:"
+
+#: ../install/rsrc/AccountInfo.qml:87
+msgid "Synchronization:"
+msgstr "Sincronización:"
+
+#: ../install/rsrc/AccountInfo.qml:102
+msgid "Running"
+msgstr "En marcha"
+
+#: ../install/rsrc/AccountInfo.qml:102
+msgid "Stopped"
+msgstr "Parada"
+
+#: ../install/rsrc/AccountInfo.qml:116
+msgid "Click to stop syncing with OneDrive"
+msgstr "Haga clic para iniciar la sincronización con OneDrive"
+
+#: ../install/rsrc/AccountInfo.qml:116
+msgid "Click to start syncing with OneDrive"
+msgstr "Haga clic para iniciar la sincronización con OneDrive"
+
+#: ../install/rsrc/AccountInfo.qml:120
+msgid "Stopping synchronization. Wait a moment..."
+msgstr "Parando la sincronización. Espere un momento..."
+
+#: ../install/rsrc/AccountInfo.qml:120
+msgid "Starting synchronization. Wait a moment..."
+msgstr "Iniciando la sincronización. Espere un momento..."
+
+#: ../install/rsrc/AccountInfo.qml:135
+msgid "Status:"
+msgstr "Estado:"
+
+#: ../install/rsrc/AccountInfo.qml:168
+msgid "Click to update status information"
+msgstr "Haga clic para actualizar la información sobre el estado"
+
+#: ../install/rsrc/AccountInfo.qml:172
+msgid "Checking status. Wait a moment..."
+msgstr "Comprobando el estado. Espere un momento..."
+
+#: ../install/rsrc/AccountInfo.qml:188
+msgid "Unlink from OneDrive account:"
+msgstr "Desvincular de la cuenta de OneDrive:"
+
+#: ../install/rsrc/AccountInfo.qml:203
+msgid "Click to unlink from OneDrive account"
+msgstr "Haga clic para desvincular de la cuenta de OneDrive"
+
+#: ../install/rsrc/AccountInfo.qml:237
+msgid ""
+"Are you sure you want to unlink this computer from OneDrive account?.\n"
+"The files will stop syncing, but the contents of the OneDrive folder\n"
+"will not be erased"
+msgstr ""
+"¿Esta seguro que desea desvincular este ordenador de OneDrive?\n"
+"Los archivos ya no serán sincronizados, pero el contenido de la carpeta\n"
+"OneDrive no será borrado"
+
+#: ../install/rsrc/AccountInfo.qml:258
+msgid "Accept"
+msgstr "Aceptar"
+
+#: ../install/rsrc/AccountInfo.qml:306
+msgid "All synchronized"
+msgstr "Todo sincronizado"
+
+#: ../install/rsrc/AccountInfo.qml:309
+msgid "Remote content pending syncing"
+msgstr "Cambios remotos pendiente de sincronizar"
+
+#: ../install/rsrc/AccountInfo.qml:312
+msgid "Error: The authorization to access your account has expired"
+msgstr "Error: La autorización para acceder a su cuenta ha caducado"
+
+#: ../install/rsrc/AccountInfo.qml:315
+msgid "Error: No network connection detected"
+msgstr "Error: No hay conexión a Internet"
+
+#: ../install/rsrc/AccountInfo.qml:319
+msgid "Error: OneDrive must be repair"
+msgstr "Error: OneDrive debe ser reparado"
+
+#: ../install/rsrc/AccountInfo.qml:322
+msgid "Uploading pending changes"
+msgstr "Subiendo cambios pendientes"
+
+#: ../install/rsrc/AccountInfo.qml:325
+msgid "Unknown. Wait a moment and update the status"
+msgstr "Desconocido. Espere un momento y actualice el estado"
+
+#: ../install/rsrc/AccountOptions.qml:38 ../install/rsrc/Settings.qml:16
+msgid "Settings"
+msgstr "Preferencias"
+
+#: ../install/rsrc/AccountOptions.qml:50 ../install/rsrc/Tools.qml:15
+msgid "Tools"
+msgstr "Herramientas"
+
+#: ../install/rsrc/AccountOptions.qml:62
+msgid "Help"
+msgstr "Ayuda"
+
+#: ../install/rsrc/CloseApp.qml:24
+msgid "You can close the application"
+msgstr "Puede cerrar la aplicación"
+
+#: ../install/rsrc/Settings.qml:54
+msgid "Synchronization start:"
+msgstr "Inciar sincronización:"
+
+#: ../install/rsrc/Settings.qml:63
+msgid "Start when booting the system"
+msgstr "Iniciar cuando arranque el sistema"
+
+#: ../install/rsrc/Settings.qml:75
+msgid "Synchronize remote changes every (in minutes):"
+msgstr "Sincronizar cambios remotos cada (en minutos):"
+
+#: ../install/rsrc/Settings.qml:97
+msgid "Download/Upload network bandwidth:"
+msgstr "Ancho de red para descarga/subida:"
+
+#: ../install/rsrc/Settings.qml:151
+msgid "Saving changes. Wait a moment..."
+msgstr "Guardando cambios. Espere un momento..."
+
+#: ../install/rsrc/Settings.qml:159
+msgid "Failed to change synchronization boot configuration"
+msgstr "Error al cambiar la configuración de inicio de la sincronización"
+
+#: ../install/rsrc/Settings.qml:162
+msgid "Failed to write configuration file"
+msgstr "Error al escribir el fichero de configuración"
+
+#: ../install/rsrc/Settings.qml:165
+msgid "Failed to apply configuration changes"
+msgstr "Error al aplicar los cambios de la configuración"
+
+#: ../install/rsrc/Settings.qml:168
+msgid ""
+"The changes will take effect the next time you start session or "
+"synchronization"
+msgstr ""
+"Los cambios tendrán efecto la próxima vez que inicie sesión o la "
+"sincronización"
+
+#: ../install/rsrc/SyncWaiting.qml:39
+msgid "Loading. Wait a moment..."
+msgstr "Cargando. Espere un momento..."
+
+#: ../install/rsrc/Tools.qml:31
+msgid "Some options can only be executed if the synchronization is stopped"
+msgstr ""
+"Algunas opciones sólo pueden ser ejecutadas si la sincronización esta parada"
+
+#: ../install/rsrc/Tools.qml:50
+msgid "Run a OneDrive test:"
+msgstr "Ejecutar  test de OneDrive:"
+
+#: ../install/rsrc/Tools.qml:66
+msgid "Click to run an OneDrive test command"
+msgstr "Haga clic para ejecutar el test para OneDrive"
+
+#: ../install/rsrc/Tools.qml:70
+msgid "Executing test. Wait a moment..."
+msgstr "Ejecutando test. Espere un momento..."
+
+#: ../install/rsrc/Tools.qml:83
+msgid "Repair OneDrive:"
+msgstr "Reparar OneDrive:"
+
+#: ../install/rsrc/Tools.qml:100
+msgid "Click to run an OneDrive client repair command"
+msgstr "Haga clic para ejecutar el comando de repación de OneDrive"
+
+#: ../install/rsrc/Tools.qml:104
+msgid "Executing repair command. Wait a moment..."
+msgstr ""
+"Ejecutando el comando de repación del cliente de OneDrive. Espere un "
+"momento..."

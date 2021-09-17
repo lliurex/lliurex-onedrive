@@ -1,0 +1,24 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Lliurex-OneDrive
+Name[es]=Lliurex-Onedrive
+Name[ca_ES@valencia]=Lliurex-OneDrive
+Name[ca_ES]=Lliurex-OneDrive
+Name[ca]= Lliurex-OneDrive
+Name[ca_ES.UTF-8@valencia]=Lliurex-OneDrive
+Comment=Program to manage a OneDrive client
+Comment[es]=Programa para gestionar el cliente de OneDrive 
+Comment[ca_ES@valencia]=Programa per a gestionar el cliente de OneDrive 
+Comment[ca_ES]=Programa per a gestionar el cliente de OneDrive 
+Comment[ca]=Programa per a gestionar el cliente de OneDrive
+Comment[ca_ES.UTF-8@valencia]=Programa per a gestionar el cliente de OneDrive 
+GenericName=lliurex-OneDrive
+Type=Application
+Exec=lliurex-onedrive
+TryExec=lliurex-onedrive
+Icon=lliurex-onedrive
+Terminal=false
+StartupNotify=true
+NoDisplay=false
+Categories=Network;

@@ -1,0 +1,225 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-17 12:28+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install/rsrc/lliurex-onedrive.qml:118
+msgid ""
+"The settings of OneDrive have changed.\n"
+"Do you want apply the changes or discard them?"
+msgstr ""
+
+#: ../install/rsrc/lliurex-onedrive.qml:138 ../install/rsrc/Settings.qml:132
+msgid "Apply"
+msgstr ""
+
+#: ../install/rsrc/lliurex-onedrive.qml:148
+msgid "Discard"
+msgstr ""
+
+#: ../install/rsrc/lliurex-onedrive.qml:159 ../install/rsrc/AccountInfo.qml:268
+msgid "Cancel"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:13 ../install/rsrc/AccountOptions.qml:26
+msgid "Account"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:30
+msgid "OneDrive Folder:"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:58
+msgid "Click to open OneDrive Folder"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:69
+msgid "Free Space:"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:87
+msgid "Synchronization:"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:102
+msgid "Running"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:102
+msgid "Stopped"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:116
+msgid "Click to stop syncing with OneDrive"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:116
+msgid "Click to start syncing with OneDrive"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:120
+msgid "Stopping synchronization. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:120
+msgid "Starting synchronization. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:135
+msgid "Status:"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:168
+msgid "Click to update status information"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:172
+msgid "Checking status. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:188
+msgid "Unlink from OneDrive account:"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:203
+msgid "Click to unlink from OneDrive account"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:237
+msgid ""
+"Are you sure you want to unlink this computer from OneDrive account?.\n"
+"The files will stop syncing, but the contents of the OneDrive folder\n"
+"will not be erased"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:258
+msgid "Accept"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:306
+msgid "All synchronized"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:309
+msgid "Remote content pending syncing"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:312
+msgid "Error: The authorization to access your account has expired"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:315
+msgid "Error: No network connection detected"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:319
+msgid "Error: OneDrive must be repair"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:322
+msgid "Uploading pending changes"
+msgstr ""
+
+#: ../install/rsrc/AccountInfo.qml:325
+msgid "Unknown. Wait a moment and update the status"
+msgstr ""
+
+#: ../install/rsrc/AccountOptions.qml:38 ../install/rsrc/Settings.qml:16
+msgid "Settings"
+msgstr ""
+
+#: ../install/rsrc/AccountOptions.qml:50 ../install/rsrc/Tools.qml:15
+msgid "Tools"
+msgstr ""
+
+#: ../install/rsrc/AccountOptions.qml:62
+msgid "Help"
+msgstr ""
+
+#: ../install/rsrc/CloseApp.qml:24
+msgid "You can close the application"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:54
+msgid "Synchronization start:"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:63
+msgid "Start when booting the system"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:75
+msgid "Synchronize remote changes every (in minutes):"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:97
+msgid "Download/Upload network bandwidth:"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:151
+msgid "Saving changes. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:159
+msgid "Failed to change synchronization boot configuration"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:162
+msgid "Failed to write configuration file"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:165
+msgid "Failed to apply configuration changes"
+msgstr ""
+
+#: ../install/rsrc/Settings.qml:168
+msgid ""
+"The changes will take effect the next time you start session or "
+"synchronization"
+msgstr ""
+
+#: ../install/rsrc/SyncWaiting.qml:39
+msgid "Loading. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:31
+msgid "Some options can only be executed if the synchronization is stopped"
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:50
+msgid "Run a OneDrive test:"
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:66
+msgid "Click to run an OneDrive test command"
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:70
+msgid "Executing test. Wait a moment..."
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:83
+msgid "Repair OneDrive:"
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:100
+msgid "Click to run an OneDrive client repair command"
+msgstr ""
+
+#: ../install/rsrc/Tools.qml:104
+msgid "Executing repair command. Wait a moment..."
+msgstr ""
