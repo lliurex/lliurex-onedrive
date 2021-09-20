@@ -96,8 +96,7 @@ class OnedriveManager:
 
 		copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
 		
-		self.manageSync(True)
-		time.sleep(3)
+		ret=self.manageSync(True)
 		return True
 
 	#def createAccount

@@ -60,8 +60,7 @@ class Bridge(QObject):
 
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
 		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
-		time.sleep(2)
-		
+		time.sleep(10)
 		self.currentStack=2	
 	
 	#def _loadAccount
