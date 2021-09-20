@@ -23,7 +23,7 @@ class Bridge(QObject):
 		self._userFolder=self.onedrive_man.userFolder
 		self._currentStack=1
 		self._closeGui=False
-		self._closePopUp=False
+		self._closePopUp=True
 		self._showSettingsDialog=False
 		self._isOnedriveRunning=False
 		self._accountStatus=1
@@ -202,6 +202,7 @@ class Bridge(QObject):
 	#def _setFreeSpace
 
 	def _getSettingsChanged(self):
+
 		return self._settingsChanged
 
 	#def _getSettingsChanged
@@ -474,7 +475,10 @@ class Bridge(QObject):
 			self.closeGui=False
 			self.showSettingsDialog=True
 		else:
-			self.closeGui=True
+			if self.closePopUp:
+				self.closeGui=True
+			else:
+				self.closeGui=False
 
 	#def closeOnedrive
 	
