@@ -316,8 +316,6 @@ class OnedriveManager:
 			if type(perror) is bytes:
 				perror=perror.decode()
 
-			print(poutput)
-			print(perror)
 			if len(perror)>0:
 				perror=perror.split('\n')
 				error=True
