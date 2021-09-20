@@ -25,7 +25,6 @@ class Bridge(QObject):
 		self._closeGui=False
 		self._closePopUp=False
 		self._showSettingsDialog=False
-		self._showUnlinkDialog=False
 		self._isOnedriveRunning=False
 		self._accountStatus=1
 		self._bandWidthNames=self.onedrive_man.bandWidthNames
@@ -33,6 +32,8 @@ class Bridge(QObject):
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
 		self.initBridge()
+
+	#def _init__
 
 	def initBridge(self):
 
@@ -84,22 +85,23 @@ class Bridge(QObject):
 	#def _getIsConfigured
 
 	def _getAutoStartEnabled(self):
+		
 		return self._autoStartEnabled
 
-	#def _getautoStartEnabled
+	#def _getAutoStartEnabled
 
 	def _setAutoStartEnabled(self,autoStartEnabled):
 
 		self._autoStartEnabled=autoStartEnabled
 		self.on_autoStartEnabled.emit()
 
-	#def _setautoStartEnabled
+	#def _setAutoStartEnabled
 
 	def _getRateLimit(self):
 
 		return self._rateLimit
 
-	#def __getRateLimit
+	#def _getRateLimit
 
 	def _setRateLimit(self,rateLimit):
 
@@ -112,7 +114,7 @@ class Bridge(QObject):
 		
 		return self._monitorInterval
 
-	#def __getRateLimit
+	#def _getMonitorInterval
 
 	def _setMonitorInterval(self,monitorInterval):
 
@@ -151,48 +153,54 @@ class Bridge(QObject):
 
 		return self._closeGui
 
-	#def _getClosePopUp	
+	#def _getCloseGui	
 
 	def _setCloseGui(self,closeGui):
 		
 		self._closeGui=closeGui
 		self.on_closeGui.emit()
 
-	#def _setClosePopUp					
+	#def _setCloseGui					
 
 	def _getIsOnedriveRunning(self):
 
 		return self._isOnedriveRunning
 
-	#def _getInitFinish	
+	#def _getIsOnedriveRunning	
 
 	def _setIsOnedriveRunning(self,isOnedriveRunning):
 		
 		self._isOnedriveRunning=isOnedriveRunning
 		self.on_isOnedriveRunning.emit()	
 
+	#def _setIsOnedriveRunning
+	
 	def _getAccountStatus(self):
 
 		return self._accountStatus
 
-	#def _getInitFinish	
+	#def _getAccountStatus	
 
 	def _setAccountStatus(self,accountStatus):
 		
 		self._accountStatus=accountStatus
 		self.on_accountStatus.emit()	
 
+	#def _setAccountStatus 
+
 	def _getFreeSpace(self):
 
 		return self._freeSpace
 
-	#def _getInitFinish	
+	#def _getFreeSpace	
 
 	def _setFreeSpace(self,freeSpace):
 		
 		self._freeSpace=freeSpace
 		self.on_freeSpace.emit()	
 	
+	#def _setFreeSpace
+
 	def _getSettingsChanged(self):
 		return self._settingsChanged
 
@@ -298,7 +306,7 @@ class Bridge(QObject):
 		else:
 			self.settingsChanged=False
 
-	#def manageSystemd
+	#def manageAutoStart
 	
 	@Slot(int)
 	def getMonitorInterval(self,value):
@@ -345,10 +353,9 @@ class Bridge(QObject):
 		self.initialConfig=copy.deepcopy(self.onedrive_man.currentConfig)
 		self.closePopUp=True
 		self.showSettingsMessage=[True,ret[1]]
+		self.showSettingsDialog=False
 
-		if ret[0]:
-			self.showSettingsDialog=False
-		else:
+		if not ret[0]:
 			self.closeGui=True
 			self.settingsChanged=False
 
@@ -402,8 +409,9 @@ class Bridge(QObject):
 	
 	@Slot()
 	def removeAccount(self):
-
-		self.showUnlinkDialog=True
+		self.onedrive_man.removeAccount()
+		self.showUnlinkDialog=False
+		self.currentStack=3	
 	
 	#def removeAccount
 
@@ -444,37 +452,20 @@ class Bridge(QObject):
 
 	#def _testOnedrive
 
-	@Slot('QVariantList')
-	def manageDialogResponse(self,dialogInfo):
+	@Slot(str)
+	def manageSettingsDialog(self,action):
 		
-		'''
-			DialogInfo[0]:Type of dialog
-				0: Settings
-				1: Remove Account
-			DialogInfo[1]: Buttons pressed:
-				0: Save changes and close
-				1: Discarg changes and close
-				2: Abort close
-		'''
-		if dialogInfo[0]==0: 
-			if dialogInfo[1]==0:
-				self.applyChanges()
-			elif dialogInfo[1]==1:
-				self.closeGui=True
-				self.settingsChanged=False
-			elif dialogInfo[1]==2:
-				self.closeGui=False
-				self.showSettingsDialog=False
+		if action=="Accept":
+			self.applyChanges()
+		elif action=="Discard":
+			self.closeGui=True
+			self.settingsChanged=False
+			self.showSettingsDialog=False
+		elif action=="Cancel":
+			self.closeGui=False
+			self.showSettingsDialog=False
 
-		elif dialogInfo[0]==1:
-			if dialogInfo[1]==0:
-				self.onedrive_man.removeAccount()
-				self.showUnlinkDialog=False
-				self.currentStack=3
-			elif dialogInfo[1]==2:
-				self.showUnlinkDialog=False
-	
-	#def manageDialogResponse
+	#def manageSettingsDialog
 
 	@Slot()
 	def closeOnedrive(self):

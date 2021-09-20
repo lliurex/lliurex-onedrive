@@ -1,8 +1,8 @@
 
 import QtQuick 2.6
 import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.3
-import QtQuick.Window 2.2
+import QtQuick.Layouts 1.15
+import QtQuick.Dialogs 1.3
 
 
 Rectangle{
@@ -203,27 +203,21 @@ Rectangle{
         
             hoverEnabled:true
             onClicked:{
-                onedriveBridge.removeAccount();
+                unlinkDialog.open();
             }
         }
     }
 
     Dialog {
         id: unlinkDialog
-        visible:onedriveBridge.showUnlinkDialog
-        modal:true
-        closePolicy:Dialog.NoAutoClose
-        anchors.centerIn: Overlay.overlay
-
+        modality:Qt.WindowModal
 
         contentItem: Rectangle {
-            color: "transparent"
-            implicitWidth: 500
-            implicitHeight: 55
+            color: "#ebeced"
+            implicitWidth: 550
+            implicitHeight: 105
             anchors.topMargin:5
             anchors.leftMargin:5
-
-
 
             Image{
                 id:dialogIcon
@@ -241,8 +235,6 @@ Rectangle{
                 anchors.leftMargin:10
             
             }
-           
-           
 
             DialogButtonBox {
                 buttonLayout:DialogButtonBox.KdeLayout
@@ -271,12 +263,13 @@ Rectangle{
                 }
 
                 onApplied:{
-                    onedriveBridge.manageDialogResponse([1,0])
+                    onedriveBridge.removeAccount()
+                    unlinkDialog.close()
                 
                 }
 
                 onRejected:{
-                    onedriveBridge.manageDialogResponse([1,2])
+                    unlinkDialog.close()
 
                 }
             }

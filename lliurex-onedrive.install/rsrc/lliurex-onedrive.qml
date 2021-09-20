@@ -1,9 +1,11 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.3
-import QtQuick.Window 2.2
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.6 as Kirigami
+import QtQuick 2.6
+import QtQuick.Controls 2.6
+import QtQuick.Layouts 1.15
+import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.3
+
 
 
 ApplicationWindow {
@@ -94,15 +96,12 @@ ApplicationWindow {
         Dialog {
             id: customDialog
             visible:onedriveBridge.showSettingsDialog
-            modal:true
-            closePolicy:Dialog.NoAutoClose
-            anchors.centerIn: Overlay.overlay
-
+            modality:Qt.WindowModal
 
             contentItem: Rectangle {
-                color: "transparent"
+                color: "#ebeced"
                 implicitWidth: 400
-                implicitHeight: 55
+                implicitHeight: 105
                 anchors.topMargin:5
                 anchors.leftMargin:5
 
@@ -163,17 +162,17 @@ ApplicationWindow {
                     }
 
                     onApplied:{
-                        onedriveBridge.manageDialogResponse([0,0])
+                        onedriveBridge.manageSettingsDialog("Accept")
                     
                     }
 
                     onDiscarded:{
-                        onedriveBridge.manageDialogResponse([0,1])
+                        onedriveBridge.manageSettingsDialog("Discard")
 
                     }
 
                     onRejected:{
-                        onedriveBridge.manageDialogResponse([0,2])
+                        onedriveBridge.manageSettingsDialog("Cancel")
 
                     }
                 }
