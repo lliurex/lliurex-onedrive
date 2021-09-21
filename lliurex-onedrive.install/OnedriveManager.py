@@ -289,18 +289,21 @@ class OnedriveManager:
 
 	def getAccountStatus(self):
 
-		'''
-			code:
-				 0: All synchronized
-				 1: With out config
-				 2: Pending changes
-				-401: Unauthorized
-				-2: Network connection
-				-3: Internal database error
-				-4: Downlodading files
-				-5: Resync must be executed
-				-416: Uploading pending changes
-		'''
+		MICROSOFT_API_ERROR="-1"
+		UNABLE_CONNECT_MICROSOFT_ERROR="-2"
+		LOCAL_FILE_SYSTEM_ERROR="-3"
+		ZERO_SPACE_AVAILABLE_ERROR="-4"
+		QUOTA_RESTRICTED_ERROR="-5"
+		DATABASE_ERROR="-6"
+		UNAUTHORIZED_ERROR="-7"
+		UPLOADING_CANCEL_ERROR="-8"
+		SERVICE_UNAVAILABLE="-9"
+
+		ALL_SYNCHRONIZE_MSG="0"
+		OUT_OF_SYNC_MSG="2"
+		WITH_OUT_CONFIG="1"
+
+
 		error=False
 		code=""
 		freespace="Unknow"
@@ -319,16 +322,27 @@ class OnedriveManager:
 				perror=perror.split('\n')
 				error=True
 				for item in perror:
-					if 'Unauthorized' in item:
-						code="-401"
-					elif 'Network Connection Issue' in item:
-						code="-2"
-					elif 'database error' in item:
-						code="-3"
+					if 'OneDrive API returned an error' in item:
+						code=MICROSOFT_API_ERROR
+					elif 'Cannot connect to' in item:
+						code=UNABLE_CONNECT_MICROSOFT_ERROR
+						break
+					elif 'local file system' in item:
+						code=LOCAL_FILE_SYSTEM_ERROR
+					elif 'zero space available' in item:
+						code=ZERO_SPACE_AVAILABLE_ERROR
+						break
+					elif 'quota information' in item:
+						code=QUOTA_RESTRICTED_ERROR
+					elif 'database' in item:
+						code=DATABASE_ERROR
+					elif 'Unauthorized' in item:
+						code=UNAUTHORIZED_ERROR
 					elif '416' in item:
-						code="-416"
-					elif '--resync is required' in item:
-						code="-5"	
+						code=UPLOADING_CANCEL_ERROR
+						break
+					elif '503' in item:
+						code=SERVICE_UNAVAILABLE
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
 						freespace=self._formatFreeSpace(tmp_freespace)
@@ -337,24 +351,18 @@ class OnedriveManager:
 				poutput=poutput.split('\n')
 				for item in poutput:
 					if 'No pending' in item:
-						code="0"
+						code=ALL_SYNCHRONIZE_MSG
 					elif 'out of sync' in item:
-						code="2"
-					elif '--resync is required' in item:
-						code="-5"	
+						code=OUT_OF_SYNC_MSG
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
 						freespace=self._formatFreeSpace(tmp_freespace)
 
-					'''
-					elif 'data to download' in item:
-						code="-4"
-					'''
-
 		else:
 			error=True
-			code="1"
+			code=WITH_OUT_CONFIG
 
+		print(code)
 		return [error,code,freespace]
 
 	#def getAccountStatus

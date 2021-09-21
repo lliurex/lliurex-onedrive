@@ -324,28 +324,44 @@ Rectangle{
 
     function getTextOption(){
 
+        var additionalText=i18nd("lliurex-onedrive","Wait a moment and update the status\nIf persist run a OneDrive test")
         switch (onedriveBridge.accountStatus) {
             case "0":
-                var sync=i18nd("lliurex-onedrive","All synchronized");
+                var sync=i18nd("lliurex-onedrive","All remote content synchronized");
                 break;
             case "2":
                 var sync=i18nd("lliurex-onedrive","Remote content pending syncing");
                 break;
-            case "-401":
-                var sync=i18nd("lliurex-onedrive","Error: The authorization to access your account has expired");
+            case "-1":
+                var sync=i18nd("lliurex-onedrive","Microsoft OneDrive API return an error\n")+additionalText;
                 break;
             case "-2":
-                var sync=i18nd("lliurex-onedrive","Error: No network connection detected");
+                var sync=i18nd("lliurex-onedrive","Unable to connect with Microsoft OneDrive\n")+additionalText;
                 break;
             case "-3":
-            case "-5":
-                var sync=i18nd("lliurex-onedrive","Error: OneDrive must be repair");
+                var sync=i18nd("lliurex-onedrive","Problems with local file system\n")+additionalText;
                 break;
-            case "-416":
+              
+            case "-4":
+                var sync=i18nd("lliurex-onedrive","Your free space is 0");
+                break;
+            case "-5":
+                var sync=i18nd("lliurex-onedrive","Information about yor quota information is restricted\nMaybe your free space is 0");
+                break;
+            case "-6":
+                var sync=i18nd("lliurex-onedrive","Problems with database\n")+additionalText;
+                break;
+            case "-7":
+                var sync=i18nd("lliurex-onedrive","The authorization to access your account has expired");
+                break;
+            case "-8":
                 var sync=i18nd("lliurex-onedrive","Uploading pending changes");
                 break;
+            case "-9":
+                var sync=i18nd("lliurex-onedrive","Microsoft OneDrive not available\n")+additionalText;
+                break;
             default:
-                var sync=i18nd("lliurex-onedrive","Unknown. Wait a moment and update the status");
+                var sync=i18nd("lliurex-onedrive","Unknown\n")+additionalText;
                 break;
         }
         return sync
