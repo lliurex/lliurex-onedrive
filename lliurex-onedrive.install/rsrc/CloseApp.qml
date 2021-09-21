@@ -21,9 +21,15 @@ Rectangle{
 
             Text{
                 id:closetext
-                text:i18nd("lliurex-onedrive", "You can close the application")
+                text:{
+                    if (onedriveBridge.infoStackType=="Configuration"){
+                        i18nd("lliurex-onedrive", "An error occurred during setup. Wait a moment and try again")
+                    }else{
+                         i18nd("lliurex-onedrive", "You can close the application")
+                    }
+                }
                 font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
+                font.pointSize: 11
                 Layout.alignment:Qt.AlignHCenter
             }
         }

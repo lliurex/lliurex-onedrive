@@ -17,6 +17,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.onedriveMan=OnedriveManager.OnedriveManager()
+		self._isConfigured=self.onedriveMan.isConfigured()
 		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(self.onedriveMan.monitorInterval)
 		self._rateLimit=int(self.onedriveMan.rateLimit)	
@@ -31,15 +32,14 @@ class Bridge(QObject):
 		self._freeSpace="Unknown"
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
+		self._infoStackType="Configuration"
+		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
 		self.initBridge()
 
 	#def _init__
 
 	def initBridge(self):
 
-		self._isConfigured=self.onedriveMan.isConfigured()
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
-		
 		if self._isConfigured:
 			self.currentStack=1
 			t = threading.Thread(target=self._loadAccount)
@@ -60,7 +60,8 @@ class Bridge(QObject):
 
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
 		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
-		time.sleep(10)
+		time.sleep(5)
+		
 		self.currentStack=2	
 	
 	#def _loadAccount
@@ -252,6 +253,19 @@ class Bridge(QObject):
 
 	#def _setShowUnlinkDialog
 
+	def _getInfoStackType(self):
+
+		return self._infoStackType
+
+	#def _getInfoStackType
+
+	def _setInfoStackType(self,infoStackType):
+
+		self._infoStackType=infoStackType
+		self.on_infoStackType.emit()
+
+	#def _setInfoStackType
+
 	@Slot(str)
 	def createAccount(self,token):
 
@@ -266,12 +280,16 @@ class Bridge(QObject):
 	def _createAccount(self):
 
 		ret=self.onedriveMan.createAccount()
-		time.sleep(3)
-		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-		ret1=self.onedriveMan.getAccountStatus()
-		self.accountStatus=ret1[1]
-		self.freeSpace=ret1[2]
-		self.currentStack=2
+		
+		if ret:
+			time.sleep(5)
+			self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+			ret1=self.onedriveMan.getAccountStatus()
+			self.accountStatus=ret1[1]
+			self.freeSpace=ret1[2]
+			self.currentStack=2
+		else:
+			self.currentStack=3
 
 	#def _createAccount
 	
@@ -410,7 +428,8 @@ class Bridge(QObject):
 	def removeAccount(self):
 		self.onedriveMan.removeAccount()
 		self.showUnlinkDialog=False
-		self.currentStack=3	
+		self.currentStack=3
+		self.infoStackType="Unlink"	
 	
 	#def removeAccount
 
@@ -521,6 +540,9 @@ class Bridge(QObject):
 
 	on_showUnlinkDialog=Signal()
 	showUnlinkDialog=Property(bool,_getShowUnlinkDialog,_setShowUnlinkDialog,notify=on_showUnlinkDialog)
+
+	on_infoStackType=Signal()
+	infoStackType=Property(str,_getInfoStackType,_setInfoStackType,notify=on_infoStackType)
 
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 

@@ -92,12 +92,14 @@ class OnedriveManager:
 
 		cmd="/usr/bin/onedrive --auth-files %s:%s"%(urlDoc,tokenDoc)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		ret=p.communicate()
-
-		copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
-		
-		ret=self.manageSync(True)
-		return True
+		poutput=p.communicate()
+		rc=p.returncode
+		if rc in [0,1]:
+			copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			ret=self.manageSync(True)
+			return True
+		else:
+			return False
 
 	#def createAccount
 
