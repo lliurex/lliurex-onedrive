@@ -517,6 +517,27 @@ class Bridge(QObject):
 	#def manageSettingsDialog
 
 	@Slot()
+	def openHelp(self):
+		lang=os.environ["LANG"]
+
+		if 'valencia' in lang:
+			self.help_cmd='xdg-open https://wiki.edu.gva.es/lliurex/tiki-index.php?page=Lliurex-Onedrive.'
+		else:
+			self.help_cmd='xdg-open https://wiki.edu.gva.es/lliurex/tiki-index.php?page=Lliurex-Onedrive'
+		
+		self.open_help_t=threading.Thread(target=self._openHelp)
+		self.open_help_t.daemon=True
+		self.open_help_t.start()
+
+	#def openHelp
+
+	def _openHelp(self):
+
+		os.system(self.help_cmd)
+
+	#def _openHelp
+	
+	@Slot()
 	def closeOnedrive(self):
 
 		if self.settingsChanged:
