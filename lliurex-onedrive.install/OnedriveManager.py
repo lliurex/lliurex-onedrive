@@ -180,24 +180,17 @@ class OnedriveManager:
 			else:
 				return False
 		else:
-			if isOnedriveRunning and remove:
-				cmd="systemctl --user stop onedrive.service"
-				p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-				poutput=p.communicate()
-				rc=p.returncode
-			
-				if rc !=0:
-					return True
-			
+			if not remove:
+				cmd="systemctl --user mask onedrive.service"
 			else:
-				if not remove:
-					cmd="systemctl --user mask onedrive.service"
-					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-					poutput=p.communicate()
-					rc=p.returncode
-						
-					if rc !=0:
-						return True				
+				cmd="systemctl --user unmask onedrive.service"
+
+			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+			poutput=p.communicate()
+			rc=p.returncode
+			
+			if rc !=0:
+				return True				
 
 		return False
 
@@ -283,9 +276,14 @@ class OnedriveManager:
 
 	def removeAccount(self):
 
-		ret=self.manageAutostart(False,True)
-		cmd="onedrive --logout &"
-		p=subprocess.run(cmd,shell=True,check=True)
+		ret=self.manageSync(False)
+		if not self.isOnedriveRunning():
+			ret=self.manageAutostart(False,True)
+			cmd="/usr/bin/onedrive --logout &"
+			p=subprocess.run(cmd,shell=True,check=True)
+			return True
+		else:
+			return False
 	
 	#def removeAccount
 

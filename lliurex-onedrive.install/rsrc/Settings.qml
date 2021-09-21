@@ -47,6 +47,7 @@ Rectangle{
             flow: GridLayout.LeftToRight
             columnSpacing:10
             Layout.topMargin: settingsMessageLabel.visible?0:50
+            Layout.alignment:Qt.AlignHCenter
 
             Text{
                 id:autoStartText

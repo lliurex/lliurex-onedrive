@@ -1,4 +1,5 @@
-
+import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.kirigami 2.6 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.15
@@ -13,203 +14,226 @@ Rectangle{
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
-
     GridLayout{
-        id: optionsAccount
-        columns: 2
-        flow: GridLayout.LeftToRight
-        columnSpacing:10
+        id:generalOptionsLayout
+        rows:2
+        flow: GridLayout.TopToBottom
+        rowSpacing:10
+        Layout.fillWidth: true
         anchors.horizontalCenter:parent.horizontalCenter
 
-        Text{
-            id:syncFolderText
-            Layout.topMargin:50
-            Layout.bottomMargin:10
-            Layout.alignment:Qt.AlignRight
-            text:i18nd("lliurex-onedrive","OneDrive Folder:")
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-        }
-
-        Row {
-            id:folderRow
-            spacing:5
-            Layout.topMargin:50
-            Layout.alignment:Qt.AlignLeft
-            Layout.bottomMargin:10
-
-            Text{
-                id:syncFolderPath
-                text:onedriveBridge.userFolder
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.verticalCenter:openFolderBtn.verticalCenter
-            }
-
-            Button {
-                id:openFolderBtn
-                display:AbstractButton.IconOnly
-                icon.name:"document-open-folder.svg"
-                Layout.preferredHeight: 35
-                ToolTip.delay: 1000
-                ToolTip.timeout: 3000
-                ToolTip.visible: hovered
-                ToolTip.text:i18nd("lliurex-onedrive","Click to open OneDrive Folder")
-
-                hoverEnabled:true
-                onClicked:{
-                    onedriveBridge.openFolder()
+        Kirigami.InlineMessage {
+            id: accountMessageLabel
+            visible:onedriveBridge.showAccountMessage[0]
+            text:{
+                if (onedriveBridge.showAccountMessage[1]==-1){
+                    i18nd("lliurex-onedrive","Unable to start synchronization")
+                }else{
+                    i18nd("lliurex-onedrive","Unable to stop synchronization")
                 }
             }
+            type:Kirigami.MessageType.Error;
+            Layout.minimumWidth:650
+            Layout.maximumWidth:650
+            Layout.topMargin: 40
         }
 
-        Text{
-            id:freeSpaceText
-            text:i18nd("lliurex-onedrive","Free Space:")
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            Layout.alignment:Qt.AlignRight
-            Layout.bottomMargin:10
-        }
-
-        Text{
-            id:freeSpaceValue
-            text:onedriveBridge.freeSpace
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            Layout.alignment:Qt.AlignLeft
-            Layout.bottomMargin:10
-        }
-
-        Text{
-            id:clientStatusText
-            text:i18nd("lliurex-onedrive","Synchronization:")
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            Layout.alignment:Qt.AlignRight
-            Layout.bottomMargin:10
-        }
-
-        Row{
-            id:clientRow
-            spacing:5
-            Layout.alignment:Qt.AlignLeft
-            Layout.bottomMargin:10
+        GridLayout{
+            id: optionsAccount
+            columns: 2
+            flow: GridLayout.LeftToRight
+            columnSpacing:10
+            Layout.alignment:Qt.AlignHCenter
+            Layout.topMargin: accountMessageLabel.visible?0:50
 
             Text{
-                id:clientStatusValue
-                text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Running"):i18nd("lliurex-onedrive","Stopped")
+                id:syncFolderText
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignRight
+                text:i18nd("lliurex-onedrive","OneDrive Folder:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                anchors.verticalCenter:startMonitorBtn.verticalCenter
             }
 
-            Button {
-                id:startMonitorBtn
-                display:AbstractButton.IconOnly
-                icon.name:!onedriveBridge.isOnedriveRunning?"kt-start.svg":"kt-stop.svg"
-                Layout.preferredHeight: 35
-                ToolTip.delay: 1000
-                ToolTip.timeout: 3000
-                ToolTip.visible: hovered
-                ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with OneDrive"):i18nd("lliurex-onedrive","Click to start syncing with OneDrive")
-                hoverEnabled:true
-                onClicked:{
-                    accountPopup.open()
-                    accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            accountPopup.close(),
-                            timer.stop();
-                        }
-                    })
-            
-                    onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
-                }
-            }
-        }
-
-        Row{
-            id:syncTextRow
-            Layout.alignment:Qt.AlignRight|Qt.AlignVCenter
-            Layout.bottomMargin:10
-
-            Text{
-                id:syncStatusText
-                text:i18nd("lliurex-onedrive","Status:")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.verticalCenter:parent.verticalCenter
-            }
-        }
-
-        Row{
-            id:syncRow
-            spacing:5
-            Layout.alignment:Qt.AlignLeft
-            Layout.bottomMargin:10
-
-            Text{
-                id:syncStatusValue
-                text:getTextOption()
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.verticalCenter:parent.verticalCenter
-            }
-
-            Button {
-                id:syncNowBtn
-                display:AbstractButton.IconOnly
-                icon.name:"view-refresh.svg"
-                Layout.preferredHeight: 35
+            Row {
+                id:folderRow
+                spacing:5
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                anchors.verticalCenter:parent.verticalCenter
-                hoverEnabled:true
+
+                Text{
+                    id:syncFolderPath
+                    text:onedriveBridge.userFolder
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    anchors.verticalCenter:openFolderBtn.verticalCenter
+                }
+
+                Button {
+                    id:openFolderBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:"document-open-folder.svg"
+                    Layout.preferredHeight: 35
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to open OneDrive Folder")
+
+                    hoverEnabled:true
+                    onClicked:{
+                        onedriveBridge.openFolder()
+                    }
+                }
+            }
+
+            Text{
+                id:freeSpaceText
+                text:i18nd("lliurex-onedrive","Free Space:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignRight
+                Layout.bottomMargin:10
+            }
+
+            Text{
+                id:freeSpaceValue
+                text:onedriveBridge.freeSpace
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+            }
+
+            Text{
+                id:clientStatusText
+                text:i18nd("lliurex-onedrive","Synchronization:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignRight
+                Layout.bottomMargin:10
+            }
+
+            Row{
+                id:clientRow
+                spacing:5
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+
+                Text{
+                    id:clientStatusValue
+                    text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Running"):i18nd("lliurex-onedrive","Stopped")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    anchors.verticalCenter:startMonitorBtn.verticalCenter
+                }
+
+                Button {
+                    id:startMonitorBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:!onedriveBridge.isOnedriveRunning?"kt-start.svg":"kt-stop.svg"
+                    Layout.preferredHeight: 35
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with OneDrive"):i18nd("lliurex-onedrive","Click to start syncing with OneDrive")
+                    hoverEnabled:true
+                    onClicked:{
+                        accountPopup.open()
+                        accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
+                        delay(1000, function() {
+                            if (onedriveBridge.closePopUp){
+                                accountPopup.close(),
+                                timer.stop();
+                            }
+                        })
+                
+                        onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
+                    }
+                }
+            }
+
+            Row{
+                id:syncTextRow
+                Layout.alignment:Qt.AlignRight|Qt.AlignVCenter
+                Layout.bottomMargin:10
+
+                Text{
+                    id:syncStatusText
+                    text:i18nd("lliurex-onedrive","Status:")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    anchors.verticalCenter:parent.verticalCenter
+                }
+            }
+
+            Row{
+                id:syncRow
+                spacing:5
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+
+                Text{
+                    id:syncStatusValue
+                    text:getTextOption()
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    anchors.verticalCenter:parent.verticalCenter
+                }
+
+                Button {
+                    id:syncNowBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:"view-refresh.svg"
+                    Layout.preferredHeight: 35
+                    Layout.alignment:Qt.AlignLeft
+                    Layout.bottomMargin:10
+                    anchors.verticalCenter:parent.verticalCenter
+                    hoverEnabled:true
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:{
+                        i18nd("lliurex-onedrive","Click to update status information")
+                  }    
+                    onClicked:{
+                        accountPopup.open()
+                        accountPopup.popupMessage=i18nd("lliurex-onedrive", "Checking status. Wait a moment...")
+                        delay(1000, function() {
+                            if (onedriveBridge.closePopUp){
+                                accountPopup.close(),
+                                timer.stop();
+                            }
+                        })
+
+                        onedriveBridge.checkAccountStatus()
+                        
+                    }
+                }
+            } 
+
+            Text{
+                id:unlinkAccountText
+                text:i18nd("lliurex-onedrive","Unlink from OneDrive account:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignRight
+            }
+
+            Button {
+                id:deleteAccountBtn
+                display:AbstractButton.IconOnly
+                icon.name:"delete.svg"
+                Layout.preferredHeight: 35
+                Layout.alignment:Qt.AlignLeft
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
-                ToolTip.text:{
-                    i18nd("lliurex-onedrive","Click to update status information")
-              }    
+                ToolTip.text:i18nd("lliurex-onedrive","Click to unlink from OneDrive account")
+            
+                hoverEnabled:true
                 onClicked:{
-                    accountPopup.open()
-                    accountPopup.popupMessage=i18nd("lliurex-onedrive", "Checking status. Wait a moment...")
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            accountPopup.close(),
-                            timer.stop();
-                        }
-                    })
-
-                    onedriveBridge.checkAccountStatus()
-                    
+                    unlinkDialog.open();
                 }
-            }
-        } 
-
-        Text{
-            id:unlinkAccountText
-            text:i18nd("lliurex-onedrive","Unlink from OneDrive account:")
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            Layout.alignment:Qt.AlignRight
-        }
-
-        Button {
-            id:deleteAccountBtn
-            display:AbstractButton.IconOnly
-            icon.name:"delete.svg"
-            Layout.preferredHeight: 35
-            Layout.alignment:Qt.AlignLeft
-            ToolTip.delay: 1000
-            ToolTip.timeout: 3000
-            ToolTip.visible: hovered
-            ToolTip.text:i18nd("lliurex-onedrive","Click to unlink from OneDrive account")
-        
-            hoverEnabled:true
-            onClicked:{
-                unlinkDialog.open();
             }
         }
     }

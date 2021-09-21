@@ -9,8 +9,10 @@ import copy
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-class Bridge(QObject):
+START_SYNCHRONIZATION_ERROR=-1
+STOP_SYNCHRONIZATION_ERROR=-2
 
+class Bridge(QObject):
 
 	def __init__(self,ticket=None):
 
@@ -32,6 +34,7 @@ class Bridge(QObject):
 		self._freeSpace="Unknown"
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
+		self._showAccountMessage=[False,""]
 		self._infoStackType="Configuration"
 		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
 		self.initBridge()
@@ -266,6 +269,19 @@ class Bridge(QObject):
 
 	#def _setInfoStackType
 
+	def _getShowAccountMessage(self):
+
+		return self._showAccountMessage
+
+	#def _getShowAccountMessage
+
+	def _setShowAccountMessage(self,showAccountMessage):
+
+		self._showAccountMessage=showAccountMessage
+		self.on_showAccountMessage.emit()
+
+	#def _setShowAccountMessage
+
 	@Slot(str)
 	def createAccount(self,token):
 
@@ -284,9 +300,12 @@ class Bridge(QObject):
 		if ret:
 			time.sleep(5)
 			self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-			ret1=self.onedriveMan.getAccountStatus()
-			self.accountStatus=ret1[1]
-			self.freeSpace=ret1[2]
+			if not self.isOnedriveRunning:
+				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+			else:
+				ret1=self.onedriveMan.getAccountStatus()
+				self.accountStatus=ret1[1]
+				self.freeSpace=ret1[2]
 			self.currentStack=2
 		else:
 			self.currentStack=3
@@ -398,8 +417,17 @@ class Bridge(QObject):
 
 	def _manageSync(self,value):
 
+		isRunningBefore=self.onedriveMan.isOnedriveRunning()
 		ret=self.onedriveMan.manageSync(value)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+		if isRunningBefore==self.isOnedriveRunning:
+			if isRunningBefore:
+				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]
+			else:
+				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+		else:
+			self.showAccountMessage=[False,""]
+
 		self.closePopUp=True
 	
 	#def _manageSync
@@ -426,10 +454,13 @@ class Bridge(QObject):
 	
 	@Slot()
 	def removeAccount(self):
-		self.onedriveMan.removeAccount()
+		ret=self.onedriveMan.removeAccount()
 		self.showUnlinkDialog=False
-		self.currentStack=3
-		self.infoStackType="Unlink"	
+		if ret:
+			self.currentStack=3
+			self.infoStackType="Unlink"
+		else:
+			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]	
 	
 	#def removeAccount
 
@@ -543,6 +574,9 @@ class Bridge(QObject):
 
 	on_infoStackType=Signal()
 	infoStackType=Property(str,_getInfoStackType,_setInfoStackType,notify=on_infoStackType)
+
+	on_showAccountMessage=Signal()
+	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
 
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 
