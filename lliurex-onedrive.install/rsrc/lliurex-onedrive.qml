@@ -96,6 +96,7 @@ ApplicationWindow {
         Dialog {
             id: customDialog
             visible:onedriveBridge.showSettingsDialog
+            title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
             modality:Qt.WindowModal
 
             contentItem: Rectangle {

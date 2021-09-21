@@ -129,13 +129,18 @@ Rectangle{
             }
         }
 
-        Text{
-            id:syncStatusText
-            text:i18nd("lliurex-onedrive","Status:")
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            Layout.alignment:Qt.AlignRight
+        Row{
+            id:syncTextRow
+            Layout.alignment:Qt.AlignRight|Qt.AlignVCenter
             Layout.bottomMargin:10
+
+            Text{
+                id:syncStatusText
+                text:i18nd("lliurex-onedrive","Status:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                anchors.verticalCenter:parent.verticalCenter
+            }
         }
 
         Row{
@@ -149,7 +154,7 @@ Rectangle{
                 text:getTextOption()
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                anchors.verticalCenter:syncNowBtn.verticalCenter
+                anchors.verticalCenter:parent.verticalCenter
             }
 
             Button {
@@ -159,6 +164,7 @@ Rectangle{
                 Layout.preferredHeight: 35
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
+                anchors.verticalCenter:parent.verticalCenter
                 hoverEnabled:true
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
@@ -211,6 +217,7 @@ Rectangle{
     Dialog {
         id: unlinkDialog
         modality:Qt.WindowModal
+        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
 
         contentItem: Rectangle {
             color: "#ebeced"
