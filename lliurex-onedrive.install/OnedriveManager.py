@@ -362,7 +362,6 @@ class OnedriveManager:
 			error=True
 			code=WITH_OUT_CONFIG
 
-		print(code)
 		return [error,code,freespace]
 
 	#def getAccountStatus
