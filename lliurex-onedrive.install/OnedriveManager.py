@@ -35,16 +35,15 @@ class OnedriveManager:
 
 	def loadConfg(self):
 
-		if self.is_configured():
+		if self.isConfigured():
 			self.readConfigFile()
 			if not self.isAutoStartEnabled():
 				self.autoStartEnabled=False
 				self.currentConfig[0]=False
 		
-
 	#def loadConfg
 	
-	def is_configured(self):
+	def isConfigured(self):
 
 		token=os.path.join(self.internalOnedriveFolder,"refresh_token")
 
@@ -53,7 +52,7 @@ class OnedriveManager:
 		else:
 			return False
 
-	#def is_configured
+	#def isConfigured
 
 	def readConfigFile(self):
 
@@ -97,8 +96,7 @@ class OnedriveManager:
 
 		copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
 		
-		self.manageSync(True)
-		time.sleep(3)
+		ret=self.manageSync(True)
 		return True
 
 	#def createAccount
@@ -246,20 +244,40 @@ class OnedriveManager:
 	def manageSync(self,value):
 
 		if value:
-			cmd="systemctl --user start onedrive.service"
+			if not os.path.exists(self.systemdFile):
+				cmd="systemctl --user start onedrive.service"
+			else:
+				cmd="/usr/bin/onedrive --monitor &"
 		else:
-			cmd="systemctl --user stop onedrive.service"
+			if self._isSystemdActive():
+				cmd="systemctl --user stop onedrive.service"
+			else:
+				cmd="ps -ef | grep '/usr/bin/onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
 		
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		poutput=p.communicate()
-		rc=p.returncode
-		
-		if rc !=0:
+		try:
+			p=subprocess.run(cmd,shell=True,check=True)
+			return True
+		except subprocess.CalledProcessError as e:
 			return False
 
-		return True				
-	
 	#def manageSync
+
+	def _isSystemdActive(self):
+
+		cmd="systemctl --user is-active onedrive.service"
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()[0]
+		
+		if type(poutput) is bytes:
+			poutput=poutput.decode()		
+		poutput=poutput.split('\n')[0]
+
+		if poutput=="active":
+			return True
+		else:
+			return False
+
+	#def _isSystemdActive
 
 	def removeAccount(self):
 
@@ -286,7 +304,7 @@ class OnedriveManager:
 		error=False
 		code=""
 		freespace="Unknow"
-		if self.is_configured():
+		if self.isConfigured():
 			cmd="/usr/bin/onedrive --display-sync-status --verbose"
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			poutput,perror=p.communicate()
@@ -327,7 +345,6 @@ class OnedriveManager:
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
 						freespace=self._formatFreeSpace(tmp_freespace)
-					
 
 					'''
 					elif 'data to download' in item:
