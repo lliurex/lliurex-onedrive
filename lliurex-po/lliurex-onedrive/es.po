@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-09-21 15:35+0200\n"
-"PO-Revision-Date: 2021-09-21 15:36+0200\n"
+"PO-Revision-Date: 2021-09-24 16:48+0200\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -63,7 +63,7 @@ msgstr "No es posible detener la sincronización"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:53
 msgid "OneDrive Folder:"
-msgstr "Carpeta Onedrive:"
+msgstr "Carpeta OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:80
 msgid "Click to open OneDrive Folder"
@@ -141,7 +141,7 @@ msgid ""
 "If persist run a OneDrive test"
 msgstr ""
 "Espere un momento y actualice el estado\n"
-"Si persiste ejecute el test de Onedrive"
+"Si persiste ejecute el test de OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:330
 msgid "All remote content synchronized"
@@ -285,6 +285,4 @@ msgstr "Haga clic para ejecutar el comando de repación de OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:103
 msgid "Executing repair command. Wait a moment..."
-msgstr ""
-"Ejecutando el comando de repación del cliente de OneDrive. Espere un "
-"momento..."
+msgstr "Reparando  OneDrive. Espere un momento..."

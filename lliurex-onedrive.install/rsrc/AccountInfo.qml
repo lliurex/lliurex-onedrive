@@ -57,7 +57,7 @@ Rectangle{
 
             Row {
                 id:folderRow
-                spacing:5
+                spacing:10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
 
@@ -115,7 +115,7 @@ Rectangle{
 
             Row{
                 id:clientRow
-                spacing:5
+                spacing:10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
 
@@ -168,7 +168,7 @@ Rectangle{
 
             Row{
                 id:syncRow
-                spacing:5
+                spacing:10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
 
