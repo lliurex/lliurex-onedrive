@@ -1,0 +1,8 @@
+
+{
+	"type":"apt",
+	"pkg_list": [{"name":"lliurex-onedrive","key_store":"zero-lliurex-onedrive","custom_name":"Lliurex Onedrive: a client for MS OneDrive","custom_icon":"lliurex-onedrive.png"}],
+	"custom_icon_path":"/usr/share/zero-lliurex-onedrive/",
+	"script": {"name":"/usr/share/zero-lliurex-onedrive/lliurex-onedrive_script","remove":true},
+	"zomando":"zero-lliurex-onedrive"
+}

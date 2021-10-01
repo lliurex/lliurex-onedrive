@@ -1,0 +1,6 @@
+#!/bin/bash
+
+epi-gtk /usr/share/zero-lliurex-onedrive/lliurex-onedrive.epi
+
+exit 0
+
