@@ -31,7 +31,7 @@ class Bridge(QObject):
 		self._isOnedriveRunning=False
 		self._accountStatus=1
 		self._bandWidthNames=self.onedriveMan.bandWidthNames
-		self._freeSpace="Unknown"
+		self._freeSpace=""
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
 		self._showAccountMessage=[False,""]
