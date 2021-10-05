@@ -16,7 +16,7 @@ GridLayout{
 
         GridLayout{
             id: menuGrid
-            rows:4 
+            rows:5 
             flow: GridLayout.TopToBottom
             rowSpacing:0
 
@@ -33,12 +33,23 @@ GridLayout{
             }
 
             MenuOptionBtn {
+                id:synchronizeItem
+                optionText:i18nd("lliurex-onedrive","Synchronize")
+                optionIcon:"/usr/share/icons/breeze/actions/16/view-refresh.svg"
+                Connections{
+                    function onMenuOptionClicked(){
+                        optionsLayout.currentIndex=1;
+                        onedriveBridge.hideSettingsMessage()
+                    }
+                }
+            }
+            MenuOptionBtn {
                 id:settingsItem
                 optionText:i18nd("lliurex-onedrive","Settings")
                 optionIcon:"/usr/share/icons/breeze/actions/16/configure.svg"
                 Connections{
                     function onMenuOptionClicked(){
-                        optionsLayout.currentIndex=1;
+                        optionsLayout.currentIndex=2;
                         onedriveBridge.hideSettingsMessage()
                     }
                 }
@@ -50,7 +61,7 @@ GridLayout{
                 optionIcon:"/usr/share/icons/breeze/actions/16/tools.svg"
                 Connections{
                     function onMenuOptionClicked(){
-                        optionsLayout.currentIndex=2;
+                        optionsLayout.currentIndex=3;
                         onedriveBridge.hideSettingsMessage()
                     }
                 }
@@ -78,6 +89,10 @@ GridLayout{
 
         AccountInfo{
             id:accountInfo
+        }
+
+        Synchronize{
+            id:synchronize
         }
 
         Settings{

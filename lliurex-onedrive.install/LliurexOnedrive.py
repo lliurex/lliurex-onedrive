@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 import copy
+import Model
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -19,6 +20,8 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.onedriveMan=OnedriveManager.OnedriveManager()
+		self.entries=[{ "name": "Onedrive","isChecked":False, "isExpanded": False,"type":"parent","subtype":"root","hide":False,"level":1}]
+		self._model=Model.MyModel(self.entries)
 		self._isConfigured=self.onedriveMan.isConfigured()
 		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(self.onedriveMan.monitorInterval)
@@ -282,6 +285,11 @@ class Bridge(QObject):
 
 	#def _setShowAccountMessage
 
+	def _getModel(self):
+		return self._model
+
+	#def _getModel
+
 	@Slot(str)
 	def createAccount(self,token):
 
@@ -536,7 +544,52 @@ class Bridge(QObject):
 		os.system(self.help_cmd)
 
 	#def _openHelp
+
+	@Slot()
+	def updateFolderStruct(self):
+
+		self.closePopUp=False
+		t = threading.Thread(target=self._updateFolderStruct)
+		t.daemon=True
+		t.start()
+
+	#def updateFolderStruct
+
+	def _updateFolderStruct(self):
+
+		ret=self._model.resetModel()
+		entries=self.onedriveMan.folderStruct()
+		
+		for item in entries:
+			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"])
+		
+		time.sleep(5)
+		self.closePopUp=True
+
+	#def _uptadeFolderStruct
+
+	@Slot('QVariantList')
+	def folderChecked(self,info):
+		print('Elemento seleccionado: '+info[0]+" Estado: "+str(info[1]))
+
+	#def folderChecked
+
+	@Slot(int,result='QVariant')
+	def getModelData(self,index):
+		return self.entries[index]
+
+	#def getModelData
+
+	@Slot('QVariantList')
+	def updateModel(self,info):
+		index = self._model.index(info[0])
+		self._model.setData(index,info[1],info[2])
 	
+	#def updateModel
+	'''
+	def resetModel(self):
+		self._model.resetModel()
+	'''
 	@Slot()
 	def closeOnedrive(self):
 
@@ -600,6 +653,7 @@ class Bridge(QObject):
 	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
 
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
+	model=Property(QObject,_getModel,constant=True)
 
 #class Bridge
 

@@ -429,4 +429,61 @@ class OnedriveManager:
 
 	#def testOnedrive
 
+	def folderStruct(self):
+
+		cmd='onedrive --synchronize --dry-run --verbose'
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		out=p.communicate()[0]
+		out=out.decode().split("\n")
+
+		for i in range(len(out)-1,-1,-1):
+			if 'Processing ' in out[i]:
+				pass
+			else:
+				if 'The directory' in out[i]:
+					pass
+				else:
+					if 'The file' in out[i]:
+						pass
+					else:
+						out.pop(i)				
+
+		for i in range(len(out)-1,-1,-1):
+			if 'local state' in out[i]:
+				out.pop(i)
+			if 'last modified time' in out[i]:
+				out.pop(i)	
+
+		FolderEstruct=[]
+		for i in range(0,len(out)-1,2):
+			tmp={}
+			tmp_item=out[i]+": "+out[i+1]
+			if 'The directory' in tmp_item:
+				tmp_list={}
+				tmp_entry=out[i].split("Processing")[1].strip()
+				tmp_list["path"]=tmp_entry
+				tmp_entry=tmp_entry.split("/")
+				tmp_list["isChecked"]=False
+				tmp_list["isExpanded"]=False
+				tmp_list["hide"]=True
+				if len(tmp_entry)==1:
+					tmp_list["name"]=tmp_entry[0]
+					tmp_list["type"]="Onedrive"
+					tmp_list["subtype"]="parent"
+					tmp_list["level"]=3
+
+				else:
+					tmp_list["name"]=tmp_entry[-1]
+					tmp_list["type"]=tmp_entry[-2]
+					tmp_list["subtype"]="parent"
+					tmp_list["level"]=len(tmp_entry)*3
+				FolderEstruct.append(tmp_list)	
+		try:
+			FolderEstruct.pop(0)
+		except Exception as e:
+			pass
+		return FolderEstruct
+
+	#def folderStruct 
+		
 #class OnedriveManager
