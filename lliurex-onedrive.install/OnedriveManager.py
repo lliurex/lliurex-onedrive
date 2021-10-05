@@ -306,7 +306,7 @@ class OnedriveManager:
 
 		error=False
 		code=""
-		freespace="Unknow"
+		freespace=""
 		if self.isConfigured():
 			cmd="/usr/bin/onedrive --display-sync-status --verbose"
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
