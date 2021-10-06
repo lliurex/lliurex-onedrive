@@ -454,11 +454,12 @@ class OnedriveManager:
 			if 'last modified time' in out[i]:
 				out.pop(i)	
 
-		FolderEstruct=[]
+		FolderStruct=[]
 		for i in range(0,len(out)-1,2):
 			tmp={}
 			tmp_item=out[i]+": "+out[i+1]
 			if 'The directory' in tmp_item:
+				countChildren=0
 				tmp_list={}
 				tmp_entry=out[i].split("Processing")[1].strip()
 				tmp_list["path"]=tmp_entry
@@ -477,12 +478,24 @@ class OnedriveManager:
 					tmp_list["type"]=tmp_entry[-2]
 					tmp_list["subtype"]="parent"
 					tmp_list["level"]=len(tmp_entry)*3
-				FolderEstruct.append(tmp_list)	
+
+				for j in range(0,len(out)-1,2):
+					tmp_item2=out[j]+": "+out[j+1]
+					if 'The directory' in tmp_item2:
+						tmp_entry2=out[j].split("Processing")[1].strip()
+						if tmp_list["path"] in tmp_entry2:
+							countChildren+=1
+
+				if countChildren>1:
+					tmp_list["canExpanded"]=True 
+				else:
+					tmp_list["canExpanded"]=False
+				FolderStruct.append(tmp_list)	
 		try:
-			FolderEstruct.pop(0)
+			FolderStruct.pop(0)
 		except Exception as e:
 			pass
-		return FolderEstruct
+		return FolderStruct
 
 	#def folderStruct 
 		

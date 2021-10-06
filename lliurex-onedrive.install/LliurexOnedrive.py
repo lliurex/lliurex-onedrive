@@ -20,7 +20,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.onedriveMan=OnedriveManager.OnedriveManager()
-		self.entries=[{ "name": "Onedrive","isChecked":False, "isExpanded": False,"type":"parent","subtype":"root","hide":False,"level":1}]
+		self.entries=[{ "name": "Onedrive","isChecked":False, "isExpanded": False,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
 		self._model=Model.MyModel(self.entries)
 		self._isConfigured=self.onedriveMan.isConfigured()
 		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
@@ -558,10 +558,12 @@ class Bridge(QObject):
 	def _updateFolderStruct(self):
 
 		ret=self._model.resetModel()
+		self._model=Model.MyModel(self.entries)
+
 		entries=self.onedriveMan.folderStruct()
 		
 		for item in entries:
-			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"])
+			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 		
 		time.sleep(5)
 		self.closePopUp=True
@@ -570,6 +572,7 @@ class Bridge(QObject):
 
 	@Slot('QVariantList')
 	def folderChecked(self,info):
+
 		print('Elemento seleccionado: '+info[0]+" Estado: "+str(info[1]))
 
 	#def folderChecked
@@ -586,10 +589,7 @@ class Bridge(QObject):
 		self._model.setData(index,info[1],info[2])
 	
 	#def updateModel
-	'''
-	def resetModel(self):
-		self._model.resetModel()
-	'''
+
 	@Slot()
 	def closeOnedrive(self):
 

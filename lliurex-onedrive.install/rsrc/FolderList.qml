@@ -4,6 +4,7 @@ import QtQml.Models 2.6
 
 Rectangle {
     property alias structVisible:folderTable.visible
+    property alias structModel:listFolder.model
 
     id:folderTable
     visible: structVisible
@@ -72,14 +73,7 @@ Rectangle {
                         "/usr/share/icons/breeze/actions/22/go-next.svg"
                     }
                 }
-                visible:{
-                    if ((type==="parent")||(subtype==="parent")){
-                        true
-                    }else{
-                        false
-                    }
-
-                }
+                visible:canExpanded
                 anchors.left:parent.left
                 anchors.verticalCenter:parent.verticalCenter
                 anchors.leftMargin:5*level
@@ -139,7 +133,6 @@ Rectangle {
                     if ((type==="parent")||(subtype==="parent")){
                         check(folderCheck.checked)
                     }
-                    console.log(isChecked)
                     onedriveBridge.folderChecked([name,folderCheck.checked])
                 }
 
