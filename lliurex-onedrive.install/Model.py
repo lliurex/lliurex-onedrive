@@ -42,6 +42,8 @@ class MyModel(QtCore.QAbstractListModel):
             	return item["level"]
             elif role == MyModel.HideRole:
             	return item["hide"]
+            elif role==MyModel.CanExpandedRole:
+                return item["canExpanded"]
     #def data
 
     def roleNames(self):

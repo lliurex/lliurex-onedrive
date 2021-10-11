@@ -5,6 +5,7 @@ import subprocess
 import json
 import math
 from shutil import copyfile
+import copy
 
 
 class OnedriveManager:
@@ -30,7 +31,15 @@ class OnedriveManager:
 		self.rateLimit=2
 		self.monitorInterval=1
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
-	
+		self.folderStruct=[]
+		self.foldersSelected=[]
+		self.foldersUnSelected=[]
+		self.filterFile=os.path.join(self.internalOnedriveFolder,"sync_list")
+		self.includeFolders=[]
+		self.excludeFolders=[]
+		self.syncOption="All"
+		self.currentSynConfig=[self.syncOption,self.foldersSelected,self.foldersUnSelected]
+
 	#def __init__
 
 	def loadConfg(self):
@@ -429,74 +438,276 @@ class OnedriveManager:
 
 	#def testOnedrive
 
-	def folderStruct(self):
+	def existsFilterFile(self):
 
-		cmd='onedrive --synchronize --dry-run --verbose'
+		if os.path.exists(self.filterFile):
+			return True
+		else:
+			return False
+
+	#def existsFilerFile
+	
+	def readFilterFile(self):
+
+		self.includeFolders=[]
+		self.excludeFolders=[]
+
+		with open(self.filterFile,'r') as fd:
+			lines=fd.readlines()
+			fd.close()
+
+			for line in lines:
+				tmpLine=line.split("\n")[0]
+				if tmpLine.startswith("!"):
+					self.excludeFolders.append(tmpLine)
+				else:
+					self.includeFolders.append(tmpLine)
+
+	#def readFilterFile			
+
+	def getFolderStruct(self):
+
+		self.manageFileFilter("move")
+
+		cmd='onedrive --synchronize --resync --dry-run --verbose'
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		out=p.communicate()[0]
 		out=out.decode().split("\n")
+		syncOut=copy.deepcopy(out)
+		
+		self.manageFileFilter("restore")
+		
+		folderResyncStruct=self._processingResyncOut(out)
+		folderSyncStruct=self._processingSyncOut(syncOut)
+
+		if len(folderResyncStruct)>0:
+			for item in folderSyncStruct:
+				match=0
+				for element in folderResyncStruct:
+					if item["path"]==element["path"]:
+						match=0
+						break
+					else:
+						match+=1
+				if match>1:
+					folderResyncStruct.append(item)
+		else:
+			folderResyncStruct=folderSyncStruct
+
+		self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
+		
+		if self.existsFilterFile():
+			self.readFilterFile()
+			for item in self.folderStruct:
+				tmp="!"+item["path"]+"/*"
+				if tmp in self.excludeFolders:
+					item["isChecked"]=False
+
+		return self.folderStruct
+
+	#def folderStruct
+
+	def _processingResyncOut(sel,out):
 
 		for i in range(len(out)-1,-1,-1):
-			if 'Processing ' in out[i]:
-				pass
+			if 'local directory' in out[i]:
+					pass
 			else:
-				if 'The directory' in out[i]:
+				if 'creating file' in out[i]:
 					pass
 				else:
-					if 'The file' in out[i]:
-						pass
-					else:
-						out.pop(i)				
+					out.pop(i)				
 
-		for i in range(len(out)-1,-1,-1):
-			if 'local state' in out[i]:
-				out.pop(i)
-			if 'last modified time' in out[i]:
-				out.pop(i)	
-
-		FolderStruct=[]
-		for i in range(0,len(out)-1,2):
-			tmp={}
-			tmp_item=out[i]+": "+out[i+1]
-			if 'The directory' in tmp_item:
+		folderResyncStruct=[]
+		for item in out:
+			if 'local directory' in item:
 				countChildren=0
-				tmp_list={}
-				tmp_entry=out[i].split("Processing")[1].strip()
-				tmp_list["path"]=tmp_entry
-				tmp_entry=tmp_entry.split("/")
-				tmp_list["isChecked"]=False
-				tmp_list["isExpanded"]=False
-				tmp_list["hide"]=True
-				if len(tmp_entry)==1:
-					tmp_list["name"]=tmp_entry[0]
-					tmp_list["type"]="Onedrive"
-					tmp_list["subtype"]="parent"
-					tmp_list["level"]=3
+				tmpList={}
+				tmpEntry=item.split(":")[1].strip()
+				tmpList["path"]=tmpEntry
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=False
+				tmpList["hide"]=True
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
 
 				else:
-					tmp_list["name"]=tmp_entry[-1]
-					tmp_list["type"]=tmp_entry[-2]
-					tmp_list["subtype"]="parent"
-					tmp_list["level"]=len(tmp_entry)*3
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
 
-				for j in range(0,len(out)-1,2):
-					tmp_item2=out[j]+": "+out[j+1]
-					if 'The directory' in tmp_item2:
-						tmp_entry2=out[j].split("Processing")[1].strip()
-						if tmp_list["path"] in tmp_entry2:
+				for j in range(0,len(out),1):
+					tmpItem2=out[j]
+					if 'local directory' in tmpItem2:
+						tmpEntry2=out[j].split(":")[1].strip()
+						if tmpList["path"] in tmpEntry2:
 							countChildren+=1
 
 				if countChildren>1:
-					tmp_list["canExpanded"]=True 
+					tmpList["canExpanded"]=True 
 				else:
-					tmp_list["canExpanded"]=False
-				FolderStruct.append(tmp_list)	
+					tmpList["canExpanded"]=False
+				folderResyncStruct.append(tmpList)	
+
+		return folderResyncStruct
+
+	#def _processingResyncOut
+
+	def _processingSyncOut(self,syncOut):		
+		
+		for i in range(len(syncOut)-1,-1,-1):
+			if 'Processing ' in syncOut[i]:
+				pass
+			else:
+				if 'The directory' in syncOut[i]:
+					pass
+				else:
+					if 'The file' in syncOut[i]:
+						pass
+					else:
+						syncOut.pop(i)				
+
+		for i in range(len(syncOut)-1,-1,-1):
+			try:
+				if 'local state' in syncOut[i]:
+					syncOut.pop(i)
+				if 'last modified time' in syncOut[i]:
+					syncOut.pop(i)	
+			except:
+				pass
+		
+		folderSyncStruct=[]
+		for i in range(0,len(syncOut)-1,2):
+			tmp={}
+			tmpItem=syncOut[i]+": "+syncOut[i+1]
+			if 'The directory' in tmpItem:
+				countChildren=0
+				tmpList={}
+				tmpEntry=syncOut[i].split("Processing")[1].strip()
+				tmpList["path"]=tmpEntry
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=False
+				tmpList["hide"]=True
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+
+				for j in range(0,len(syncOut)-1,2):
+					tmpItem2=syncOut[j]+": "+syncOut[j+1]
+					if 'The directory' in tmpItem2:
+						tmpEntry2=syncOut[j].split("Processing")[1].strip()
+						if tmpList["path"] in tmpEntry2:
+							countChildren+=1
+
+				if countChildren>1:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+				
+				folderSyncStruct.append(tmpList)	
+			
 		try:
-			FolderStruct.pop(0)
+			folderSyncStruct.pop(0)
 		except Exception as e:
 			pass
 		return FolderStruct
 
-	#def folderStruct 
+		return folderSyncStruct
+
+	#def _processingSyncOut
+
+
+	def createFilterFile(self):
+
+		folderSelected=[]
+		folderUnSelected=[]
+		excludeParents=[]
+
+		for item in self.folderStruct:
+			
+			for element in self.foldersSelected:
+				if item["name"]==element:
+					folderSelected.append(item["path"]+"/*")
+					break
+			for element in self.foldersUnSelected:
+				if item["name"]==element:
+					folderUnSelected.append("!"+item["path"]+"/*")
+					if item["type"]=="OneDrive":
+						excludeParents.append("!"+item["path"]+"/*")
+					break
+
+			if item["isChecked"]:
+				if item["name"] not in self.foldersUnSelected and item["name"] not in self.foldersSelected:
+					folderSelected.append(item["path"]+"/*")
+
+		if not self.existsFilterFile():
+			with open(self.filterFile,'w') as fd:
+				for item in folderUnSelected:
+					tmp_line=item+"\n"
+					fd.write(tmp_line)
+				
+				for item in folderSelected:
+					tmp_line=item+"\n"
+					fd.write(tmp_line)
+				
+		else:
+			
+			for item in folderUnSelected:
+				if item not in self.excludeFolders:
+					self.excludeFolders.append(item)
+			
+			for item in folderSelected:
+				if item not in self.includeFolders:
+					self.includeFolders.append(item)
+			
+			for i in range(len(self.excludeFolders)-1,-1,-1):
+				tmp_line=self.excludeFolders[i].split("!")[1]
+				if tmp_line in folderSelected:
+					self.excludeFolders.pop(i)
+			
+			for i in range(len(self.includeFolders)-1,-1,-1):
+				tmp_line="!"+self.includeFolders[i]
+				if tmp_line in folderUnSelected:
+					self.includeFolders.pop(i)
+			
+			with open(self.filterFile,'w') as fd:
+				for element in self.excludeFolders:
+					fd.write(element+"\n")
+				
+				for element in self.includeFolders:
+					fd.write(element+"\n")
+				
+				fd.close()
+
+		self.foldersSelected=[]
+		self.foldersUnSelected=[]
 		
+	#def createFilterFile
+
+	def manageFileFilter(self,action):
+
+		if action=="move":
+			if os.path.exists(self.filterFile):
+				os.rename(self.filterFile,self.filterFile+".back")
+		elif action=="restore":
+			if os.path.exists(self.filterFile+".back"):
+				os.rename(self.filterFile+".back",self.filterFile)
+
+	#def manageFileFilter
+		
+
 #class OnedriveManager
