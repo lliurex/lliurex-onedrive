@@ -28,6 +28,7 @@ GridLayout{
                     function onMenuOptionClicked(){
                         optionsLayout.currentIndex=0;
                         onedriveBridge.hideSettingsMessage()
+                        onedriveBridge.hideSynchronizeMessage()
                     }
                 }
             }
@@ -40,6 +41,8 @@ GridLayout{
                     function onMenuOptionClicked(){
                         optionsLayout.currentIndex=1;
                         onedriveBridge.hideSettingsMessage()
+                        onedriveBridge.hideSynchronizeMessage()
+                        synchronize.structModel=onedriveBridge.model
                     }
                 }
             }
@@ -51,6 +54,7 @@ GridLayout{
                     function onMenuOptionClicked(){
                         optionsLayout.currentIndex=2;
                         onedriveBridge.hideSettingsMessage()
+                        onedriveBridge.hideSynchronizeMessage() 
                     }
                 }
             }
@@ -63,6 +67,7 @@ GridLayout{
                     function onMenuOptionClicked(){
                         optionsLayout.currentIndex=3;
                         onedriveBridge.hideSettingsMessage()
+                        onedriveBridge.hideSynchronizeMessage()       
                     }
                 }
             }

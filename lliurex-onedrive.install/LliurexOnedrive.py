@@ -13,6 +13,10 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 START_SYNCHRONIZATION_ERROR=-1
 STOP_SYNCHRONIZATION_ERROR=-2
 
+DISABLE_SYNC_OPTIONS=0
+CHANGE_SYNC_OPTIONS_OK=1
+CHANGE_SYNC_OPTIONS_ERROR=-1
+
 class Bridge(QObject):
 
 	def __init__(self,ticket=None):
@@ -20,7 +24,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.onedriveMan=OnedriveManager.OnedriveManager()
-		self.entries=[{ "name": "Onedrive","isChecked":False, "isExpanded": False,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
+		self.entries=[{ "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
 		self._model=Model.MyModel(self.entries)
 		self._isConfigured=self.onedriveMan.isConfigured()
 		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
@@ -39,7 +43,13 @@ class Bridge(QObject):
 		self._showSettingsMessage=[False,""]
 		self._showAccountMessage=[False,""]
 		self._infoStackType="Configuration"
+		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+		self._showSynchronizeDialog=False
 		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
+		self._syncAll=self.onedriveMan.syncAll
+		self._syncCustomChanged=False
+		self.keepFolders=True
 		self.initBridge()
 
 	#def _init__
@@ -63,11 +73,19 @@ class Bridge(QObject):
 		self.monitorInterval=int(self.onedriveMan.monitorInterval)
 		self.rateLimit=int(self.onedriveMan.rateLimit)
 		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
-
+		self.syncAll=self.onedriveMan.syncAll
+		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
-		time.sleep(5)
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		
+		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
+		
+		if not self.syncAll:
+			self._updateFolderStruct()
+
+		time.sleep(5)
+
 		self.currentStack=2	
 	
 	#def _loadAccount
@@ -290,6 +308,59 @@ class Bridge(QObject):
 
 	#def _getModel
 
+	def _getShowSynchronizeDialog(self):
+
+		return self._showSynchronizeDialog
+
+	#def _getShowSynchronizeDialog
+	
+	def _setShowSynchronizeDialog(self,showSynchronizeDialog):
+
+		self._showSynchronizeDialog=showSynchronizeDialog
+		self.on_showSynchronizeDialog.emit()
+
+	#def _setShowSynchronizeDialog
+
+	def _getShowSynchronizeMessage(self):
+
+		return self._showSynchronizeMessage
+
+	#def _getShowSynchronizeMessage
+	
+	def _setShowSynchronizeMessage(self,showSynchronizeMessage):
+
+		self._showSynchronizeMessage=showSynchronizeMessage
+		self.on_showSynchronizeMessage.emit()
+
+	#def _setShowSynchronizeMessage
+
+	def _getSyncAll(self):
+
+		return self._syncAll
+
+	#def _getSyncAll
+	
+	def _setSyncAll(self,syncAll):
+
+		self._syncAll=syncAll
+		self.on_syncAll.emit()
+
+	#def _setSyncAll	
+
+	def _getSyncCustomChanged(self):
+
+		return self._syncCustomChanged
+
+	#def _getSyncCustomChanged
+
+	def _setSyncCustomChanged(self,syncCustomChanged):
+
+		self._syncCustomChanged=syncCustomChanged
+		self.on_syncCustomChanged.emit()
+
+	#def _setSyncCustomChanged
+
+
 	@Slot(str)
 	def createAccount(self,token):
 
@@ -401,7 +472,8 @@ class Bridge(QObject):
 		self.showSettingsDialog=False
 
 		if not ret[0]:
-			self.closeGui=True
+			if not self.syncCustomChanged:
+				self.closeGui=True
 			self.settingsChanged=False
 
 	#def _applyChanges
@@ -435,6 +507,13 @@ class Bridge(QObject):
 				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
 		else:
 			self.showAccountMessage=[False,""]
+
+		
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+		else:
+			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+
 
 		self.closePopUp=True
 	
@@ -515,7 +594,8 @@ class Bridge(QObject):
 		if action=="Accept":
 			self.applyChanges()
 		elif action=="Discard":
-			self.closeGui=True
+			if not self.syncCustomChanged:
+				self.closeGui=True
 			self.settingsChanged=False
 			self.showSettingsDialog=False
 		elif action=="Cancel":
@@ -560,20 +640,42 @@ class Bridge(QObject):
 		ret=self._model.resetModel()
 		self._model=Model.MyModel(self.entries)
 
-		entries=self.onedriveMan.folderStruct()
-		
+		entries=self.onedriveMan.getFolderStruct()
 		for item in entries:
 			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 		
 		time.sleep(5)
 		self.closePopUp=True
 
-	#def _uptadeFolderStruct
+	#def _updateFolderStruct
 
 	@Slot('QVariantList')
 	def folderChecked(self,info):
 
-		print('Elemento seleccionado: '+info[0]+" Estado: "+str(info[1]))
+		path=self.onedriveMan.getPathByName(info[0])
+		if info[1]:
+			if path not in self.initialSyncConfig[1]:
+				self.initialSyncConfig[1].append(path)
+			if path in self.initialSyncConfig[2]:
+				self.initialSyncConfig[2].remove(path)
+		else:
+			if path not in self.initialSyncConfig[2]:
+				self.initialSyncConfig[2].append(path)
+			if path in self.initialSyncConfig[1]:
+				self.initialSyncConfig[1].remove(path)
+
+		self.initialSyncConfig[1].sort()
+		self.initialSyncConfig[2].sort()
+		self.onedriveMan.currentSyncConfig[1].sort()
+		self.onedriveMan.currentSyncConfig[2].sort()
+
+		if self.initialSyncConfig[1]!=self.onedriveMan.currentSyncConfig[1]:
+			self.syncCustomChanged=True
+		else:
+			if self.initialSyncConfig[2]!=self.onedriveMan.currentSyncConfig[2]:
+				self.syncCustomChanged=True
+			else:
+				self.syncCustomChanged=False
 
 	#def folderChecked
 
@@ -590,6 +692,76 @@ class Bridge(QObject):
 	
 	#def updateModel
 
+	@Slot(bool)
+	def getSyncMode(self,value):
+
+		self.hideSynchronizeMessage()
+		if value!=self.initialSyncConfig[0]:
+			if value!=self.onedriveMan.currentSyncConfig[0]:
+				self.syncCustomChanged=True
+			else:
+				self.syncCustomChanged=False
+			self.initialSyncConfig[0]=value
+		else:
+			self.syncCustomChanged=False
+
+	#def getSyncModel 
+	
+	@Slot()
+	def applySyncBtn(self):
+		self.showSynchronizeDialog=True
+
+	#def applySyncBtn
+
+	@Slot(str)
+	def manageSynchronizeDialog(self,action):
+
+		if action=="Accept":
+			self.keepFolders=False
+			self.applySyncChanges()
+		elif action=="Keep":
+			self.keepFolders=True
+			self.applySyncChanges()
+		elif action=="Cancel":
+			self.syncCustomChanged=False		
+		self.showSynchronizeDialog=False
+
+	#def manageSynchronizeDialog
+	
+	def applySyncChanges(self):
+
+		self.closePopUp=False
+		self.closeGui=False
+
+		t = threading.Thread(target=self._applySyncChanges)
+		t.daemon=True
+		t.start()
+
+	#def applySyncChanges
+
+	def _applySyncChanges(self):
+
+		ret=self.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders)
+		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
+		self.closePopUp=True
+		self.syncCustomChanged=False
+
+		if ret:
+			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_OK,"Ok"]
+			self.closeGui=True
+		else:
+			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_ERROR,"Error"]
+	
+
+	#def _applySyncChanges		
+
+	@Slot()
+	def hideSynchronizeMessage(self):
+		if not self.isOnedriveRunning:
+			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+
+	#def hideSynchronizeMessage		
+
 	@Slot()
 	def closeOnedrive(self):
 
@@ -597,10 +769,15 @@ class Bridge(QObject):
 			self.closeGui=False
 			self.showSettingsDialog=True
 		else:
-			if self.closePopUp:
-				self.closeGui=True
-			else:
+			if self.syncCustomChanged:
 				self.closeGui=False
+				if self.closePopUp:
+					self.showSynchronizeDialog=True
+			else:
+				if self.closePopUp:
+					self.closeGui=True
+				else:
+					self.closeGui=False
 
 	#def closeOnedrive
 	
@@ -652,6 +829,18 @@ class Bridge(QObject):
 	on_showAccountMessage=Signal()
 	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
 
+	on_syncAll=Signal()
+	syncAll=Property(bool,_getSyncAll,_setSyncAll,notify=on_syncAll)
+
+	on_showSynchronizeMessage=Signal()
+	showSynchronizeMessage=Property('QVariantList',_getShowSynchronizeMessage,_setShowSynchronizeMessage,notify=on_showSynchronizeMessage)
+
+	on_showSynchronizeDialog=Signal()
+	showSynchronizeDialog=Property(bool,_getShowSynchronizeDialog,_setShowSynchronizeDialog,notify=on_showSynchronizeDialog)
+	
+	on_syncCustomChanged=Signal()
+	syncCustomChanged=Property(bool,_getSyncCustomChanged,_setSyncCustomChanged,notify=on_syncCustomChanged)
+	
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	model=Property(QObject,_getModel,constant=True)
 

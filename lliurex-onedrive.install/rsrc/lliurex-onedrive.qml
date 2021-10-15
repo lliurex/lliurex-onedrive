@@ -37,7 +37,7 @@ ApplicationWindow {
                 mainWindow.close();
 
             }else{
-                if (!onedriveBridge.showSettingsDialog){
+                if ((!onedriveBridge.showSettingsDialog)&&(!onedriveBridge.showSynchronizeDialog)){
                   timer.stop()
                 }
                 closing=false;

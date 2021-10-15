@@ -2,9 +2,11 @@ import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQml.Models 2.6
 
+
 Rectangle {
     property alias structVisible:folderTable.visible
     property alias structModel:listFolder.model
+    property alias listCount:listFolder.count
 
     id:folderTable
     visible: structVisible
@@ -18,6 +20,7 @@ Rectangle {
         anchors.fill:parent
         height: parent.height
         model:onedriveBridge.model
+        enabled:!onedriveBridge.isOnedriveRunning
         delegate: listdelegate
         clip: true
         boundsBehavior: Flickable.StopAtBounds

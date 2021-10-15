@@ -4,7 +4,7 @@ import os
 import subprocess
 import json
 import math
-from shutil import copyfile
+import shutil 
 import copy
 
 
@@ -37,8 +37,8 @@ class OnedriveManager:
 		self.filterFile=os.path.join(self.internalOnedriveFolder,"sync_list")
 		self.includeFolders=[]
 		self.excludeFolders=[]
-		self.syncOption="All"
-		self.currentSynConfig=[self.syncOption,self.foldersSelected,self.foldersUnSelected]
+		self.syncAll=True
+		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 
 	#def __init__
 
@@ -49,6 +49,13 @@ class OnedriveManager:
 			if not self.isAutoStartEnabled():
 				self.autoStartEnabled=False
 				self.currentConfig[0]=False
+
+			if self.existsFilterFile():
+				self.syncAll=False
+				self.readFilterFile()
+				self.currentSyncConfig[0]=self.syncAll
+				self.currentSyncConfig[1]=self.foldersSelected
+				self.currentSyncConfig[2]=self.foldersUnSelected
 		
 	#def loadConfg
 	
@@ -104,7 +111,7 @@ class OnedriveManager:
 		poutput=p.communicate()
 		rc=p.returncode
 		if rc in [0,1]:
-			copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
 			ret=self.manageSync(True)
 			return True
 		else:
@@ -445,7 +452,7 @@ class OnedriveManager:
 		else:
 			return False
 
-	#def existsFilerFile
+	#def existsFilterFile
 	
 	def readFilterFile(self):
 
@@ -460,14 +467,21 @@ class OnedriveManager:
 				tmpLine=line.split("\n")[0]
 				if tmpLine.startswith("!"):
 					self.excludeFolders.append(tmpLine)
+					tmpLine=tmpLine.split("!")[1].split("/*")[0]
+					if tmpLine not in self.foldersUnSelected:
+						self.foldersUnSelected.append(tmpLine)
 				else:
 					self.includeFolders.append(tmpLine)
+					tmpLine=tmpLine.split("/*")[0]
+					if tmpLine not in self.foldersSelected:
+						self.foldersSelected.append(tmpLine)
 
 	#def readFilterFile			
 
 	def getFolderStruct(self):
 
-		self.manageFileFilter("move")
+		if not self.isOnedriveRunning():
+			self.manageFileFilter("move")
 
 		cmd='onedrive --synchronize --resync --dry-run --verbose'
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
@@ -475,7 +489,8 @@ class OnedriveManager:
 		out=out.decode().split("\n")
 		syncOut=copy.deepcopy(out)
 		
-		self.manageFileFilter("restore")
+		if not self.isOnedriveRunning():
+			self.manageFileFilter("restore")
 		
 		folderResyncStruct=self._processingResyncOut(out)
 		folderSyncStruct=self._processingSyncOut(syncOut)
@@ -502,10 +517,12 @@ class OnedriveManager:
 				tmp="!"+item["path"]+"/*"
 				if tmp in self.excludeFolders:
 					item["isChecked"]=False
-
+				if (item["path"]+"/*") not in self.includeFolders:
+					item["isChecked"]=False
+					
 		return self.folderStruct
 
-	#def folderStruct
+	#def getFolderStruct
 
 	def _processingResyncOut(sel,out):
 
@@ -527,8 +544,8 @@ class OnedriveManager:
 				tmpList["path"]=tmpEntry
 				tmpEntry=tmpEntry.split("/")
 				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=False
-				tmpList["hide"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
 				if len(tmpEntry)==1:
 					tmpList["name"]=tmpEntry[0]
 					tmpList["type"]="OneDrive"
@@ -592,8 +609,8 @@ class OnedriveManager:
 				tmpList["path"]=tmpEntry
 				tmpEntry=tmpEntry.split("/")
 				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=False
-				tmpList["hide"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
 				if len(tmpEntry)==1:
 					tmpList["name"]=tmpEntry[0]
 					tmpList["type"]="OneDrive"
@@ -606,6 +623,7 @@ class OnedriveManager:
 					tmpList["subtype"]="parent"
 					tmpList["level"]=len(tmpEntry)*3
 
+				
 				for j in range(0,len(syncOut)-1,2):
 					tmpItem2=syncOut[j]+": "+syncOut[j+1]
 					if 'The directory' in tmpItem2:
@@ -624,14 +642,34 @@ class OnedriveManager:
 			folderSyncStruct.pop(0)
 		except Exception as e:
 			pass
-		return FolderStruct
 
 		return folderSyncStruct
 
 	#def _processingSyncOut
 
+	def applySyncChanges(self,initialSyncConfig,keepFolders):
 
-	def createFilterFile(self):
+		syncAll=initialSyncConfig[0]
+		foldersSelected=initialSyncConfig[1]
+		foldersUnSelected=initialSyncConfig[2]
+
+		if not syncAll:
+			self.createFilterFile(foldersSelected,foldersUnSelected)
+			if not keepFolders:
+				shutil.rmtree(self.userFolder)
+		else:
+			os.remove(self.filterFile)
+
+		self.currentSyncConfig[0]=syncAll
+		self.currentSyncConfig[1]=foldersSelected
+		self.currentSyncConfig[2]=foldersUnSelected
+
+		ret=self._syncResync()
+		return ret
+
+	#def applySyncChanges
+
+	def createFilterFile(self,foldersSelected,foldersUnSelected):
 
 		folderSelected=[]
 		folderUnSelected=[]
@@ -639,19 +677,19 @@ class OnedriveManager:
 
 		for item in self.folderStruct:
 			
-			for element in self.foldersSelected:
-				if item["name"]==element:
+			for element in foldersSelected:
+				if item["path"]==element:
 					folderSelected.append(item["path"]+"/*")
 					break
-			for element in self.foldersUnSelected:
-				if item["name"]==element:
+			for element in foldersUnSelected:
+				if item["path"]==element:
 					folderUnSelected.append("!"+item["path"]+"/*")
 					if item["type"]=="OneDrive":
 						excludeParents.append("!"+item["path"]+"/*")
 					break
 
 			if item["isChecked"]:
-				if item["name"] not in self.foldersUnSelected and item["name"] not in self.foldersSelected:
+				if item["path"] not in foldersUnSelected and item["path"] not in foldersSelected:
 					folderSelected.append(item["path"]+"/*")
 
 		if not self.existsFilterFile():
@@ -692,10 +730,7 @@ class OnedriveManager:
 					fd.write(element+"\n")
 				
 				fd.close()
-
-		self.foldersSelected=[]
-		self.foldersUnSelected=[]
-		
+	
 	#def createFilterFile
 
 	def manageFileFilter(self,action):
@@ -709,5 +744,12 @@ class OnedriveManager:
 
 	#def manageFileFilter
 		
+	def getPathByName(self,name):
+
+		for item in self.folderStruct:
+			if item["name"]==name:
+				return item["path"]
+
+	#def getPathByName
 
 #class OnedriveManager

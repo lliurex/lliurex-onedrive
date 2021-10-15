@@ -4,9 +4,12 @@ import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.15
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.6 as Kirigami
+import QtQuick.Dialogs 1.3
 
 
 Rectangle{
+    property alias structModel:folderList.structModel
+
     color:"transparent"
     Text{ 
         Layout.leftMargin: 0
@@ -25,9 +28,9 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: messageLabel
-            visible:false
-            text:i18nd("lliurex-onedrive","The changes will be applied when the client is restarted")
-            type:Kirigami.MessageType.Positive;
+            visible:onedriveBridge.showSynchronizeMessage[0]
+            text:getTextMessage()
+            type:getTypeMessage()
             Layout.minimumWidth:650
             Layout.maximumWidth:650
             Layout.topMargin: 40
@@ -43,11 +46,19 @@ Rectangle{
             CheckBox {
                 id:syncAll
                 text:i18nd("lliurex-onedrive","Synchronize all content of OneDrive")
-                checked:!syncCustom.checked
+                checked:onedriveBridge.syncAll
+                enabled:!onedriveBridge.isOnedriveRunning
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
                 onToggled:{
-                    console.log("apretado")
+                    onedriveBridge.getSyncMode(checked)
+                    if (checked){
+                        folderList.structVisible=false
+                    }else{
+                        if (folderList.listCount>1){
+                            folderList.structVisible=true
+                        }
+                    }
                 }
 
                 Layout.bottomMargin:10
@@ -59,30 +70,39 @@ Rectangle{
                 spacing:10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-
             
                 CheckBox {
                     id:syncCustom
                     text:i18nd("lliurex-onedrive","Synchronize only those content")
                     checked:!syncAll.checked
+                    enabled:!onedriveBridge.isOnedriveRunning
                     font.pointSize: 10
                     focusPolicy: Qt.NoFocus
                     onToggled:{
+                        syncAll.checked=!checked
                         if (checked){
+                            if (folderList.listCount<2){
+                                folderList.structVisible=false
+                                synchronizePopup.open()
+                                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering folder structure. Wait a moment...")
+                                delay(1000, function() {
+                                    if (onedriveBridge.closePopUp){
+                                        synchronizePopup.close(),
+                                        timer.stop(),
+                                        folderList.structVisible=true;
+                                        folderList.structModel=onedriveBridge.model
+                                    }
+                                })
+                                
+                                onedriveBridge.updateFolderStruct()
+                            }
+                            folderList.structVisible=true;
+
+                       }else{
                             folderList.structVisible=false
-                            synchronizePopup.open()
-                            synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering folder structure. Wait a moment...")
-                            delay(1000, function() {
-                                console.log(onedriveBridge.closePopUp)
-                                if (onedriveBridge.closePopUp){
-                                    synchronizePopup.close(),
-                                    timer.stop(),
-                                    folderList.structVisible=true;
-                                    folderList.structModel=onedriveBridge.model
-                                }
-                            })
-                            onedriveBridge.updateFolderStruct()
                        }
+                       onedriveBridge.getSyncMode(!checked)
+
                     }
                     anchors.verticalCenter:parent.verticalCenter
                 }
@@ -91,14 +111,20 @@ Rectangle{
                     id:updateStructbtn
                     display:AbstractButton.IconOnly
                     icon.name:"view-refresh.svg"
-                    enabled:syncCustom.checked
+                    enabled:{
+                        if ((syncCustom.checked)&&(!onedriveBridge.isOnedriveRunning)){
+                            true
+                        }else{
+                            false
+                        }
+                    }
+
                     Layout.preferredHeight: 35
                     anchors.verticalCenter:parent.verticalCenter
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:i18nd("lliurex-onedrive","Update the folder structure")
-
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to update the folder structure")
                     hoverEnabled:true
                     onClicked:{
                         folderList.structVisible=false
@@ -118,6 +144,8 @@ Rectangle{
             }
             FolderList{
                 id:folderList
+                structVisible:syncCustom.checked
+                structModel:onedriveBridge.model
             }
         }
     }
@@ -136,12 +164,131 @@ Rectangle{
             icon.name:"dialog-ok.svg"
             text:i18nd("lliurex-onedrive","Apply")
             Layout.preferredHeight: 40
-
+            enabled:onedriveBridge.syncCustomChanged
             onClicked:{
-                messageLabel.visible=!messageLabel.visible
+               /* messageLabel.visible=!messageLabel.visible*/
+                onedriveBridge.applySyncBtn()
             }
         }
     }
+
+    Dialog{
+        id: syncDialog
+        visible:onedriveBridge.showSynchronizeDialog
+        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
+        modality:Qt.WindowModal
+
+        contentItem: Rectangle {
+            color: "#ebeced"
+            implicitWidth: 600
+            implicitHeight: 105
+            anchors.topMargin:5
+            anchors.leftMargin:5
+
+            Image{
+                id:dialogIcon
+                source:"/usr/share/icons/breeze/status/64/dialog-question.svg"
+
+            }
+            
+            Text {
+                id:dialogText
+                text:{
+                    if (!syncAll.checked){
+                        i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nYou want to delete the rest of the folders from this computer")
+                    }else{
+                          i18nd("lliurex-onedrive","Applying the changes will sync all the content of your Onedrive account")
+                    }
+                }
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                anchors.left:dialogIcon.right
+                anchors.verticalCenter:dialogIcon.verticalCenter
+                anchors.leftMargin:10
+            
+            }
+          
+
+            DialogButtonBox {
+                buttonLayout:DialogButtonBox.KdeLayout
+                anchors.bottom:parent.bottom
+                anchors.right:parent.right
+                anchors.topMargin:15
+
+                Button {
+                    id:dialogApplyBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-ok.svg"
+                    text: i18nd("lliurex-onedrive","Yes, delete unselected folders")
+                    visible:!syncAll.checked
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+                }
+
+                Button {
+                    id:dialogDiscardBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-ok.svg"
+                    text: {
+                       if (!syncAll.checked){
+                            i18nd("lliurex-onedrive","No, keep folders unselected")
+                       }else{
+                            i18nd("lliurex-onedrive","Accept")
+                       }
+                        
+                    }
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+
+                }
+
+                Button {
+                    id:dialogCancelBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-cancel.svg"
+                    text: i18nd("lliurex-onedrive","Cancel")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
+                }
+
+                onApplied:{
+                    synchronizePopup.open()
+                    synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Apply changes. Wait a moment...")
+                    delay(1000, function() {
+                        if (onedriveBridge.closePopUp){
+                            synchronizePopup.close(),
+                            timer.stop()
+                            }
+                        })
+                  
+                    onedriveBridge.manageSynchronizeDialog("Accept")
+                
+                }
+
+                onDiscarded:{
+                    synchronizePopup.open()
+                    synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Apply changes. Wait a moment...")
+                    delay(1000, function() {
+                        if (onedriveBridge.closePopUp){
+                            synchronizePopup.close(),
+                            timer.stop()
+                            }
+                        })
+               
+                    onedriveBridge.manageSynchronizeDialog("Keep")
+
+                }
+
+                onRejected:{
+                    onedriveBridge.manageSynchronizeDialog("Cancel")
+
+                }
+            }
+        }
+     }
 
     CustomPopup{
         id:synchronizePopup
@@ -156,6 +303,45 @@ Rectangle{
         timer.repeat=true;
         timer.triggered.connect(cb);
         timer.start()
+    }
+
+    function getTextMessage(){
+
+        switch (onedriveBridge.showSynchronizeMessage[1]){
+
+            case 0:
+                var msg=i18nd("lliurex-onedrive","Functionality available only if sync is stopped");
+                break
+
+            case 1:
+                var msg=i18nd("lliurex-onedrive","Changes applied correctly");
+                break
+
+            case -1:
+                var msg=i18nd("lliurex-onedrive","An error occurred while applying the changes");
+                break
+
+        }
+        return msg
+
+    }
+
+    function getTypeMessage(){
+
+        switch (onedriveBridge.showSynchronizeMessage[2]){
+
+            case "Information":
+                return Kirigami.MessageType.Information
+
+            case "Ok":
+                return Kirigami.MessageType.Positive
+
+            case "Error":
+                return Kirigami.MessageType.Error
+
+        }
+
+
     }
 
 }
