@@ -517,8 +517,13 @@ class OnedriveManager:
 				tmp="!"+item["path"]+"/*"
 				if tmp in self.excludeFolders:
 					item["isChecked"]=False
-				if (item["path"]+"/*") not in self.includeFolders:
-					item["isChecked"]=False
+				else:
+					if (item["path"]+"/*") not in self.includeFolders:
+						tmp=item["type"]+"/*"
+						if tmp in self.includeFolders:
+							item["isChecked"]=True
+						else:	
+							item["isChecked"]=False
 					
 		return self.folderStruct
 
@@ -657,8 +662,12 @@ class OnedriveManager:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
 			if not keepFolders:
 				shutil.rmtree(self.userFolder)
+			self.readFilterFile()
 		else:
+			foldersSelected=[]
+			foldersUnSelected=[]
 			os.remove(self.filterFile)
+			self.folderStruct=[]
 
 		self.currentSyncConfig[0]=syncAll
 		self.currentSyncConfig[1]=foldersSelected
@@ -673,37 +682,50 @@ class OnedriveManager:
 
 		folderSelected=[]
 		folderUnSelected=[]
-		excludeParents=[]
-
+		
 		for item in self.folderStruct:
-			
-			for element in foldersSelected:
-				if item["path"]==element:
-					folderSelected.append(item["path"]+"/*")
-					break
-			for element in foldersUnSelected:
-				if item["path"]==element:
-					folderUnSelected.append("!"+item["path"]+"/*")
-					if item["type"]=="OneDrive":
-						excludeParents.append("!"+item["path"]+"/*")
-					break
-
+			count=0
 			if item["isChecked"]:
 				if item["path"] not in foldersUnSelected and item["path"] not in foldersSelected:
-					folderSelected.append(item["path"]+"/*")
+					if item["type"]=="OneDrive":
+						for element in foldersUnSelected:
+							if item["path"] in element:
+								break
+							else:
+								count+=1
+						if count>0:
+							folderSelected.append(item["path"]+"/*")
 
+		
+		for i in range(len(foldersUnSelected)-1,-1,-1):
+			for element in foldersSelected:
+				if len(self.includeFolders)>0:
+					tmp=foldersUnSelected[i]+"/*"
+					if tmp in self.includeFolders:
+						self.includeFolders.remove(tmp)
+				if foldersUnSelected[i] in element:
+					foldersUnSelected.pop(i)
+
+		
+		for element in foldersSelected:
+			folderSelected.append(element+"/*")
+
+		for element in foldersUnSelected:
+			folderUnSelected.append("!"+element+"/*")
+					
+		
 		if not self.existsFilterFile():
 			with open(self.filterFile,'w') as fd:
+				
 				for item in folderUnSelected:
 					tmp_line=item+"\n"
 					fd.write(tmp_line)
-				
+
 				for item in folderSelected:
 					tmp_line=item+"\n"
 					fd.write(tmp_line)
-				
+				fd.close()
 		else:
-			
 			for item in folderUnSelected:
 				if item not in self.excludeFolders:
 					self.excludeFolders.append(item)
@@ -722,7 +744,14 @@ class OnedriveManager:
 				if tmp_line in folderUnSelected:
 					self.includeFolders.pop(i)
 			
+			for i in range(len(self.excludeFolders)-1,-1,-1):
+				for element in self.includeFolders:
+					tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]
+					if tmp in element:
+						self.excludeFolders.pop(i)
+
 			with open(self.filterFile,'w') as fd:
+				
 				for element in self.excludeFolders:
 					fd.write(element+"\n")
 				
@@ -751,5 +780,13 @@ class OnedriveManager:
 				return item["path"]
 
 	#def getPathByName
+
+	def updateCheckFolder(self,name,checked):
+
+		for item in self.folderStruct:
+			if item["name"]==name:
+				item["isChecked"]=checked
+
+	#def updateCheckFolder
 
 #class OnedriveManager

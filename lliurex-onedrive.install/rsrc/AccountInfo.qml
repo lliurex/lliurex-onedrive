@@ -98,12 +98,12 @@ Rectangle{
             Text{
                 id:freeSpaceValue
                 text:{
-                    if(onedriveBridge.freeSpace==""){
+                    if (onedriveBridge.freeSpace==""){
                         i18nd("lliurex-onedrive","Information not available")
                     }else{
-                        onedriveBridge.freeSpace             
+                        onedriveBridge.freeSpace
                     }
-                }
+                }    
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft

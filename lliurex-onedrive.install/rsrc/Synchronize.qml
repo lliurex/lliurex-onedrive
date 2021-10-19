@@ -84,7 +84,7 @@ Rectangle{
                             if (folderList.listCount<2){
                                 folderList.structVisible=false
                                 synchronizePopup.open()
-                                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering folder structure. Wait a moment...")
+                                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering OneDrive folder structure. Wait a moment...")
                                 delay(1000, function() {
                                     if (onedriveBridge.closePopUp){
                                         synchronizePopup.close(),
@@ -124,12 +124,12 @@ Rectangle{
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:i18nd("lliurex-onedrive","Click to update the folder structure")
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to update the OneDrive folder structure")
                     hoverEnabled:true
                     onClicked:{
                         folderList.structVisible=false
                         synchronizePopup.open()
-                        synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering folder structure. Wait a moment...")
+                        synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering OneDrive folder structure. Wait a moment...")
                         delay(1000, function() {
                             if (onedriveBridge.closePopUp){
                                 synchronizePopup.close(),
@@ -156,6 +156,7 @@ Rectangle{
         anchors.right:parent.right
         anchors.bottomMargin:15
         anchors.rightMargin:15
+        spacing:10
 
         Button {
             id:applyBtn
@@ -166,8 +167,19 @@ Rectangle{
             Layout.preferredHeight: 40
             enabled:onedriveBridge.syncCustomChanged
             onClicked:{
-               /* messageLabel.visible=!messageLabel.visible*/
                 onedriveBridge.applySyncBtn()
+            }
+        }
+        Button {
+            id:cancelBtn
+            visible:true
+            display:AbstractButton.TextBesideIcon
+            icon.name:"dialog-cancel.svg"
+            text:i18nd("lliurex-onedrive","Cancel")
+            Layout.preferredHeight: 40
+            enabled:onedriveBridge.syncCustomChanged
+            onClicked:{
+                onedriveBridge.cancelSyncBtn()
             }
         }
     }
@@ -180,7 +192,7 @@ Rectangle{
 
         contentItem: Rectangle {
             color: "#ebeced"
-            implicitWidth: 600
+            implicitWidth: 700
             implicitHeight: 105
             anchors.topMargin:5
             anchors.leftMargin:5

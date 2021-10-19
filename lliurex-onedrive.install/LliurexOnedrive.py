@@ -385,6 +385,8 @@ class Bridge(QObject):
 				ret1=self.onedriveMan.getAccountStatus()
 				self.accountStatus=ret1[1]
 				self.freeSpace=ret1[2]
+				self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+
 			self.currentStack=2
 		else:
 			self.currentStack=3
@@ -644,7 +646,6 @@ class Bridge(QObject):
 		for item in entries:
 			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 		
-		time.sleep(5)
 		self.closePopUp=True
 
 	#def _updateFolderStruct
@@ -652,6 +653,7 @@ class Bridge(QObject):
 	@Slot('QVariantList')
 	def folderChecked(self,info):
 
+		self.onedriveMan.updateCheckFolder(info[0],info[1])
 		path=self.onedriveMan.getPathByName(info[0])
 		if info[1]:
 			if path not in self.initialSyncConfig[1]:
@@ -664,9 +666,17 @@ class Bridge(QObject):
 			if path in self.initialSyncConfig[1]:
 				self.initialSyncConfig[1].remove(path)
 
+		if None in self.initialSyncConfig[1]:
+			self.initialSyncConfig[1].remove(None)
 		self.initialSyncConfig[1].sort()
+		if None in self.initialSyncConfig[2]:
+			self.initialSyncConfig[2].remove(None)
 		self.initialSyncConfig[2].sort()
+		if None in self.onedriveMan.currentSyncConfig[1]:
+			self.onedriveMan.currentSyncConfig[1].remove(None)
 		self.onedriveMan.currentSyncConfig[1].sort()
+		if None in self.onedriveMan.currentSyncConfig[2]:
+			self.onedriveMan.currentSyncConfig[2].remove(None)
 		self.onedriveMan.currentSyncConfig[2].sort()
 
 		if self.initialSyncConfig[1]!=self.onedriveMan.currentSyncConfig[1]:
@@ -713,6 +723,12 @@ class Bridge(QObject):
 
 	#def applySyncBtn
 
+	@Slot()
+	def cancelSyncBtn(self):
+		self.syncCustomChanged=False
+
+	#def cancelSyncBtn
+
 	@Slot(str)
 	def manageSynchronizeDialog(self,action):
 
@@ -723,13 +739,14 @@ class Bridge(QObject):
 			self.keepFolders=True
 			self.applySyncChanges()
 		elif action=="Cancel":
-			self.syncCustomChanged=False		
+			pass		
 		self.showSynchronizeDialog=False
 
 	#def manageSynchronizeDialog
 	
 	def applySyncChanges(self):
 
+		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=False
 		self.closeGui=False
 

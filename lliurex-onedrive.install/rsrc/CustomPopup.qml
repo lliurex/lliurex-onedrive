@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.15
 
 Popup {
     id:popUpWaiting
-    width:400
+    width:500
     height:80
     anchors.centerIn: Overlay.overlay
     modal:true
