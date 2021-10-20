@@ -273,8 +273,12 @@ Rectangle{
                         if (onedriveBridge.closePopUp){
                             synchronizePopup.close(),
                             timer.stop()
+                            if (syncAll.checked){
+                                folderList.structVisible=false;   
                             }
-                        })
+              
+                        }
+                    })
                   
                     onedriveBridge.manageSynchronizeDialog("Accept")
                 
@@ -287,8 +291,11 @@ Rectangle{
                         if (onedriveBridge.closePopUp){
                             synchronizePopup.close(),
                             timer.stop()
+                            if (syncAll.checked){
+                                folderList.structVisible=false;   
                             }
-                        })
+                        }
+                    })
                
                     onedriveBridge.manageSynchronizeDialog("Keep")
 

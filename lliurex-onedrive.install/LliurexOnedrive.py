@@ -708,7 +708,13 @@ class Bridge(QObject):
 		self.hideSynchronizeMessage()
 		if value!=self.initialSyncConfig[0]:
 			if value!=self.onedriveMan.currentSyncConfig[0]:
-				self.syncCustomChanged=True
+				if not value and (len(self.initialSyncConfig[1])>0 or len(self.initialSyncConfig[2])>0):
+					self.syncCustomChanged=True
+				else:
+					if value:
+						self.syncCustomChanged=True
+					else:
+						self.syncCustomChanged=False
 			else:
 				self.syncCustomChanged=False
 			self.initialSyncConfig[0]=value

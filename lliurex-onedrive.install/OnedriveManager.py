@@ -664,10 +664,10 @@ class OnedriveManager:
 				shutil.rmtree(self.userFolder)
 			self.readFilterFile()
 		else:
-			foldersSelected=[]
-			foldersUnSelected=[]
+			#foldersSelected=[]
+			#foldersUnSelected=[]
 			os.remove(self.filterFile)
-			self.folderStruct=[]
+			#self.folderStruct=[]
 
 		self.currentSyncConfig[0]=syncAll
 		self.currentSyncConfig[1]=foldersSelected
