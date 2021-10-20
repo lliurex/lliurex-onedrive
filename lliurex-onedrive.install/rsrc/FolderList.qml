@@ -116,17 +116,18 @@ Rectangle {
                 id:folderCheck
                 checked:isChecked
                 function check(isChecked) {
-                    var sub=""
+                    var sub=[]
                     for(var i = 0; i < listFolder.count; ++i) {
                         var item=onedriveBridge.getModelData(i)
                         if (item["name"]===name){
                             onedriveBridge.updateModel([i,"isChecked",isChecked])
                         }else{
-                            if((item["type"] === name) || (item["type"]===sub)){
+                            if((item["type"] === name) || (sub.includes(item["type"]))){
                                 onedriveBridge.updateModel([i,"isChecked",isChecked])
                                 onedriveBridge.folderChecked([item["name"],isChecked])
                                 if (item["subtype"]==="parent"){
-                                    var sub=item["name"]
+                                    sub.push(item["name"])
+
                                 }
                             }
                         }
