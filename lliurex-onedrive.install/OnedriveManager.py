@@ -563,13 +563,12 @@ class OnedriveManager:
 						break
 					else:
 						match+=1
-				if match>1:
+				if match>0:
 					folderResyncStruct.append(item)
 		else:
 			folderResyncStruct=folderSyncStruct
 
 		self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
-		
 		if self.existsFilterFile():
 			self.readFilterFile()
 			for item in self.folderStruct:
@@ -581,8 +580,14 @@ class OnedriveManager:
 						tmp=item["type"]+"/*"
 						if tmp in self.includeFolders:
 							item["isChecked"]=True
-						else:	
-							item["isChecked"]=False
+						else:
+							tmp=item["path"]+"/*"
+							for element in self.includeFolders:
+								if element.split("/*")[0] in tmp:
+									item["isChecked"]=True
+									break
+								else:	
+									item["isChecked"]=False
 					
 		return self.folderStruct
 
@@ -780,12 +785,12 @@ class OnedriveManager:
 			with open(self.filterFile,'w') as fd:
 				
 				for item in folderUnSelected:
-					tmp_line=item+"\n"
-					fd.write(tmp_line)
+					tmpLine=item+"\n"
+					fd.write(tmpLine)
 
 				for item in folderSelected:
-					tmp_line=item+"\n"
-					fd.write(tmp_line)
+					tmpLine=item+"\n"
+					fd.write(tmpLine)
 				fd.close()
 		else:
 			for item in folderUnSelected:
@@ -797,14 +802,36 @@ class OnedriveManager:
 					self.includeFolders.append(item)
 			
 			for i in range(len(self.excludeFolders)-1,-1,-1):
-				tmp_line=self.excludeFolders[i].split("!")[1]
-				if tmp_line in folderSelected:
+				tmpLine=self.excludeFolders[i].split("!")[1]
+				match=0
+				if tmpLine in folderSelected:
 					self.excludeFolders.pop(i)
+				else:
+					for item in self.folderStruct:
+						tmpItem=item["path"]+"/*"
+						if tmpItem==tmpLine:
+							match=0
+							break
+						else:
+							match+=1
+					if match>0:
+						self.excludeFolders.pop(i)
 			
 			for i in range(len(self.includeFolders)-1,-1,-1):
-				tmp_line="!"+self.includeFolders[i]
-				if tmp_line in folderUnSelected:
+				tmpLine="!"+self.includeFolders[i]
+				match=0
+				if tmpLine in folderUnSelected:
 					self.includeFolders.pop(i)
+				else:
+					for item in self.folderStruct:
+						tmpItem="!"+item["path"]+"/*"
+						if tmpItem==tmpLine:
+							match=0
+							break
+						else:
+							match+=1
+					if match>0:
+						self.includeFolders.pop(i)
 			
 			for i in range(len(self.excludeFolders)-1,-1,-1):
 				for element in self.includeFolders:

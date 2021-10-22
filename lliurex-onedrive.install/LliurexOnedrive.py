@@ -578,6 +578,7 @@ class Bridge(QObject):
 
 		isRunningBefore=self.onedriveMan.isOnedriveRunning()
 		ret=self.onedriveMan.manageSync(value)
+		time.sleep(1)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
 		if isRunningBefore==self.isOnedriveRunning:
 			if isRunningBefore:
@@ -875,6 +876,7 @@ class Bridge(QObject):
 					self.showSynchronizeDialog=True
 			else:
 				if self.closePopUp:
+					self.onedriveMan.manageFileFilter("restore")
 					self.closeGui=True
 				else:
 					self.closeGui=False
