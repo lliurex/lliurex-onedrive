@@ -207,7 +207,7 @@ Rectangle{
                 id:dialogText
                 text:{
                     if (!syncAll.checked){
-                        i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nYou want to delete the rest of the folders from this computer")
+                        i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nDo you want to delete the rest of the folders from this computer?")
                     }else{
                           i18nd("lliurex-onedrive","Applying the changes will sync all the content of your Onedrive account")
                     }

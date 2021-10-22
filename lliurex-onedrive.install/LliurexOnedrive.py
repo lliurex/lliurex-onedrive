@@ -50,6 +50,9 @@ class Bridge(QObject):
 		self._syncAll=self.onedriveMan.syncAll
 		self._syncCustomChanged=False
 		self.keepFolders=True
+		self._initialDownload=""
+		self._hddFreeSpace=""
+		self._showDownloadDialog=False
 		self.initBridge()
 
 	#def _init__
@@ -360,7 +363,45 @@ class Bridge(QObject):
 
 	#def _setSyncCustomChanged
 
+	def _getInitialDownload(self):
 
+		return self._initialDownload
+
+	#def _getInitialDownload	
+
+	def _setInitialDownload(self,initialDownload):
+		
+		self._initialDownload=initialDownload
+		self.on_initialDownload.emit()
+
+	#def _setInitialDownload
+
+	def _getHddFreeSpace(self):
+
+		return self._hddFreeSpace
+
+	#def _getHddFreeSpace	
+
+	def _setHddFreeSpace(self,hddFreeSpace):
+		
+		self._hddFreeSpace=hddFreeSpace
+		self.on_hddFreeSpace.emit()
+
+	#def _setHddFreeSpace
+
+	
+	def _getShowDownloadDialog(self):
+
+		return self._showDownloadDialog
+	#def _getShowDownloadDialog
+
+	def _setShowDownloadDialog(self,showDownloadDialog):
+
+		self._showDownloadDialog=showDownloadDialog
+		self.on_showDownloadDialog.emit()
+
+	#def _setShowDownloadDialog
+	
 	@Slot(str)
 	def createAccount(self,token):
 
@@ -377,6 +418,9 @@ class Bridge(QObject):
 		ret=self.onedriveMan.createAccount()
 		
 		if ret:
+			self.initialDownload=self.onedriveMan.getInitialDownload()
+			self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
+			'''
 			time.sleep(5)
 			self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
 			if not self.isOnedriveRunning:
@@ -386,13 +430,46 @@ class Bridge(QObject):
 				self.accountStatus=ret1[1]
 				self.freeSpace=ret1[2]
 				self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+			'''
+			if self.initialDownload!="":
+				self.showDownloadDialog=True
+			else:
+				self.currentStack=2
 
-			self.currentStack=2
 		else:
 			self.currentStack=3
 
 	#def _createAccount
 	
+	@Slot(str)
+	def manageDownloadDialog(self,option):
+
+		self.showDownloadDialog=False
+		if option=="All":
+			t = threading.Thread(target=self._initialStartUp)
+			t.daemon=True
+			t.start()
+
+		else:
+			self.currentStack=2
+
+	def _initialStartUp(self):
+
+		ret=self.onedriveMan.manageSync(True)
+		time.sleep(5)
+		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+		if not self.isOnedriveRunning:
+			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+		else:
+			ret1=self.onedriveMan.getAccountStatus()
+			self.accountStatus=ret1[1]
+			self.freeSpace=ret1[2]
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+
+		self.currentStack=2
+
+	#def _initialStartUp
+
 	@Slot()
 	def checkAccountStatus(self):
 
@@ -863,6 +940,15 @@ class Bridge(QObject):
 	
 	on_syncCustomChanged=Signal()
 	syncCustomChanged=Property(bool,_getSyncCustomChanged,_setSyncCustomChanged,notify=on_syncCustomChanged)
+
+	on_initialDownload=Signal()
+	initialDownload=Property(str,_getInitialDownload,_setInitialDownload,notify=on_initialDownload)
+
+	on_hddFreeSpace=Signal()
+	hddFreeSpace=Property(str,_getHddFreeSpace,_setHddFreeSpace,notify=on_hddFreeSpace)
+
+	on_showDownloadDialog=Signal()
+	showDownloadDialog=Property(bool,_getShowDownloadDialog,_setShowDownloadDialog,notify=on_showDownloadDialog)
 	
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	model=Property(QObject,_getModel,constant=True)

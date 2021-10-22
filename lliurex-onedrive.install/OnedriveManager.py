@@ -6,6 +6,7 @@ import json
 import math
 import shutil 
 import copy
+import psutil
 
 
 class OnedriveManager:
@@ -35,6 +36,7 @@ class OnedriveManager:
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
 		self.filterFile=os.path.join(self.internalOnedriveFolder,"sync_list")
+		self.filterFileHash=os.path.join(self.internalOnedriveFolder,".sync_list.hash")
 		self.includeFolders=[]
 		self.excludeFolders=[]
 		self.syncAll=True
@@ -112,12 +114,64 @@ class OnedriveManager:
 		rc=p.returncode
 		if rc in [0,1]:
 			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
-			ret=self.manageSync(True)
+			#ret=self.manageSync(True)
 			return True
 		else:
 			return False
 
 	#def createAccount
+
+	def getInitialDownload(self):
+
+		download=""
+		cmd="onedrive --display-sync-status"
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()[0]
+		rc=p.returncode
+
+		if rc==0:
+			if type(poutput) is bytes:
+				poutput=poutput.decode()
+
+			poutput=poutput.split("\n")
+
+			for line in poutput:
+				if 'data to download' in line:
+					tmpLine=line.split(":")[1].strip()
+					if tmpLine!="":
+						download=self._formatInitialDownload(tmpLine)
+						break
+		
+		return download
+
+	#def getInitialDownload
+
+	def _formatInitialDownload(self,value):
+
+		if "KB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024
+		elif "MB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024*1024
+		elif "GB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024*1024*1024
+		else:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)
+
+		return self._formatFreeSpace(tmp)
+	
+	#def __formatInitialDownload
+
+	def getHddFreeSpace(self):
+
+		hdd=psutil.disk_usage('/home')
+		hddFreeSpace=self._formatFreeSpace(hdd.free)
+		return hddFreeSpace
+
+	#def getHddFreeSpace
 
 	def isAutoStartEnabled(self):
 
@@ -297,6 +351,11 @@ class OnedriveManager:
 			ret=self.manageAutostart(False,True)
 			cmd="/usr/bin/onedrive --logout &"
 			p=subprocess.run(cmd,shell=True,check=True)
+			time.sleep(2)
+			if os.path.exists(self.filterFile):
+				os.remove(self.filterFile)
+			if os.path.exists(self.filterFileHash):
+				os.remove(self.filterFileHash)
 			return True
 		else:
 			return False
@@ -667,6 +726,9 @@ class OnedriveManager:
 			#foldersSelected=[]
 			#foldersUnSelected=[]
 			os.remove(self.filterFile)
+			if os.path.exists(self.filterFileHash):
+				os.remove(self.filterFileHash)
+
 			#self.folderStruct=[]
 
 		self.currentSyncConfig[0]=syncAll
