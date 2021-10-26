@@ -725,12 +725,14 @@ class OnedriveManager:
 		if not syncAll:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
 			if not keepFolders:
-				shutil.rmtree(self.userFolder)
+				if os.path.exists(self.userFolder):
+					shutil.rmtree(self.userFolder)
 			self.readFilterFile()
 		else:
 			#foldersSelected=[]
 			#foldersUnSelected=[]
-			os.remove(self.filterFile)
+			if os.path.exists(self.filterFile):
+				os.remove(self.filterFile)
 			if os.path.exists(self.filterFileHash):
 				os.remove(self.filterFileHash)
 
