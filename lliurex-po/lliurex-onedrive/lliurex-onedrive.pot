@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-21 16:46+0200\n"
+"POT-Creation-Date: 2021-10-26 09:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,7 +69,7 @@ msgid "Click to open OneDrive Folder"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:91
-msgid "Free Space:"
+msgid "Free Space on OneDrive:"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:102
@@ -189,7 +189,7 @@ msgid "Microsoft OneDrive not available\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:370
-msgid "Unknown\n"
+msgid "Information not available\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38

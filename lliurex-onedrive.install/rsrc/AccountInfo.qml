@@ -88,7 +88,7 @@ Rectangle{
 
             Text{
                 id:freeSpaceText
-                text:i18nd("lliurex-onedrive","Free Space:")
+                text:i18nd("lliurex-onedrive","Free Space on OneDrive:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignRight
@@ -367,7 +367,7 @@ Rectangle{
                 var sync=i18nd("lliurex-onedrive","Microsoft OneDrive not available\n")+additionalText;
                 break;
             default:
-                var sync=i18nd("lliurex-onedrive","Unknown\n")+additionalText;
+                var sync=i18nd("lliurex-onedrive","Information not available\n")+additionalText;
                 break;
         }
         return sync

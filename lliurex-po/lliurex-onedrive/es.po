@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-21 16:46+0200\n"
-"PO-Revision-Date: 2021-10-21 16:48+0200\n"
+"POT-Creation-Date: 2021-10-26 09:01+0200\n"
+"PO-Revision-Date: 2021-10-26 09:10+0200\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -66,15 +66,15 @@ msgstr "No es posible detener la sincronización"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:53
 msgid "OneDrive Folder:"
-msgstr "Carpeta Onedrive:"
+msgstr "Carpeta de OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:80
 msgid "Click to open OneDrive Folder"
 msgstr "Haga clic para abrir la carpeta de OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:91
-msgid "Free Space:"
-msgstr "Espacio disponible:"
+msgid "Free Space on OneDrive:"
+msgstr "Espacio disponible en OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:102
 msgid "Information not available"
@@ -200,8 +200,8 @@ msgid "Microsoft OneDrive not available\n"
 msgstr "Microsoft OneDrive no esta disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:370
-msgid "Unknown\n"
-msgstr "Desconocido.\n"
+msgid "Information not available\n"
+msgstr "Información no disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:16
