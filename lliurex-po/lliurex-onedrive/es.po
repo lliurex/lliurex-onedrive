@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-27 08:49+0200\n"
-"PO-Revision-Date: 2021-10-27 08:57+0200\n"
+"PO-Revision-Date: 2021-10-27 13:38+0200\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -94,7 +94,7 @@ msgstr "Parada"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to stop syncing with OneDrive"
-msgstr "Haga clic para iniciar la sincronización con OneDrive"
+msgstr "Haga clic para detener la sincronización con OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to start syncing with OneDrive"
