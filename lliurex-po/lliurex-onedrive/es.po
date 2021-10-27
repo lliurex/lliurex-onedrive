@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-27 08:49+0200\n"
-"PO-Revision-Date: 2021-10-27 13:38+0200\n"
+"POT-Creation-Date: 2021-10-27 17:56+0200\n"
+"PO-Revision-Date: 2021-10-27 17:57+0200\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -46,7 +46,7 @@ msgstr "Descartar"
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:159
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:296
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:179
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:264
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:279
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -139,7 +139,7 @@ msgstr ""
 "OneDrive no será borrado"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:286
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:250
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:265
 msgid "Accept"
 msgstr "Aceptar"
 
@@ -209,7 +209,7 @@ msgstr "Información no disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:16
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:191
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:206
 msgid "Synchronize"
 msgstr "Sincronizar"
 
@@ -357,7 +357,11 @@ msgstr ""
 msgid "Click to update the OneDrive folder structure"
 msgstr "Haga clic para actualizar la estructura de la carpeta de OneDrive"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:211
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:184
+msgid "Restoring values . Wait a moment..."
+msgstr "Restaurando valores. Espere un momento..."
+
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:226
 msgid ""
 "Applying the changes will only sync the content of the selected folders\n"
 "Do you want to delete the rest of the folders from this computer?"
@@ -366,33 +370,33 @@ msgstr ""
 "seleccionadas\n"
 "¿Desea borrar el resto de carpetas no seleccionadas de deste ordenador?"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:213
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:228
 msgid "Applying the changes will sync all the content of your Onedrive account"
 msgstr ""
 "Aplicando los cambios se sincronizará todo el contenido de su cuenta de "
 "OneDrive"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:235
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:250
 msgid "Yes, delete unselected folders"
 msgstr "Si, borrar las carpetas no seleccionadas"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:248
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:263
 msgid "No, keep folders unselected"
 msgstr "No, mantener las carpetas no seleccionadas"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:272
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:290
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:287
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:305
 msgid "Apply changes. Wait a moment..."
 msgstr "Guardando cambios. Espere un momento..."
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:333
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:348
 msgid "Functionality available only if sync is stopped"
 msgstr "Funcionalidad sólo disponible si la sincronización esta parada"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:337
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:352
 msgid "Changes applied correctly"
 msgstr "Cambios aplicados correctamente"
 
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:341
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:356
 msgid "An error occurred while applying the changes"
 msgstr "Ha ocurrido un error al aplicar los cambios"

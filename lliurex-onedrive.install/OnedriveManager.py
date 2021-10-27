@@ -33,6 +33,7 @@ class OnedriveManager:
 		self.monitorInterval=1
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
 		self.folderStruct=[]
+		self.folderStructBack=[]
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
 		self.filterFile=os.path.join(self.internalOnedriveFolder,"sync_list")
@@ -163,7 +164,7 @@ class OnedriveManager:
 
 		return self._formatFreeSpace(tmp)
 	
-	#def __formatInitialDownload
+	#def _formatInitialDownload
 
 	def getHddFreeSpace(self):
 
@@ -589,6 +590,8 @@ class OnedriveManager:
 								else:	
 									item["isChecked"]=False
 					
+		self.folderStructBack=copy.deepcopy(self.folderStruct)
+		
 		return self.folderStruct
 
 	#def getFolderStruct
@@ -741,6 +744,7 @@ class OnedriveManager:
 		self.currentSyncConfig[0]=syncAll
 		self.currentSyncConfig[1]=foldersSelected
 		self.currentSyncConfig[2]=foldersUnSelected
+		self.folderStructBack=copy.deepcopy(self.folderStruct)
 
 		ret=self._syncResync()
 		return ret
@@ -879,5 +883,12 @@ class OnedriveManager:
 				item["isChecked"]=checked
 
 	#def updateCheckFolder
+
+	def cancelSyncChanges(self):
+
+		if self.folderStruct!=self.folderStructBack:
+			self.folderStruct=copy.deepcopy(self.folderStructBack)
+
+	#def cancelSyncChanges
 
 #class OnedriveManager

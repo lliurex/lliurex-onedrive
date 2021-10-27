@@ -820,9 +820,33 @@ class Bridge(QObject):
 
 	@Slot()
 	def cancelSyncBtn(self):
-		self.syncCustomChanged=False
+		
+		self.closePopUp=False
+		t = threading.Thread(target=self._cancelSyncBtn)
+		t.daemon=True
+		t.start()
 
 	#def cancelSyncBtn
+
+	def _cancelSyncBtn(self):
+
+		self.syncCustomChanged=False
+		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
+		self.onedriveMan.cancelSyncChanges()
+		self.syncAll=self.initialSyncConfig[0]
+
+		ret=self._model.resetModel()
+		self._model=Model.MyModel(self.entries)
+		entries=self.onedriveMan.folderStruct
+		for item in entries:
+			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
+
+		index = self._model.index(0)
+		self._model.setData(index,"isChecked",True)
+
+		self.closePopUp=True
+	
+	#def _cancelSyncBtn
 
 	@Slot(str)
 	def manageSynchronizeDialog(self,action):
@@ -855,6 +879,7 @@ class Bridge(QObject):
 
 		ret=self.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders)
 		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
+		self.syncAll=self.initialSyncConfig[0]
 		self.closePopUp=True
 		self.syncCustomChanged=False
 

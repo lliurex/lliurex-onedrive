@@ -180,6 +180,21 @@ Rectangle{
             Layout.preferredHeight: 40
             enabled:onedriveBridge.syncCustomChanged
             onClicked:{
+                synchronizePopup.open()
+                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Restoring values . Wait a moment...")
+                syncAll.checked=onedriveBridge.syncAll
+                delay(1000, function() {
+                    if (onedriveBridge.closePopUp){
+                        synchronizePopup.close()
+                        timer.stop()
+                        if (syncAll.checked){
+                            folderList.structVisible=false
+                        }else{
+                            folderList.structModel=onedriveBridge.model
+                            folderList.structVisible=true;
+                        }
+                    }
+                })
                 onedriveBridge.cancelSyncBtn()
             }
         }
