@@ -34,6 +34,7 @@ Rectangle{
             Layout.minimumWidth:650
             Layout.maximumWidth:650
             Layout.topMargin: 40
+            Layout.leftMargin: 10
         }
 
         GridLayout{
