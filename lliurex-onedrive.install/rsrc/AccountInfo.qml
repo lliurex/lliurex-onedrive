@@ -300,8 +300,16 @@ Rectangle{
                 }
 
                 onApplied:{
-                    onedriveBridge.removeAccount()
+                    accountPopup.open()
+                    accountPopup.popupMessage=i18nd("lliurex-onedrive", "Unlinking from OneDrive account. Wait a moment...")
+                    delay(1000, function() {
+                        if (onedriveBridge.closePopUp){
+                            accountPopup.close(),
+                            timer.stop();
+                        }
+                    })
                     unlinkDialog.close()
+                    onedriveBridge.removeAccount()
                 
                 }
 

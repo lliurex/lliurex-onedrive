@@ -621,15 +621,26 @@ class Bridge(QObject):
 	
 	@Slot()
 	def removeAccount(self):
-		ret=self.onedriveMan.removeAccount()
+
+		self.closePopUp=False
+		t = threading.Thread(target=self._removeAccount)
+		t.daemon=True
+		t.start()
 		self.showUnlinkDialog=False
+
+	#def removeAccount
+
+	def _removeAccount(self):
+
+		ret=self.onedriveMan.removeAccount()
+		self.closePopUp=True
 		if ret:
 			self.currentStack=3
 			self.infoStackType="Unlink"
 		else:
 			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]	
 	
-	#def removeAccount
+	#def _removeAccount
 
 	@Slot()
 	def openFolder(self):
