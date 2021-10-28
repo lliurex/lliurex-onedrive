@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 08:55+0200\n"
-"PO-Revision-Date: 2021-10-28 08:55+0200\n"
+"POT-Creation-Date: 2021-10-28 10:03+0200\n"
+"PO-Revision-Date: 2021-10-28 10:06+0200\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -44,7 +44,7 @@ msgid "Discard"
 msgstr "Descartar"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:159
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:296
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:301
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:150
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:179
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:279
@@ -52,7 +52,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:13
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:250
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:255
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:25
 msgid "Account"
 msgstr "Cuenta"
@@ -101,35 +101,35 @@ msgstr "Haga clic para detener la sincronización con OneDrive"
 msgid "Click to start syncing with OneDrive"
 msgstr "Haga clic para iniciar la sincronización con OneDrive"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:148
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:152
 msgid "Stopping synchronization. Wait a moment..."
 msgstr "Parando la sincronización. Espere un momento..."
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:148
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:152
 msgid "Starting synchronization. Wait a moment..."
 msgstr "Iniciando la sincronización. Espere un momento..."
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:168
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:173
 msgid "Status:"
 msgstr "Estado:"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:202
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:207
 msgid "Click to update status information"
 msgstr "Haga clic para actualizar la información sobre el estado"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:206
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:211
 msgid "Checking status. Wait a moment..."
 msgstr "Comprobando el estado. Espere un momento..."
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:222
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:227
 msgid "Unlink from OneDrive account:"
 msgstr "Desvincular de la cuenta de OneDrive:"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:237
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:242
 msgid "Click to unlink from OneDrive account"
 msgstr "Haga clic para desvincular de la cuenta de OneDrive"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:267
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:272
 msgid ""
 "Are you sure you want to unlink this computer from OneDrive account?.\n"
 "The files will stop syncing, but the contents of the OneDrive folder\n"
@@ -139,16 +139,21 @@ msgstr ""
 "Los archivos ya no serán sincronizados, pero el contenido de la carpeta\n"
 "OneDrive no será borrado"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:286
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:291
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:369
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:265
 msgid "Accept"
 msgstr "Aceptar"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:304
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:309
 msgid "Unlinking from OneDrive account. Wait a moment..."
 msgstr "Desvinculando de la cuenta de OneDrive. Espere un momento..."
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:341
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:333
+msgid "Pending changes"
+msgstr "Cambios pendientes"
+
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:402
 msgid ""
 "Wait a moment and update the status\n"
 "If persist run a OneDrive test"
@@ -156,31 +161,31 @@ msgstr ""
 "Espere un momento y actualice el estado\n"
 "Si persiste ejecute el test de Onedrive"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:344
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:405
 msgid "All remote content synchronized"
 msgstr "Todo el contenido remoto esta sincronizado"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:347
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:408
 msgid "Remote content pending syncing"
 msgstr "Cambios remotos pendiente de sincronizar"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:350
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:411
 msgid "Microsoft OneDrive API return an error\n"
 msgstr "Microsoft OneDrive API ha devuelto un error\n"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:353
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:414
 msgid "Unable to connect with Microsoft OneDrive\n"
 msgstr "No es posible conectar con Microsoft OneDrive\n"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:356
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:417
 msgid "Problems with local file system\n"
 msgstr "Problemas con el sistema local de ficheros\n"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:360
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:421
 msgid "Your free space is 0"
 msgstr "Su espacio disponible es 0"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:363
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:424
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
@@ -188,25 +193,41 @@ msgstr ""
 "La información sobre su quota esta restringida\n"
 "Puede que el espacio disponible sea 0"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:366
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:427
 msgid "Problems with database\n"
 msgstr "Problemas con la base de datos\n"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:369
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:430
 msgid "The authorization to access your account has expired"
 msgstr "La autorización para acceder a su cuenta ha caducado"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:372
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:433
 msgid "Uploading pending changes"
 msgstr "Subiendo cambios pendientes"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:375
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:436
 msgid "Microsoft OneDrive not available\n"
 msgstr "Microsoft OneDrive no esta disponible\n"
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:378
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:439
 msgid "Information not available\n"
 msgstr "Información no disponible\n"
+
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:447
+msgid "Apply or cancel changes before starting changes."
+msgstr "Aplique o cancele los cambios antes de iniciar la sincronización."
+
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:450
+msgid "There are pending changes to be applied in settings.\n"
+msgstr "Hay cambios pendientes de aplicar en preferencias.\n"
+
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:454
+msgid "There are pending changes to be applied in synchronize.\n"
+msgstr "Hay cambios pendientes de aplicar en sincronizar.\n"
+
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:456
+msgid "There are pending changes to be applied in synchronize and settings.\n"
+msgstr "Hay cambios pendientes de aplicar en sincronizar y preferencias.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:16

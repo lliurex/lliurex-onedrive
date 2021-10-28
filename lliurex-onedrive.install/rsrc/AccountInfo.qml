@@ -144,16 +144,21 @@ Rectangle{
                     ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with OneDrive"):i18nd("lliurex-onedrive","Click to start syncing with OneDrive")
                     hoverEnabled:true
                     onClicked:{
-                        accountPopup.open()
-                        accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
-                        delay(1000, function() {
-                            if (onedriveBridge.closePopUp){
-                                accountPopup.close(),
-                                timer.stop();
-                            }
-                        })
-                
-                        onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
+                        if ((onedriveBridge.settingsChanged)|| (onedriveBridge.syncCustomChanged)){
+                            changesDialog.open()
+                        }else{
+
+                            accountPopup.open()
+                            accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
+                            delay(1000, function() {
+                                if (onedriveBridge.closePopUp){
+                                    accountPopup.close(),
+                                    timer.stop();
+                                }
+                            })
+                    
+                            onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
+                        }
                     }
                 }
             }
@@ -311,6 +316,7 @@ Rectangle{
                     unlinkDialog.close()
                     onedriveBridge.removeAccount()
                 
+                
                 }
 
                 onRejected:{
@@ -320,6 +326,61 @@ Rectangle{
             }
         }
      }
+
+    Dialog {
+        id: changesDialog
+        modality:Qt.WindowModal
+        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Pending changes")
+
+        contentItem: Rectangle {
+            color: "#ebeced"
+            implicitWidth: 550
+            implicitHeight: 105
+            anchors.topMargin:5
+            anchors.leftMargin:5
+
+            Image{
+                id:changesDialogIcon
+                source:"/usr/share/icons/breeze/status/64/dialog-information.svg"
+
+            }
+            
+            Text {
+                id:changesDialogText
+                text:getChangesText()
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                anchors.left:changesDialogIcon.right
+                anchors.verticalCenter:changesDialogIcon.verticalCenter
+                anchors.leftMargin:10
+            
+            }
+
+            DialogButtonBox {
+                buttonLayout:DialogButtonBox.KdeLayout
+                anchors.bottom:parent.bottom
+                anchors.right:parent.right
+                anchors.topMargin:15
+
+                Button {
+                    id:changesDialogApplyBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-ok.svg"
+                    text: i18nd("lliurex-onedrive","Accept")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+                }
+
+                onApplied:{
+                    changesDialog.close()
+                
+                }
+
+            }
+        }
+     }
+
 
      CustomPopup{
         id:accountPopup
@@ -380,4 +441,27 @@ Rectangle{
         }
         return sync
     }
+
+    function getChangesText(){
+
+        var aditionalText=i18nd("lliurex-onedrive","Apply or cancel changes before starting changes.")
+
+        if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
+            var text=i18nd("lliurex-onedrive","There are pending changes to be applied in settings.\n")
+
+        }else{
+            if ((!onedriveBridge.settingsChanged) && (onedriveBridge.syncCustomChanged)){
+                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in synchronize.\n")
+            }else{
+                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in synchronize and settings.\n")
+          
+            }
+
+        }
+        return text+aditionalText
+
+    }
 }
+
+
+
