@@ -532,17 +532,17 @@ class Bridge(QObject):
 	#def getRateLimit
 
 	@Slot()
-	def applyChanges(self):
+	def applySettingsChanges(self):
 
 		self.closePopUp=False
 		self.closeGui=False
-		t = threading.Thread(target=self._applyChanges)
+		t = threading.Thread(target=self._applySettingsChanges)
 		t.daemon=True
 		t.start()
 	
-	#def applyChanges
+	#def applySettingsChanges
 
-	def _applyChanges(self):
+	def _applySettingsChanges(self):
 
 		ret=self.onedriveMan.applyChanges(self.initialConfig)
 		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
@@ -555,7 +555,23 @@ class Bridge(QObject):
 				self.closeGui=True
 			self.settingsChanged=False
 
-	#def _applyChanges
+	#def _applySettingsChanges
+
+	@Slot()
+	def cancelSettingsChanges(self):
+
+		if not self.syncCustomChanged:
+			self.closeGui=True
+		
+		self.hideSettingsMessage()
+		self.settingsChanged=False
+		self.showSettingsDialog=False
+		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self.autoStartEnabled=self.initialConfig[0]
+		self.monitorInterval=int(self.initialConfig[1])
+		self.rateLimit=self.initialConfig[2]
+
+	#def cancelSettingsChanges
 
 	@Slot()
 	def hideSettingsMessage(self):
@@ -683,12 +699,9 @@ class Bridge(QObject):
 	def manageSettingsDialog(self,action):
 		
 		if action=="Accept":
-			self.applyChanges()
+			self.applySettingsChanges()
 		elif action=="Discard":
-			if not self.syncCustomChanged:
-				self.closeGui=True
-			self.settingsChanged=False
-			self.showSettingsDialog=False
+			self.cancelSettingsChanges()
 		elif action=="Cancel":
 			self.closeGui=False
 			self.showSettingsDialog=False

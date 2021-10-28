@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-27 17:56+0200\n"
+"POT-Creation-Date: 2021-10-28 08:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,6 +41,7 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:159
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:296
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:150
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:179
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:279
 msgid "Cancel"
@@ -235,23 +236,23 @@ msgstr ""
 msgid "Download/Upload network bandwidth:"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/Settings.qml:149
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:163
 msgid "Saving changes. Wait a moment..."
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/Settings.qml:157
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:171
 msgid "Failed to change synchronization boot configuration"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/Settings.qml:160
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:174
 msgid "Failed to write configuration file"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/Settings.qml:163
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:177
 msgid "Failed to apply configuration changes"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/Settings.qml:166
+#: ../lliurex-onedrive.install/rsrc/Settings.qml:180
 msgid ""
 "The changes will take effect the next time you start session or "
 "synchronization"
