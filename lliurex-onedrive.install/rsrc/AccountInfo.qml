@@ -374,6 +374,7 @@ Rectangle{
 
                 onApplied:{
                     changesDialog.close()
+                    optionsLayout.currentIndex=getTransition()
                 
                 }
 
@@ -459,6 +460,16 @@ Rectangle{
 
         }
         return text+aditionalText
+
+    }
+
+    function getTransition(){
+
+        if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
+            return 2
+        }else{
+            return 1
+        }
 
     }
 }
