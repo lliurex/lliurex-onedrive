@@ -641,10 +641,11 @@ class OnedriveManager:
 					tmpItem2=out[j]
 					if 'local directory' in tmpItem2:
 						tmpEntry2=out[j].split(":")[1].strip()
-						if tmpList["path"] in tmpEntry2:
+						tmpPath=tmpList["path"]+"/"
+						if tmpPath in tmpEntry2:
 							countChildren+=1
 
-				if countChildren>1:
+				if countChildren>0:
 					tmpList["canExpanded"]=True 
 				else:
 					tmpList["canExpanded"]=False
@@ -707,10 +708,11 @@ class OnedriveManager:
 					tmpItem2=syncOut[j]+": "+syncOut[j+1]
 					if 'The directory' in tmpItem2:
 						tmpEntry2=syncOut[j].split("Processing")[1].strip()
-						if tmpList["path"] in tmpEntry2:
+						tmpPath=tmpList["path"]+"/"
+						if tmpPath in tmpEntry2:
 							countChildren+=1
 
-				if countChildren>1:
+				if countChildren>0:
 					tmpList["canExpanded"]=True 
 				else:
 					tmpList["canExpanded"]=False
@@ -783,7 +785,8 @@ class OnedriveManager:
 					tmp=foldersUnSelected[i]+"/*"
 					if tmp in self.includeFolders:
 						self.includeFolders.remove(tmp)
-				if foldersUnSelected[i] in element:
+				tmpFolder=foldersUnSelected[i]+"/"
+				if tmpFolder in element:
 					foldersUnSelected.pop(i)
 
 		
@@ -848,7 +851,7 @@ class OnedriveManager:
 			
 			for i in range(len(self.excludeFolders)-1,-1,-1):
 				for element in self.includeFolders:
-					tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]
+					tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]+"/"
 					if tmp in element:
 						self.excludeFolders.pop(i)
 
