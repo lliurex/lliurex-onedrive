@@ -347,7 +347,9 @@ class OnedriveManager:
 
 	def removeAccount(self):
 
-		ret=self.manageSync(False)
+		if self.isOnedriveRunning():
+			ret=self.manageSync(False)
+			
 		if not self.isOnedriveRunning():
 			ret=self.manageAutostart(False,True)
 			cmd="/usr/bin/onedrive --logout &"
