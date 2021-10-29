@@ -53,6 +53,7 @@ class Bridge(QObject):
 		self._initialDownload=""
 		self._hddFreeSpace=""
 		self._showDownloadDialog=False
+		self._currentOptionsStack=0
 		self.initBridge()
 
 	#def _init__
@@ -393,6 +394,7 @@ class Bridge(QObject):
 	def _getShowDownloadDialog(self):
 
 		return self._showDownloadDialog
+	
 	#def _getShowDownloadDialog
 
 	def _setShowDownloadDialog(self,showDownloadDialog):
@@ -401,6 +403,19 @@ class Bridge(QObject):
 		self.on_showDownloadDialog.emit()
 
 	#def _setShowDownloadDialog
+	
+	def _getCurrentOptionsStack(self):
+
+		return self._currentOptionsStack
+	
+	#def _getCurrentOptionsStack
+
+	def _setCurrentOptionsStack(self,currentOptionsStack):
+
+		self._currentOptionsStack=currentOptionsStack
+		self.on_currentOptionsStack.emit()
+
+	#def _setCurrentOptionsStack
 	
 	@Slot(str)
 	def createAccount(self,token):
@@ -420,17 +435,7 @@ class Bridge(QObject):
 		if ret:
 			self.initialDownload=self.onedriveMan.getInitialDownload()
 			self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
-			'''
-			time.sleep(5)
-			self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-			if not self.isOnedriveRunning:
-				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
-			else:
-				ret1=self.onedriveMan.getAccountStatus()
-				self.accountStatus=ret1[1]
-				self.freeSpace=ret1[2]
-				self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
-			'''
+			
 			if self.initialDownload!="":
 				self.showDownloadDialog=True
 			else:
@@ -451,7 +456,10 @@ class Bridge(QObject):
 			t.start()
 
 		else:
+			self.currentOptionsStack=1
 			self.currentStack=2
+
+	#def manageDownloadDialog
 
 	def _initialStartUp(self):
 
@@ -1001,6 +1009,9 @@ class Bridge(QObject):
 	on_showDownloadDialog=Signal()
 	showDownloadDialog=Property(bool,_getShowDownloadDialog,_setShowDownloadDialog,notify=on_showDownloadDialog)
 	
+	on_currentOptionsStack=Signal()
+	currentOptionsStack=Property(int,_getCurrentOptionsStack,_setCurrentOptionsStack,notify=on_currentOptionsStack)
+
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	model=Property(QObject,_getModel,constant=True)
 

@@ -88,7 +88,7 @@ GridLayout{
 
     StackLayout {
         id: optionsLayout
-        currentIndex:0
+        currentIndex:onedriveBridge.currentOptionsStack
         implicitHeight: 450
         Layout.alignment:Qt.AlignHCenter
 
