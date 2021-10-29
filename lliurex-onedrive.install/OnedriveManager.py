@@ -542,6 +542,7 @@ class OnedriveManager:
 
 	def getFolderStruct(self):
 
+		error=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
 
@@ -550,51 +551,55 @@ class OnedriveManager:
 		out=p.communicate()[0]
 		out=out.decode().split("\n")
 		syncOut=copy.deepcopy(out)
-		
+		rc=p.returncode
+
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("restore")
 		
-		folderResyncStruct=self._processingResyncOut(out)
-		folderSyncStruct=self._processingSyncOut(syncOut)
+		if rc==0:
+			folderResyncStruct=self._processingResyncOut(out)
+			folderSyncStruct=self._processingSyncOut(syncOut)
 
-		if len(folderResyncStruct)>0:
-			for item in folderSyncStruct:
-				match=0
-				for element in folderResyncStruct:
-					if item["path"]==element["path"]:
-						match=0
-						break
-					else:
-						match+=1
-				if match>0:
-					folderResyncStruct.append(item)
-		else:
-			folderResyncStruct=folderSyncStruct
-
-		self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
-		if self.existsFilterFile():
-			self.readFilterFile()
-			for item in self.folderStruct:
-				tmp="!"+item["path"]+"/*"
-				if tmp in self.excludeFolders:
-					item["isChecked"]=False
-				else:
-					if (item["path"]+"/*") not in self.includeFolders:
-						tmp=item["type"]+"/*"
-						if tmp in self.includeFolders:
-							item["isChecked"]=True
+			if len(folderResyncStruct)>0:
+				for item in folderSyncStruct:
+					match=0
+					for element in folderResyncStruct:
+						if item["path"]==element["path"]:
+							match=0
+							break
 						else:
-							tmp=item["path"]+"/*"
-							for element in self.includeFolders:
-								if element.split("/*")[0] in tmp:
-									item["isChecked"]=True
-									break
-								else:	
-									item["isChecked"]=False
-					
-		self.folderStructBack=copy.deepcopy(self.folderStruct)
+							match+=1
+					if match>0:
+						folderResyncStruct.append(item)
+			else:
+				folderResyncStruct=folderSyncStruct
+
+			self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
+			if self.existsFilterFile():
+				self.readFilterFile()
+				for item in self.folderStruct:
+					tmp="!"+item["path"]+"/*"
+					if tmp in self.excludeFolders:
+						item["isChecked"]=False
+					else:
+						if (item["path"]+"/*") not in self.includeFolders:
+							tmp=item["type"]+"/*"
+							if tmp in self.includeFolders:
+								item["isChecked"]=True
+							else:
+								tmp=item["path"]+"/*"
+								for element in self.includeFolders:
+									if element.split("/*")[0] in tmp:
+										item["isChecked"]=True
+										break
+									else:	
+										item["isChecked"]=False
+						
+			self.folderStructBack=copy.deepcopy(self.folderStruct)
+		else:
+			error=True
 		
-		return self.folderStruct
+		return [error,self.folderStruct]
 
 	#def getFolderStruct
 

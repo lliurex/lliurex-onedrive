@@ -16,6 +16,7 @@ STOP_SYNCHRONIZATION_ERROR=-2
 DISABLE_SYNC_OPTIONS=0
 CHANGE_SYNC_OPTIONS_OK=1
 CHANGE_SYNC_OPTIONS_ERROR=-1
+CHANGE_SYNC_FOLDERS_ERROR=-2
 
 class Bridge(QObject):
 
@@ -54,6 +55,7 @@ class Bridge(QObject):
 		self._hddFreeSpace=""
 		self._showDownloadDialog=False
 		self._currentOptionsStack=0
+		self.errorGetFolder=False
 		self.initBridge()
 
 	#def _init__
@@ -80,13 +82,14 @@ class Bridge(QObject):
 		self.syncAll=self.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-		if self.isOnedriveRunning:
-			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		
 		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
 		
 		if not self.syncAll:
 			self._updateFolderStruct()
+
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 
 		time.sleep(5)
 
@@ -739,7 +742,8 @@ class Bridge(QObject):
 
 	@Slot()
 	def updateFolderStruct(self):
-
+		
+		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=False
 		t = threading.Thread(target=self._updateFolderStruct)
 		t.daemon=True
@@ -752,11 +756,14 @@ class Bridge(QObject):
 		ret=self._model.resetModel()
 		self._model=Model.MyModel(self.entries)
 
-		entries=self.onedriveMan.getFolderStruct()
+		self.errorGetFolder,entries=self.onedriveMan.getFolderStruct()
 		for item in entries:
 			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 		
 		self.closePopUp=True
+		
+		if self.errorGetFolder:
+			self.showSynchronizeMessage=[True,CHANGE_SYNC_FOLDERS_ERROR,"Error"]
 
 	#def _updateFolderStruct
 
@@ -915,7 +922,8 @@ class Bridge(QObject):
 
 	@Slot()
 	def hideSynchronizeMessage(self):
-		if not self.isOnedriveRunning:
+
+		if not self.isOnedriveRunning and not self.errorGetFolder:
 			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 
 	#def hideSynchronizeMessage		

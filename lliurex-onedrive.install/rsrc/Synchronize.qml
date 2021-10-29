@@ -355,7 +355,9 @@ Rectangle{
             case -1:
                 var msg=i18nd("lliurex-onedrive","An error occurred while applying the changes");
                 break
-
+            case -2:
+                var msg=i18nd("lliurex-onedrive","An error occurred while getting the OneDrive folder structure");
+                break
         }
         return msg
 

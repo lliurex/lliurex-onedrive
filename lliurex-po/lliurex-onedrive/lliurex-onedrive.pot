@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 10:03+0200\n"
+"POT-Creation-Date: 2021-10-29 11:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -146,75 +146,75 @@ msgstr ""
 msgid "Pending changes"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:402
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:403
 msgid ""
 "Wait a moment and update the status\n"
 "If persist run a OneDrive test"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:405
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:406
 msgid "All remote content synchronized"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:408
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:409
 msgid "Remote content pending syncing"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:411
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:412
 msgid "Microsoft OneDrive API return an error\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:414
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:415
 msgid "Unable to connect with Microsoft OneDrive\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:417
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:418
 msgid "Problems with local file system\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:421
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:422
 msgid "Your free space is 0"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:424
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:425
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:427
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:428
 msgid "Problems with database\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:430
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:431
 msgid "The authorization to access your account has expired"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:433
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:434
 msgid "Uploading pending changes"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:436
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:437
 msgid "Microsoft OneDrive not available\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:439
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:440
 msgid "Information not available\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:447
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:448
 msgid "Apply or cancel changes before starting changes."
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:450
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451
 msgid "There are pending changes to be applied in settings.\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:454
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:455
 msgid "There are pending changes to be applied in synchronize.\n"
 msgstr ""
 
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:456
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:457
 msgid "There are pending changes to be applied in synchronize and settings.\n"
 msgstr ""
 
@@ -394,4 +394,8 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:356
 msgid "An error occurred while applying the changes"
+msgstr ""
+
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:359
+msgid "An error occurred while getting the OneDrive folder structure"
 msgstr ""
