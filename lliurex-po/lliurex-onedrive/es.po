@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 11:01+0200\n"
-"PO-Revision-Date: 2021-10-29 11:03+0200\n"
+"POT-Creation-Date: 2021-11-01 09:42+0100\n"
+"PO-Revision-Date: 2021-11-01 09:43+0100\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -218,16 +218,16 @@ msgid "Apply or cancel changes before starting changes."
 msgstr "Aplique o cancele los cambios antes de iniciar la sincronización."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451
-msgid "There are pending changes to be applied in settings.\n"
-msgstr "Hay cambios pendientes de aplicar en preferencias.\n"
+msgid "There are pending changes to be applied in Settings.\n"
+msgstr "Hay cambios pendientes de aplicar en Preferencias.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:455
-msgid "There are pending changes to be applied in synchronize.\n"
-msgstr "Hay cambios pendientes de aplicar en sincronizar.\n"
+msgid "There are pending changes to be applied in Synchronize.\n"
+msgstr "Hay cambios pendientes de aplicar en Sincronizar.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:457
-msgid "There are pending changes to be applied in synchronize and settings.\n"
-msgstr "Hay cambios pendientes de aplicar en sincronizar y preferencias.\n"
+msgid "There are pending changes to be applied in Synchronize and Settings.\n"
+msgstr "Hay cambios pendientes de aplicar en Sincronizar y Preferencias.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:16

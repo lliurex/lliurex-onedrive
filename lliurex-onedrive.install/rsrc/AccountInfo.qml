@@ -448,13 +448,13 @@ Rectangle{
         var aditionalText=i18nd("lliurex-onedrive","Apply or cancel changes before starting changes.")
 
         if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
-            var text=i18nd("lliurex-onedrive","There are pending changes to be applied in settings.\n")
+            var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Settings.\n")
 
         }else{
             if ((!onedriveBridge.settingsChanged) && (onedriveBridge.syncCustomChanged)){
-                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in synchronize.\n")
+                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Synchronize.\n")
             }else{
-                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in synchronize and settings.\n")
+                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Synchronize and Settings.\n")
           
             }
 

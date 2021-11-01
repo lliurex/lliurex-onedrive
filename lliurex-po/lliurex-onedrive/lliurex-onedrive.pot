@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 11:01+0200\n"
+"POT-Creation-Date: 2021-11-01 09:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,15 +207,15 @@ msgid "Apply or cancel changes before starting changes."
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451
-msgid "There are pending changes to be applied in settings.\n"
+msgid "There are pending changes to be applied in Settings.\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:455
-msgid "There are pending changes to be applied in synchronize.\n"
+msgid "There are pending changes to be applied in Synchronize.\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:457
-msgid "There are pending changes to be applied in synchronize and settings.\n"
+msgid "There are pending changes to be applied in Synchronize and Settings.\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
