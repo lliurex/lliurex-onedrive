@@ -138,9 +138,23 @@ Rectangle{
                         timer.stop();
                     }
                 })
-                onedriveBridge.applyChanges()
+                onedriveBridge.applySettingsChanges()
             }
         }
+        Button {
+            id:cancelBtn
+            visible:true
+            enabled:onedriveBridge.settingsChanged
+            display:AbstractButton.TextBesideIcon
+            icon.name:"dialog-cancel.svg"
+            text:i18nd("lliurex-onedrive","Cancel")
+            Layout.preferredHeight: 40
+
+            onClicked:{
+               onedriveBridge.cancelSettingsChanges()
+            }
+        }
+    
 
     }
 
