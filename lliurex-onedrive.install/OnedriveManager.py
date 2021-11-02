@@ -92,6 +92,9 @@ class OnedriveManager:
 								self.currentConfig[2]=self.rateLimit
 								break
 				fd.close()
+		else:
+			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+	
 	
 	#def readConfigFile
 

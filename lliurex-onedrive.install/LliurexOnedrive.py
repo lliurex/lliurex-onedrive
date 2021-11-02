@@ -436,13 +436,16 @@ class Bridge(QObject):
 		ret=self.onedriveMan.createAccount()
 		
 		if ret:
-			self.initialDownload=self.onedriveMan.getInitialDownload()
-			self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
-			
-			if self.initialDownload!="":
-				self.showDownloadDialog=True
+			if self.onedriveMan.isConfigured():
+				self.initialDownload=self.onedriveMan.getInitialDownload()
+				self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
+				
+				if self.initialDownload!="":
+					self.showDownloadDialog=True
+				else:
+					self.currentStack=2
 			else:
-				self.currentStack=2
+				self.currentStack=3
 
 		else:
 			self.currentStack=3
