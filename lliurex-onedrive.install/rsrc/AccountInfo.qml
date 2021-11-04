@@ -144,10 +144,17 @@ Rectangle{
                     ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with OneDrive"):i18nd("lliurex-onedrive","Click to start syncing with OneDrive")
                     hoverEnabled:true
                     onClicked:{
+                        var startSync=false
                         if ((onedriveBridge.settingsChanged)|| (onedriveBridge.syncCustomChanged)){
-                            changesDialog.open()
+                            if (!onedriveBridge.isOnedriveRunning){
+                                changesDialog.open()
+                            }else{
+                                startSync=true
+                            }
                         }else{
-
+                            startSync=true
+                        }
+                        if (startSync){
                             accountPopup.open()
                             accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
                             delay(1000, function() {
