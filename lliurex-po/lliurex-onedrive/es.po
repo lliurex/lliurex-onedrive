@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: 2021-11-01 09:43+0100\n"
+"PO-Revision-Date: 2021-11-04 09:56+0100\n"
 "Last-Translator: lliurex <lliurex@gva.es>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -256,7 +256,7 @@ msgstr "Puede cerrar la aplicación"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:52
 msgid "Synchronization start:"
-msgstr "Inciar sincronización:"
+msgstr "Iniciar sincronización:"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:61
 msgid "Start when booting the system"
