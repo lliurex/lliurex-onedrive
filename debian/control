@@ -10,7 +10,8 @@ Vcs-Git: https://github.com/lliurex/lliurex-onedrive
 
 Package: lliurex-onedrive
 Architecture: amd64
-Depends: ${shlibs:Depends}, ${misc:Depends},python3,python3-pyside2.qtqml, python3-pyside2.qtquick, python3-pyside2.qtgui, python3-pyside2.qtwidgets, python3-pyside2.qtquickwidgets, python3-pyside2.qtnetwork
+Depends: ${shlibs:Depends}, ${misc:Depends},python3,python3-pyside2.qtqml, python3-pyside2.qtquick, python3-pyside2.qtgui, python3-pyside2.qtwidgets, python3-pyside2.qtquickwidgets, python3-pyside2.qtnetwork, onedrive(>=2.4.13-1~np1+lliurex21)
+Recommends:plasma-widget-lliurex-onedrive
 Description: App to manage OneDrive client
  This package provides a gui to manage a OneDrive client
 
