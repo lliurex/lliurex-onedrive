@@ -63,6 +63,9 @@ class Bridge(QObject):
 	def initBridge(self):
 
 		if self._isConfigured:
+			self.isClientRunningTimer=QTimer(None)
+			self.isClientRunningTimer.timeout.connect(self.updateClientStatus)
+			self.isClientRunningTimer.start(5000)
 			self.currentStack=1
 			t = threading.Thread(target=self._loadAccount)
 			t.daemon=True
@@ -930,6 +933,16 @@ class Bridge(QObject):
 			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 
 	#def hideSynchronizeMessage		
+
+	def updateClientStatus(self):
+
+		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+		else:
+			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+
+	#def updateClientStatus
 
 	@Slot()
 	def closeOnedrive(self):

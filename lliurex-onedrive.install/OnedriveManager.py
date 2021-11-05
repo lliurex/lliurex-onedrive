@@ -128,7 +128,7 @@ class OnedriveManager:
 	def getInitialDownload(self):
 
 		download=""
-		cmd="onedrive --display-sync-status"
+		cmd="/usr/bin/onedrive --display-sync-status"
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()[0]
 		rc=p.returncode
@@ -188,7 +188,7 @@ class OnedriveManager:
 
 	def isOnedriveRunning(self):
 
-		if os.system("ps -ef | grep '/usr/bin/onedrive --monitor' | grep -v 'grep' 1>/dev/null")==0:
+		if os.system("ps -ef | grep 'onedrive --monitor' | grep -v 'grep' 1>/dev/null")==0:
 			return True
 		else:
 			return False
@@ -321,7 +321,7 @@ class OnedriveManager:
 			if self._isSystemdActive():
 				cmd="systemctl --user stop onedrive.service"
 			else:
-				cmd="ps -ef | grep '/usr/bin/onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
+				cmd="ps -ef | grep 'onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
 		
 		try:
 			p=subprocess.run(cmd,shell=True,check=True)
@@ -358,11 +358,14 @@ class OnedriveManager:
 			cmd="/usr/bin/onedrive --logout &"
 			p=subprocess.run(cmd,shell=True,check=True)
 			time.sleep(2)
-			if os.path.exists(self.filterFile):
-				os.remove(self.filterFile)
-			if os.path.exists(self.filterFileHash):
-				os.remove(self.filterFileHash)
-			return True
+			if not self.isConfigured():
+				if os.path.exists(self.filterFile):
+					os.remove(self.filterFile)
+				if os.path.exists(self.filterFileHash):
+					os.remove(self.filterFileHash)
+				return True
+			else:
+				return False
 		else:
 			return False
 	
