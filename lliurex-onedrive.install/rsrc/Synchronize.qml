@@ -166,7 +166,13 @@ Rectangle{
             icon.name:"dialog-ok.svg"
             text:i18nd("lliurex-onedrive","Apply")
             Layout.preferredHeight: 40
-            enabled:onedriveBridge.syncCustomChanged
+            enabled:{
+                if ((onedriveBridge.syncCustomChanged)&&(!onedriveBridge.isOnedriveRunning)){
+                    true
+                }else{
+                    false
+                }
+            }
             onClicked:{
                 onedriveBridge.applySyncBtn()
             }
@@ -178,7 +184,13 @@ Rectangle{
             icon.name:"dialog-cancel.svg"
             text:i18nd("lliurex-onedrive","Cancel")
             Layout.preferredHeight: 40
-            enabled:onedriveBridge.syncCustomChanged
+            enabled:{
+                if ((onedriveBridge.syncCustomChanged)&&(!onedriveBridge.isOnedriveRunning)){
+                    true
+                }else{
+                    false
+                }
+            }            
             onClicked:{
                 synchronizePopup.open()
                 synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Restoring values . Wait a moment...")
