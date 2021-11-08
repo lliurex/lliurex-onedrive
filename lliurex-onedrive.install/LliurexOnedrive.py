@@ -94,7 +94,7 @@ class Bridge(QObject):
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 
-		time.sleep(5)
+		time.sleep(2)
 
 		self.currentStack=2	
 	
@@ -473,7 +473,7 @@ class Bridge(QObject):
 	def _initialStartUp(self):
 
 		ret=self.onedriveMan.manageSync(True)
-		time.sleep(5)
+		time.sleep(2)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
 		if not self.isOnedriveRunning:
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
