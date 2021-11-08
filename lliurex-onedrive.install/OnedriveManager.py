@@ -42,6 +42,7 @@ class OnedriveManager:
 		self.excludeFolders=[]
 		self.syncAll=True
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
+		self.clearCache()
 
 	#def __init__
 
@@ -906,5 +907,53 @@ class OnedriveManager:
 			self.folderStruct=copy.deepcopy(self.folderStructBack)
 
 	#def cancelSyncChanges
+
+	def clearCache(self):
+
+		clear=False
+		versionFile="/home/%s/.config/lliurex-onedrive.conf"%self.user
+		cachePath1="/home/%s/.cache/lliurex-onedrive"%self.user
+		installedVersion=self.getPackageVersion()
+
+		if not os.path.exists(versionFile):
+			with open(versionFile,'w') as fd:
+				fd.write(installedVersion)
+				fd.close()
+
+			clear=True
+
+		else:
+			with open(versionFile,'r') as fd:
+				fileVersion=fd.readline()
+				fd.close()
+
+			if fileVersion!=installedVersion:
+				with open(versionFile,'w') as fd:
+					fd.write(installedVersion)
+					fd.close()
+				clear=True
+		
+		if clear:
+			if os.path.exists(cachePath1):
+				shutil.rmtree(cachePath1)
+
+	#def clearCache
+
+	def getPackageVersion(self):
+
+		command = "LANG=C LANGUAGE=en apt-cache policy lliurex-onedrive"
+		p = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE)
+		installed = None
+		for line in iter(p.stdout.readline,b""):
+			if type(line) is bytes:
+				line=line.decode()
+
+			stripedline = line.strip()
+			if stripedline.startswith("Installed"):
+				installed = stripedline.replace("Installed: ","")
+
+		return installed
+
+	#def getPackageVersion
 
 #class OnedriveManager
