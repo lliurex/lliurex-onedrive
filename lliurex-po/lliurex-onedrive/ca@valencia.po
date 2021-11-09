@@ -8,19 +8,22 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-11-10 17:12+0000\n"
+"Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
+"Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
+"lliurex-onedrive/ca@valencia/>\n"
 "Language: ca@valencia\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.8.1\n"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:99
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:51
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:13
 msgid "Settings"
-msgstr ""
+msgstr "Preferèncias"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:118
 msgid ""
