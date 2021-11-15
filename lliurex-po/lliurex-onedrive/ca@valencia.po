@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: 2021-11-10 17:12+0000\n"
+"PO-Revision-Date: 2021-11-16 08:16+0000\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -73,23 +73,23 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:91
 msgid "Free Space on OneDrive:"
-msgstr ""
+msgstr "Espai disponible en OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:102
 msgid "Information not available"
-msgstr ""
+msgstr "La Informació no està disponible"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:115
 msgid "Synchronization:"
-msgstr ""
+msgstr "Sincronització:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:130
 msgid "Running"
-msgstr ""
+msgstr "En marxa"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:130
 msgid "Stopped"
-msgstr ""
+msgstr "Parada"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to stop syncing with OneDrive"
