@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: 2021-11-16 08:16+0000\n"
+"PO-Revision-Date: 2021-11-16 11:04+0000\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -30,16 +30,18 @@ msgid ""
 "The settings of OneDrive have changed.\n"
 "Do you want apply the changes or discard them?"
 msgstr ""
+"Les preferències de OneDrive han canviat.\n"
+"Voleu aplicar els canvis o descartar-los?"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:138
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:130
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:167
 msgid "Apply"
-msgstr ""
+msgstr "Aplica"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:148
 msgid "Discard"
-msgstr ""
+msgstr "Descarta"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:159
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:301
@@ -47,29 +49,29 @@ msgstr ""
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:179
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:279
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel·la"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:13
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:255
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:25
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:30
 msgid "Unable to start synchronization"
-msgstr ""
+msgstr "No es pot iniciar la sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:32
 msgid "Unable to stop synchronization"
-msgstr ""
+msgstr "No es pot detindre la sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:53
 msgid "OneDrive Folder:"
-msgstr ""
+msgstr "Carpeta de OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:80
 msgid "Click to open OneDrive Folder"
-msgstr ""
+msgstr "Feu clic per a obrir la carpeta de OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:91
 msgid "Free Space on OneDrive:"
@@ -93,39 +95,39 @@ msgstr "Parada"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to stop syncing with OneDrive"
-msgstr ""
+msgstr "Feu clic per a detindre la sincronització amb OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to start syncing with OneDrive"
-msgstr ""
+msgstr "Feu clic per a iniciar la sincronització amb OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:152
 msgid "Stopping synchronization. Wait a moment..."
-msgstr ""
+msgstr "La sincronització està parant. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:152
 msgid "Starting synchronization. Wait a moment..."
-msgstr ""
+msgstr "La sincronització està començant. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:173
 msgid "Status:"
-msgstr ""
+msgstr "Estat:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:207
 msgid "Click to update status information"
-msgstr ""
+msgstr "Feu clic per a actualitzar la informació sobre l'estat"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:211
 msgid "Checking status. Wait a moment..."
-msgstr ""
+msgstr "S'està comprovant l'estat. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:227
 msgid "Unlink from OneDrive account:"
-msgstr ""
+msgstr "Desvincular del compte de OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:242
 msgid "Click to unlink from OneDrive account"
-msgstr ""
+msgstr "Feu clic per a desvincular del compte de OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:272
 msgid ""
@@ -133,20 +135,23 @@ msgid ""
 "The files will stop syncing, but the contents of the OneDrive folder\n"
 "will not be erased"
 msgstr ""
+"Segur que voleu desvincular aquest ordinador de OneDrive?\n"
+"Els arxius ja no se sincronitzaran, però el contingut de la carpeta\n"
+"OneDrive no s'esborrarà"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:291
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:369
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:265
 msgid "Accept"
-msgstr ""
+msgstr "D'acord"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:309
 msgid "Unlinking from OneDrive account. Wait a moment..."
-msgstr ""
+msgstr "S'està desvinculant del compte de OneDrive. Espereu un momento..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:333
 msgid "Pending changes"
-msgstr ""
+msgstr "Hi ha canvis pendents"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:403
 msgid ""
