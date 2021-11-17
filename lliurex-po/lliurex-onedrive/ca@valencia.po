@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: 2021-11-16 11:04+0000\n"
+"PO-Revision-Date: 2021-11-17 12:51+0000\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -30,7 +30,7 @@ msgid ""
 "The settings of OneDrive have changed.\n"
 "Do you want apply the changes or discard them?"
 msgstr ""
-"Les preferències de OneDrive han canviat.\n"
+"Les preferències del OneDrive han canviat.\n"
 "Voleu aplicar els canvis o descartar-los?"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:138
@@ -67,15 +67,15 @@ msgstr "No es pot detindre la sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:53
 msgid "OneDrive Folder:"
-msgstr "Carpeta de OneDrive:"
+msgstr "Carpeta del OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:80
 msgid "Click to open OneDrive Folder"
-msgstr "Feu clic per a obrir la carpeta de OneDrive"
+msgstr "Feu clic per a obrir la carpeta del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:91
 msgid "Free Space on OneDrive:"
-msgstr "Espai disponible en OneDrive:"
+msgstr "Espai disponible en el OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:102
 msgid "Information not available"
@@ -87,7 +87,7 @@ msgstr "Sincronització:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:130
 msgid "Running"
-msgstr "En marxa"
+msgstr "S'està executant"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:130
 msgid "Stopped"
@@ -95,11 +95,11 @@ msgstr "Parada"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to stop syncing with OneDrive"
-msgstr "Feu clic per a detindre la sincronització amb OneDrive"
+msgstr "Feu clic per a detindre la sincronització amb el OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:144
 msgid "Click to start syncing with OneDrive"
-msgstr "Feu clic per a iniciar la sincronització amb OneDrive"
+msgstr "Feu clic per a iniciar la sincronització amb el OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:152
 msgid "Stopping synchronization. Wait a moment..."
@@ -123,11 +123,11 @@ msgstr "S'està comprovant l'estat. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:227
 msgid "Unlink from OneDrive account:"
-msgstr "Desvincular del compte de OneDrive:"
+msgstr "Desvincular del compte del OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:242
 msgid "Click to unlink from OneDrive account"
-msgstr "Feu clic per a desvincular del compte de OneDrive"
+msgstr "Feu clic per a desvincular del compte del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:272
 msgid ""
@@ -135,7 +135,7 @@ msgid ""
 "The files will stop syncing, but the contents of the OneDrive folder\n"
 "will not be erased"
 msgstr ""
-"Segur que voleu desvincular aquest ordinador de OneDrive?\n"
+"Segur que voleu desvincular aquest ordinador del OneDrive?\n"
 "Els arxius ja no se sincronitzaran, però el contingut de la carpeta\n"
 "OneDrive no s'esborrarà"
 
@@ -147,7 +147,7 @@ msgstr "D'acord"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:309
 msgid "Unlinking from OneDrive account. Wait a moment..."
-msgstr "S'està desvinculant del compte de OneDrive. Espereu un momento..."
+msgstr "S'està desvinculant del compte del OneDrive. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:333
 msgid "Pending changes"
@@ -158,151 +158,161 @@ msgid ""
 "Wait a moment and update the status\n"
 "If persist run a OneDrive test"
 msgstr ""
+"Espereu un moment i actualitzeu l'estat\n"
+"Si continua, executeu el test del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:406
 msgid "All remote content synchronized"
-msgstr ""
+msgstr "Tot el contingut remot està sincronitzat"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:409
 msgid "Remote content pending syncing"
-msgstr ""
+msgstr "Contingut remot pendent de sincronitzar"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:412
 msgid "Microsoft OneDrive API return an error\n"
-msgstr ""
+msgstr "L'API de Microsoft OneDrive retorna un error\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:415
 msgid "Unable to connect with Microsoft OneDrive\n"
-msgstr ""
+msgstr "No es pot connectar amb Microsoft OneDrive\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:418
 msgid "Problems with local file system\n"
-msgstr ""
+msgstr "Hi ha problemes amb el sistema local de fitxers\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:422
 msgid "Your free space is 0"
-msgstr ""
+msgstr "El vostre espai disponible és 0"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:425
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
 msgstr ""
+"La informació sobre la vostra quota està restringida\n"
+"Potser l'espai disponible és 0"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:428
 msgid "Problems with database\n"
-msgstr ""
+msgstr "Problemes amb la base de dades\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:431
 msgid "The authorization to access your account has expired"
-msgstr ""
+msgstr "L'autorització per a accedir al vostre compte ha caducat"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:434
 msgid "Uploading pending changes"
-msgstr ""
+msgstr "S'estan carregant els canvis pendents"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:437
 msgid "Microsoft OneDrive not available\n"
-msgstr ""
+msgstr "El Microsoft OneDrive no està disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:440
 msgid "Information not available\n"
-msgstr ""
+msgstr "La informació no està disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:448
 msgid "Apply or cancel changes before starting changes."
-msgstr ""
+msgstr "Aplicar o cancel·lar els canvis abans d'iniciar els canvis."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451
 msgid "There are pending changes to be applied in Settings.\n"
-msgstr ""
+msgstr "Hi ha canvis pendents d'aplicar en Preferències.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:455
 msgid "There are pending changes to be applied in Synchronize.\n"
-msgstr ""
+msgstr "Hi ha canvis pendents d'aplicar en Sincronització.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:457
 msgid "There are pending changes to be applied in Synchronize and Settings.\n"
-msgstr ""
+msgstr "Hi ha canvis pendents d'aplicar en Sincronització i Preferències.\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:38
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:16
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:206
 msgid "Synchronize"
-msgstr ""
+msgstr "Sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:64
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:10
 msgid "Tools"
-msgstr ""
+msgstr "Eines"
 
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:77
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 #: ../lliurex-onedrive.install/rsrc/CloseApp.qml:25
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
+"S'ha produït un error durant la instal·lació. Espereu un moment i torneu-ho "
+"a provar"
 
 #: ../lliurex-onedrive.install/rsrc/CloseApp.qml:27
 msgid "You can close the application"
-msgstr ""
+msgstr "Podeu tancar l'aplicació"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:52
 msgid "Synchronization start:"
-msgstr ""
+msgstr "Inici de la sincronització:"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:61
 msgid "Start when booting the system"
-msgstr ""
+msgstr "Iniciar quan arranque el sistema"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:73
 msgid "Synchronize remote changes every (in minutes):"
-msgstr ""
+msgstr "Sincronitza els canvis remots cada (en minuts):"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:95
 msgid "Download/Upload network bandwidth:"
-msgstr ""
+msgstr "Ample de banda de xarxa per a descàrrega/pujada:"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:163
 msgid "Saving changes. Wait a moment..."
-msgstr ""
+msgstr "S'estan guardant els canvis. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:171
 msgid "Failed to change synchronization boot configuration"
-msgstr ""
+msgstr "No s'ha pogut canviar la configuració d'inici de la sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:174
 msgid "Failed to write configuration file"
-msgstr ""
+msgstr "No s'ha pogut escriure el fitxer de configuració"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:177
 msgid "Failed to apply configuration changes"
-msgstr ""
+msgstr "No s'han pogut aplicar els canvis de configuració"
 
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:180
 msgid ""
 "The changes will take effect the next time you start session or "
 "synchronization"
 msgstr ""
+"Els canvis tindran efecte la pròxima vegada que inicieu la sessió o la "
+"sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:40
 msgid "Loading. Wait a moment..."
-msgstr ""
+msgstr "S'està carregant. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:50
 msgid "Synchronization options"
-msgstr ""
+msgstr "Opcions de sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:68
 msgid "Its content in OneDrive is approximately "
-msgstr ""
+msgstr "El seu contingut en el OneDrive és aproximadament "
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:68
 msgid ""
 "\n"
 "The space available on the computer is "
 msgstr ""
+"\n"
+"L'espai disponible a l'ordinador és "
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:69
 msgid ""
@@ -310,99 +320,108 @@ msgid ""
 "Do you want to sync all the content or do you prefer to select the content "
 "to sync?"
 msgstr ""
+"\n"
+"Voleu sincronitzar tot el contingut o preferiu seleccionar el contingut que "
+"cal sincronitzar?"
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:89
 msgid "Synchronize all content"
-msgstr ""
+msgstr "Sincronitza tot el contingut"
 
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:99
 msgid "Select content to synchronize"
-msgstr ""
+msgstr "Seleccionar el contingut que cal sincronitzar"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:26
 msgid "Some options can only be executed if the synchronization is stopped"
-msgstr ""
+msgstr "Algunes opcions només es pot executar si la sincronització està parada"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:45
 msgid "Run a OneDrive test:"
-msgstr ""
+msgstr "Executa el test del OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:61
 msgid "Click to run an OneDrive test command"
-msgstr ""
+msgstr "Feu clic per a executar el test per al OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:65
 msgid "Executing test. Wait a moment..."
-msgstr ""
+msgstr "S'està executant el test. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:78
 msgid "Repair OneDrive:"
-msgstr ""
+msgstr "Reparar OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:95
 msgid "Click to run an OneDrive client repair command"
-msgstr ""
+msgstr "Feu clic per a executar l'ordre de reparació del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/Tools.qml:99
 msgid "Executing repair command. Wait a moment..."
-msgstr ""
+msgstr "S'està executant l'ordre de reparació. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:49
 msgid "Synchronize all content of OneDrive"
-msgstr ""
+msgstr "Sincronitza tot el contingut del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:77
 msgid "Synchronize only those content"
-msgstr ""
+msgstr "Sincronitza només aquest contingut"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:88
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:133
 msgid "Gathering OneDrive folder structure. Wait a moment..."
 msgstr ""
+"S'està obtenint l'estructura de la carpeta del OneDrive. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:128
 msgid "Click to update the OneDrive folder structure"
-msgstr ""
+msgstr "Feu clic per a actualitzar l'estructura de la carpeta del OneDrive"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:184
 msgid "Restoring values . Wait a moment..."
-msgstr ""
+msgstr "S'estan restaurant els valors. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:226
 msgid ""
 "Applying the changes will only sync the content of the selected folders\n"
 "Do you want to delete the rest of the folders from this computer?"
 msgstr ""
+"L'aplicació dels canvis només sincronitzarà el contingut de les carpetes "
+"seleccionades\n"
+"Voleu suprimir la resta de carpetes no seleccionades d'aquest ordinador?"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:228
 msgid "Applying the changes will sync all the content of your Onedrive account"
 msgstr ""
+"L'aplicació dels canvis sincronitzarà tot el contingut del compte del "
+"Onedrive"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:250
 msgid "Yes, delete unselected folders"
-msgstr ""
+msgstr "Sí, suprimeix les carpetes no seleccionades"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:263
 msgid "No, keep folders unselected"
-msgstr ""
+msgstr "No, conserva les carpetes no seleccionades"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:287
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:305
 msgid "Apply changes. Wait a moment..."
-msgstr ""
+msgstr "S'estan aplicant els canvis. Espereu un moment..."
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:348
 msgid "Functionality available only if sync is stopped"
-msgstr ""
+msgstr "Funcionalitat disponible només si la sincronització està parada"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:352
 msgid "Changes applied correctly"
-msgstr ""
+msgstr "Els canvis s'han aplicat correctament"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:356
 msgid "An error occurred while applying the changes"
-msgstr ""
+msgstr "No s'han pogut aplicar els canvis"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:359
 msgid "An error occurred while getting the OneDrive folder structure"
-msgstr ""
+msgstr "S'ha produït un error en obtindre l'estructura de carpetes del OneDrive"
