@@ -452,7 +452,7 @@ Rectangle{
 
     function getChangesText(){
 
-        var aditionalText=i18nd("lliurex-onedrive","Apply or cancel changes before starting changes.")
+        var aditionalText=i18nd("lliurex-onedrive","Apply or cancel changes before starting synchronization.")
 
         if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
             var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Settings.\n")
