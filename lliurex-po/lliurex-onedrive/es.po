@@ -215,7 +215,7 @@ msgid "Information not available\n"
 msgstr "Información no disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:448
-msgid "Apply or cancel changes before starting changes."
+msgid "Apply or cancel changes before starting synchronization."
 msgstr "Aplique o cancele los cambios antes de iniciar la sincronización."
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451

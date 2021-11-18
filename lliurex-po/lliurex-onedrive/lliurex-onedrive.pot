@@ -203,7 +203,7 @@ msgid "Information not available\n"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:448
-msgid "Apply or cancel changes before starting changes."
+msgid "Apply or cancel changes before starting synchronization."
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451

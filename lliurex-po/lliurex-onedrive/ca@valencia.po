@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 09:42+0100\n"
-"PO-Revision-Date: 2021-11-17 12:51+0000\n"
+"PO-Revision-Date: 2021-11-18 10:38+0100\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.8.1\n"
+"X-Generator: Poedit 2.3\n"
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:99
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:51
@@ -79,7 +79,7 @@ msgstr "Espai disponible en el OneDrive:"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:102
 msgid "Information not available"
-msgstr "La Informació no està disponible"
+msgstr "La informació no està disponible"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:115
 msgid "Synchronization:"
@@ -214,8 +214,8 @@ msgid "Information not available\n"
 msgstr "La informació no està disponible\n"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:448
-msgid "Apply or cancel changes before starting changes."
-msgstr "Aplicar o cancel·lar els canvis abans d'iniciar els canvis."
+msgid "Apply or cancel changes before starting synchronization."
+msgstr "Aplicar o cancel·lar els canvis abans d'iniciar la sincronització"
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:451
 msgid "There are pending changes to be applied in Settings.\n"
@@ -247,8 +247,8 @@ msgstr "Ajuda"
 #: ../lliurex-onedrive.install/rsrc/CloseApp.qml:25
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
-"S'ha produït un error durant la instal·lació. Espereu un moment i torneu-ho "
-"a provar"
+"S'ha produït un error durant la instal·lació. Espereu un moment i torneu-ho a "
+"provar"
 
 #: ../lliurex-onedrive.install/rsrc/CloseApp.qml:27
 msgid "You can close the application"
@@ -317,8 +317,8 @@ msgstr ""
 #: ../lliurex-onedrive.install/rsrc/SyncWaiting.qml:69
 msgid ""
 "\n"
-"Do you want to sync all the content or do you prefer to select the content "
-"to sync?"
+"Do you want to sync all the content or do you prefer to select the content to "
+"sync?"
 msgstr ""
 "\n"
 "Voleu sincronitzar tot el contingut o preferiu seleccionar el contingut que "
@@ -394,8 +394,7 @@ msgstr ""
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:228
 msgid "Applying the changes will sync all the content of your Onedrive account"
 msgstr ""
-"L'aplicació dels canvis sincronitzarà tot el contingut del compte del "
-"Onedrive"
+"L'aplicació dels canvis sincronitzarà tot el contingut del compte del Onedrive"
 
 #: ../lliurex-onedrive.install/rsrc/Synchronize.qml:250
 msgid "Yes, delete unselected folders"
