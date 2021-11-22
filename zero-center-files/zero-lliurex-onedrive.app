@@ -13,4 +13,7 @@ Category=Internet
 Using=pkexec
 ScriptPath=zero-lliurex-onedrive.zmd
 Groups=admins;admin;sudo
+Service=True
+Modal=True
+
 
