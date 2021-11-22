@@ -2,7 +2,7 @@ Source: lliurex-onedrive
 Section: qml
 Priority: optional
 Maintainer: lliurex <lliurex@gva.es>
-Build-Depends: debhelper-compat =12),llxsrchelper,python3-all,dh-python,python3-poinstaller,zero-dev
+Build-Depends: debhelper-compat (=12),llxsrchelper,python3-all,dh-python,python3-poinstaller,zero-dev
 Standards-Version: 4.4.1
 Homepage: http://lliurex.net
 Vcs-Browser: https://svn.lliurex.net/focal/lliurex-onedrive
