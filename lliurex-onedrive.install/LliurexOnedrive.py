@@ -56,6 +56,7 @@ class Bridge(QObject):
 		self._showDownloadDialog=False
 		self._currentOptionsStack=0
 		self.errorGetFolder=False
+		self.changedSyncWorked=False
 		self.initBridge()
 
 	#def _init__
@@ -902,7 +903,7 @@ class Bridge(QObject):
 		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=False
 		self.closeGui=False
-
+		self.changedSyncWorked=True
 		t = threading.Thread(target=self._applySyncChanges)
 		t.daemon=True
 		t.start()
@@ -931,6 +932,7 @@ class Bridge(QObject):
 
 		if not self.isOnedriveRunning and not self.errorGetFolder:
 			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+			self.changedSyncWorked=False
 
 	#def hideSynchronizeMessage		
 
@@ -940,7 +942,8 @@ class Bridge(QObject):
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		else:
-			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+			if not self.changedSyncWorked:
+				self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 
 	#def updateClientStatus
 
