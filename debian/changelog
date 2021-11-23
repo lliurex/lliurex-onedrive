@@ -1,3 +1,9 @@
+lliurex-onedrive (1.2.1) focal; urgency=medium
+
+  * Fixed show/hide change sync process message
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 23 Nov 2021 16:19:35 +0100
+
 lliurex-onedrive (1.2) focal; urgency=medium
 
   * Fixed zero app file
