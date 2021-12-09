@@ -610,7 +610,7 @@ class OnedriveManager:
 
 	#def getFolderStruct
 
-	def _processingResyncOut(sel,out):
+	def _processingResyncOut(self,out):
 
 		for i in range(len(out)-1,-1,-1):
 			if 'local directory' in out[i]:
