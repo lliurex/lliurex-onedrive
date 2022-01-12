@@ -1,3 +1,9 @@
+lliurex-onedrive (0.1.4) bionic-updates; urgency=medium
+
+  * Mapped new error to show specific message
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 12 Jan 2022 16:57:29 +0100
+
 lliurex-onedrive (0.1.3) bionic-updates; urgency=medium
 
   * Fixed a litle bug
