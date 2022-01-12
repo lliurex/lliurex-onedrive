@@ -426,6 +426,9 @@ class OnedriveManager:
 					elif '416' in item:
 						code=UPLOADING_CANCEL_ERROR
 						break
+					elif 'Unable to query OneDrive' in item:
+						code=UNAUTHORIZED_ERROR
+						break
 					elif '503' in item:
 						code=SERVICE_UNAVAILABLE
 					elif 'Free Space' in item:
@@ -439,6 +442,10 @@ class OnedriveManager:
 						code=ALL_SYNCHRONIZE_MSG
 					elif 'out of sync' in item:
 						code=OUT_OF_SYNC_MSG
+					elif 'HTTP 403 - Forbidden' in item:
+						code=UNAUTHORIZED_ERROR
+						error=True
+						break
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
 						freespace=self._formatFreeSpace(tmp_freespace)
