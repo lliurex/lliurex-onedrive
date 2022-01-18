@@ -886,9 +886,13 @@ class OnedriveManager:
 		if action=="move":
 			if os.path.exists(self.filterFile):
 				os.rename(self.filterFile,self.filterFile+".back")
+			if os.path.exists(self.filterFileHash):
+				os.rename(self.filterFileHash,self.filterFileHash+".back")				
 		elif action=="restore":
 			if os.path.exists(self.filterFile+".back"):
 				os.rename(self.filterFile+".back",self.filterFile)
+			if os.path.exists(self.filterFileHash+".back"):
+				os.rename(self.filterFileHash+".back",self.filterFileHash)
 
 	#def manageFileFilter
 		
