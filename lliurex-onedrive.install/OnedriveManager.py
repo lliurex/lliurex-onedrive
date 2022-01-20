@@ -314,6 +314,7 @@ class OnedriveManager:
 	def manageSync(self,value):
 
 		if value:
+			self.manageFileFilter("restore")
 			if not os.path.exists(self.systemdFile):
 				cmd="systemctl --user start onedrive.service"
 			else:
@@ -526,7 +527,11 @@ class OnedriveManager:
 		if os.path.exists(self.filterFile):
 			return True
 		else:
-			return False
+			if os.path.exists(self.filterFile+".back"):
+				self.manageFileFilter("restore")
+				return True
+			else:
+				return False
 
 	#def existsFilterFile
 	
