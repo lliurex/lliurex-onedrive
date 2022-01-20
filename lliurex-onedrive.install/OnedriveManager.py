@@ -896,18 +896,10 @@ class OnedriveManager:
 
 	#def manageFileFilter
 		
-	def getPathByName(self,name):
+	def updateCheckFolder(self,path,checked):
 
 		for item in self.folderStruct:
-			if item["name"]==name:
-				return item["path"]
-
-	#def getPathByName
-
-	def updateCheckFolder(self,name,checked):
-
-		for item in self.folderStruct:
-			if item["name"]==name:
+			if item["path"]==path:
 				item["isChecked"]=checked
 
 	#def updateCheckFolder

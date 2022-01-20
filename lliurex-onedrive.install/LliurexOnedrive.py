@@ -25,7 +25,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.onedriveMan=OnedriveManager.OnedriveManager()
-		self.entries=[{ "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
+		self.entries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
 		self._model=Model.MyModel(self.entries)
 		self._isConfigured=self.onedriveMan.isConfigured()
 		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
@@ -765,7 +765,7 @@ class Bridge(QObject):
 
 		self.errorGetFolder,entries=self.onedriveMan.getFolderStruct()
 		for item in entries:
-			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
+			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 		
 		self.closePopUp=True
 		
@@ -778,7 +778,7 @@ class Bridge(QObject):
 	def folderChecked(self,info):
 
 		self.onedriveMan.updateCheckFolder(info[0],info[1])
-		path=self.onedriveMan.getPathByName(info[0])
+		path=info[0]
 		if info[1]:
 			if path not in self.initialSyncConfig[1]:
 				self.initialSyncConfig[1].append(path)
@@ -874,7 +874,7 @@ class Bridge(QObject):
 		self._model=Model.MyModel(self.entries)
 		entries=self.onedriveMan.folderStruct
 		for item in entries:
-			self._model.appendRow(item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
+			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 
 		index = self._model.index(0)
 		self._model.setData(index,"isChecked",True)
