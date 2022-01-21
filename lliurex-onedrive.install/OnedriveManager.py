@@ -562,7 +562,10 @@ class OnedriveManager:
 	def getFolderStruct(self,localFolder=False):
 
 		if localFolder:
-			return self.getLocalFolderStruct()
+			if os.listdir(self.userFolder):
+				return self.getLocalFolderStruct()
+			else:
+				return self.getCloudFolderStruct()
 		else:
 			return self.getCloudFolderStruct()
 
