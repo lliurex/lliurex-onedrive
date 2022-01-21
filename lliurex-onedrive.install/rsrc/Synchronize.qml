@@ -94,7 +94,7 @@ Rectangle{
                                     }
                                 })
                                 
-                                onedriveBridge.updateFolderStruct()
+                                onedriveBridge.updateFolderStruct(true)
                             }
                             folderList.structVisible=true;
 
@@ -138,7 +138,7 @@ Rectangle{
                                 folderList.structVisible=true;
                             }
                         })
-                        onedriveBridge.updateFolderStruct()
+                        onedriveBridge.updateFolderStruct(false)
                     }
                 }
             }

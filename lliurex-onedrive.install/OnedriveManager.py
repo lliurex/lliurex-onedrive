@@ -559,8 +559,18 @@ class OnedriveManager:
 
 	#def readFilterFile			
 
-	def getFolderStruct(self):
+	def getFolderStruct(self,localFolder=False):
 
+		if localFolder:
+			return self.getLocalFolderStruct()
+		else:
+			return self.getCloudFolderStruct()
+
+	#def getFolderStruct	
+
+
+	def getCloudFolderStruct(self):
+		
 		error=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
@@ -594,33 +604,14 @@ class OnedriveManager:
 				folderResyncStruct=folderSyncStruct
 
 			self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
-			if self.existsFilterFile():
-				self.readFilterFile()
-				for item in self.folderStruct:
-					tmp="!"+item["path"]+"/*"
-					if tmp in self.excludeFolders:
-						item["isChecked"]=False
-					else:
-						if (item["path"]+"/*") not in self.includeFolders:
-							tmp=item["type"]+"/*"
-							if tmp in self.includeFolders:
-								item["isChecked"]=True
-							else:
-								tmp=item["path"]+"/*"
-								for element in self.includeFolders:
-									if element.split("/*")[0] in tmp:
-										item["isChecked"]=True
-										break
-									else:	
-										item["isChecked"]=False
-						
+			self._processingFolderStruct()			
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 		else:
 			error=True
 		
 		return [error,self.folderStruct]
 
-	#def getFolderStruct
+	#def getCloudFolderStruct
 
 	def _processingResyncOut(self,out):
 
@@ -746,6 +737,100 @@ class OnedriveManager:
 		return folderSyncStruct
 
 	#def _processingSyncOut
+
+	def _processingFolderStruct(self):
+
+		if self.existsFilterFile():
+			self.readFilterFile()
+			for item in self.folderStruct:
+				tmp="!"+item["path"]+"/*"
+				if tmp in self.excludeFolders:
+					item["isChecked"]=False
+				else:
+					if (item["path"]+"/*") not in self.includeFolders:
+						tmp=item["type"]+"/*"
+						if tmp in self.includeFolders:
+							item["isChecked"]=True
+						else:
+							tmp=item["path"]+"/*"
+							for element in self.includeFolders:
+								if element.split("/*")[0] in tmp:
+									item["isChecked"]=True
+									break
+								else:	
+									item["isChecked"]=False
+
+
+	#def _processingFolderStruct
+
+	def getLocalFolderStruct(self):
+
+		try:
+			folderLocalStruct=self._processingLocalFolder()
+			error=False
+		except:
+			error=True
+
+		self.folderStruct=sorted(folderLocalStruct,key=lambda d: d['path'])
+		self._processingFolderStruct()					
+		self.folderStructBack=copy.deepcopy(self.folderStruct)
+	
+		return [error,self.folderStruct]
+
+	#def getLocalFolderStruct
+
+	def _processingLocalFolder(self):
+
+		folderLocalStruct=[]
+		directory=[]
+		tmpFolders=[]
+
+		for base,dirs,file in os.walk(self.userFolder):
+			if base !=self.userFolder:
+				directory.append(base)
+		
+		for item in directory:
+			path=os.path.realpath(item)
+			tmpFolders.append(path)
+		
+		
+		for item in tmpFolders:
+			countChildren=0
+			tmpList={}
+			tmpEntry=item.split(self.userFolder+"/")[1]
+			tmpList["path"]=tmpEntry
+			tmpEntry=tmpEntry.split("/")
+			tmpList["isChecked"]=True
+			tmpList["isExpanded"]=True
+			tmpList["hide"]=False
+			if len(tmpEntry)==1:
+				tmpList["name"]=tmpEntry[0]
+				tmpList["type"]="OneDrive"
+				tmpList["subtype"]="parent"
+				tmpList["level"]=3
+
+			else:
+				tmpList["name"]=tmpEntry[-1]
+				tmpList["type"]=tmpEntry[-2]
+				tmpList["subtype"]="parent"
+				tmpList["level"]=len(tmpEntry)*3
+
+			for j in range(0,len(tmpFolders),1):
+				tmpItem2=tmpFolders[j]
+				tmpEntry2=tmpFolders[j]
+				tmpPath=tmpList["path"]+"/"
+				if tmpPath in tmpEntry2:
+					countChildren+=1
+
+			if countChildren>0:
+				tmpList["canExpanded"]=True 
+			else:
+				tmpList["canExpanded"]=False
+			folderLocalStruct.append(tmpList)	
+		
+		return folderLocalStruct
+
+	#def _processingLocalFolder		
 
 	def applySyncChanges(self,initialSyncConfig,keepFolders):
 

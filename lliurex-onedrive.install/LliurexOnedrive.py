@@ -90,7 +90,7 @@ class Bridge(QObject):
 		error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
 		
 		if not self.syncAll:
-			self._updateFolderStruct()
+			self._updateFolderStruct(True)
 
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
@@ -747,26 +747,26 @@ class Bridge(QObject):
 
 	#def _openHelp
 
-	@Slot()
-	def updateFolderStruct(self):
+	@Slot(bool)
+	def updateFolderStruct(self,localFolder):
 		
 		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=False
-		t = threading.Thread(target=self._updateFolderStruct)
+		t = threading.Thread(target=self._updateFolderStruct,args=(localFolder,))
 		t.daemon=True
 		t.start()
 
 	#def updateFolderStruct
 
-	def _updateFolderStruct(self):
+	def _updateFolderStruct(self,localFolder):
 
 		ret=self._model.resetModel()
 		self._model=Model.MyModel(self.entries)
 
-		self.errorGetFolder,entries=self.onedriveMan.getFolderStruct()
+		self.errorGetFolder,entries=self.onedriveMan.getFolderStruct(localFolder)
 		for item in entries:
 			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
-		
+
 		self.closePopUp=True
 		
 		if self.errorGetFolder:
