@@ -43,7 +43,11 @@ class OnedriveManager:
 		self.syncAll=True
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.clearCache()
-
+		self.emptyToken=os.path.join(self.internalOnedriveFolder,".emptyToken")
+		self.localFolderEmptyToken=os.path.join(self.internalOnedriveFolder,".localFolderEmptyToken")
+		self.localFolderRemovedToken=os.path.join(self.internalOnedriveFolder,".localFolderRemovedToken")
+		self.lockAutoStartToken=os.path.join(self.internalOnedriveFolder,".lockAutoStartToken")
+	
 	#def __init__
 
 	def loadConfg(self):
@@ -119,6 +123,7 @@ class OnedriveManager:
 		rc=p.returncode
 		if rc in [0,1]:
 			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			self._manageEmptyToken()
 			#ret=self.manageSync(True)
 			return True
 		else:
@@ -180,7 +185,7 @@ class OnedriveManager:
 
 	def isAutoStartEnabled(self):
 
-		if os.path.exists(self.systemdFile):
+		if os.path.exists(self.systemdFile) and not os.path.exists(self.lockAutoStartToken):
 			return False
 
 		return True
@@ -315,7 +320,9 @@ class OnedriveManager:
 
 		if value:
 			self.manageFileFilter("restore")
-			if not os.path.exists(self.systemdFile):
+			if self.isAutoStartEnabled():
+				if os.path.exists(self.lockAutoStartToken):
+					ret=self.manageAutostart(True)
 				cmd="systemctl --user start onedrive.service"
 			else:
 				cmd="/usr/bin/onedrive --monitor &"
@@ -326,6 +333,8 @@ class OnedriveManager:
 				cmd="ps -ef | grep 'onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
 		
 		try:
+			if os.path.exists(self.localFolderEmptyToken):
+				self._manageEmptyToken()
 			p=subprocess.run(cmd,shell=True,check=True)
 			return True
 		except subprocess.CalledProcessError as e:
@@ -480,6 +489,8 @@ class OnedriveManager:
 	def repairOnedrive(self):
 
 		running=self.isOnedriveRunning()
+		if os.path.exists(localFolderRemoved):
+			self._manageEmptyToken()
 		ret=self._syncResync()
 		return ret
 
@@ -562,10 +573,11 @@ class OnedriveManager:
 	def getFolderStruct(self,localFolder=False):
 
 		if localFolder:
-			if os.listdir(self.userFolder):
-				return self.getLocalFolderStruct()
-			else:
-				return self.getCloudFolderStruct()
+			if os.path.exists(self.userFolder):
+				if os.listdir(self.userFolder):
+					return self.getLocalFolderStruct()
+				else:
+					return self.getCloudFolderStruct()
 		else:
 			return self.getCloudFolderStruct()
 
@@ -788,48 +800,49 @@ class OnedriveManager:
 		directory=[]
 		tmpFolders=[]
 
-		for base,dirs,file in os.walk(self.userFolder):
-			if base !=self.userFolder:
-				directory.append(base)
-		
-		for item in directory:
-			path=os.path.realpath(item)
-			tmpFolders.append(path)
-		
-		
-		for item in tmpFolders:
-			countChildren=0
-			tmpList={}
-			tmpEntry=item.split(self.userFolder+"/")[1]
-			tmpList["path"]=tmpEntry
-			tmpEntry=tmpEntry.split("/")
-			tmpList["isChecked"]=True
-			tmpList["isExpanded"]=True
-			tmpList["hide"]=False
-			if len(tmpEntry)==1:
-				tmpList["name"]=tmpEntry[0]
-				tmpList["type"]="OneDrive"
-				tmpList["subtype"]="parent"
-				tmpList["level"]=3
+		if os.path.exists(self.userFolder):
+			for base,dirs,file in os.walk(self.userFolder):
+				if base !=self.userFolder:
+					directory.append(base)
+			
+			for item in directory:
+				path=os.path.realpath(item)
+				tmpFolders.append(path)
+			
+			
+			for item in tmpFolders:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item.split(self.userFolder+"/")[1]
+				tmpList["path"]=tmpEntry
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
 
-			else:
-				tmpList["name"]=tmpEntry[-1]
-				tmpList["type"]=tmpEntry[-2]
-				tmpList["subtype"]="parent"
-				tmpList["level"]=len(tmpEntry)*3
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
 
-			for j in range(0,len(tmpFolders),1):
-				tmpItem2=tmpFolders[j]
-				tmpEntry2=tmpFolders[j]
-				tmpPath=tmpList["path"]+"/"
-				if tmpPath in tmpEntry2:
-					countChildren+=1
+				for j in range(0,len(tmpFolders),1):
+					tmpItem2=tmpFolders[j]
+					tmpEntry2=tmpFolders[j]
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
 
-			if countChildren>0:
-				tmpList["canExpanded"]=True 
-			else:
-				tmpList["canExpanded"]=False
-			folderLocalStruct.append(tmpList)	
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+				folderLocalStruct.append(tmpList)	
 		
 		return folderLocalStruct
 
@@ -862,6 +875,7 @@ class OnedriveManager:
 		self.currentSyncConfig[2]=foldersUnSelected
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 
+		self._manageEmptyToken()
 		ret=self._syncResync()
 		return ret
 
@@ -1051,5 +1065,24 @@ class OnedriveManager:
 		return installed
 
 	#def getPackageVersion
+
+	def checkLocalFolder(self):
+
+		localFolderEmpty=False;
+		localFolderRemoved=False;
+
+		if os.path.exists(self.localFolderEmptyToken):
+			localFolderEmpty=True;
+		if os.path.exists(self.localFolderRemovedToken):
+			localFolderRemoved=True;
+
+		return [localFolderEmpty,localFolderRemoved]
+
+	#def checkLocalFolder
+
+	def _manageEmptyToken(self):
+
+		f=open(self.emptyToken,'w')
+		f.close()
 
 #class OnedriveManager

@@ -7,6 +7,7 @@ Rectangle {
     property alias structVisible:folderTable.visible
     property alias structModel:listFolder.model
     property alias listCount:listFolder.count
+    property alias structEnabled:listFolder.enabled
 
     id:folderTable
     visible: structVisible
@@ -20,7 +21,7 @@ Rectangle {
         anchors.fill:parent
         height: parent.height
         model:onedriveBridge.model
-        enabled:!onedriveBridge.isOnedriveRunning
+        enabled:structEnabled
         delegate: listdelegate
         clip: true
         boundsBehavior: Flickable.StopAtBounds
