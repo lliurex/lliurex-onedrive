@@ -489,7 +489,7 @@ class OnedriveManager:
 	def repairOnedrive(self):
 
 		running=self.isOnedriveRunning()
-		if os.path.exists(localFolderRemoved):
+		if os.path.exists(self.localFolderRemovedToken):
 			self._manageEmptyToken()
 		ret=self._syncResync()
 		return ret

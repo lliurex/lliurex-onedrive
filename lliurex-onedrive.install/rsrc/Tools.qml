@@ -116,7 +116,7 @@ Rectangle{
 
         contentItem: Rectangle {
             color: "#ebeced"
-            implicitWidth: 550
+            implicitWidth: 560
             implicitHeight: 105
             anchors.topMargin:5
             anchors.leftMargin:5
