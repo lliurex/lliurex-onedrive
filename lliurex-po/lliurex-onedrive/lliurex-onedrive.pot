@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 14:10+0100\n"
+"POT-Creation-Date: 2022-01-27 10:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,6 +40,7 @@ msgid "Discard"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/lliurex-onedrive.qml:159
+#: ../lliurex-onedrive.install/rsrc/OnedriveAuth.qml:82
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:299
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:431
 #: ../lliurex-onedrive.install/rsrc/Settings.qml:153
@@ -49,11 +50,30 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#: ../lliurex-onedrive.install/rsrc/OnedriveAuth.qml:34
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:13
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:253
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:386
 #: ../lliurex-onedrive.install/rsrc/AccountOptions.qml:25
 msgid "Account"
+msgstr ""
+
+#: ../lliurex-onedrive.install/rsrc/OnedriveAuth.qml:52
+msgid ""
+"A local OneDrive folder containing content has been detected on this "
+"computer.\n"
+"If you link this computer with OneDrive, the existing content in that folder "
+"will be added to OneDrive.\n"
+"Do you want to continue with the pairing process?"
+msgstr ""
+
+#: ../lliurex-onedrive.install/rsrc/OnedriveAuth.qml:72
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:289
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:367
+#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:422
+#: ../lliurex-onedrive.install/rsrc/Tools.qml:151
+#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:281
+msgid "Accept"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:47
@@ -117,14 +137,6 @@ msgid ""
 "Are you sure you want to unlink this computer from OneDrive account?.\n"
 "The files will stop syncing, but the contents of the OneDrive folder\n"
 "will not be erased"
-msgstr ""
-
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:289
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:367
-#: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:422
-#: ../lliurex-onedrive.install/rsrc/Tools.qml:151
-#: ../lliurex-onedrive.install/rsrc/Synchronize.qml:281
-msgid "Accept"
 msgstr ""
 
 #: ../lliurex-onedrive.install/rsrc/AccountInfo.qml:307

@@ -857,6 +857,7 @@ class OnedriveManager:
 		if not syncAll:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
 			if not keepFolders:
+				self._manageEmptyToken()
 				if os.path.exists(self.userFolder):
 					shutil.rmtree(self.userFolder)
 			self.readFilterFile()
@@ -875,7 +876,6 @@ class OnedriveManager:
 		self.currentSyncConfig[2]=foldersUnSelected
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 
-		self._manageEmptyToken()
 		ret=self._syncResync()
 		return ret
 
@@ -1084,5 +1084,17 @@ class OnedriveManager:
 
 		f=open(self.emptyToken,'w')
 		f.close()
+
+	#def _manageEmptyToken
+
+	def checkPreviousLocalFolder(self):
+
+		if os.path.exists(self.userFolder):
+			if os.listdir(self.userFolder):
+				return True
+
+		return False
+
+	#def checkPreviousLocalFolder
 
 #class OnedriveManager

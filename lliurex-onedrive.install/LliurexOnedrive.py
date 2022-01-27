@@ -56,6 +56,7 @@ class Bridge(QObject):
 		self._initialDownload=""
 		self._hddFreeSpace=""
 		self._showDownloadDialog=False
+		self._showPreviousDialog=False
 		self._currentOptionsStack=0
 		self.errorGetFolder=False
 		self.changedSyncWorked=False
@@ -77,6 +78,8 @@ class Bridge(QObject):
 			t.start()
 		else:
 			self.currentStack=0
+			if self.onedriveMan.checkPreviousLocalFolder():
+				self.showPreviousDialog=True
 	
 	#def initBridge
 	
@@ -211,8 +214,9 @@ class Bridge(QObject):
 
 	def _setIsOnedriveRunning(self,isOnedriveRunning):
 		
-		self._isOnedriveRunning=isOnedriveRunning
-		self.on_isOnedriveRunning.emit()	
+		if self._isOnedriveRunning!=isOnedriveRunning:
+			self._isOnedriveRunning=isOnedriveRunning
+			self.on_isOnedriveRunning.emit()	
 
 	#def _setIsOnedriveRunning
 	
@@ -315,8 +319,9 @@ class Bridge(QObject):
 
 	def _setShowAccountMessage(self,showAccountMessage):
 
-		self._showAccountMessage=showAccountMessage
-		self.on_showAccountMessage.emit()
+		if self._showAccountMessage!=showAccountMessage:
+			self._showAccountMessage=showAccountMessage	
+			self.on_showAccountMessage.emit()
 
 	#def _setShowAccountMessage
 
@@ -346,8 +351,9 @@ class Bridge(QObject):
 	
 	def _setShowSynchronizeMessage(self,showSynchronizeMessage):
 
-		self._showSynchronizeMessage=showSynchronizeMessage
-		self.on_showSynchronizeMessage.emit()
+		if self._showSynchronizeMessage!=showSynchronizeMessage:
+			self._showSynchronizeMessage=showSynchronizeMessage
+			self.on_showSynchronizeMessage.emit()
 
 	#def _setShowSynchronizeMessage
 
@@ -438,8 +444,9 @@ class Bridge(QObject):
 
 	def _setLocalFolderEmpty(self,localFolderEmpty):
 
-		self._localFolderEmpty=localFolderEmpty
-		self.on_localFolderEmpty.emit()
+		if self._localFolderEmpty!=localFolderEmpty:
+			self._localFolderEmpty=localFolderEmpty
+			self.on_localFolderEmpty.emit()
 
 	#def _setLocalFolderEmpty
 	
@@ -451,10 +458,24 @@ class Bridge(QObject):
 
 	def _setLocalFolderRemoved(self,localFolderRemoved):
 
-		self._localFolderRemoved=localFolderRemoved
-		self.on_localFolderRemoved.emit()
+		if self._localFolderRemoved!=localFolderRemoved:
+			self._localFolderRemoved=localFolderRemoved
+			self.on_localFolderRemoved.emit()
 
 	#def _setLocalFolderRemoved
+
+	def _getShowPreviousDialog(self):
+
+		return self._showPreviousDialog
+	
+	#def _getShowPreviousDialog
+
+	def _setShowPreviousDialog(self,showPreviousDialog):
+
+		self._showPreviousDialog=showPreviousDialog
+		self.on_showPreviousDialog.emit()
+
+	#def _setShowPreviousDialog
 
 	@Slot(str)
 	def createAccount(self,token):
@@ -990,6 +1011,14 @@ class Bridge(QObject):
 	#def updateClientStatus
 
 	@Slot()
+	def cancelCreateAccount(self):
+
+		self.currentStack=3
+		self.infoStackType="Cancel"
+
+	#def cancelCreateAccount
+
+	@Slot()
 	def closeOnedrive(self):
 
 		if self.settingsChanged:
@@ -1086,6 +1115,12 @@ class Bridge(QObject):
 
 	on_localFolderRemoved=Signal()
 	localFolderRemoved=Property(bool,_getLocalFolderRemoved,_setLocalFolderRemoved,notify=on_localFolderRemoved)
+
+	on_showPreviousDialog=Signal()
+	showPreviousDialog=Property(bool,_getShowPreviousDialog,_setShowPreviousDialog,notify=on_showPreviousDialog)
+	
+	on_currentOptionsStack=Signal()
+	currentOptionsStack=Property(int,_getCurrentOptionsStack,_setCurrentOptionsStack,notify=on_currentOptionsStack)
 
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	model=Property(QObject,_getModel,constant=True)
