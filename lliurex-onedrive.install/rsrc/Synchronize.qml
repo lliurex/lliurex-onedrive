@@ -47,7 +47,7 @@ Rectangle{
                 id:syncAll
                 text:i18nd("lliurex-onedrive","Synchronize all content of OneDrive")
                 checked:onedriveBridge.syncAll
-                enabled:!onedriveBridge.isOnedriveRunning
+                enabled:getEnabledStatus()
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
                 onToggled:{
@@ -75,7 +75,7 @@ Rectangle{
                     id:syncCustom
                     text:i18nd("lliurex-onedrive","Synchronize only those content")
                     checked:!syncAll.checked
-                    enabled:!onedriveBridge.isOnedriveRunning
+                    enabled:getEnabledStatus()
                     font.pointSize: 10
                     focusPolicy: Qt.NoFocus
                     onToggled:{
@@ -94,7 +94,7 @@ Rectangle{
                                     }
                                 })
                                 
-                                onedriveBridge.updateFolderStruct()
+                                onedriveBridge.updateFolderStruct(true)
                             }
                             folderList.structVisible=true;
 
@@ -112,10 +112,14 @@ Rectangle{
                     display:AbstractButton.IconOnly
                     icon.name:"view-refresh.svg"
                     enabled:{
-                        if ((syncCustom.checked)&&(!onedriveBridge.isOnedriveRunning)){
-                            true
-                        }else{
+                        if ((onedriveBridge.localFolderRemoved)||(onedriveBridge.localFolderEmpty)){
                             false
+                        }else{
+                            if ((syncCustom.checked)&&(!onedriveBridge.isOnedriveRunning)){
+                                true
+                            }else{
+                                false
+                            }
                         }
                     }
 
@@ -138,7 +142,7 @@ Rectangle{
                                 folderList.structVisible=true;
                             }
                         })
-                        onedriveBridge.updateFolderStruct()
+                        onedriveBridge.updateFolderStruct(false)
                     }
                 }
             }
@@ -146,6 +150,7 @@ Rectangle{
                 id:folderList
                 structVisible:syncCustom.checked
                 structModel:onedriveBridge.model
+                structEnabled:getEnabledStatus()
             }
         }
     }
@@ -390,6 +395,18 @@ Rectangle{
         }
 
 
+    }
+
+    function getEnabledStatus(){
+        if ((onedriveBridge.localFolderRemoved)||(onedriveBridge.localFolderEmpty)){
+            return false
+        }else{
+            if (onedriveBridge.isOnedriveRunning){
+                return false
+            }else{
+                return true
+            }
+        }
     }
 
 }

@@ -7,6 +7,7 @@ Rectangle {
     property alias structVisible:folderTable.visible
     property alias structModel:listFolder.model
     property alias listCount:listFolder.count
+    property alias structEnabled:listFolder.enabled
 
     id:folderTable
     visible: structVisible
@@ -20,7 +21,7 @@ Rectangle {
         anchors.fill:parent
         height: parent.height
         model:onedriveBridge.model
-        enabled:!onedriveBridge.isOnedriveRunning
+        enabled:structEnabled
         delegate: listdelegate
         clip: true
         boundsBehavior: Flickable.StopAtBounds
@@ -81,11 +82,11 @@ Rectangle {
                 anchors.verticalCenter:parent.verticalCenter
                 anchors.leftMargin:5*level
                 MouseArea{
-                    function expand(isExpanded,name) {
+                    function expand(isExpanded,path,name) {
                         var sub=[]
                         for(var i = 0; i < listFolder.count; ++i) {
                             var item=onedriveBridge.getModelData(i)
-                            if (item["name"]===name){
+                            if (item["path"]===path){
                                 onedriveBridge.updateModel([i,"isExpanded",isExpanded])
                             }else{
                                 if((item["type"] === name) || (sub.includes(item["type"]))){
@@ -102,9 +103,9 @@ Rectangle {
                     onClicked:{
                         if ((type == "parent") || (subtype=="parent")) {
                             if (isExpanded == false) {
-                                expand(true,name)
+                                expand(true,path,name)
                             }else{
-                                expand(false,name)
+                                expand(false,path,name)
                             }
                             isExpanded = !isExpanded
                         }
@@ -119,12 +120,12 @@ Rectangle {
                     var sub=[]
                     for(var i = 0; i < listFolder.count; ++i) {
                         var item=onedriveBridge.getModelData(i)
-                        if (item["name"]===name){
+                        if (item["path"]===path){
                             onedriveBridge.updateModel([i,"isChecked",isChecked])
                         }else{
                             if((item["type"] === name) || (sub.includes(item["type"]))){
                                 onedriveBridge.updateModel([i,"isChecked",isChecked])
-                                onedriveBridge.folderChecked([item["name"],isChecked])
+                                onedriveBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
                                     sub.push(item["name"])
 
@@ -137,7 +138,7 @@ Rectangle {
                     if ((type==="parent")||(subtype==="parent")){
                         check(folderCheck.checked)
                     }
-                    onedriveBridge.folderChecked([name,folderCheck.checked])
+                    onedriveBridge.folderChecked([path,folderCheck.checked])
                 }
 
                 anchors.left:menuOptionIcon.right

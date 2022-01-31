@@ -3,15 +3,15 @@ import sys
 from PySide2 import QtCore, QtGui, QtQml
 
 class MyModel(QtCore.QAbstractListModel):
-    NameRole = QtCore.Qt.UserRole + 1000
-    IsCheckedRole = QtCore.Qt.UserRole + 1001
-    IsExpandedRole = QtCore.Qt.UserRole + 1002
-    TypeRole = QtCore.Qt.UserRole + 1003
-    SubTypeRole=QtCore.Qt.UserRole + 1004
-    LevelRole=QtCore.Qt.UserRole + 1005
-    HideRole=QtCore.Qt.UserRole + 1006
-    CanExpandedRole=QtCore.Qt.UserRole + 1007
-
+    PathRole = QtCore.Qt.UserRole + 1000
+    NameRole = QtCore.Qt.UserRole + 1001
+    IsCheckedRole = QtCore.Qt.UserRole + 1002
+    IsExpandedRole = QtCore.Qt.UserRole + 1003
+    TypeRole = QtCore.Qt.UserRole + 1004
+    SubTypeRole=QtCore.Qt.UserRole + 1005
+    LevelRole=QtCore.Qt.UserRole + 1006
+    HideRole=QtCore.Qt.UserRole + 1007
+    CanExpandedRole=QtCore.Qt.UserRole + 1008
 
     def __init__(self, entries, parent=None):
         super(MyModel, self).__init__(parent)
@@ -28,7 +28,9 @@ class MyModel(QtCore.QAbstractListModel):
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if 0 <= index.row() < self.rowCount() and index.isValid():
             item = self._entries[index.row()]
-            if role == MyModel.NameRole:
+            if role == MyModel.PathRole:
+                return item["path"]
+            elif role == MyModel.NameRole:
                 return item["name"]
             elif role == MyModel.IsCheckedRole:
                 return item["isChecked"]
@@ -48,6 +50,7 @@ class MyModel(QtCore.QAbstractListModel):
 
     def roleNames(self):
         roles = dict()
+        roles[MyModel.PathRole] = b"path"
         roles[MyModel.NameRole] = b"name"
         roles[MyModel.IsCheckedRole] = b"isChecked"
         roles[MyModel.IsExpandedRole] = b"isExpanded"
@@ -60,9 +63,9 @@ class MyModel(QtCore.QAbstractListModel):
         return roles
     #def roleName
 
-    def appendRow(self,n, ic, ie, t, st, h, l,ce):
+    def appendRow(self,p, n, ic, ie, t, st, h, l,ce):
         self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(),self.rowCount())
-        self._entries.append(dict(name=n, isChecked=ic, isExpanded=ie, type=t, subtype=st, hide=h, level=l, canExpanded=ce))
+        self._entries.append(dict(path=p, name=n, isChecked=ic, isExpanded=ie, type=t, subtype=st, hide=h, level=l, canExpanded=ce))
         self.endInsertRows()
 
     #def appendRow
