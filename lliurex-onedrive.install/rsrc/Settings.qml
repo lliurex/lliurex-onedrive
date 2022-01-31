@@ -60,6 +60,7 @@ Rectangle{
                 id:autoStartValue
                 text:i18nd("lliurex-onedrive","Start when booting the system")
                 checked:onedriveBridge.autoStartEnabled
+                enabled:getEnabledStatus()
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
@@ -85,6 +86,7 @@ Rectangle{
                 value:onedriveBridge.monitorInterval
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
+                enabled:getEnabledStatus()
                 onValueModified:{
                     onedriveBridge.getMonitorInterval(value)
                 }
@@ -105,6 +107,7 @@ Rectangle{
                 model:onedriveBridge.bandWidthNames
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
+                enabled:getEnabledStatus()
                 onActivated:{
                     onedriveBridge.getRateLimit(bandwidthValues.currentIndex)
                 }
@@ -193,5 +196,14 @@ Rectangle{
         timer.triggered.connect(cb);
         timer.start()
     }
+
+    function getEnabledStatus(){
+        if ((onedriveBridge.localFolderRemoved)||(onedriveBridge.localFolderEmpty)){
+            return false
+        }else{
+            return true
+        }
+    }
+
 
 }

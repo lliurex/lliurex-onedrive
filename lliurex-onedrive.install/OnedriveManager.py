@@ -43,7 +43,12 @@ class OnedriveManager:
 		self.syncAll=True
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.clearCache()
-
+		self.emptyToken=os.path.join(self.internalOnedriveFolder,".emptyToken")
+		self.localFolderEmptyToken=os.path.join(self.internalOnedriveFolder,".localFolderEmptyToken")
+		self.localFolderRemovedToken=os.path.join(self.internalOnedriveFolder,".localFolderRemovedToken")
+		self.lockAutoStartToken=os.path.join(self.internalOnedriveFolder,".lockAutoStartToken")
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
+	
 	#def __init__
 
 	def loadConfg(self):
@@ -94,7 +99,7 @@ class OnedriveManager:
 								break
 				fd.close()
 		else:
-			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			shutil.copyfile(self.configTemplate,self.configFile)
 	
 	
 	#def readConfigFile
@@ -118,7 +123,12 @@ class OnedriveManager:
 		poutput=p.communicate()
 		rc=p.returncode
 		if rc in [0,1]:
-			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			self.readConfigFile()
+			if not self.isAutoStartEnabled():
+				self.autoStartEnabled=False
+				self.currentConfig[0]=False
+
+			self._manageEmptyToken()
 			#ret=self.manageSync(True)
 			return True
 		else:
@@ -180,7 +190,7 @@ class OnedriveManager:
 
 	def isAutoStartEnabled(self):
 
-		if os.path.exists(self.systemdFile):
+		if os.path.exists(self.systemdFile) and not os.path.exists(self.lockAutoStartToken):
 			return False
 
 		return True
@@ -239,36 +249,25 @@ class OnedriveManager:
 
 	#def applyChanges
 	
-	def manageAutostart(self,value,remove=False):
+	def manageAutostart(self,value):
 
 		isOnedriveRunning=self.isOnedriveRunning()
 
 		if value:
 			cmd="systemctl --user unmask onedrive.service"
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-			poutput=p.communicate()
-			rc=p.returncode
-
-			if rc !=0:
-				return True
-
-			else:
-				return False
-		else:
-			if not remove:
-				cmd="systemctl --user mask onedrive.service"
-			else:
-				cmd="systemctl --user unmask onedrive.service"
-
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-			poutput=p.communicate()
-			rc=p.returncode
 			
-			if rc !=0:
-				return True				
+		else:
+			cmd="systemctl --user mask onedrive.service"
 
-		return False
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()
+		rc=p.returncode
 
+		if rc !=0:
+			return True
+		else:
+			return False
+	
 	#def manageAutostart
 
 	def manageMonitorInterval(self,value):
@@ -314,7 +313,10 @@ class OnedriveManager:
 	def manageSync(self,value):
 
 		if value:
-			if not os.path.exists(self.systemdFile):
+			self.manageFileFilter("restore")
+			if self.isAutoStartEnabled():
+				if os.path.exists(self.lockAutoStartToken):
+					ret=self.manageAutostart(True)
 				cmd="systemctl --user start onedrive.service"
 			else:
 				cmd="/usr/bin/onedrive --monitor &"
@@ -325,6 +327,8 @@ class OnedriveManager:
 				cmd="ps -ef | grep 'onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
 		
 		try:
+			if os.path.exists(self.localFolderEmptyToken):
+				self._manageEmptyToken()
 			p=subprocess.run(cmd,shell=True,check=True)
 			return True
 		except subprocess.CalledProcessError as e:
@@ -355,15 +359,11 @@ class OnedriveManager:
 			ret=self.manageSync(False)
 			
 		if not self.isOnedriveRunning():
-			ret=self.manageAutostart(False,True)
 			cmd="/usr/bin/onedrive --logout &"
 			p=subprocess.run(cmd,shell=True,check=True)
 			time.sleep(2)
 			if not self.isConfigured():
-				if os.path.exists(self.filterFile):
-					os.remove(self.filterFile)
-				if os.path.exists(self.filterFileHash):
-					os.remove(self.filterFileHash)
+				self._removeEnvConfigFiles()
 				return True
 			else:
 				return False
@@ -479,6 +479,8 @@ class OnedriveManager:
 	def repairOnedrive(self):
 
 		running=self.isOnedriveRunning()
+		if os.path.exists(self.localFolderRemovedToken):
+			self._manageEmptyToken()
 		ret=self._syncResync()
 		return ret
 
@@ -526,7 +528,11 @@ class OnedriveManager:
 		if os.path.exists(self.filterFile):
 			return True
 		else:
-			return False
+			if os.path.exists(self.filterFile+".back"):
+				self.manageFileFilter("restore")
+				return True
+			else:
+				return False
 
 	#def existsFilterFile
 	
@@ -554,8 +560,22 @@ class OnedriveManager:
 
 	#def readFilterFile			
 
-	def getFolderStruct(self):
+	def getFolderStruct(self,localFolder=False):
 
+		if localFolder:
+			if os.path.exists(self.userFolder):
+				if os.listdir(self.userFolder):
+					return self.getLocalFolderStruct()
+				else:
+					return self.getCloudFolderStruct()
+		else:
+			return self.getCloudFolderStruct()
+
+	#def getFolderStruct	
+
+
+	def getCloudFolderStruct(self):
+		
 		error=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
@@ -589,33 +609,14 @@ class OnedriveManager:
 				folderResyncStruct=folderSyncStruct
 
 			self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
-			if self.existsFilterFile():
-				self.readFilterFile()
-				for item in self.folderStruct:
-					tmp="!"+item["path"]+"/*"
-					if tmp in self.excludeFolders:
-						item["isChecked"]=False
-					else:
-						if (item["path"]+"/*") not in self.includeFolders:
-							tmp=item["type"]+"/*"
-							if tmp in self.includeFolders:
-								item["isChecked"]=True
-							else:
-								tmp=item["path"]+"/*"
-								for element in self.includeFolders:
-									if element.split("/*")[0] in tmp:
-										item["isChecked"]=True
-										break
-									else:	
-										item["isChecked"]=False
-						
+			self._processingFolderStruct()			
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 		else:
 			error=True
 		
 		return [error,self.folderStruct]
 
-	#def getFolderStruct
+	#def getCloudFolderStruct
 
 	def _processingResyncOut(self,out):
 
@@ -742,6 +743,101 @@ class OnedriveManager:
 
 	#def _processingSyncOut
 
+	def _processingFolderStruct(self):
+
+		if self.existsFilterFile():
+			self.readFilterFile()
+			for item in self.folderStruct:
+				tmp="!"+item["path"]+"/*"
+				if tmp in self.excludeFolders:
+					item["isChecked"]=False
+				else:
+					if (item["path"]+"/*") not in self.includeFolders:
+						tmp=item["type"]+"/*"
+						if tmp in self.includeFolders:
+							item["isChecked"]=True
+						else:
+							tmp=item["path"]+"/*"
+							for element in self.includeFolders:
+								if element.split("/*")[0] in tmp:
+									item["isChecked"]=True
+									break
+								else:	
+									item["isChecked"]=False
+
+
+	#def _processingFolderStruct
+
+	def getLocalFolderStruct(self):
+
+		try:
+			folderLocalStruct=self._processingLocalFolder()
+			error=False
+		except:
+			error=True
+
+		self.folderStruct=sorted(folderLocalStruct,key=lambda d: d['path'])
+		self._processingFolderStruct()					
+		self.folderStructBack=copy.deepcopy(self.folderStruct)
+	
+		return [error,self.folderStruct]
+
+	#def getLocalFolderStruct
+
+	def _processingLocalFolder(self):
+
+		folderLocalStruct=[]
+		directory=[]
+		tmpFolders=[]
+
+		if os.path.exists(self.userFolder):
+			for base,dirs,file in os.walk(self.userFolder):
+				if base !=self.userFolder:
+					directory.append(base)
+			
+			for item in directory:
+				path=os.path.realpath(item)
+				tmpFolders.append(path)
+			
+			
+			for item in tmpFolders:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item.split(self.userFolder+"/")[1]
+				tmpList["path"]=tmpEntry
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+
+				for j in range(0,len(tmpFolders),1):
+					tmpItem2=tmpFolders[j]
+					tmpEntry2=tmpFolders[j]
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
+
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+				folderLocalStruct.append(tmpList)	
+		
+		return folderLocalStruct
+
+	#def _processingLocalFolder		
+
 	def applySyncChanges(self,initialSyncConfig,keepFolders):
 
 		syncAll=initialSyncConfig[0]
@@ -751,6 +847,7 @@ class OnedriveManager:
 		if not syncAll:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
 			if not keepFolders:
+				self._manageEmptyToken()
 				if os.path.exists(self.userFolder):
 					shutil.rmtree(self.userFolder)
 			self.readFilterFile()
@@ -886,24 +983,20 @@ class OnedriveManager:
 		if action=="move":
 			if os.path.exists(self.filterFile):
 				os.rename(self.filterFile,self.filterFile+".back")
+			if os.path.exists(self.filterFileHash):
+				os.rename(self.filterFileHash,self.filterFileHash+".back")				
 		elif action=="restore":
 			if os.path.exists(self.filterFile+".back"):
 				os.rename(self.filterFile+".back",self.filterFile)
+			if os.path.exists(self.filterFileHash+".back"):
+				os.rename(self.filterFileHash+".back",self.filterFileHash)
 
 	#def manageFileFilter
 		
-	def getPathByName(self,name):
+	def updateCheckFolder(self,path,checked):
 
 		for item in self.folderStruct:
-			if item["name"]==name:
-				return item["path"]
-
-	#def getPathByName
-
-	def updateCheckFolder(self,name,checked):
-
-		for item in self.folderStruct:
-			if item["name"]==name:
+			if item["path"]==path:
 				item["isChecked"]=checked
 
 	#def updateCheckFolder
@@ -962,5 +1055,50 @@ class OnedriveManager:
 		return installed
 
 	#def getPackageVersion
+
+	def checkLocalFolder(self):
+
+		localFolderEmpty=False;
+		localFolderRemoved=False;
+
+		if os.path.exists(self.localFolderEmptyToken):
+			localFolderEmpty=True;
+		if os.path.exists(self.localFolderRemovedToken):
+			localFolderRemoved=True;
+
+		return [localFolderEmpty,localFolderRemoved]
+
+	#def checkLocalFolder
+
+	def _manageEmptyToken(self):
+
+		f=open(self.emptyToken,'w')
+		f.close()
+
+	#def _manageEmptyToken
+
+	def checkPreviousLocalFolder(self):
+
+		if os.path.exists(self.userFolder):
+			if os.listdir(self.userFolder):
+				return True
+
+		return False
+
+	#def checkPreviousLocalFolder
+
+	def _removeEnvConfigFiles(self):
+
+		for item in self.envConfFiles:
+			tmpPath=os.path.join(self.internalOnedriveFolder,item)
+			if os.path.exists(tmpPath):
+				os.remove(tmpPath)
+
+		if os.path.exists(self.filterFile):
+			os.remove(self.filterFile)
+		if os.path.exists(self.filterFileHash):
+			os.remove(self.filterFileHash)
+
+	#def _removeEnvConfigFiles
 
 #class OnedriveManager
