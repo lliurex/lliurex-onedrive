@@ -47,6 +47,7 @@ class OnedriveManager:
 		self.localFolderEmptyToken=os.path.join(self.internalOnedriveFolder,".localFolderEmptyToken")
 		self.localFolderRemovedToken=os.path.join(self.internalOnedriveFolder,".localFolderRemovedToken")
 		self.lockAutoStartToken=os.path.join(self.internalOnedriveFolder,".lockAutoStartToken")
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
 	
 	#def __init__
 
@@ -98,7 +99,7 @@ class OnedriveManager:
 								break
 				fd.close()
 		else:
-			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			shutil.copyfile(self.configTemplate,self.configFile)
 	
 	
 	#def readConfigFile
@@ -122,7 +123,11 @@ class OnedriveManager:
 		poutput=p.communicate()
 		rc=p.returncode
 		if rc in [0,1]:
-			shutil.copyfile(self.configTemplate,os.path.join(self.internalOnedriveFolder,'config'))
+			self.readConfigFile()
+			if not self.isAutoStartEnabled():
+				self.autoStartEnabled=False
+				self.currentConfig[0]=False
+
 			self._manageEmptyToken()
 			#ret=self.manageSync(True)
 			return True
@@ -244,36 +249,25 @@ class OnedriveManager:
 
 	#def applyChanges
 	
-	def manageAutostart(self,value,remove=False):
+	def manageAutostart(self,value):
 
 		isOnedriveRunning=self.isOnedriveRunning()
 
 		if value:
 			cmd="systemctl --user unmask onedrive.service"
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-			poutput=p.communicate()
-			rc=p.returncode
-
-			if rc !=0:
-				return True
-
-			else:
-				return False
-		else:
-			if not remove:
-				cmd="systemctl --user mask onedrive.service"
-			else:
-				cmd="systemctl --user unmask onedrive.service"
-
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-			poutput=p.communicate()
-			rc=p.returncode
 			
-			if rc !=0:
-				return True				
+		else:
+			cmd="systemctl --user mask onedrive.service"
 
-		return False
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()
+		rc=p.returncode
 
+		if rc !=0:
+			return True
+		else:
+			return False
+	
 	#def manageAutostart
 
 	def manageMonitorInterval(self,value):
@@ -365,15 +359,11 @@ class OnedriveManager:
 			ret=self.manageSync(False)
 			
 		if not self.isOnedriveRunning():
-			ret=self.manageAutostart(False,True)
 			cmd="/usr/bin/onedrive --logout &"
 			p=subprocess.run(cmd,shell=True,check=True)
 			time.sleep(2)
 			if not self.isConfigured():
-				if os.path.exists(self.filterFile):
-					os.remove(self.filterFile)
-				if os.path.exists(self.filterFileHash):
-					os.remove(self.filterFileHash)
+				self._removeEnvConfigFiles()
 				return True
 			else:
 				return False
@@ -1096,5 +1086,19 @@ class OnedriveManager:
 		return False
 
 	#def checkPreviousLocalFolder
+
+	def _removeEnvConfigFiles(self):
+
+		for item in self.envConfFiles:
+			tmpPath=os.path.join(self.internalOnedriveFolder,item)
+			if os.path.exists(tmpPath):
+				os.remove(tmpPath)
+
+		if os.path.exists(self.filterFile):
+			os.remove(self.filterFile)
+		if os.path.exists(self.filterFileHash):
+			os.remove(self.filterFileHash)
+
+	#def _removeEnvConfigFiles
 
 #class OnedriveManager

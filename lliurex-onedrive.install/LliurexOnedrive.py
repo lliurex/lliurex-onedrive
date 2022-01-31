@@ -62,6 +62,7 @@ class Bridge(QObject):
 		self.changedSyncWorked=False
 		self._localFolderEmpty=False
 		self._localFolderRemoved=False
+		self.removeAction=False
 		self.initBridge()
 
 	#def _init__
@@ -86,10 +87,7 @@ class Bridge(QObject):
 	def _loadAccount(self):
 
 		self.onedriveMan.loadConfg()
-		self.autoStartEnabled=self.onedriveMan.autoStartEnabled
-		self.monitorInterval=int(self.onedriveMan.monitorInterval)
-		self.rateLimit=int(self.onedriveMan.rateLimit)
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self._getInitialSettings()
 		self.syncAll=self.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
 		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
@@ -109,6 +107,15 @@ class Bridge(QObject):
 		self.currentStack=2	
 	
 	#def _loadAccount
+
+	def _getInitialSettings(self):
+
+		self.autoStartEnabled=self.onedriveMan.autoStartEnabled
+		self.monitorInterval=int(self.onedriveMan.monitorInterval)
+		self.rateLimit=int(self.onedriveMan.rateLimit)
+		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+
+	#def _getInitialConfig
 
 	def _getBandWidthNames(self):
 		
@@ -494,6 +501,7 @@ class Bridge(QObject):
 		
 		if ret:
 			if self.onedriveMan.isConfigured():
+				self._getInitialSettings()
 				self.initialDownload=self.onedriveMan.getInitialDownload()
 				self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
 				
@@ -724,6 +732,7 @@ class Bridge(QObject):
 		if ret:
 			self.currentStack=3
 			self.infoStackType="Unlink"
+			self.removeAction=True
 		else:
 			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]	
 	
@@ -1021,20 +1030,23 @@ class Bridge(QObject):
 	@Slot()
 	def closeOnedrive(self):
 
-		if self.settingsChanged:
-			self.closeGui=False
-			self.showSettingsDialog=True
-		else:
-			if self.syncCustomChanged:
+		if not self.removeAction:
+			if self.settingsChanged:
 				self.closeGui=False
-				if self.closePopUp:
-					self.showSynchronizeDialog=True
+				self.showSettingsDialog=True
 			else:
-				if self.closePopUp:
-					self.onedriveMan.manageFileFilter("restore")
-					self.closeGui=True
-				else:
+				if self.syncCustomChanged:
 					self.closeGui=False
+					if self.closePopUp:
+						self.showSynchronizeDialog=True
+				else:
+					if self.closePopUp:
+						self.onedriveMan.manageFileFilter("restore")
+						self.closeGui=True
+					else:
+						self.closeGui=False
+		else:
+			self.closeGui=True
 
 	#def closeOnedrive
 	
