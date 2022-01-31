@@ -1,3 +1,10 @@
+lliurex-onedrive (1.2.4) focal-updates; urgency=medium
+
+  * Checked if local folder exists or is empty
+  * Improved general performance
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 31 Jan 2022 13:12:47 +0100
+
 lliurex-onedrive (1.2.3) focal-updates; urgency=medium
 
   * Mapped a new error to show specific message
