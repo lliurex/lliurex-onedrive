@@ -1,6 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQml.Models 2.6
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 
 Rectangle {
@@ -15,18 +16,23 @@ Rectangle {
 
     ListModel{
         id: folderModel
-    }    
-    ListView{
-        id: listFolder
-        anchors.fill:parent
-        height: parent.height
-        model:onedriveBridge.model
-        enabled:structEnabled
-        delegate: listdelegate
-        clip: true
-        boundsBehavior: Flickable.StopAtBounds
-     }         
-
+    }
+    PlasmaExtras.ScrollArea{
+        implicitWidth:parent.width
+        implicitHeight:folderTable.height
+        anchors.leftMargin:10
+    
+        ListView{
+            id: listFolder
+            anchors.fill:parent
+            height: parent.height
+            model:onedriveBridge.model
+            enabled:structEnabled
+            delegate: listdelegate
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+         }         
+    }
     Component{
         id: listdelegate
         Rectangle{
