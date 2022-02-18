@@ -565,18 +565,18 @@ class OnedriveManager:
 		if localFolder:
 			if os.path.exists(self.userFolder):
 				if os.listdir(self.userFolder):
-					return self.getLocalFolderStruct()
+					self.getLocalFolderStruct()
 				else:
-					return self.getCloudFolderStruct()
+					self.getCloudFolderStruct()
 		else:
-			return self.getCloudFolderStruct()
+			self.getCloudFolderStruct()
 
 	#def getFolderStruct	
 
 
 	def getCloudFolderStruct(self):
 		
-		error=False
+		self.errorFolder=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
 
@@ -612,9 +612,8 @@ class OnedriveManager:
 			self._processingFolderStruct()			
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 		else:
-			error=True
+			self.errorFolder=True
 		
-		return [error,self.folderStruct]
 
 	#def getCloudFolderStruct
 
@@ -772,15 +771,14 @@ class OnedriveManager:
 
 		try:
 			folderLocalStruct=self._processingLocalFolder()
-			error=False
+			self.errorFolder=False
 		except:
-			error=True
+			self.errorFolder=True
 
 		self.folderStruct=sorted(folderLocalStruct,key=lambda d: d['path'])
 		self._processingFolderStruct()					
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 	
-		return [error,self.folderStruct]
 
 	#def getLocalFolderStruct
 

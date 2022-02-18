@@ -20,27 +20,213 @@ CHANGE_SYNC_OPTIONS_OK=1
 CHANGE_SYNC_OPTIONS_ERROR=-1
 CHANGE_SYNC_FOLDERS_ERROR=-2
 
+class CreateAccount(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.ret=[]
+		self.initialDownload=""
+
+	#def __init__
+
+	def run (self,*args):
+		
+		self.ret=Bridge.onedriveMan.createAccount()
+		if self.ret:
+			if Bridge.onedriveMan.isConfigured():
+				self.initialDownload=Bridge.onedriveMan.getInitialDownload()
+
+	#def run
+
+#class CreateAccount
+
+class GatherInfo(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.isOnedriveRunning=False
+		self.localFolderEmpty=False
+		self.localFolderRemoved=False
+		self.accountStatus=1
+		self.freeSpace=""
+
+	#def _init__
+
+	def run(self,*args):
+		
+		time.sleep(1)
+		Bridge.onedriveMan.loadConfg()
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder()
+		if not self.localFolderRemoved:
+			error,self.accountStatus,self.freeSpace=Bridge.onedriveMan.getAccountStatus()
+
+	#def run
+
+#class GatherInfo
+
+class GetFolderStruct(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.localFolder=args[0]
+
+	#def __init
+
+	def run(self,*args):
+
+		Bridge.onedriveMan.getFolderStruct(self.localFolder)
+	
+	#def run
+
+#class GetFolderStruct
+
+class ManageSync(QThread):
+	
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.startAction=args[0]
+		self.ret=[]
+	
+	#def __init
+
+	def run(self,*args):
+
+		self.ret=Bridge.onedriveMan.manageSync(self.startAction)
+
+	#def run
+
+#class ManageSync
+
+class AccountStatus(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.ret=[]
+	
+	#def __init
+
+	def run(self,*args):
+
+		self.ret=Bridge.onedriveMan.getAccountStatus()
+
+	#def run
+
+#class AccountStatus
+
+class ApplySettingsChanges(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.ret=[]
+		self.initialConfig=args[0]
+	
+	#def __init
+
+	def run(self,*args):
+
+		self.ret=Bridge.onedriveMan.applyChanges(self.initialConfig)
+
+	#def run
+
+#class ApplySettingsChanges
+
+class ApplySyncChanges(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.ret=[]
+		self.initialSyncConfig=args[0]
+		self.keepFolders=args[1]
+	
+	#def __init
+
+	def run(self,*args):
+
+		self.ret=Bridge.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders)
+
+	#def run
+
+#class ApplySyncChanges
+
+class TestOneDrive(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+
+	#def __init
+
+	def run(self,*args):
+
+		Bridge.onedriveMan.testOnedrive()
+
+	#def run
+
+#class TestOneDrive
+
+class RepairOneDrive(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+
+	#def __init
+
+	def run(self,*args):
+
+		Bridge.onedriveMan.repairOnedrive()
+
+	#def run
+
+#class RepairOneDrive
+
+class RemoveAccount(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.ret=[]
+
+	#def __init
+
+	def run(self,*args):
+
+		self.ret=Bridge.onedriveMan.removeAccount()
+
+	#def run
+
+#class RemoveAccount
+
 class Bridge(QObject):
+
+	onedriveMan=OnedriveManager.OnedriveManager()
 
 	def __init__(self,ticket=None):
 
 		QObject.__init__(self)
 
-		self.onedriveMan=OnedriveManager.OnedriveManager()
 		self.entries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
 		self._model=Model.MyModel(self.entries)
-		self._isConfigured=self.onedriveMan.isConfigured()
-		self._autoStartEnabled=self.onedriveMan.autoStartEnabled
-		self._monitorInterval=int(self.onedriveMan.monitorInterval)
-		self._rateLimit=int(self.onedriveMan.rateLimit)	
-		self._userFolder=self.onedriveMan.userFolder
+		self._isConfigured=Bridge.onedriveMan.isConfigured()
+		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
+		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
+		self._rateLimit=int(Bridge.onedriveMan.rateLimit)	
+		self._userFolder=Bridge.onedriveMan.userFolder
 		self._currentStack=1
 		self._closeGui=False
 		self._closePopUp=True
 		self._showSettingsDialog=False
 		self._isOnedriveRunning=False
 		self._accountStatus=1
-		self._bandWidthNames=self.onedriveMan.bandWidthNames
+		self._bandWidthNames=Bridge.onedriveMan.bandWidthNames
 		self._freeSpace=""
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
@@ -48,9 +234,9 @@ class Bridge(QObject):
 		self._infoStackType="Configuration"
 		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
-		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
-		self._syncAll=self.onedriveMan.syncAll
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		self._syncAll=Bridge.onedriveMan.syncAll
 		self._syncCustomChanged=False
 		self.keepFolders=True
 		self._initialDownload=""
@@ -63,6 +249,7 @@ class Bridge(QObject):
 		self._localFolderEmpty=False
 		self._localFolderRemoved=False
 		self.removeAction=False
+		self.initStartUp=True
 		self.initBridge()
 
 	#def _init__
@@ -74,46 +261,60 @@ class Bridge(QObject):
 			self.isClientRunningTimer.timeout.connect(self.updateClientStatus)
 			self.isClientRunningTimer.start(5000)
 			self.currentStack=1
-			t = threading.Thread(target=self._loadAccount)
-			t.daemon=True
-			t.start()
+			self.gatherInfo=GatherInfo()
+			self.gatherInfo.start()
+			self.gatherInfo.finished.connect(self._loadAccount)
 		else:
 			self.currentStack=0
-			if self.onedriveMan.checkPreviousLocalFolder():
+			if Bridge.onedriveMan.checkPreviousLocalFolder():
 				self.showPreviousDialog=True
 	
 	#def initBridge
 	
 	def _loadAccount(self):
 
-		self.onedriveMan.loadConfg()
 		self._getInitialSettings()
-		self.syncAll=self.onedriveMan.syncAll
-		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
-		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-		self.localFolderEmpty,self.localFolderRemoved=self.onedriveMan.checkLocalFolder()
+		self.syncAll=Bridge.onedriveMan.syncAll
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		self.isOnedriveRunning=self.gatherInfo.isOnedriveRunning
+		self.localFolderEmpty=self.gatherInfo.localFolderEmpty
+		self.localFolderRemoved=self.gatherInfo.localFolderRemoved
 
 		if not self.localFolderRemoved:
-			error,self.accountStatus,self.freeSpace=self.onedriveMan.getAccountStatus()
+			self.accountStatus=self.gatherInfo.accountStatus
+			self.freeSpace=self.gatherInfo.freeSpace
 			if not self.syncAll:
 				if not self.localFolderEmpty:
-					self._updateFolderStruct(True)
+					self.getFolderStruct=GetFolderStruct(True)
+					self.getFolderStruct.start()
+					self.getFolderStruct.finished.connect(self._endLoading)
 
-		if self.isOnedriveRunning:
-			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+				else:
+					self._endLoading()
+			else:
+				self._endLoading()
+		else:
+			self._endLoading()
 
-		time.sleep(2)
+	#def _loadAccount
+
+	def _endLoading(self):
+
+		if not self.syncAll:
+			if self.isOnedriveRunning:
+				self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+			self._updateFolderStruct()
 
 		self.currentStack=2	
 	
-	#def _loadAccount
+	#def _endLoading
 
 	def _getInitialSettings(self):
 
-		self.autoStartEnabled=self.onedriveMan.autoStartEnabled
-		self.monitorInterval=int(self.onedriveMan.monitorInterval)
-		self.rateLimit=int(self.onedriveMan.rateLimit)
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self.autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
+		self.monitorInterval=int(Bridge.onedriveMan.monitorInterval)
+		self.rateLimit=int(Bridge.onedriveMan.rateLimit)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 
 	#def _getInitialConfig
 
@@ -487,24 +688,22 @@ class Bridge(QObject):
 	@Slot(str)
 	def createAccount(self,token):
 
-		self.onedriveMan.authToken=token
+		Bridge.onedriveMan.authToken=token
 		self.currentStack=1
-		t = threading.Thread(target=self._createAccount)
-		t.daemon=True
-		t.start()
-
+		self.createAccountT=CreateAccount()
+		self.createAccountT.start()
+		self.createAccountT.finished.connect(self._createAccount)
+	
 	#def createAccont
 
 	def _createAccount(self):
 
-		ret=self.onedriveMan.createAccount()
-		
-		if ret:
-			if self.onedriveMan.isConfigured():
+		if self.createAccountT.ret:
+			if Bridge.onedriveMan.isConfigured():
 				self._getInitialSettings()
-				self.initialDownload=self.onedriveMan.getInitialDownload()
-				self.hddFreeSpace=self.onedriveMan.getHddFreeSpace()
-				
+				self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
+				self.initialDownload=self.createAccountT.initialDownload
+
 				if self.initialDownload!="":
 					self.showDownloadDialog=True
 				else:
@@ -522,10 +721,7 @@ class Bridge(QObject):
 
 		self.showDownloadDialog=False
 		if option=="All":
-			t = threading.Thread(target=self._initialStartUp)
-			t.daemon=True
-			t.start()
-
+			self._initialStartUp()
 		else:
 			self.currentOptionsStack=1
 			self.currentStack=2
@@ -534,37 +730,47 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
-		ret=self.onedriveMan.manageSync(True)
-		time.sleep(2)
-		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+		self.manageSync=ManageSync(True)
+		self.manageSync.start()
+		self.manageSync.finished.connect(self._endInitialStartUp)
+		
+	#def _initialStartUp
+
+	def _endInitialStartUp(self):
+
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.initStartUp=True
+		
 		if not self.isOnedriveRunning:
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+			self.currentStack=2
 		else:
-			ret1=self.onedriveMan.getAccountStatus()
-			self.accountStatus=ret1[1]
-			self.freeSpace=ret1[2]
-			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+			self.checkAccountStatus()
 
-		self.currentStack=2
-
-	#def _initialStartUp
+	#def _endInitialStartUp
 
 	@Slot()
 	def checkAccountStatus(self):
 
-		self.closePopUp=False
-		t = threading.Thread(target=self._checkAccountStatus)
-		t.daemon=True
-		t.start()
+		if not self.initStartUp:
+			self.closePopUp=False
+		self.getAccountStatus=AccountStatus()
+		self.getAccountStatus.start()
+		self.getAccountStatus.finished.connect(self._checkAccountStatus)
 
 	#def checkAccountStatus
 
 	def _checkAccountStatus(self):
 
-		ret=self.onedriveMan.getAccountStatus()
-		self.closePopUp=True
-		self.accountStatus=ret[1]
-		self.freeSpace=ret[2]
+		if self.initStartUp:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+			self.currentStack=2
+			self.initStartUp=False
+		else:
+			self.closePopUp=True
+
+		self.accountStatus=self.getAccountStatus.ret[1]
+		self.freeSpace=self.getAccountStatus.ret[2]
 
 	#def _checkAccountStatus 
 
@@ -572,7 +778,7 @@ class Bridge(QObject):
 	def manageAutoStart(self,value):
 		
 		if value!=self.initialConfig[0]:
-			if value!=self.onedriveMan.currentConfig[0]:
+			if value!=Bridge.onedriveMan.currentConfig[0]:
 				self.settingsChanged=True
 			else:
 				self.settingsChanged=False
@@ -586,7 +792,7 @@ class Bridge(QObject):
 	def getMonitorInterval(self,value):
 
 		if value!=self.initialConfig[1]:
-			if value!=self.onedriveMan.currentConfig[1]:
+			if value!=Bridge.onedriveMan.currentConfig[1]:
 				self.settingsChanged=True
 			else:
 				self.settingsChanged=False
@@ -600,7 +806,7 @@ class Bridge(QObject):
 	def getRateLimit(self,value):
 
 		if value!=self.initialConfig[2]:
-			if value!=self.onedriveMan.currentConfig[2]:
+			if value!=Bridge.onedriveMan.currentConfig[2]:
 				self.settingsChanged=True
 			else:
 				self.settingsChanged=False
@@ -615,21 +821,20 @@ class Bridge(QObject):
 
 		self.closePopUp=False
 		self.closeGui=False
-		t = threading.Thread(target=self._applySettingsChanges)
-		t.daemon=True
-		t.start()
-	
+		self.applySettingsChangesT=ApplySettingsChanges(self.initialConfig)
+		self.applySettingsChangesT.start()
+		self.applySettingsChangesT.finished.connect(self._applySettingsChanges)
+
 	#def applySettingsChanges
 
 	def _applySettingsChanges(self):
 
-		ret=self.onedriveMan.applyChanges(self.initialConfig)
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.closePopUp=True
-		self.showSettingsMessage=[True,ret[1]]
+		self.showSettingsMessage=[True,self.applySettingsChangesT.ret[1]]
 		self.showSettingsDialog=False
 
-		if not ret[0]:
+		if not self.applySettingsChangesT.ret[0]:
 			if not self.syncCustomChanged:
 				self.closeGui=True
 			self.settingsChanged=False
@@ -645,7 +850,7 @@ class Bridge(QObject):
 		self.hideSettingsMessage()
 		self.settingsChanged=False
 		self.showSettingsDialog=False
-		self.initialConfig=copy.deepcopy(self.onedriveMan.currentConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.autoStartEnabled=self.initialConfig[0]
 		self.monitorInterval=int(self.initialConfig[1])
 		self.rateLimit=self.initialConfig[2]
@@ -663,20 +868,18 @@ class Bridge(QObject):
 	def manageSync(self,value):
 
 		self.closePopup=False
-		t = threading.Thread(target=self._manageSync,args=(value,))
-		t.daemon=True
-		t.start()
+		self.isRunningBefore=Bridge.onedriveMan.isOnedriveRunning()
+		self.manageSyncT=ManageSync(value)
+		self.manageSyncT.start()
+		self.manageSyncT.finished.connect(self._manageSync)
 
 	#def manageSync
 
-	def _manageSync(self,value):
+	def _manageSync(self):
 
-		isRunningBefore=self.onedriveMan.isOnedriveRunning()
-		ret=self.onedriveMan.manageSync(value)
-		time.sleep(1)
-		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
-		if isRunningBefore==self.isOnedriveRunning:
-			if isRunningBefore:
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		if self.isRunningBefore==self.isOnedriveRunning:
+			if self.isRunningBefore:
 				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]
 			else:
 				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
@@ -698,19 +901,15 @@ class Bridge(QObject):
 	def repairOnedrive(self):
 
 		self.closePopUp=False
-		t = threading.Thread(target=self._repairOnedrive)
-		t.daemon=True
-		t.start()
+		self.repairOneDriveT=RepairOneDrive()
+		self.repairOneDriveT.start()
+		self.repairOneDriveT.finished.connect(self._repairOnedrive)
 
 	#def reparirOnedrive
 
 	def _repairOnedrive(self):
 
-		ret=self.onedriveMan.repairOnedrive()
-		ret1=self.onedriveMan.getAccountStatus()
-		self.accountStatus=ret1[2]
-		self.freeSpace=ret1[2]
-		self.closePopUp=True
+		self.checkAccountStatus()
 
 	#def _repairOnedrive
 	
@@ -718,18 +917,18 @@ class Bridge(QObject):
 	def removeAccount(self):
 
 		self.closePopUp=False
-		t = threading.Thread(target=self._removeAccount)
-		t.daemon=True
-		t.start()
+
 		self.showUnlinkDialog=False
+		self.removeAccountT=RemoveAccount()
+		self.removeAccountT.start()
+		self.removeAccountT.finished.connect(self._removeAccount)
 
 	#def removeAccount
 
 	def _removeAccount(self):
 
-		ret=self.onedriveMan.removeAccount()
 		self.closePopUp=True
-		if ret:
+		if self.removeAccountT.ret:
 			self.currentStack=3
 			self.infoStackType="Unlink"
 			self.removeAction=True
@@ -758,18 +957,16 @@ class Bridge(QObject):
 	def testOnedrive(self):
 
 		self.closePopUp=False
-		t = threading.Thread(target=self._testOnedrive)
-		t.daemon=True
-		t.start()
+		self.testOnedriveT=TestOneDrive()
+		self.testOnedriveT.start()
+		self.testOnedriveT.finished.connect(self._testOnedrive)
 
 	#def testOnedrive
 	
 	def _testOnedrive(self):
 
-		ret=self.onedriveMan.testOnedrive()
-
-		if os.path.exists(self.onedriveMan.testPath):
-			cmd="xdg-open %s"%self.onedriveMan.testPath
+		if os.path.exists(Bridge.onedriveMan.testPath):
+			cmd="xdg-open %s"%Bridge.onedriveMan.testPath
 			os.system(cmd)
 		self.closePopUp=True
 
@@ -814,18 +1011,18 @@ class Bridge(QObject):
 		
 		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=False
-		t = threading.Thread(target=self._updateFolderStruct,args=(localFolder,))
-		t.daemon=True
-		t.start()
+		self.getFolderStruct=GetFolderStruct(localFolder)
+		self.getFolderStruct.start()
+		self.getFolderStruct.finished.connect(self._updateFolderStruct)
 
 	#def updateFolderStruct
 
-	def _updateFolderStruct(self,localFolder):
+	def _updateFolderStruct(self):
 
 		ret=self._model.resetModel()
-		self._model=Model.MyModel(self.entries)
 
-		self.errorGetFolder,entries=self.onedriveMan.getFolderStruct(localFolder)
+		self.errorGetFolder=Bridge.onedriveMan.errorFolder
+		entries=Bridge.onedriveMan.folderStruct
 		for item in entries:
 			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 
@@ -839,7 +1036,7 @@ class Bridge(QObject):
 	@Slot('QVariantList')
 	def folderChecked(self,info):
 
-		self.onedriveMan.updateCheckFolder(info[0],info[1])
+		Bridge.onedriveMan.updateCheckFolder(info[0],info[1])
 		path=info[0]
 		if info[1]:
 			if path not in self.initialSyncConfig[1]:
@@ -858,17 +1055,17 @@ class Bridge(QObject):
 		if None in self.initialSyncConfig[2]:
 			self.initialSyncConfig[2].remove(None)
 		self.initialSyncConfig[2].sort()
-		if None in self.onedriveMan.currentSyncConfig[1]:
-			self.onedriveMan.currentSyncConfig[1].remove(None)
-		self.onedriveMan.currentSyncConfig[1].sort()
-		if None in self.onedriveMan.currentSyncConfig[2]:
-			self.onedriveMan.currentSyncConfig[2].remove(None)
-		self.onedriveMan.currentSyncConfig[2].sort()
+		if None in Bridge.onedriveMan.currentSyncConfig[1]:
+			Bridge.onedriveMan.currentSyncConfig[1].remove(None)
+		Bridge.onedriveMan.currentSyncConfig[1].sort()
+		if None in Bridge.onedriveMan.currentSyncConfig[2]:
+			Bridge.onedriveMan.currentSyncConfig[2].remove(None)
+		Bridge.onedriveMan.currentSyncConfig[2].sort()
 
-		if self.initialSyncConfig[1]!=self.onedriveMan.currentSyncConfig[1]:
+		if self.initialSyncConfig[1]!=Bridge.onedriveMan.currentSyncConfig[1]:
 			self.syncCustomChanged=True
 		else:
-			if self.initialSyncConfig[2]!=self.onedriveMan.currentSyncConfig[2]:
+			if self.initialSyncConfig[2]!=Bridge.onedriveMan.currentSyncConfig[2]:
 				self.syncCustomChanged=True
 			else:
 				self.syncCustomChanged=False
@@ -893,7 +1090,7 @@ class Bridge(QObject):
 
 		self.hideSynchronizeMessage()
 		if value!=self.initialSyncConfig[0]:
-			if value!=self.onedriveMan.currentSyncConfig[0]:
+			if value!=Bridge.onedriveMan.currentSyncConfig[0]:
 				if not value and (len(self.initialSyncConfig[1])>0 or len(self.initialSyncConfig[2])>0):
 					self.syncCustomChanged=True
 				else:
@@ -919,22 +1116,14 @@ class Bridge(QObject):
 	def cancelSyncBtn(self):
 		
 		self.closePopUp=False
-		t = threading.Thread(target=self._cancelSyncBtn)
-		t.daemon=True
-		t.start()
-
-	#def cancelSyncBtn
-
-	def _cancelSyncBtn(self):
-
+		
 		self.syncCustomChanged=False
-		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
-		self.onedriveMan.cancelSyncChanges()
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		Bridge.onedriveMan.cancelSyncChanges()
 		self.syncAll=self.initialSyncConfig[0]
 
 		ret=self._model.resetModel()
-		self._model=Model.MyModel(self.entries)
-		entries=self.onedriveMan.folderStruct
+		entries=Bridge.onedriveMan.folderStruct
 		for item in entries:
 			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
 
@@ -943,7 +1132,7 @@ class Bridge(QObject):
 
 		self.closePopUp=True
 	
-	#def _cancelSyncBtn
+	#def cancelSyncBtn
 
 	@Slot(str)
 	def manageSynchronizeDialog(self,action):
@@ -966,21 +1155,20 @@ class Bridge(QObject):
 		self.closePopUp=False
 		self.closeGui=False
 		self.changedSyncWorked=True
-		t = threading.Thread(target=self._applySyncChanges)
-		t.daemon=True
-		t.start()
+		self.applySynChangesT=ApplySyncChanges(self.initialSyncConfig,self.keepFolders)
+		self.applySynChangesT.start()
+		self.applySynChangesT.finished.connect(self._applySyncChanges)
 
 	#def applySyncChanges
 
 	def _applySyncChanges(self):
 
-		ret=self.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders)
-		self.initialSyncConfig=copy.deepcopy(self.onedriveMan.currentSyncConfig)
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		self.syncAll=self.initialSyncConfig[0]
 		self.closePopUp=True
 		self.syncCustomChanged=False
 
-		if ret:
+		if self.applySynChangesT.ret:
 			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_OK,"Ok"]
 			self.closeGui=True
 		else:
@@ -1000,14 +1188,14 @@ class Bridge(QObject):
 
 	def updateClientStatus(self):
 
-		self.isOnedriveRunning=self.onedriveMan.isOnedriveRunning()
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		else:
 			if not self.changedSyncWorked:
 				self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 
-		self.localFolderEmpty,self.localFolderRemoved=self.onedriveMan.checkLocalFolder()
+		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder()
 	
 		if self.localFolderEmpty:
 			self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
@@ -1041,7 +1229,7 @@ class Bridge(QObject):
 						self.showSynchronizeDialog=True
 				else:
 					if self.closePopUp:
-						self.onedriveMan.manageFileFilter("restore")
+						Bridge.onedriveMan.manageFileFilter("restore")
 						self.closeGui=True
 					else:
 						self.closeGui=False
