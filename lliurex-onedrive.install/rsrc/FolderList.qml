@@ -13,6 +13,8 @@ Rectangle {
     id:folderTable
     visible: structVisible
     width: 660; height: 240
+    border.color: "#d3d3d3"
+
 
     ListModel{
         id: folderModel
