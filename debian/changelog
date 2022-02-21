@@ -1,3 +1,10 @@
+lliurex-onedrive (1.2.5) focal-updates; urgency=medium
+
+  * Improved general performance
+  * Improved management of folder list
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 21 Feb 2022 08:21:21 +0100
+
 lliurex-onedrive (1.2.4) focal-updates; urgency=medium
 
   * Checked if local folder exists or is empty
