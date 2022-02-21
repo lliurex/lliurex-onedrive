@@ -565,18 +565,18 @@ class OnedriveManager:
 		if localFolder:
 			if os.path.exists(self.userFolder):
 				if os.listdir(self.userFolder):
-					return self.getLocalFolderStruct()
+					self.getLocalFolderStruct()
 				else:
-					return self.getCloudFolderStruct()
+					self.getCloudFolderStruct()
 		else:
-			return self.getCloudFolderStruct()
+			self.getCloudFolderStruct()
 
 	#def getFolderStruct	
 
 
 	def getCloudFolderStruct(self):
 		
-		error=False
+		self.errorFolder=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
 
@@ -612,9 +612,8 @@ class OnedriveManager:
 			self._processingFolderStruct()			
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 		else:
-			error=True
+			self.errorFolder=True
 		
-		return [error,self.folderStruct]
 
 	#def getCloudFolderStruct
 
@@ -636,6 +635,7 @@ class OnedriveManager:
 				tmpList={}
 				tmpEntry=item.split(":")[1].strip()
 				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
 				tmpEntry=tmpEntry.split("/")
 				tmpList["isChecked"]=True
 				tmpList["isExpanded"]=True
@@ -645,12 +645,14 @@ class OnedriveManager:
 					tmpList["type"]="OneDrive"
 					tmpList["subtype"]="parent"
 					tmpList["level"]=3
+					tmplist["parentPath"]="OneDrive"
 
 				else:
 					tmpList["name"]=tmpEntry[-1]
 					tmpList["type"]=tmpEntry[-2]
 					tmpList["subtype"]="parent"
 					tmpList["level"]=len(tmpEntry)*3
+					tmplist["parentPath"]=parentPath
 
 				for j in range(0,len(out),1):
 					tmpItem2=out[j]
@@ -702,6 +704,7 @@ class OnedriveManager:
 				tmpList={}
 				tmpEntry=syncOut[i].split("Processing")[1].strip()
 				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
 				tmpEntry=tmpEntry.split("/")
 				tmpList["isChecked"]=True
 				tmpList["isExpanded"]=True
@@ -711,13 +714,15 @@ class OnedriveManager:
 					tmpList["type"]="OneDrive"
 					tmpList["subtype"]="parent"
 					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
 				else:
 					tmpList["name"]=tmpEntry[-1]
 					tmpList["type"]=tmpEntry[-2]
 					tmpList["subtype"]="parent"
 					tmpList["level"]=len(tmpEntry)*3
-
+					tmpList["parentPath"]=parentPath
+				
 				
 				for j in range(0,len(syncOut)-1,2):
 					tmpItem2=syncOut[j]+": "+syncOut[j+1]
@@ -772,15 +777,14 @@ class OnedriveManager:
 
 		try:
 			folderLocalStruct=self._processingLocalFolder()
-			error=False
+			self.errorFolder=False
 		except:
-			error=True
+			self.errorFolder=True
 
 		self.folderStruct=sorted(folderLocalStruct,key=lambda d: d['path'])
 		self._processingFolderStruct()					
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 	
-		return [error,self.folderStruct]
 
 	#def getLocalFolderStruct
 
@@ -805,6 +809,7 @@ class OnedriveManager:
 				tmpList={}
 				tmpEntry=item.split(self.userFolder+"/")[1]
 				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
 				tmpEntry=tmpEntry.split("/")
 				tmpList["isChecked"]=True
 				tmpList["isExpanded"]=True
@@ -814,12 +819,15 @@ class OnedriveManager:
 					tmpList["type"]="OneDrive"
 					tmpList["subtype"]="parent"
 					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
 				else:
 					tmpList["name"]=tmpEntry[-1]
 					tmpList["type"]=tmpEntry[-2]
 					tmpList["subtype"]="parent"
 					tmpList["level"]=len(tmpEntry)*3
+					tmpList["parentPath"]=parentPath
+
 
 				for j in range(0,len(tmpFolders),1):
 					tmpItem2=tmpFolders[j]

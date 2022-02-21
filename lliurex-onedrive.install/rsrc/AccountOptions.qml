@@ -42,7 +42,6 @@ GridLayout{
                         optionsLayout.currentIndex=1;
                         onedriveBridge.hideSettingsMessage()
                         onedriveBridge.hideSynchronizeMessage()
-                        synchronize.structModel=onedriveBridge.model
                     }
                 }
             }
