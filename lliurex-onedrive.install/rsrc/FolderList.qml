@@ -1,6 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQml.Models 2.6
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 
 Rectangle {
@@ -12,21 +13,28 @@ Rectangle {
     id:folderTable
     visible: structVisible
     width: 660; height: 240
+    border.color: "#d3d3d3"
+
 
     ListModel{
         id: folderModel
-    }    
-    ListView{
-        id: listFolder
-        anchors.fill:parent
-        height: parent.height
-        model:onedriveBridge.model
-        enabled:structEnabled
-        delegate: listdelegate
-        clip: true
-        boundsBehavior: Flickable.StopAtBounds
-     }         
-
+    }
+    PlasmaExtras.ScrollArea{
+        implicitWidth:parent.width
+        implicitHeight:folderTable.height
+        anchors.leftMargin:10
+    
+        ListView{
+            id: listFolder
+            anchors.fill:parent
+            height: parent.height
+            model:onedriveBridge.model
+            enabled:structEnabled
+            delegate: listdelegate
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+         }         
+    }
     Component{
         id: listdelegate
         Rectangle{
@@ -89,10 +97,10 @@ Rectangle {
                             if (item["path"]===path){
                                 onedriveBridge.updateModel([i,"isExpanded",isExpanded])
                             }else{
-                                if((item["type"] === name) || (sub.includes(item["type"]))){
+                                if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
                                     onedriveBridge.updateModel([i,"isExpanded",isExpanded])
                                     if (item["subtype"]==="parent"){
-                                        sub.push(item["name"])
+                                        sub.push(item["path"])
                                         onedriveBridge.updateModel([i,"hide",!isExpanded])
                                     }
                                 }
@@ -123,11 +131,11 @@ Rectangle {
                         if (item["path"]===path){
                             onedriveBridge.updateModel([i,"isChecked",isChecked])
                         }else{
-                            if((item["type"] === name) || (sub.includes(item["type"]))){
+                            if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
                                 onedriveBridge.updateModel([i,"isChecked",isChecked])
                                 onedriveBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
-                                    sub.push(item["name"])
+                                    sub.push(item["path"])
 
                                 }
                             }

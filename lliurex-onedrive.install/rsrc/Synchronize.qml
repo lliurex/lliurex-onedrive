@@ -90,7 +90,6 @@ Rectangle{
                                         synchronizePopup.close(),
                                         timer.stop(),
                                         folderList.structVisible=true;
-                                        folderList.structModel=onedriveBridge.model
                                     }
                                 })
                                 
@@ -138,7 +137,6 @@ Rectangle{
                             if (onedriveBridge.closePopUp){
                                 synchronizePopup.close(),
                                 timer.stop(),
-                                folderList.structModel=onedriveBridge.model
                                 folderList.structVisible=true;
                             }
                         })
@@ -206,8 +204,7 @@ Rectangle{
                         if (syncAll.checked){
                             folderList.structVisible=false
                         }else{
-                            folderList.structModel=onedriveBridge.model
-                            folderList.structVisible=true;
+                            folderList.structVisible=true
                         }
                     }
                 })
