@@ -213,7 +213,7 @@ class Bridge(QObject):
 
 		QObject.__init__(self)
 
-		self.entries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True}]
+		self.entries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True,"parentPath":""}]
 		self._model=Model.MyModel(self.entries)
 		self._isConfigured=Bridge.onedriveMan.isConfigured()
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
@@ -1019,13 +1019,8 @@ class Bridge(QObject):
 
 	def _updateFolderStruct(self):
 
-		ret=self._model.resetModel()
-
 		self.errorGetFolder=Bridge.onedriveMan.errorFolder
-		entries=Bridge.onedriveMan.folderStruct
-		for item in entries:
-			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
-
+		self._insertModelEntries()
 		self.closePopUp=True
 		
 		if self.errorGetFolder:
@@ -1085,6 +1080,15 @@ class Bridge(QObject):
 	
 	#def updateModel
 
+	def _insertModelEntries(self):
+
+		ret=self._model.resetModel()
+		entries=Bridge.onedriveMan.folderStruct
+		for item in entries:
+			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"],item["parentPath"])
+
+	#def _insertModelEntries
+
 	@Slot(bool)
 	def getSyncMode(self,value):
 
@@ -1122,10 +1126,7 @@ class Bridge(QObject):
 		Bridge.onedriveMan.cancelSyncChanges()
 		self.syncAll=self.initialSyncConfig[0]
 
-		ret=self._model.resetModel()
-		entries=Bridge.onedriveMan.folderStruct
-		for item in entries:
-			self._model.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"])
+		self._insertModelEntries()
 
 		index = self._model.index(0)
 		self._model.setData(index,"isChecked",True)

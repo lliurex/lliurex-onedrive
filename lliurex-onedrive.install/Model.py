@@ -12,6 +12,8 @@ class MyModel(QtCore.QAbstractListModel):
     LevelRole=QtCore.Qt.UserRole + 1006
     HideRole=QtCore.Qt.UserRole + 1007
     CanExpandedRole=QtCore.Qt.UserRole + 1008
+    ParentPathRole=QtCore.Qt.UserRole + 1009
+
 
     def __init__(self, entries, parent=None):
         super(MyModel, self).__init__(parent)
@@ -46,6 +48,8 @@ class MyModel(QtCore.QAbstractListModel):
             	return item["hide"]
             elif role==MyModel.CanExpandedRole:
                 return item["canExpanded"]
+            elif role==MyModel.ParentPathRole:
+                return item["parentPath"]
     #def data
 
     def roleNames(self):
@@ -59,13 +63,14 @@ class MyModel(QtCore.QAbstractListModel):
         roles[MyModel.HideRole] = b"hide"
         roles[MyModel.LevelRole] = b"level"
         roles[MyModel.CanExpandedRole]=b"canExpanded"
+        roles[MyModel.ParentPathRole]=b"parentPath"
 
         return roles
     #def roleName
 
-    def appendRow(self,p, n, ic, ie, t, st, h, l,ce):
+    def appendRow(self,p, n, ic, ie, t, st, h, l, ce, pp):
         self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(),self.rowCount())
-        self._entries.append(dict(path=p, name=n, isChecked=ic, isExpanded=ie, type=t, subtype=st, hide=h, level=l, canExpanded=ce))
+        self._entries.append(dict(path=p, name=n, isChecked=ic, isExpanded=ie, type=t, subtype=st, hide=h, level=l, canExpanded=ce, parentPath=pp))
         self.endInsertRows()
 
     #def appendRow

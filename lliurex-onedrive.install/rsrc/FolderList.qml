@@ -97,10 +97,10 @@ Rectangle {
                             if (item["path"]===path){
                                 onedriveBridge.updateModel([i,"isExpanded",isExpanded])
                             }else{
-                                if((item["type"] === name) || (sub.includes(item["type"]))){
+                                if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
                                     onedriveBridge.updateModel([i,"isExpanded",isExpanded])
                                     if (item["subtype"]==="parent"){
-                                        sub.push(item["name"])
+                                        sub.push(item["path"])
                                         onedriveBridge.updateModel([i,"hide",!isExpanded])
                                     }
                                 }
@@ -131,11 +131,11 @@ Rectangle {
                         if (item["path"]===path){
                             onedriveBridge.updateModel([i,"isChecked",isChecked])
                         }else{
-                            if((item["type"] === name) || (sub.includes(item["type"]))){
+                            if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
                                 onedriveBridge.updateModel([i,"isChecked",isChecked])
                                 onedriveBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
-                                    sub.push(item["name"])
+                                    sub.push(item["path"])
 
                                 }
                             }
