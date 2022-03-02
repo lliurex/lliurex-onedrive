@@ -1,3 +1,9 @@
+lliurex-onedrive (0.1.7) bionic-updates; urgency=medium
+
+  * Updated config file to v2.4.15
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 02 Mar 2022 11:36:56 +0100
+
 lliurex-onedrive (0.1.6) bionic-updates; urgency=medium
 
   * Improved management of folder list
