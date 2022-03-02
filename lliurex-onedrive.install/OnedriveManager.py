@@ -48,7 +48,8 @@ class OnedriveManager:
 		self.localFolderRemovedToken=os.path.join(self.internalOnedriveFolder,".localFolderRemovedToken")
 		self.lockAutoStartToken=os.path.join(self.internalOnedriveFolder,".lockAutoStartToken")
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
-	
+		self.customizeConfigParam=['monitor_interval','rate_limit']
+
 	#def __init__
 
 	def loadConfg(self):
@@ -79,25 +80,26 @@ class OnedriveManager:
 
 	#def isConfigured
 
-	def readConfigFile(self):
+	def readConfigFile(self,newAccount=False):
+
 
 		if os.path.exists(self.configFile):
-			with open(self.configFile,'r') as fd:
-				lines=fd.readlines()
-				for line in lines:
-					if 'monitor_interval' in line:
-						value=line.split("=")[1].split("\n")[0].strip().split('"')[1]
-						self.monitorInterval="{:.0f}".format(int(value)/60)
-						self.currentConfig[1]=self.monitorInterval
+			try:
+				customParam=self._readCustomParams()
+				self.monitorInterval="{:.0f}".format(int(customParam['monitor_interval'])/60)
+				self.currentConfig[1]=self.monitorInterval
 
-					elif 'rate_limit' in line:
-						value=line.split("=")[1].split("\n")[0].strip().split('"')[1]
-						for i in range(len(self.bandWidth)):
-							if self.bandWidth[i]["value"]==value:
-								self.rateLimit=i
-								self.currentConfig[2]=self.rateLimit
-								break
-				fd.close()
+				for i in range(len(self.bandWidth)):
+					if self.bandWidth[i]["value"]==customParam['rate_limit']:
+						self.rateLimit=i
+						self.currentConfig[2]=self.rateLimit
+						break
+			except:
+				shutil.copyfile(self.configTemplate,self.configFile)
+			
+			if newAccount:
+				shutil.copyfile(self.configTemplate,self.configFile)
+				self._updateConfigFile(customParam)
 		else:
 			shutil.copyfile(self.configTemplate,self.configFile)
 	
@@ -123,7 +125,7 @@ class OnedriveManager:
 		poutput=p.communicate()
 		rc=p.returncode
 		if rc in [0,1]:
-			self.readConfigFile()
+			self.readConfigFile(True)
 			if not self.isAutoStartEnabled():
 				self.autoStartEnabled=False
 				self.currentConfig[0]=False
@@ -1108,5 +1110,41 @@ class OnedriveManager:
 			os.remove(self.filterFileHash)
 
 	#def _removeEnvConfigFiles
+
+	def _readCustomParams(self):
+
+		customParam={}
+
+		with open(self.configFile,'r') as fd:
+			lines=fd.readlines()
+			for line in lines:
+				for param in self.customizeConfigParam:
+					if param in line:
+						value=line.split("=")[1].split("\n")[0].strip().split('"')[1]
+						customParam[param]=value
+
+		return customParam 
+
+	#def _readCustomParams
+
+
+	def _updateConfigFile(self,customParam):
+
+		with open(self.configFile,'r') as fd:
+			lines=fd.readlines()
+
+		with open(self.configFile,'w') as fd:
+			for line in lines:
+				for param in customParam:
+					if param in line:
+						value=line.split("=")[1].split("\n")[0].strip().split('"')[1]
+						if value!=customParam[param]:
+							line=param+' = '+'"'+customParam[param]+'"\n'
+						break
+				
+				fd.write(line)
+
+	#def _updateConfigFile
+
 
 #class OnedriveManager
