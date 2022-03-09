@@ -1,3 +1,9 @@
+lliurex-onedrive (1.2.7) focal-updates; urgency=medium
+
+  * Fixed bug in folder struct search function
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 09 Mar 2022 13:15:59 +0100
+
 lliurex-onedrive (1.2.6) focal-updates; urgency=medium
 
   * Updated config file to v2.4.15
