@@ -249,7 +249,7 @@ class Bridge(QObject):
 		self._localFolderEmpty=False
 		self._localFolderRemoved=False
 		self.removeAction=False
-		self.initStartUp=True
+		self.initStartUp=False
 		self.initBridge()
 
 	#def _init__

@@ -647,14 +647,14 @@ class OnedriveManager:
 					tmpList["type"]="OneDrive"
 					tmpList["subtype"]="parent"
 					tmpList["level"]=3
-					tmplist["parentPath"]="OneDrive"
+					tmpList["parentPath"]="OneDrive"
 
 				else:
 					tmpList["name"]=tmpEntry[-1]
 					tmpList["type"]=tmpEntry[-2]
 					tmpList["subtype"]="parent"
 					tmpList["level"]=len(tmpEntry)*3
-					tmplist["parentPath"]=parentPath
+					tmpList["parentPath"]=parentPath
 
 				for j in range(0,len(out),1):
 					tmpItem2=out[j]
