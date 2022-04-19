@@ -97,12 +97,7 @@ Rectangle{
                 ToolTip.text:i18nd("lliurex-onedrive","Click to run an OneDrive client repair command")
 
                 onClicked:{
-                    if (onedriveBridge.localFolderRemoved){
-                        repairRemovedDialog.open()
-                    }else{
-                        repair()
-                    }
-                    
+                    repairRemovedDialog.open()
                 }   
             } 
      
@@ -129,7 +124,7 @@ Rectangle{
             
             Text {
                 id:repairRemovedDialogText
-                text:i18nd("lliurex-onedrive","Local OneDrive folder not exists.\nAre you sure you want to repair OneDrive?\nThis action can lead to deletion of files stored on OneDrive")
+                text:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local OneDrive folder not exists.\nAre you sure you want to repair OneDrive?\nThis action can lead to deletion of files stored on OneDrive"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive.\nAre you sure you want to repair OneDrive?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:repairRemovedDialogIcon.right
