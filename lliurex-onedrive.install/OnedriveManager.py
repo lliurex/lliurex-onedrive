@@ -490,7 +490,7 @@ class OnedriveManager:
 
 	def _syncResync(self):
 
-		cmd="/usr/bin/onedrive --synchronize --resync"
+		cmd="/usr/bin/onedrive --synchronize --resync --resync-auth"
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
@@ -582,7 +582,7 @@ class OnedriveManager:
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
 
-		cmd='onedrive --synchronize --resync --dry-run --verbose'
+		cmd='onedrive --synchronize --resync --resync-auth --dry-run --verbose'
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		out=p.communicate()[0]
 		out=out.decode().split("\n")
