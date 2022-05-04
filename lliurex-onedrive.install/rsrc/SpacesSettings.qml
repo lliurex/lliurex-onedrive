@@ -23,9 +23,9 @@ Rectangle{
         enabled:true
         Kirigami.InlineMessage {
             id: messageLabel
-            visible:true
-            text:"prueba"
-            type:Kirigami.MessageType.Information
+            visible:onedriveBridge.showSpaceSettingsMessage[0]
+            text:getTextMessage()
+            type:getTypeMessage()
             Layout.minimumWidth:660
             Layout.maximumWidth:660
             Layout.topMargin: 40
@@ -66,4 +66,28 @@ Rectangle{
 
         }
     } 
+
+    function getTextMessage(){
+        switch (onedriveBridge.showSpaceSettingsMessage[1]){
+            case 0:
+                var msg=i18nd("lliurex-onedrive","The new space to synchronize has been configured successfully")
+                break;
+            default:
+                var msg=""
+                break;
+        }
+        return msg
+    }
+
+    function getTypeMessage(){
+
+        switch (onedriveBridge.showSpaceSettingsMessage[2]){
+            case "Information":
+                return Kirigami.MessageType.Information
+            case "Ok":
+                return Kirigami.MessageType.Positive
+            case "Error":
+            return Kirigami.MessageType.Error
+        }
+    }
 } 

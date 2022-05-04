@@ -24,9 +24,9 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: newSpaceMessageLabel
-            visible:true
-            text:"prueba"
-            type:Kirigami.MessageType.Error;
+            visible:onedriveBridge.showSpaceFormMessage[0]
+            text:getTextMessage()
+            type:getTypeMessage()
             Layout.minimumWidth:650
             Layout.maximumWidth:650
             Layout.topMargin: 40
@@ -100,7 +100,11 @@ Rectangle{
                 focus:true
                 implicitWidth:400
                 visible:sharePointOption.checked
-            }
+                onEditingFinished:{
+                    console.log("listo")
+                    onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
+                }
+             }
 
             Text{
                 id:spaceLibrary
@@ -108,16 +112,28 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Library to sync:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:sharePointOption.checked
+                visible:{
+                    if ((sharePointOption.checked) && (spaceLibraryEntry.count>0)){
+                        true
+                    }else{
+                        false
+                    }
+                }
             }
             ComboBox{
                 id:spaceLibraryEntry
                 font.pointSize:10
-                textRole:"name"
-                valueRole:"id"
+                textRole:"nameLibrary"
+                valueRole:"idLibrary"
                 model:onedriveBridge.libraryModel
                 implicitWidth:400
-                visible:sharePointOption.checked
+                visible:{
+                    if ((sharePointOption.checked) && (spaceLibraryEntry.count>0)){
+                        true
+                    }else{
+                        false
+                    }
+                }
             }
         }
     }
@@ -142,8 +158,13 @@ Rectangle{
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
                 oneDriveAuth.authUrl=onedriveBridge.authUrl
-                /*onedriveBridge.moveToSpaceOption(2)*/
-                onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
+                var type=""
+                if (oneDriveOption.checked){
+                    type="onedrive"
+                }else{
+                    type="sharepoint"
+                }
+                onedriveBridge.createSpace([spaceMailEntry.text,type,spaceSharePointEntry.text,"",""])
             }
         }
         Button {
@@ -162,6 +183,35 @@ Rectangle{
             }
         }
     } 
+
+    CustomPopup{
+        id:spaceFormPopup
+        popupMessage:i18nd("lliurex-onedrive", "Creatin new space. Wait a moment...")
+    }
+
+    function getTextMessage(){
+        switch (onedriveBridge.showSpaceFormMessage[1]){
+            case -1:
+                var msg=i18nd("lliurex-onedrive","A OneDrive space associated with the indicated email is already being synced");
+                break
+            default:
+                var msg=""
+                break;
+        }
+        return msg
+    }
+
+    function getTypeMessage(){
+
+        switch (onedriveBridge.showSpaceFormMessage[2]){
+            case "Information":
+                return Kirigami.MessageType.Information
+            case "Ok":
+                return Kirigami.MessageType.Positive
+            case "Error":
+            return Kirigami.MessageType.Error
+        }
+    }
 }
 
 

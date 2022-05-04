@@ -96,7 +96,7 @@ class OnedriveManager:
 		cmd='onedrive --get-O365-drive-id %s --confdir="%s"'%(sharePoint,confDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
-		
+
 		if len(pout)>0:
 			pout=pout.decode().split("\n")
 
@@ -111,6 +111,7 @@ class OnedriveManager:
 			tmp['idLibrary']=pout[i+1].split(":")[1].strip()
 			tmp['nameLibrary']=pout[i].split(":")[1].strip()
 			self.librariesConfigData.append(tmp)
+
 
 	#def getSharePointLibraries
 

@@ -10,6 +10,7 @@ Popup {
     anchors.centerIn: Overlay.overlay
     modal:true
     focus:true
+    visible:!onedriveBridge.closePopUp
     closePolicy:Popup.NoAutoClose
     property alias popupMessage:popupText.text
 

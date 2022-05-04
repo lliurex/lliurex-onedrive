@@ -11,7 +11,7 @@ Rectangle {
 
     id:spaceTable
     visible: true
-    width: 660; height: 125
+    width: 660; height: 300
     color:"white"
     border.color: "#d3d3d3"
 
