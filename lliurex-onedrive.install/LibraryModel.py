@@ -5,8 +5,8 @@ from PySide2 import QtCore, QtGui, QtQml
 
 class LibraryModel(QtCore.QAbstractListModel):
 
-	NameRole= QtCore.Qt.UserRole + 1000,
-	IdRole=QtCore.Qt.UserRole + 1001
+	IdLibraryRole= QtCore.Qt.UserRole + 1000
+	NameLibraryRole=QtCore.Qt.UserRole + 1001
 
 	def __init__(self,parent=None):
 		
@@ -26,31 +26,30 @@ class LibraryModel(QtCore.QAbstractListModel):
 		
 		if 0 <= index.row() < self.rowCount() and index.isValid():
 			item = self._entries[index.row()]
-			if role == LibraryModel.NameRole:
-				return item["name"]
-			elif role==LibraryModel.IdRole:
-				return item["id"]
+			if role == LibraryModel.IdLibraryRole:
+				return item["idLibrary"]
+			elif role==LibraryModel.NameLibraryRole:
+				return item["nameLibrary"]
 	#def data
 
 	def roleNames(self):
 		
 		roles = dict()
-		roles[LibraryModel.NameRole] = b"name"
-		roles[LibraryModel.IdRole] = b"id"
+		roles[LibraryModel.IdLibraryRole] = b"idLibrary"
+		roles[LibraryModel.NameLibraryRole] = b"nameLibrary"
 
 		return roles
 
 	#def roleName
 
-	def appendRow(self,n,id):
+	def appendRow(self,il,nl):
 		
 		tmpId=[]
 		for item in self._entries:
-			tmpId.append(item["name"])
-		tmpN=n.strip()
-		if n not in tmpId and n !="" and len(tmpN)>0:
+			tmpId.append(item["idLibrary"])
+		if il not in tmpId and il !="":
 			self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(),self.rowCount())
-			self._entries.append(dict(name=n,id=id))
+			self._entries.append(dict(idLibrary=il,nameLibrary=nl))
 			self.endInsertRows()
 
 	#def appendRow
