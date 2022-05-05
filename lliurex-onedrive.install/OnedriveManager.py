@@ -10,6 +10,7 @@ import psutil
 import re
 import unicodedata
 import configparser
+import tempfile
 
 
 class OnedriveManager:
@@ -32,6 +33,7 @@ class OnedriveManager:
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.spaceConfPath=""
+		self.tempConfigPath=""
 		self.createEnvironment()
 
 	#def __init__
@@ -80,7 +82,9 @@ class OnedriveManager:
 
 		for item in self.onedriveConfig["spacesList"]:
 			if item["email"]==email:
-				return True
+				tokenPath=os.path.join(item["configPath"],'refresh_token')
+				if os.path.exists(tokenPath):
+					return True
 		return False
 
 	#def checkIfEmailExists
@@ -88,10 +92,15 @@ class OnedriveManager:
 	def getSharePointLibraries(self,email,sharePoint):
 
 		self.librariesConfigData=[]
+		confDir=""
 		for item in self.onedriveConfig["spacesList"]:
 			if item["email"]==email:
 				confDir=item["configPath"]
 				break
+
+		if confDir=="":
+			ret=self.createTempConfig()
+			confDir=self.tempConfigPath
 
 		cmd='onedrive --get-O365-drive-id %s --confdir="%s"'%(sharePoint,confDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -112,30 +121,32 @@ class OnedriveManager:
 			tmp['nameLibrary']=pout[i].split(":")[1].strip()
 			self.librariesConfigData.append(tmp)
 
-
 	#def getSharePointLibraries
 
 	def checkDuplicate(self,spaceInfo):
 
 		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
-		spaceId=spaceInfo[2]
+		spaceId=spaceInfo[4]
 		
 		matchId=0
 		duplicateSpace=False
-
-		for item in self.onedriveConfig["spacesList"]:
-			if item["id"]==spaceId:
-				matchId+=1
+		existsMail=False
 
 		if self.checkIfEmailExists(spaceEmail):
+			existsMail=True
 			if spaceType=="onedrive":
-				duplicateSpace=True
+				for item in self.onedriveConfig["spacesList"]:
+					if item["email"]==spaceEmail and item["type"]=="onedrive":
+						duplicateSpace=True
+						break
 			else:
-				if matchId>0:
-					duplicateSpace=True
+				for item in self.onedriveConfig["spacesList"]:
+					if item["id"]==spaceId:
+						duplicateSpace=True
+						break
 
-		return duplicateSpace
+		return [duplicateSpace,existsMail]
 
 	#def checkDuplicate
 
@@ -148,7 +159,7 @@ class OnedriveManager:
 		if spaceInfo[1]=="onedrive":
 			self.localFolder="/home/%s/OneDrive_%s"%(self.user,self.spaceSuffixName)
 		else:
-			self.localFolder="/home/%s/Sharepoints_%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
+			self.localFolder="/home/%s/SharePoint_%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
 		
 		if os.path.exists(self.localFolder):
 			if os.listdir(self.localFolder):
@@ -172,27 +183,36 @@ class OnedriveManager:
 
 	#def createToken
 
-	def createSpace(self,spaceInfo):
+	def createSpace(self,spaceInfo,reuseToken):
 
+		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
+		spaceId=spaceInfo[4]
 
-		self._createSpaceConfFolder(spaceType)
+		self._createSpaceConfFolder(spaceType,spaceId)
 
-		cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		poutput=p.communicate()
-		rc=p.returncode
-		if rc in [0,1]:
-			self._createSpaceServiceUnit(spaceType)
-			self._updateOneDriveConfig(spaceInfo)
-			self.loadOneDriveConfig()
-			return True
+		if reuseToken:
+			self._copyToken(spaceEmail)
+			if spaceType=="sharepoint":
+				if os.path.exists(self.tempConfigPath) and len(self.tempConfigPath)>0:
+					self._deleteTempConfig()
 		else:
-			return False
+			cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
+			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+			poutput=p.communicate()
+			rc=p.returncode
+			if rc not in [0,1]:
+				return False
+
+		self._createSpaceServiceUnit(spaceType)
+		self._updateOneDriveConfig(spaceInfo)
+		self.loadOneDriveConfig()
+
+		return True
 
 	#def createSpace 
 
-	def _createSpaceConfFolder(self,spaceType):
+	def _createSpaceConfFolder(self,spaceType,spaceId):
 
 		self.spaceConfPath=""
 
@@ -217,24 +237,31 @@ class OnedriveManager:
 						tmpLine=line.replace("{{LOCAL_FOLDER}}",self.localFolder)
 						fd.write(tmpLine)
 					else:
-						fd.write(line)
+						if spaceType=="sharepoint" and 'drive_id' in line:
+							newLine='drive_id = "%s"'%spaceId
+							tmpLine=line.replace('# drive_id = ""',newLine)
+							fd.write(tmpLine)
+						else:
+							fd.write(line)
 
 	#def _createSpaceConfFolder
 
-	def _updateOneDriveConfig(self,spaceInfo):
+	def _copyToken(self,email):
 
-		tmp={}
-		tmp["email"]=spaceInfo[0]
-		tmp["type"]=spaceInfo[1]
-		tmp["localFolder"]=os.path.basename(self.localFolder)
-		tmp["configPath"]=self.spaceConfPath
-		tmp["id"]=spaceInfo[4]
+		if not os.path.exists(self.tempConfigPath):
+			for item in self.onedriveConfig["spacesList"]:
+				if email==item["email"]:
+					configPath=item["configPath"]
+					break
+		else:
+			configPath=self.tempConfigPath
 
-		self.onedriveConfig["spacesList"].append(tmp)
-		with open(self.onedriveConfigFile,'w') as fd:
-			json.dump(self.onedriveConfig,fd)
+		tokenPath=os.path.join(configPath,'refresh_token')
 
-	#def _updateOneDriveConfig
+		if os.path.exists(tokenPath):
+			shutil.copyfile(tokenPath,os.path.join(self.spaceConfPath,'refresh_token'))
+
+	#def _copyToken
 
 	def _createSpaceServiceUnit(self,spaceType):
 
@@ -256,6 +283,23 @@ class OnedriveManager:
 
 	#def _createSpaceServiceUnit
 
+	def _updateOneDriveConfig(self,spaceInfo):
+
+		tmp={}
+		tmp["email"]=spaceInfo[0]
+		tmp["type"]=spaceInfo[1]
+		tmp["sharepoint"]=spaceInfo[2]
+		tmp["library"]=spaceInfo[3]
+		tmp["localFolder"]=os.path.basename(self.localFolder)
+		tmp["configPath"]=self.spaceConfPath
+		tmp["id"]=spaceInfo[4]
+
+		self.onedriveConfig["spacesList"].append(tmp)
+		with open(self.onedriveConfigFile,'w') as fd:
+			json.dump(self.onedriveConfig,fd)
+
+	#def _updateOneDriveConfig
+
 	def _getSpaceSuffixName(self,spaceInfo):
 
 		email=spaceInfo[0]
@@ -273,7 +317,7 @@ class OnedriveManager:
 		
 		if spaceType=="sharepoint":
 			tmpSharePoint=self._stripAccents(spaceName)
-			tmpSharePoint=re.sub('[^0-9a-zA-Z]+', '_', tmpSharePoint).lower()
+			tmpSharePoint=re.sub('[^0-9a-zA-Z]+', '_', tmpSharePoint)
 			tmpLibrary=self._stripAccents(spaceLibrary)
 			tmpLibrary=re.sub('[^0-9a-zA-Z]+', '_', tmpLibrary)
 			self.folderSuffixName=tmpSharePoint+"_"+tmpLibrary
@@ -293,5 +337,41 @@ class OnedriveManager:
 
 	#def _stripAccents
 
+	def createTempConfig(self):
+
+		self.tempConfigPath=tempfile.mkdtemp("_sharepoint")
+		self.tempFolder=os.path.join(self.tempConfigPath,"Sharepoint")
+
+		shutil.copy(self.configTemplatePath,self.tempConfigPath)
+
+		with open(os.path.join(self.tempConfigPath,"config"),'r') as fd:
+			lines=fd.readlines()
+			
+		with open(os.path.join(self.tempConfigPath,"config"),'w') as fd:
+			for line in lines:
+				if 'sync_dir' in line:
+					tmpLine=line.replace("{{LOCAL_FOLDER}}",self.tempFolder)
+					fd.write(tmpLine)
+				else:
+					fd.write(line)
+
+		cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.tempConfigPath)
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()
+		rc=p.returncode
+		if rc not in [0,1]:
+			return False
+
+		return True
+
+	#def createTempConfig(self):
+
+	def _deleteTempConfig(self):
+
+		cmd='onedrive --logout --confdir="%s"'%self.tempConfigPath
+		p=subprocess.run(cmd,shell=True,check=True)
+		shutil.rmtree(self.tempConfigPath)
+
+	#def _deleteTempConfig
 	
 #class OnedriveManager

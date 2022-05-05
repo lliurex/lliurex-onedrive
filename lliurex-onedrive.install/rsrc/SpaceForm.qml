@@ -52,6 +52,7 @@ Rectangle{
                 font.pointSize:10
                 horizontalAlignment:TextInput.AlignLeft
                 focus:true
+                validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
             }
 
@@ -113,7 +114,7 @@ Rectangle{
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 visible:{
-                    if ((sharePointOption.checked) && (spaceLibraryEntry.count>0)){
+                    if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.count>0)){
                         true
                     }else{
                         false
@@ -128,7 +129,7 @@ Rectangle{
                 model:onedriveBridge.libraryModel
                 implicitWidth:400
                 visible:{
-                    if ((sharePointOption.checked) && (spaceLibraryEntry.count>0)){
+                    if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.count>0)){
                         true
                     }else{
                         false
@@ -153,7 +154,7 @@ Rectangle{
             icon.name:"dialog-ok.svg"
             text:i18nd("lliurex-onedrive","Apply")
             Layout.preferredHeight:40
-            enabled:true
+            enabled:getEnabledStatus()
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
@@ -164,7 +165,7 @@ Rectangle{
                 }else{
                     type="sharepoint"
                 }
-                onedriveBridge.createSpace([spaceMailEntry.text,type,spaceSharePointEntry.text,"",""])
+                onedriveBridge.createSpace([spaceMailEntry.text,type,spaceSharePointEntry.text,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
             }
         }
         Button {
@@ -186,13 +187,16 @@ Rectangle{
 
     CustomPopup{
         id:spaceFormPopup
-        popupMessage:i18nd("lliurex-onedrive", "Creatin new space. Wait a moment...")
+        
     }
 
     function getTextMessage(){
         switch (onedriveBridge.showSpaceFormMessage[1]){
             case -1:
                 var msg=i18nd("lliurex-onedrive","A OneDrive space associated with the indicated email is already being synced");
+                break
+            case -2:
+                var msg=i18nd("lliurex-onedrive","No libraries found for the indicated SharePoint");
                 break
             default:
                 var msg=""
@@ -211,6 +215,21 @@ Rectangle{
             case "Error":
             return Kirigami.MessageType.Error
         }
+    }
+
+    function getEnabledStatus(){
+
+        var correctMail=spaceMailEntry.acceptableInput
+        if (correctMail){
+            if (oneDriveOption.checked){
+                return true
+            }else{
+                if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.currentText!="")){
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
 

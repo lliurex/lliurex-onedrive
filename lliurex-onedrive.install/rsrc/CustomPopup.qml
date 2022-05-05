@@ -10,9 +10,8 @@ Popup {
     anchors.centerIn: Overlay.overlay
     modal:true
     focus:true
-    visible:!onedriveBridge.closePopUp
+    visible:!onedriveBridge.closePopUp[0]
     closePolicy:Popup.NoAutoClose
-    property alias popupMessage:popupText.text
 
     GridLayout{
         id: popupGrid
@@ -41,10 +40,25 @@ Popup {
 
             Text{
                 id:popupText
-                text:popupMessage
+                text:getTextMessage()
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignHCenter
             }
         }
+    }
+
+    function getTextMessage(){
+        switch (onedriveBridge.closePopUp[1]){
+            case 1:
+                var msg=i18nd("lliurex-onedrive","Creating a new space. Wait a moment...");
+                break;
+            case 2:
+                var msg=i18nd("lliurex-onedrive","Looking for libraries. Wait a moment...");
+                break
+            default:
+                var msg=""
+                break;
+        }
+        return msg
     }
 }
