@@ -8,6 +8,9 @@ import QtQuick.Dialogs 1.3
 
 Rectangle{
     color:"transparent"
+    property alias email:spaceMailEntry.text
+    property alias onedriveRb:oneDriveOption.checked
+    property alias sharePoint:spaceSharePointEntry.text
 
     Text{ 
         text:i18nd("lliurex-onedrive","New Space")
@@ -76,11 +79,13 @@ Rectangle{
                 }
                 RadioButton{
                     id:oneDriveOption
+                    checked:true
                     text:"OneDrive"
                 }
 
                 RadioButton{
                     id:sharePointOption
+                    checked:false
                     text:"SharePoint"
                 }
             }
@@ -91,21 +96,42 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","SharePoint name:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:sharePointOption.checked
+                visible:sharePointOption.checked && spaceMailEntry.acceptableInput
             }
-            TextField{
-                id:spaceSharePointEntry
-                font.pointSize:10
+            Row{
+                id:sharePointRow
+                spacing:10
+                Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                horizontalAlignment:TextInput.AlignLeft
-                focus:true
-                implicitWidth:400
-                visible:sharePointOption.checked
-                onEditingFinished:{
-                    console.log("listo")
-                    onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
+                visible:sharePointOption.checked && spaceMailEntry.acceptableInput
+
+                TextField{
+                    id:spaceSharePointEntry
+                    font.pointSize:10
+                    horizontalAlignment:TextInput.AlignLeft
+                    focus:true
+                    implicitWidth:400
                 }
-             }
+
+                Button{
+                    id:searchLibraryBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:"search.svg"
+                    enabled:spaceSharePointEntry.text.trim().length>0?true:false
+                    focus:true
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to search sharepoint libraries")
+                    Keys.onReturnPressed: searchLibraryBtn.clicked()
+                    Keys.onEnterPressed: searchLibraryBtn.clicked()
+                    onClicked:{
+                        onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
+                    }
+
+                }
+
+            }
 
             Text{
                 id:spaceLibrary
@@ -165,7 +191,7 @@ Rectangle{
                 }else{
                     type="sharepoint"
                 }
-                onedriveBridge.createSpace([spaceMailEntry.text,type,spaceSharePointEntry.text,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
+                onedriveBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.text,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
             }
         }
         Button {
@@ -188,6 +214,77 @@ Rectangle{
     CustomPopup{
         id:spaceFormPopup
         
+    }
+
+    Dialog{
+        id: previousFolderDialog
+        visible:onedriveBridge.showPreviousFolderDialog
+        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        modality:Qt.WindowModal
+
+        contentItem: Rectangle {
+            color: "#ebeced"
+            implicitWidth: 700
+            implicitHeight: 105
+            anchors.topMargin:5
+            anchors.leftMargin:5
+
+            Image{
+                id:previousFolderDialogIcon
+                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+
+            }
+            
+            Text {
+                id:previousFolderDialogText
+                text:i18nd("lliurex-onedrive","A local OneDrive folder containing content has been detected on this computer.\nIf you link this computer with OneDrive, the existing content in that folder will be added to OneDrive.\nDo you want to continue with the pairing process?")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                anchors.left:previousFolderDialogIcon.right
+                anchors.verticalCenter:previousFolderDialogIcon.verticalCenter
+                anchors.leftMargin:10
+            
+            }
+          
+            DialogButtonBox {
+                buttonLayout:DialogButtonBox.KdeLayout
+                anchors.bottom:parent.bottom
+                anchors.right:parent.right
+                anchors.topMargin:15
+
+                Button {
+                    id:previousFolderDialogApplyBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-ok.svg"
+                    text: i18nd("lliurex-onedrive","Accept")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+                }
+
+                Button {
+                    id:previousFolderDialogCancelBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-cancel.svg"
+                    text: i18nd("lliurex-onedrive","Cancel")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
+                }
+
+                onApplied:{
+                    previousFolderDialog.close()
+                    onedriveBridge.managePreviousFolderDialog(0)                 
+            
+                }
+
+                onRejected:{
+                    previousFolderDialog.close()
+                    onedriveBridge.managePreviousFolderDialog(1)                 
+
+                }
+            }
+        }
     }
 
     function getTextMessage(){

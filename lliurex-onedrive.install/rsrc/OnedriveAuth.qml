@@ -22,6 +22,7 @@ Rectangle {
                 console.log("hecho");
                 onedriveBridge.getToken(ret);
                 profile.clearHttpCache();
+                webEngine.action(webEngine.Stop);
             }
         }
         

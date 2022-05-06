@@ -18,7 +18,8 @@ class OnedriveManager:
 	def __init__(self):
 
 		self.user=os.environ["USER"]
-		self.onedriveConfigFile="/home/%s/.config/lliurex-onedrive-config/onedriveConfig.json"%(self.user)
+		self.llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(self.user)
+		self.onedriveConfigFile=os.path.join(self.llxOnedriveConfigDir,"onedriveConfig.json")
 		self.onedriveConfig={}
 		self.spacesConfigData=[]
 		self.librariesConfigData=[]
@@ -40,6 +41,15 @@ class OnedriveManager:
 
 	def createEnvironment(self):
 
+		if not os.path.exists(self.llxOnedriveConfigDir):
+			os.mkdir(self.llxOnedriveConfigDir)
+
+		if not os.path.exists(self.userSystemdPath):
+			tmpPath="/home/%s/.config/systemd"%self.user
+			if not os.path.exists(tmpPath):
+				os.mkdir(tmpPath)
+			os.mkdir(self.userSystemdPath)
+
 		if not os.path.exists(self.onedriveConfigDir):
 			os.mkdir(self.onedriveConfigDir)
 
@@ -59,7 +69,8 @@ class OnedriveManager:
 
 		if os.path.exists(self.onedriveConfigFile):
 			with open(self.onedriveConfigFile,'r') as fd:
-				self.onedriveConfig=json.load(fd)
+				tmpConfig=json.load(fd)
+				self._checkCurrentConfig(tmpConfig)
 		else:
 			self.onedriveConfig={}
 			self.onedriveConfig["spacesList"]=[]
@@ -67,6 +78,25 @@ class OnedriveManager:
 				json.dump(self.onedriveConfig,fd)
 
 	#def readOneDriveConfig
+
+	def _checkCurrentConfig(self,currentConfig):
+
+		currentSpacesList=copy.deepcopy(currentConfig["spacesList"])
+		removeCount=0
+		for i in range(len(currentSpacesList)-1,-1,-1):
+			tokenPath=os.path.join(currentSpacesList[i]["configPath"],'refresh_token')
+			if not os.path.exists(tokenPath):
+				currentSpacesList.pop(i)
+				removeCount+=1
+
+		if removeCount>0:
+			currentConfig["spacesList"]=currentSpacesList
+			with open(self.onedriveConfigFile,'w') as fd:
+				json.dump(currentConfig,fd)
+		
+		self.onedriveConfig=currentConfig
+
+	#def _checkCurrentConfig
 
 	def getSpacesConfig(self):
 
@@ -102,24 +132,25 @@ class OnedriveManager:
 			ret=self.createTempConfig()
 			confDir=self.tempConfigPath
 
-		cmd='onedrive --get-O365-drive-id %s --confdir="%s"'%(sharePoint,confDir)
+		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,confDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 
-		if len(pout)>0:
-			pout=pout.decode().split("\n")
+		if len(perror)==0:
+			if len(pout)>0:
+				pout=pout.decode().split("\n")
 
-		for i in range(len(pout)-1,-1,-1):
-			if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
-				pass
-			else:
-				pout.pop(i)	
+			for i in range(len(pout)-1,-1,-1):
+				if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
+					pass
+				else:
+					pout.pop(i)	
 
-		for i in range(0,len(pout)-1,2):
-			tmp={}
-			tmp['idLibrary']=pout[i+1].split(":")[1].strip()
-			tmp['nameLibrary']=pout[i].split(":")[1].strip()
-			self.librariesConfigData.append(tmp)
+			for i in range(0,len(pout)-1,2):
+				tmp={}
+				tmp['idLibrary']=pout[i+1].split(":")[1].strip()
+				tmp['nameLibrary']=pout[i].split(":")[1].strip()
+				self.librariesConfigData.append(tmp)
 
 	#def getSharePointLibraries
 
@@ -215,16 +246,19 @@ class OnedriveManager:
 	def _createSpaceConfFolder(self,spaceType,spaceId):
 
 		self.spaceConfPath=""
+		createConfig=False
 
 		if spaceType=="onedrive":
 			tmpFolder="onedrive_%s"%self.spaceSuffixName
+			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
 			if not os.path.exists(os.path.join(self.onedriveConfigDir,tmpFolder)):
-				self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
+				createConfig=True
 		else:
+			self.spaceConfPath=os.path.join(self.sharePointConfigDir,self.folderSuffixName.lower())
 			if not os.path.exists(os.path.join(self.sharePointConfigDir,self.folderSuffixName.lower())):
-				self.spaceConfPath=os.path.join(self.sharePointConfigDir,self.folderSuffixName.lower())
+				createConfig=True 
 
-		if self.spaceConfPath!="":
+		if createConfig:
 			os.mkdir(self.spaceConfPath)
 			shutil.copy(self.configTemplatePath,self.spaceConfPath)
 			
@@ -292,7 +326,10 @@ class OnedriveManager:
 		tmp["library"]=spaceInfo[3]
 		tmp["localFolder"]=os.path.basename(self.localFolder)
 		tmp["configPath"]=self.spaceConfPath
-		tmp["id"]=spaceInfo[4]
+		if spaceInfo[4]!=None:
+			tmp["id"]=spaceInfo[4]
+		else:
+			tmp["id"]=""
 
 		self.onedriveConfig["spacesList"].append(tmp)
 		with open(self.onedriveConfigFile,'w') as fd:

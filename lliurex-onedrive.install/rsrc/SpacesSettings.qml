@@ -62,8 +62,13 @@ Rectangle{
             Layout.preferredHeight:40
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
-            onClicked:onedriveBridge.moveToSpaceOption(1)
-
+            onClicked:{
+                spaceForm.email=""
+                spaceForm.onedriveRb=true
+                spaceForm.sharePoint=""
+                oneDriveAuth.closeConnection()
+                onedriveBridge.moveToSpaceOption(1)
+            }
         }
     } 
 
@@ -71,6 +76,9 @@ Rectangle{
         switch (onedriveBridge.showSpaceSettingsMessage[1]){
             case 0:
                 var msg=i18nd("lliurex-onedrive","The new space to synchronize has been configured successfully")
+                break;
+            case -3:
+                var msg=i18nd("lliurex-onedrive","An error occurred during setup. Wait a moment and try again")
                 break;
             default:
                 var msg=""

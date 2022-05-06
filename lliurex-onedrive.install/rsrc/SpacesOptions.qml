@@ -56,6 +56,9 @@ GridLayout{
 
         SpaceForm{
             id:spaceForm
+            email:""
+            onedriveRb:true
+            sharePoint:""
         }
 
         OnedriveAuth{

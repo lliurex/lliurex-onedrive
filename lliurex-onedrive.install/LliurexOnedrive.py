@@ -17,6 +17,7 @@ SPACE_CREATION_MESSAGE=1
 SEARCH_LIBRARY_MESSAGE=2
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
+SPACE_CREATION_ERROR=-3
 
 
 class GatherInfo(QThread):
@@ -88,6 +89,8 @@ class Bridge(QObject):
 		self._showSpaceSettingsMessage=[False,"","Information"]
 		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=False
+		self.tempConfig=False
+		self._showPreviousFolderDialog=False
 		self.initBridge()
 
 	#def _init__
@@ -210,6 +213,20 @@ class Bridge(QObject):
 
 	#def _setShowSpaceFormMessage
 
+	def _getShowPreviousFolderDialog(self):
+
+		return self._showPreviousFolderDialog
+
+	#def _getShowSpaceFormMessage	
+
+	def _setShowPreviousFolderDialog(self,showPreviousFolderDialog):
+		
+		if self._showPreviousFolderDialog!=showPreviousFolderDialog:
+			self._showPreviousFolderDialog=showPreviousFolderDialog
+			self.on_showPreviousFolderDialog.emit()
+
+	#def _setShowPreviousFolderDialog
+
 	def _updateSpacesModel(self):
 
 		ret=self._spacesModel.clear()
@@ -236,6 +253,9 @@ class Bridge(QObject):
 	@Slot(int)
 	def moveToSpaceOption(self,option):
 		
+		self.showSpaceSettingsMessage=[False,"","Information"]
+		self.showSpaceFormMessage=[False,"","Information"]
+		self._libraryModel.clear()
 		self.spacesCurrentOption=option
 
 	#def moveToSpaceOption
@@ -243,6 +263,7 @@ class Bridge(QObject):
 	@Slot('QVariantList')
 	def getSharePointLibraries(self,data):
 
+		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=True
 		self.tempConfig=False
 		self.data=data
@@ -258,6 +279,7 @@ class Bridge(QObject):
 	def gatherLibraries(self):
 
 		self.closePopUp=[False,SEARCH_LIBRARY_MESSAGE]
+		self.closeGui=False
 		self.gatherLibrariesT=GatherLibraries(self.data)
 		self.gatherLibrariesT.start()
 		self.gatherLibrariesT.finished.connect(self._gatherLibraries)
@@ -266,33 +288,29 @@ class Bridge(QObject):
 
 	def _gatherLibraries(self):
 
-		self.closePopUp=[True,""]
 		self._updateLibraryModel()
+		self.closePopUp=[True,""]
+		self.closeGui=True
 
 	#def _gatherLibraries
 
 	@Slot('QVariantList')
-	def createSpace(self,spaceInfo):
+	def checkData(self,spaceInfo):
 
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.spaceInfo=spaceInfo
+		self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
 		
-		if not Bridge.onedriveMan.checkDuplicate(spaceInfo)[0]:
+		if not self.checkDuplicate[0]:
 			ret=Bridge.onedriveMan.checkPreviousLocalFolder(spaceInfo)
-			if spaceInfo[1]=="onedrive":
-				if Bridge.onedriveMan.checkDuplicate(spaceInfo)[1]:
-					self.reuseToken=True
-					self.addSpace()
-				else:
-					self.reuseToken=False
-					self.spacesCurrentOption=2
+			if ret:
+				self.showPreviousFolderDialog=True
 			else:
-				if self.reuseToken:
-					self.addSpace()
+				self.createSpace()
 		else:
 			self.showSpaceFormMessage=[True,SPACE_DUPLICATE_ERROR,"Error"]
 
-	#def createSpace
+	#def checkData
 
 	@Slot(str)
 	def getToken(self,token):
@@ -306,9 +324,38 @@ class Bridge(QObject):
 
 	#def getToken
 
+	@Slot(int)
+	def managePreviousFolderDialog(self,response):
+
+		self.showPreviousFolderDialog=False
+
+		if response==0:
+			self.createSpace()
+		else:
+			self._libraryModel.clear()
+			self.spacesCurrentOption=0
+
+	#def managePreviousFolderDialog
+
+	def createSpace(self):
+
+		if self.spaceInfo[1]=="onedrive":
+			if self.checkDuplicate[1]:
+				self.reuseToken=True
+				self.addSpace()
+			else:
+				self.reuseToken=False
+				self.spacesCurrentOption=2
+		else:
+			if self.reuseToken:
+				self.addSpace()
+
+	#def createSpace
+
 	def addSpace(self):
 
 		self.closePopUp=[False,SPACE_CREATION_MESSAGE]
+		self.closeGui=False
 		self.createSpaceT=CreateSpace(self.spaceInfo,self.reuseToken)
 		self.createSpaceT.start()
 		self.createSpaceT.finished.connect(self._addSpace)
@@ -321,10 +368,15 @@ class Bridge(QObject):
 		self.closePopUp=[True,""]
 		self.reuseToken=False
 		self.tempConfig=False
+		self.closeGui=True
+		self.spacesCurrentOption=0
+		self._libraryModel.clear()
+
 		if self.createSpaceT.ret:
-			self.spacesCurrentOption=0
 			self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
-	
+		else:
+			self.showSpaceSettingsMessage=[True,SPACE_CREATION_ERROR,"Error"]		
+
 	#def _createSpace
 
 	@Slot()
@@ -372,6 +424,9 @@ class Bridge(QObject):
 
 	on_showSpaceFormMessage=Signal()
 	showSpaceFormMessage=Property('QVariantList',_getShowSpaceFormMessage,_setShowSpaceFormMessage, notify=on_showSpaceFormMessage)
+
+	on_showPreviousFolderDialog=Signal()
+	showPreviousFolderDialog=Property(bool,_getShowPreviousFolderDialog,_setShowPreviousFolderDialog, notify=on_showPreviousFolderDialog)
 
 	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
