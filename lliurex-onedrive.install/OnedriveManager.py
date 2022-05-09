@@ -31,10 +31,29 @@ class OnedriveManager:
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
 		self.onedriveConfigDir="/home/%s/.config/onedrives"%self.user
 		self.sharePointConfigDir="/home/%s/.config/sharepoints"%self.user
+		self.spaceLocalFolder=""
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
+		self.customizeConfigParam=['sync_dir','drive_id','monitor_interval','rate_limit']
+		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
+		self.bandWidthNames=[]
+		for item in self.bandWidth:
+			self.bandWidthNames.append(item["name"])
+		
+		self.autoStartEnabled=True
+		self.rateLimit=2
+		self.monitorInterval=1
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
+		self.synAll=True
+		self.filterFile="sync_list"
+		self.filterFileHash=".sync_list.hash"
+		self.foldersSelected=[]
+		self.foldersUnSelected=[]
+		self.includeFolders=[]
+		self.excludeFolders=[]
+	
 		self.createEnvironment()
 
 	#def __init__
@@ -104,6 +123,8 @@ class OnedriveManager:
 		for item in spaces:
 			tmp={}
 			tmp["name"]=item["localFolder"]
+			tmp["status"]=""
+			tmp["isRunning"]=False
 			self.spacesConfigData.append(tmp)
 	
 	#def getSpacesConfig
@@ -183,17 +204,17 @@ class OnedriveManager:
 
 	def checkPreviousLocalFolder(self,spaceInfo):
 
-		self.localFolder=""
+		self.spaceLocalFolder=""
 
 		self._getSpaceSuffixName(spaceInfo)
 
 		if spaceInfo[1]=="onedrive":
-			self.localFolder="/home/%s/OneDrive_%s"%(self.user,self.spaceSuffixName)
+			self.spaceLocalFolder="/home/%s/OneDrive_%s"%(self.user,self.spaceSuffixName)
 		else:
-			self.localFolder="/home/%s/SharePoint_%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
+			self.spaceLocalFolder="/home/%s/SharePoint_%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
 		
-		if os.path.exists(self.localFolder):
-			if os.listdir(self.localFolder):
+		if os.path.exists(self.spaceLocalFolder):
+			if os.listdir(self.spaceLocalFolder):
 				return True
 
 		return False
@@ -232,11 +253,13 @@ class OnedriveManager:
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 			poutput=p.communicate()
 			rc=p.returncode
+			print("Respuesta %s"%(str()))
 			if rc not in [0,1]:
 				return False
 
 		self._createSpaceServiceUnit(spaceType)
 		self._updateOneDriveConfig(spaceInfo)
+		self._manageEmptyToken()
 		self.loadOneDriveConfig()
 
 		return True
@@ -267,8 +290,8 @@ class OnedriveManager:
 			
 			with open(os.path.join(self.spaceConfPath,"config"),'w') as fd:
 				for line in lines:
-					if 'sync_dir' in line:
-						tmpLine=line.replace("{{LOCAL_FOLDER}}",self.localFolder)
+					if 'sync_dir =' in line:
+						tmpLine=line.replace("{{LOCAL_FOLDER}}",self.spaceLocalFolder)
 						fd.write(tmpLine)
 					else:
 						if spaceType=="sharepoint" and 'drive_id' in line:
@@ -277,8 +300,68 @@ class OnedriveManager:
 							fd.write(tmpLine)
 						else:
 							fd.write(line)
+		else:
+			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
+			self.readSpaceConfigFile(spaceConfigFilePath)
 
 	#def _createSpaceConfFolder
+
+	def readSpaceConfigFile(self,spaceConfigFilePath,newAccount=False):
+
+		if os.path.exists(spaceConfigFilePath):
+			customParam=self._readCustomParams(spaceConfigFilePath)
+			self.monitorInterval="{:.0f}".format(int(customParam['monitor_interval'])/60)
+			self.currentConfig[1]=self.monitorInterval
+
+			for i in range(len(self.bandWidth)):
+				if self.bandWidth[i]["value"]==customParam['rate_limit']:
+					self.rateLimit=i
+					self.currentConfig[2]=self.rateLimit
+					break
+
+			if newAccount:
+				self._updateOneDriveConfig(customParam)
+
+	#def readConfigFile
+
+	def _readCustomParams(self,spaceConfigFilePath):
+
+		customParam={}
+
+		with open(spaceConfigFilePath,'r') as fd:
+			lines=fd.readlines()
+			for line in lines:
+				for param in self.customizeConfigParam:
+					tmpLine=line.split("=")
+					if param==tmpLine[0].strip():
+						value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+						customParam[param]=value
+
+		return customParam 
+
+	#def _readCustomParams
+
+	def _updateConfigFile(self,customParam):
+
+		shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		configFile=os.path.join(self.spaceConfPath,'config')
+
+		with open(configFile,'r') as fd:
+			lines=fd.readlines()
+
+		with open(configFile,'w') as fd:
+			for line in lines:
+				for param in customParam:
+					tmpLine=line.split("=")
+					if param==tmpLine[0].strip():
+						value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+						if value!=customParam[param]:
+							line=param+' = '+'"'+customParam[param]+'"\n'
+						break
+				
+				fd.write(line)
+
+	#def _updateConfigFile
 
 	def _copyToken(self,email):
 
@@ -299,22 +382,26 @@ class OnedriveManager:
 
 	def _createSpaceServiceUnit(self,spaceType):
 
-		if spaceType=="onedrive":
-			serviceFile="onedrive_%s.service"%self.spaceSuffixName
-		else:
-			serviceFile="sharepoint_%s.service"%self.folderSuffixName.lower()
+		self.serviceFile=""
 
-		if not os.path.exists(os.path.join(self.userSystemdPath,serviceFile)):
-			shutil.copyfile(self.serviceTemplatePath,os.path.join(self.userSystemdPath,serviceFile))
+		if spaceType=="onedrive":
+			self.serviceFile="onedrive_%s.service"%self.spaceSuffixName
+		else:
+			self.serviceFile="sharepoint_%s.service"%self.folderSuffixName.lower()
+
+		if not os.path.exists(os.path.join(self.userSystemdPath,self.serviceFile)):
+			shutil.copyfile(self.serviceTemplatePath,os.path.join(self.userSystemdPath,self.serviceFile))
 			configFile=configparser.ConfigParser()
 			configFile.optionxform=str
-			configFile.read(os.path.join(self.userSystemdPath,serviceFile))
+			configFile.read(os.path.join(self.userSystemdPath,self.serviceFile))
 			tmpCommand=configFile.get("Service","ExecStart")
 			tmpCommand=tmpCommand.replace("{{CONF_PATH}}",self.spaceConfPath)
 			configFile.set("Service","ExecStart",tmpCommand)
-			with open(os.path.join(self.userSystemdPath,serviceFile),'w') as fd:
+			with open(os.path.join(self.userSystemdPath,self.serviceFile),'w') as fd:
 				configFile.write(fd)
 
+		self.manageAutostart(True,self.spaceConfPath,self.serviceFile)
+				
 	#def _createSpaceServiceUnit
 
 	def _updateOneDriveConfig(self,spaceInfo):
@@ -324,18 +411,27 @@ class OnedriveManager:
 		tmp["type"]=spaceInfo[1]
 		tmp["sharepoint"]=spaceInfo[2]
 		tmp["library"]=spaceInfo[3]
-		tmp["localFolder"]=os.path.basename(self.localFolder)
+		tmp["localFolder"]=os.path.basename(self.spaceLocalFolder)
 		tmp["configPath"]=self.spaceConfPath
+		tmp["systemd"]=self.serviceFile
 		if spaceInfo[4]!=None:
-			tmp["id"]=spaceInfo[4]
+			tmp["drive_id"]=spaceInfo[4]
 		else:
-			tmp["id"]=""
+			tmp["drive_id"]=""
 
 		self.onedriveConfig["spacesList"].append(tmp)
 		with open(self.onedriveConfigFile,'w') as fd:
 			json.dump(self.onedriveConfig,fd)
 
 	#def _updateOneDriveConfig
+
+	def _manageEmptyToken(self):
+
+		emptyToken=os.path.join(self.spaceConfPath,'".emptyToken"')
+		f=open(emptyToken,'w')
+		f.close()
+
+	#def _manageEmptyToken
 
 	def _getSpaceSuffixName(self,spaceInfo):
 
@@ -410,5 +506,196 @@ class OnedriveManager:
 		shutil.rmtree(self.tempConfigPath)
 
 	#def _deleteTempConfig
+
+	def isConfigured(self,spaceConfPath=None):
+
+		if spaceConfPath==None:
+			spaceConfPath=self.spaceConfPath
+
+		token=os.path.join(spaceConfPath,"refresh_token")
+
+		if os.path.exists(token):
+			return True
+		else:
+			return False
+
+	#def isConfigured
+
+	def getHddFreeSpace(self):
+
+		hdd=psutil.disk_usage('/home')
+		hddFreeSpace=self._formatFreeSpace(hdd.free)
+		return hddFreeSpace
+
+	#def getHddFreeSpace
+
+	def getInitialDownload(self,spaceConfPath=None):
+
+		if spaceConfPath==None:
+			spaceConfPath=self.spaceConfPath
 	
+		download=""
+		cmd='/usr/bin/onedrive --display-sync-status --confdir="%s"'%(self.spaceConfPath)
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()[0]
+		rc=p.returncode
+		if rc==0:
+			if type(poutput) is bytes:
+				poutput=poutput.decode()
+
+			poutput=poutput.split("\n")
+
+			for line in poutput:
+				if 'data to download' in line:
+					tmpLine=line.split(":")[1].strip()
+					if tmpLine!="":
+						download=self._formatInitialDownload(tmpLine)
+						break
+		
+		return download
+
+	#def getInitialDownload
+
+	def _formatInitialDownload(self,value):
+
+		if "KB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024
+		elif "MB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024*1024
+		elif "GB" in value:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)*1024*1024*1024
+		else:
+			tmp=value.split(" ")[0]
+			tmp=int(tmp)
+
+		return self._formatFreeSpace(tmp)
+	
+	#def _formatInitialDownload
+
+	def _formatFreeSpace(self,freespace):
+
+		size_name = ("B", "KB", "MB", "GB","TB")
+
+		size_bytes=float(freespace)
+		
+		if size_bytes==0:
+			return '0 B'
+
+		i = int(math.floor(math.log(size_bytes, 1024)))
+		p = math.pow(1024, i)
+		s = round(size_bytes/p,2)
+		unit=size_name[i]
+
+		return str(s)+" "+unit
+
+	#def _formatFreeSpace
+
+	def loadSpaceSettings(self,spaceName):
+
+		for item in self.onedriveConfigFile['spacesList']:
+			if item["localFolder"]==spaceName:
+				self.spaceLocalFolder=item["localFolder"]
+				self.spaceConfPath=item["configPath"]
+				self.spaceServiceFile=item["systemd"]
+				break
+
+		spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
+		self.readSpaceConfigFile(spaceConfigFilePath)
+		if not self.isAutoStartEnabled(self.spaceServiceFile):
+			self.autoStartEnabled=False
+			self.currentConfig[0]=False
+		else:
+			self.autoStartEnabled=True
+			self.currentConfig[0]=True
+
+		if self.existsFilterFile():
+			self.syncAll=False
+			self.readFilterFile(self.spaceConfPath)
+			self.currentSyncConfig[0]=self.syncAll
+			self.currentSyncConfig[1]=self.foldersSelected
+			self.currentSyncConfig[2]=self.foldersUnSelected
+		else:
+			self.synAll=True
+			self.foldersSelected=[]
+			self.foldersUnSelected=[]
+		
+	#def loadSpaceSettings
+
+	def readFilterFile(self,spaceConfPath):
+
+		self.includeFolders=[]
+		self.excludeFolders=[]
+		self.foldersSelected=[]
+		self.foldersUnSelected=[]
+
+		filterFile=os.path.join(spaceConfPath,self.filterFile)
+
+		with open(filterFile,'r') as fd:
+			lines=fd.readlines()
+			fd.close()
+
+			for line in lines:
+				tmpLine=line.split("\n")[0]
+				if tmpLine.startswith("!"):
+					self.excludeFolders.append(tmpLine)
+					tmpLine=tmpLine.split("!")[1].split("/*")[0]
+					if tmpLine not in self.foldersUnSelected:
+						self.foldersUnSelected.append(tmpLine)
+				else:
+					self.includeFolders.append(tmpLine)
+					tmpLine=tmpLine.split("/*")[0]
+					if tmpLine not in self.foldersSelected:
+						self.foldersSelected.append(tmpLine)
+
+	#def readFilterFile			
+
+	def isOnedriveRunning(self,spaceConfPath):
+
+		onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfPath
+
+		if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+			return True
+		else:
+			return False
+
+	#def isOnedriveRunning
+
+	def isAutoStartEnabled(self,serviceFile):
+
+		tmpService=os.path.join(self.userSystemdPath,"serviceFile")
+		tmpAutoStartService=os.path.join(self.userSystemdAutoStartPath,"serviceFile")
+
+		if os.path.exists(tmpService) and os.path.exists(tmpAutoStartService):
+			return True
+
+		return False
+
+	#def isAutoStartEnabled
+
+	def manageAutostart(self,enable,spaceConfPath,serviceUnit):
+
+		isOnedriveRunning=self.isOnedriveRunning(spaceConfPath)
+		serviceUnit=os.path.join(self.userSystemdPath,serviceUnit)
+
+		if enable:
+			cmd="systemctl --user enable %s"%serviceUnit
+			
+		else:
+			cmd="systemctl --user disable %s"%serviceUnit
+
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()
+		rc=p.returncode
+
+		if rc !=0:
+			return True
+		else:
+			return False
+	
+	#def manageAutostart
+
+
 #class OnedriveManager

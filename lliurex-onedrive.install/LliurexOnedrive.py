@@ -42,6 +42,7 @@ class CreateSpace(QThread):
 		QThread.__init__(self)
 		self.spaceInfo=args[0]
 		self.reuseToken=args[1]
+		self.initialDownload=""
 		self.ret=[]
 
 	#def __init__
@@ -49,7 +50,10 @@ class CreateSpace(QThread):
 	def run (self,*args):
 		
 		self.ret=Bridge.onedriveMan.createSpace(self.spaceInfo,self.reuseToken)
-	
+		if self.ret:
+			if Bridge.onedriveMan.isConfigured():
+				self.initialDownload=Bridge.onedriveMan.getInitialDownload()
+		
 	#def run
 
 #class CreateSpace
@@ -91,6 +95,15 @@ class Bridge(QObject):
 		self.reuseToken=False
 		self.tempConfig=False
 		self._showPreviousFolderDialog=False
+		self._initialDownload=""
+		self._hddFreeSpace=""
+		self._showDownloadDialog=False
+		self._showAccountMessage=[False,""]
+		self._manageCurrentOption=0
+		self._spaceLocalFolder=""
+		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
+		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
+		self._rateLimit=int(Bridge.onedriveMan.rateLimit)	
 		self.initBridge()
 
 	#def _init__
@@ -129,7 +142,7 @@ class Bridge(QObject):
 
 		return self._spacesCurrentOption
 
-	#def _getCurrentStack	
+	#def _getSpacesCurrentOption	
 
 	def _setSpacesCurrentOption(self,spacesCurrentOption):
 		
@@ -137,7 +150,7 @@ class Bridge(QObject):
 			self._spacesCurrentOption=spacesCurrentOption
 			self.on_spacesCurrentOption.emit()
 
-	#def _setCurentStack
+	#def _setSpacesCurrentOption
 
 	def _getAuthUrl(self):
 
@@ -226,6 +239,132 @@ class Bridge(QObject):
 			self.on_showPreviousFolderDialog.emit()
 
 	#def _setShowPreviousFolderDialog
+	
+	def _getInitialDownload(self):
+
+		return self._initialDownload
+
+	#def _getInitialDownload	
+
+	def _setInitialDownload(self,initialDownload):
+		
+		if self._initialDownload!=initialDownload:
+			self._initialDownload=initialDownload
+			self.on_initialDownload.emit()
+
+	#def _setInitialDownload
+
+	def _getHddFreeSpace(self):
+
+		return self._hddFreeSpace
+
+	#def _getHddFreeSpace	
+
+	def _setHddFreeSpace(self,hddFreeSpace):
+		
+		if self._hddFreeSpace!=hddFreeSpace:
+			self._hddFreeSpace=hddFreeSpace		
+			self.on_hddFreeSpace.emit()
+
+	#def _setHddFreeSpace
+
+	def _getShowDownloadDialog(self):
+
+		return self._showDownloadDialog
+	
+	#def _getShowDownloadDialog
+
+	def _setShowDownloadDialog(self,showDownloadDialog):
+
+		if self._showDownloadDialog!=showDownloadDialog:
+			self._showDownloadDialog=showDownloadDialog
+			self.on_showDownloadDialog.emit()
+
+	#def _setShowDownloadDialog
+
+	def _getShowAccountMessage(self):
+
+		return self._showAccountMessage
+
+	#def _getShowAccountMessage
+
+	def _setShowAccountMessage(self,showAccountMessage):
+
+		if self._showAccountMessage!=showAccountMessage:
+			self._showAccountMessage=showAccountMessage	
+			self.on_showAccountMessage.emit()
+
+	#def _setShowAccountMessage
+
+	def _getManageCurrentOption(self):
+
+		return self._manageCurrentOption
+
+	#def _getManageCurrentOption	
+
+	def _setManageCurrentOption(self,manageCurrentOption):
+		
+		if self._manageCurrentOption!=manageCurrentOption:
+			self._manageCurrentOption=manageCurrentOption
+			self.on_manageCurrentOption.emit()
+
+	#def _setManageCurrentOption
+
+	def _getSpaceLocalFolder(self):
+
+		return self._spaceLocalFolder
+	
+	#def _getSpaceLocalFolder
+
+	def _setSpaceLocalFolder(self,spaceLocalFolder):
+
+		if self._spaceLocalFolder!=spaceLocalFolder:
+			self._spaceLocalFolder=spaceLocalFolder
+			self.on_spaceLocalFolder.emit()
+
+	#def _setSpaceLocalFolder
+	
+	def _getAutoStartEnabled(self):
+		
+		return self._autoStartEnabled
+
+	#def _getAutoStartEnabled
+
+	def _setAutoStartEnabled(self,autoStartEnabled):
+
+		if self._autoStartEnabled!=autoStartEnabled:
+			self._autoStartEnabled=autoStartEnabled		
+			self.on_autoStartEnabled.emit()
+
+	#def _setAutoStartEnabled
+
+	def _getRateLimit(self):
+
+		return self._rateLimit
+
+	#def _getRateLimit
+
+	def _setRateLimit(self,rateLimit):
+
+		if self._rateLimit!=int(rateLimit):
+			self._rateLimit=int(rateLimit)
+			self.on_rateLimit.emit()
+
+	#def _setRateLimit
+
+	def _getMonitorInterval(self):
+		
+		return self._monitorInterval
+
+	#def _getMonitorInterval
+
+	def _setMonitorInterval(self,monitorInterval):
+
+		if self._monitorInterval!=int(monitorInterval):
+			self._monitorInterval=int(monitorInterval)
+			self.on_monitorInterval.emit()
+
+	#def _setMonitorInterval
 
 	def _updateSpacesModel(self):
 
@@ -369,15 +508,40 @@ class Bridge(QObject):
 		self.reuseToken=False
 		self.tempConfig=False
 		self.closeGui=True
-		self.spacesCurrentOption=0
 		self._libraryModel.clear()
 
 		if self.createSpaceT.ret:
-			self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
+			self.spaceLocalFolder=Bridge.onedriveMan.spaceLocalFolder
+			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
+			self.initialDownload=self.createSpaceT.initialDownload
+			if self.initialDownload!="":
+				self.showDownloadDialog=True
+			else:
+				self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
 		else:
 			self.showSpaceSettingsMessage=[True,SPACE_CREATION_ERROR,"Error"]		
 
 	#def _createSpace
+
+	@Slot(str)
+	def manageDownloadDialog(self,option):
+
+		self.showDownloadDialog=False
+		if option=="All":
+			self._initialStartUp()
+		else:
+			self.currentStack=2
+			self.manageCurrentOption=0
+
+	#def manageDownloadDialog
+	
+	@Slot()
+	def goHome(self):
+
+		self.currentStack=1
+		self.spacesCurrentOption=0
+
+	#def goHome
 
 	@Slot()
 	def openHelp(self):
@@ -427,6 +591,33 @@ class Bridge(QObject):
 
 	on_showPreviousFolderDialog=Signal()
 	showPreviousFolderDialog=Property(bool,_getShowPreviousFolderDialog,_setShowPreviousFolderDialog, notify=on_showPreviousFolderDialog)
+
+	on_initialDownload=Signal()
+	initialDownload=Property(str,_getInitialDownload,_setInitialDownload,notify=on_initialDownload)
+
+	on_hddFreeSpace=Signal()
+	hddFreeSpace=Property(str,_getHddFreeSpace,_setHddFreeSpace,notify=on_hddFreeSpace)
+
+	on_showDownloadDialog=Signal()
+	showDownloadDialog=Property(bool,_getShowDownloadDialog,_setShowDownloadDialog,notify=on_showDownloadDialog)
+
+	on_showAccountMessage=Signal()
+	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
+
+	on_manageCurrentOption=Signal()
+	manageCurrentOption=Property(int,_getManageCurrentOption,_setManageCurrentOption, notify=on_manageCurrentOption)
+
+	on_spaceLocalFolder=Signal()
+	spaceLocalFolder=Property(str,_getSpaceLocalFolder,_setSpaceLocalFolder,notify=on_spaceLocalFolder)
+	
+	on_autoStartEnabled=Signal()
+	autoStartEnabled=Property(bool,_getAutoStartEnabled,_setAutoStartEnabled,notify=on_autoStartEnabled)
+	
+	on_rateLimit=Signal()
+	rateLimit=Property(int,_getRateLimit,_setRateLimit,notify=on_rateLimit)
+
+	on_monitorInterval=Signal()
+	monitorInterval=Property(int,_getMonitorInterval,_setMonitorInterval,notify=on_monitorInterval)
 
 	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)

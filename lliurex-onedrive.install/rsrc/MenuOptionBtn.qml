@@ -10,6 +10,8 @@ Item {
 
 	property alias optionIcon:menuOptionIcon.source
 	property alias optionText:menuOptionText.text
+  property alias optionFontSize:menuOptionText.font.pointSize
+
 	signal menuOptionClicked()
 
 	Rectangle{
@@ -33,6 +35,7 @@ Item {
               id:menuOptionText
               text:optionText
               anchors.verticalCenter:menuOptionIcon.verticalCenter
+              font.pointSize:optionFontSize
 
 
             }  
