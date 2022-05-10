@@ -126,6 +126,7 @@ Rectangle{
                     Keys.onReturnPressed: searchLibraryBtn.clicked()
                     Keys.onEnterPressed: searchLibraryBtn.clicked()
                     onClicked:{
+                        oneDriveAuth.authUrl=onedriveBridge.authUrl
                         onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
                     }
 

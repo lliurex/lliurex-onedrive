@@ -72,6 +72,12 @@ Rectangle{
         }
     } 
 
+    CustomPopup{
+        id:spaceSettingsPopup
+        
+    }
+
+
     function getTextMessage(){
         switch (onedriveBridge.showSpaceSettingsMessage[1]){
             case 0:

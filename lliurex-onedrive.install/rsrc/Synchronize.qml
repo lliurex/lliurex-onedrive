@@ -147,7 +147,7 @@ Rectangle{
             FolderList{
                 id:folderList
                 structVisible:syncCustom.checked
-                structModel:onedriveBridge.model
+                structModel:onedriveBridge.folderModel
                 structEnabled:getEnabledStatus()
             }
         }
@@ -357,19 +357,24 @@ Rectangle{
 
         switch (onedriveBridge.showSynchronizeMessage[1]){
 
-            case 0:
+            case 4:
                 var msg=i18nd("lliurex-onedrive","Functionality available only if sync is stopped");
                 break
 
-            case 1:
+            case 5:
                 var msg=i18nd("lliurex-onedrive","Changes applied correctly");
                 break
 
-            case -1:
+            case -4:
                 var msg=i18nd("lliurex-onedrive","An error occurred while applying the changes");
                 break
-            case -2:
+                
+            case -5:
                 var msg=i18nd("lliurex-onedrive","An error occurred while getting the OneDrive folder structure");
+                break
+
+            default:
+                var msg=""
                 break
         }
         return msg

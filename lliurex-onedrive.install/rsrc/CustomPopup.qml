@@ -55,6 +55,24 @@ Popup {
             case 2:
                 var msg=i18nd("lliurex-onedrive","Looking for libraries. Wait a moment...");
                 break
+            case 3:
+                var msg=i18nd("lliurex-onedrive","Loading space settings. Wait a moment...");
+                break
+            case 6:
+                var msg=i18nd("lliurex-onedrive","Starting the sync. Wait a moment...");
+                break
+            case 7:
+                var msg=i18nd("lliurex-onedrive","Stopping the sync. Wait a moment...");
+                break
+            case 8:
+                var msg=i18nd("lliurex-onedrive","Checking status. Wait a moment...");
+                break
+            case 9:
+                var msg=i18nd("lliurex-onedrive","Unlinking from space. Wait a moment...")
+                break
+            case 10:
+                var msg=i18nd("lliurex-onedrive","Saving changes. Wait a moment...")
+                break
             default:
                 var msg=""
                 break;

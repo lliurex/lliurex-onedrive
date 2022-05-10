@@ -75,6 +75,9 @@ ApplicationWindow {
             SpacesOptions{
                 id:spacesOptions
             }
+            AccountOptions{
+                id:accountOptions
+            }
         }
 
     }

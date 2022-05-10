@@ -57,7 +57,7 @@ Rectangle{
 
                 Text{
                     id:syncFolderPath
-                    text:onedriveBridge.userFolder
+                    text:onedriveBridge.spaceLocalFolder
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
                     anchors.verticalCenter:openFolderBtn.verticalCenter
@@ -79,7 +79,6 @@ Rectangle{
                     }
                 }
             }
-
             Text{
                 id:freeSpaceText
                 text:i18nd("lliurex-onedrive","Free Space on OneDrive:")
@@ -103,7 +102,7 @@ Rectangle{
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
             }
-
+            
             Text{
                 id:clientStatusText
                 text:i18nd("lliurex-onedrive","Synchronization:")
@@ -140,23 +139,12 @@ Rectangle{
                     enabled:!onedriveBridge.localFolderRemoved
                     onClicked:{
                         if (!onedriveBridge.localFolderEmpty){
-                            var startSync=false
-                            if ((onedriveBridge.settingsChanged)|| (onedriveBridge.syncCustomChanged)){
-                                if (!onedriveBridge.isOnedriveRunning){
-                                    changesDialog.open()
-                                }else{
-                                    startSync=true
-                                }
-                            }else{
-                                startSync=true
-                            }
-                            if (startSync){
-                                changeSyncStatus()
-                            }
+                            changeSyncStatus()
                         }else{
                             startEmptyDialog.open()
                         }
                     }
+           
                 }
             }
 
@@ -203,17 +191,9 @@ Rectangle{
                     ToolTip.visible: hovered
                     ToolTip.text:{
                         i18nd("lliurex-onedrive","Click to update status information")
-                  }    
+                  } 
                     onClicked:{
                         accountPopup.open()
-                        accountPopup.popupMessage=i18nd("lliurex-onedrive", "Checking status. Wait a moment...")
-                        delay(1000, function() {
-                            if (onedriveBridge.closePopUp){
-                                accountPopup.close(),
-                                timer.stop();
-                            }
-                        })
-
                         onedriveBridge.checkAccountStatus()
                         
                     }
@@ -246,7 +226,6 @@ Rectangle{
             }
         }
     }
-
     Dialog {
         id: unlinkDialog
         modality:Qt.WindowModal
@@ -267,7 +246,7 @@ Rectangle{
             
             Text {
                 id:dialogText
-                text:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from OneDrive account?.\nThe files will stop syncing, but the contents of the OneDrive folder\nwill not be erased")
+                text:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from this space?.\nThe files will stop syncing, but the contents of the space\nwill not be erased")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:dialogIcon.right
@@ -303,14 +282,6 @@ Rectangle{
                 }
 
                 onApplied:{
-                    accountPopup.open()
-                    accountPopup.popupMessage=i18nd("lliurex-onedrive", "Unlinking from OneDrive account. Wait a moment...")
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            accountPopup.close(),
-                            timer.stop();
-                        }
-                    })
                     unlinkDialog.close()
                     onedriveBridge.removeAccount()
                 
@@ -448,7 +419,6 @@ Rectangle{
         }
      }
 
-
      CustomPopup{
         id:accountPopup
      }
@@ -469,49 +439,49 @@ Rectangle{
         var additionalText=i18nd("lliurex-onedrive","Wait a moment and update the status\nIf persist run a OneDrive test")
         var helpText=i18nd("lliurex-onedrive","Consult the help to solve the situation")
         switch (errorCode) {
-            case "0":
+            case 0:
                 var msg=i18nd("lliurex-onedrive","All remote content synchronized");
                 break;
-            case "2":
+            case 2:
                 var msg=i18nd("lliurex-onedrive","Remote content pending syncing");
                 break;
-            case "-1":
+            case -1:
                 var msg=i18nd("lliurex-onedrive","Microsoft OneDrive API return an error\n")+additionalText;
                 break;
-            case "-2":
+            case -2:
                 var msg=i18nd("lliurex-onedrive","Unable to connect with Microsoft OneDrive\n")+additionalText;
                 break;
-            case "-3":
+            case -3:
                 var msg=i18nd("lliurex-onedrive","Problems with local file system\n")+additionalText;
                 break;
-            case "-4":
+            case -4:
                 var msg=i18nd("lliurex-onedrive","Your free space is 0");
                 break;
-            case "-5":
+            case -5:
                 var msg=i18nd("lliurex-onedrive","Information about yor quota information is restricted\nMaybe your free space is 0");
                 break;
-            case "-6":
+            case -6:
                 var msg=i18nd("lliurex-onedrive","Problems with database\n")+additionalText;
                 break;
-            case "-7":
+            case -7:
                 var msg=i18nd("lliurex-onedrive","The authorization to access your account has expired");
                 break;
-            case "-8":
+            case -8:
                 var msg=i18nd("lliurex-onedrive","Uploading pending changes");
                 break;
-            case "-9":
+            case -9:
                 var msg=i18nd("lliurex-onedrive","Microsoft OneDrive not available\n")+additionalText;
                 break;
-            case "-10":
+            case -10:
                 var msg=i18nd("lliurex-onedrive","Unable to start synchronization")
                 break;
-            case "-11":
+            case -11:
                 var msg=i18nd("lliurex-onedrive","Unable to stop synchronization")
                 break;
-            case "-12":
+            case -12:
                 var msg=i18nd("lliurex-onedrive","Local OneDrive Folder is empty. ")+helpText
                 break;
-            case "-13":
+            case -13:
                 var msg=i18nd("lliurex-onedrive","Local OneDrive Folder not exist. ")+helpText
                 break;
             case " ":
@@ -555,15 +525,6 @@ Rectangle{
     }
 
     function changeSyncStatus(){
-        accountPopup.open()
-        accountPopup.popupMessage=onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Stopping synchronization. Wait a moment..."):i18nd("lliurex-onedrive","Starting synchronization. Wait a moment...")
-        delay(1000, function() {
-            if (onedriveBridge.closePopUp){
-                accountPopup.close(),
-                timer.stop();
-            }
-        })
-
         onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
     }
 }
