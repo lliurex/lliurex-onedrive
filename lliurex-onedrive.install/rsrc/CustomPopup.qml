@@ -71,12 +71,18 @@ Popup {
                 var msg=i18nd("lliurex-onedrive","Unlinking from space. Wait a moment...")
                 break
             case 10:
-                var msg=i18nd("lliurex-onedrive","Saving changes. Wait a moment...")
+                var msg=i18nd("lliurex-onedrive","Gathering OneDrive folder structure. Wait a moment...")
                 break
             case 11:
-                var msg=i18nd("lliurex-onedrive","Running the test. Wait a moment...")
+                var msg=i18nd("lliurex-ondrive","Restoring values . Wait a moment...")
                 break
             case 12:
+                var msg=i18nd("lliurex-onedrive","Saving changes. Wait a moment...")
+                break
+            case 13:
+                var msg=i18nd("lliurex-onedrive","Running the test. Wait a moment...")
+                break
+            case 14:
                 var msg=i18nd("lliurex-onedrive","Running the repair command. Wait a moment...")
                 break
             default:

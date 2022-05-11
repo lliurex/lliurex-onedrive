@@ -83,11 +83,8 @@ Rectangle{
                         if (checked){
                             if (folderList.listCount<2){
                                 folderList.structVisible=false
-                                synchronizePopup.open()
-                                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering OneDrive folder structure. Wait a moment...")
                                 delay(1000, function() {
-                                    if (onedriveBridge.closePopUp){
-                                        synchronizePopup.close(),
+                                    if (onedriveBridge.closePopUp[0]){
                                         timer.stop(),
                                         folderList.structVisible=true;
                                     }
@@ -131,11 +128,8 @@ Rectangle{
                     hoverEnabled:true
                     onClicked:{
                         folderList.structVisible=false
-                        synchronizePopup.open()
-                        synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Gathering OneDrive folder structure. Wait a moment...")
                         delay(1000, function() {
-                            if (onedriveBridge.closePopUp){
-                                synchronizePopup.close(),
+                            if (onedriveBridge.closePopUp[0]){
                                 timer.stop(),
                                 folderList.structVisible=true;
                             }
@@ -194,12 +188,9 @@ Rectangle{
                 }
             }            
             onClicked:{
-                synchronizePopup.open()
-                synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Restoring values . Wait a moment...")
                 syncAll.checked=onedriveBridge.syncAll
                 delay(1000, function() {
-                    if (onedriveBridge.closePopUp){
-                        synchronizePopup.close()
+                    if (onedriveBridge.closePopUp[0]){
                         timer.stop()
                         if (syncAll.checked){
                             folderList.structVisible=false
@@ -297,10 +288,8 @@ Rectangle{
 
                 onApplied:{
                     synchronizePopup.open()
-                    synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Apply changes. Wait a moment...")
                     delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            synchronizePopup.close(),
+                        if (onedriveBridge.closePopUp[0]){
                             timer.stop()
                             if (syncAll.checked){
                                 folderList.structVisible=false;   
@@ -308,17 +297,12 @@ Rectangle{
               
                         }
                     })
-                  
                     onedriveBridge.manageSynchronizeDialog("Accept")
-                
                 }
 
                 onDiscarded:{
-                    synchronizePopup.open()
-                    synchronizePopup.popupMessage=i18nd("lliurex-onedrive", "Apply changes. Wait a moment...")
                     delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            synchronizePopup.close(),
+                        if (onedriveBridge.closePopUp[0]){
                             timer.stop()
                             if (syncAll.checked){
                                 folderList.structVisible=false;   
@@ -327,12 +311,10 @@ Rectangle{
                     })
                
                     onedriveBridge.manageSynchronizeDialog("Keep")
-
                 }
 
                 onRejected:{
                     onedriveBridge.manageSynchronizeDialog("Cancel")
-
                 }
             }
         }
