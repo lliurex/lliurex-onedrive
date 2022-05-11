@@ -63,14 +63,6 @@ Rectangle{
                 ToolTip.text:i18nd("lliurex-onedrive","Click to run an OneDrive test command")
 
                 onClicked:{
-                    toolsPopup.open()
-                    toolsPopup.popupMessage=i18nd("lliurex-onedrive", "Executing test. Wait a moment...")
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp){
-                            toolsPopup.close(),
-                            timer.stop();
-                        }
-                    })
                     onedriveBridge.testOnedrive();
                 }
             }
@@ -176,26 +168,7 @@ Rectangle{
         id:toolsPopup
     }
   
-    Timer{
-      id:timer
-    }
-
-    function delay(delayTime,cb){
-        timer.interval=delayTime;
-        timer.repeat=true;
-        timer.triggered.connect(cb);
-        timer.start()
-    }
-
     function repair(){
-        toolsPopup.open()
-        toolsPopup.popupMessage=i18nd("lliurex-onedrive", "Executing repair command. Wait a moment...")
-        delay(1000, function() {
-            if (onedriveBridge.closePopUp){
-                toolsPopup.close(),
-                timer.stop();
-            }
-        })
         onedriveBridge.repairOnedrive();
     }
 

@@ -73,6 +73,12 @@ Popup {
             case 10:
                 var msg=i18nd("lliurex-onedrive","Saving changes. Wait a moment...")
                 break
+            case 11:
+                var msg=i18nd("lliurex-onedrive","Running the test. Wait a moment...")
+                break
+            case 12:
+                var msg=i18nd("lliurex-onedrive","Running the repair command. Wait a moment...")
+                break
             default:
                 var msg=""
                 break;

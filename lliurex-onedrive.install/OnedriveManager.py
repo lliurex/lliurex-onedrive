@@ -1289,5 +1289,53 @@ class OnedriveManager:
 
 	#def _writeConfigFile
 
+	def testOnedrive(self):
+
+		if not os.path.exists(self.userTokenPath):
+			os.mkdir(self.userTokenPath)
+
+		testFileName=os.path.basename(self.spaceLocalFolder)+"_test.txt"
+		self.testPath=os.path.join(self.userTokenPath,testFileName)
+		if os.path.exists(self.testPath):
+			os.remove(self.testPath)
+
+		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
+		os.system(cmd)
+		cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+
+		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
+		os.system(cmd)
+		cmd='/usr/bin/onedrive --synchronize --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+
+		return
+
+	#def testOnedrive
+
+	def repairOnedrive(self):
+
+		running=self.isOnedriveRunning()
+		if os.path.exists(self.localFolderRemovedToken):
+			self._manageEmptyToken()
+		ret=self._syncResync()
+		return ret
+
+	#def repairDB
+
+	def _syncResync(self):
+
+		cmd='/usr/bin/onedrive --synchronize --resync --resync-auth --confdir="%s"'%self.spaceConfPath
+
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		ret=p.communicate()
+		rc=p.returncode
+
+		if rc!=0:
+			return False
+		else:
+			return True
+
+	#def _syncResync
 
 #class OnedriveManager

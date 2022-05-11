@@ -24,6 +24,8 @@ STOP_SYNC_MESSAGE=7
 CHECKING_STATUS_MESSAGE=8
 REMOVE_SPACE_MESSAGE=9
 APPLY_SPACE_SETTINGS_MESSAGE=10
+SPACE_RUNNING_TEST_MESSAGE=11
+SPACE_RUNNING_REPAIR_MESSAGE=12
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -205,6 +207,37 @@ class ApplySettingsChanges(QThread):
 
 	#def run
 
+class TestOneDrive(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+
+	#def __init
+
+	def run(self,*args):
+
+		Bridge.onedriveMan.testOnedrive()
+
+	#def run
+
+#class TestOneDrive
+
+class RepairOneDrive(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+
+	#def __init
+
+	def run(self,*args):
+
+		Bridge.onedriveMan.repairOnedrive()
+
+	#def run
+
+#class RepairOneDrive
 
 class Bridge(QObject):
 
@@ -243,7 +276,6 @@ class Bridge(QObject):
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
 		self._showAccountMessage=[False,""]
-		self._infoStackType="Configuration"
 		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
 		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
@@ -871,7 +903,7 @@ class Bridge(QObject):
 			if self.settingsChanged:
 				self.showSettingsDialog=True
 			elif self.syncCustomChanged:
-				self.showSynchronizeMessage
+				pass
 			else:
 				self.manageCurrentOption=option
 				self.moveToOption=""
@@ -1003,10 +1035,13 @@ class Bridge(QObject):
 	def _endLoading(self):
 
 		if not self.syncAll:
-			if self.isOnedriveRunning:
-				self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 			self._updateFolderStruct()
 
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+		else:
+			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+		
 		self.closePopUp=[True,""]
 		self.closeGui=True
 
@@ -1285,6 +1320,42 @@ class Bridge(QObject):
 			self.moveToOption=""
 	
 	#def manageSettingsDialog
+
+	@Slot()
+	def testOnedrive(self):
+
+		self.closePopUp=[False,SPACE_RUNNING_TEST_MESSAGE]
+		self.testOnedriveT=TestOneDrive()
+		self.testOnedriveT.start()
+		self.testOnedriveT.finished.connect(self._testOnedrive)
+
+	#def testOnedrive
+	
+	def _testOnedrive(self):
+
+		if os.path.exists(Bridge.onedriveMan.testPath):
+			cmd="xdg-open %s"%Bridge.onedriveMan.testPath
+			os.system(cmd)
+		self.closePopUp=[True,""]
+
+	#def _testOnedrive
+
+	@Slot()
+	def repairOnedrive(self):
+
+		self.closePopUp=[False,SPACE_RUNNING_REPAIR_MESSAGE]
+		self.repairOneDriveT=RepairOneDrive()
+		self.repairOneDriveT.start()
+		self.repairOneDriveT.finished.connect(self._repairOnedrive)
+
+	#def reparirOnedrive
+
+	def _repairOnedrive(self):
+
+		self.checkAccountStatus()
+
+	#def _repairOnedrive
+
 
 	@Slot()
 	def openHelp(self):
