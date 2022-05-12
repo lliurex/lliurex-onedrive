@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
 
     Text{ 
-        text:i18nd("lliurex-onedrive","Account")
+        text:i18nd("lliurex-onedrive","Space Info")
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
@@ -41,10 +41,52 @@ Rectangle{
             Layout.topMargin: accountMessageLabel.visible?0:50
 
             Text{
+                id:spaceMailText
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignRight
+                text:i18nd("lliurex-onedrive","Associated email:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+            }
+
+            Text{
+                id:spaceMailValue
+                text:onedriveBridge.spaceBasicInfo[0]
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+            }
+      
+            Text{
+                id:spaceTypeText
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignRight
+                text:i18nd("lliurex-onedrive","Space Type:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+            }
+
+            Text{
+                id:spaceTypeValue
+                text:{
+                    if (onedriveBridge.spaceBasicInfo[1]=="onedrive"){
+                        "OneDrive"
+                    }else{
+                        "SharePoint"
+                    }
+                }
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+            }
+ 
+            Text{
                 id:syncFolderText
                 Layout.bottomMargin:10
                 Layout.alignment:Qt.AlignRight
-                text:i18nd("lliurex-onedrive","OneDrive Folder:")
+                text:i18nd("lliurex-onedrive","Local folder:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
             }
@@ -81,7 +123,15 @@ Rectangle{
             }
             Text{
                 id:freeSpaceText
-                text:i18nd("lliurex-onedrive","Free Space on OneDrive:")
+                text:{
+                    var headText=i18nd("lliurex-onedrive","Free Space on")
+                    if (onedriveBridge.spaceBasicInfo[1]=="onedrive"){
+                        var text="OneDrive"
+                    }else{
+                        var text="SharePoint"
+                    }
+                    headText+" "+text
+                }
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignRight
@@ -134,7 +184,7 @@ Rectangle{
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with OneDrive"):i18nd("lliurex-onedrive","Click to start syncing with OneDrive")
+                    ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with space"):i18nd("lliurex-onedrive","Click to start syncing with space")
                     hoverEnabled:true
                     enabled:!onedriveBridge.localFolderRemoved
                     onClicked:{
@@ -193,7 +243,6 @@ Rectangle{
                         i18nd("lliurex-onedrive","Click to update status information")
                   } 
                     onClicked:{
-                        accountPopup.open()
                         onedriveBridge.checkAccountStatus()
                         
                     }
@@ -202,7 +251,7 @@ Rectangle{
 
             Text{
                 id:unlinkAccountText
-                text:i18nd("lliurex-onedrive","Unlink from OneDrive account:")
+                text:i18nd("lliurex-onedrive","Unlink from space:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignRight
@@ -217,7 +266,7 @@ Rectangle{
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
-                ToolTip.text:i18nd("lliurex-onedrive","Click to unlink from OneDrive account")
+                ToolTip.text:i18nd("lliurex-onedrive","Click to unlink from space")
             
                 hoverEnabled:true
                 onClicked:{
@@ -297,61 +346,6 @@ Rectangle{
      }
 
     Dialog {
-        id: changesDialog
-        modality:Qt.WindowModal
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Pending changes")
-
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 560
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:changesDialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-information.svg"
-
-            }
-            
-            Text {
-                id:changesDialogText
-                text:getChangesText()
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:changesDialogIcon.right
-                anchors.verticalCenter:changesDialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
-            }
-
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:changesDialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Accept")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                onApplied:{
-                    changesDialog.close()
-                    optionsLayout.currentIndex=getTransition()
-                
-                }
-
-            }
-        }
-     }
-
-    Dialog {
         id: startEmptyDialog
         modality:Qt.WindowModal
         title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
@@ -422,17 +416,6 @@ Rectangle{
      CustomPopup{
         id:accountPopup
      }
-
-    Timer{
-        id:timer
-    }
-
-    function delay(delayTime,cb){
-        timer.interval=delayTime;
-        timer.repeat=true;
-        timer.triggered.connect(cb);
-        timer.start()
-    }
 
     function getTextOption(errorCode){
 

@@ -284,6 +284,7 @@ class Bridge(QObject):
 		self._showDownloadDialog=False
 		self._showAccountMessage=[False,""]
 		self._manageCurrentOption=0
+		self._spaceBasicInfo=["",""]
 		self._spaceLocalFolder=""
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
@@ -564,6 +565,20 @@ class Bridge(QObject):
 			self.on_manageCurrentOption.emit()
 
 	#def _setManageCurrentOption
+
+	def _getSpaceBasicInfo(self):
+
+		return self._spaceBasicInfo
+
+	#def _getSpaceBasicInfo
+
+	def _setSpaceBasicInfo(self,spaceBasicInfo):
+
+		if self._spaceBasicInfo!=spaceBasicInfo:
+			self._spaceBasicInfo=spaceBasicInfo
+			self.on_spaceBasicInfo.emit()
+
+	#def _setSpaceBasicInfo
 
 	def _getSpaceLocalFolder(self):
 
@@ -965,6 +980,7 @@ class Bridge(QObject):
 		self._libraryModel.clear()
 
 		if self.createSpaceT.ret:
+			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
 			self.initialDownload=self.createSpaceT.initialDownload
@@ -1027,6 +1043,7 @@ class Bridge(QObject):
 	def _loadSpace(self):
 
 		self._getInitialSettings()
+		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 		self.syncAll=Bridge.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
@@ -1656,6 +1673,9 @@ class Bridge(QObject):
 
 	on_manageCurrentOption=Signal()
 	manageCurrentOption=Property(int,_getManageCurrentOption,_setManageCurrentOption, notify=on_manageCurrentOption)
+
+	on_spaceBasicInfo=Signal()
+	spaceBasicInfo=Property('QVariantList',_getSpaceBasicInfo,_setSpaceBasicInfo,notify=on_spaceBasicInfo)
 
 	on_spaceLocalFolder=Signal()
 	spaceLocalFolder=Property(str,_getSpaceLocalFolder,_setSpaceLocalFolder,notify=on_spaceLocalFolder)

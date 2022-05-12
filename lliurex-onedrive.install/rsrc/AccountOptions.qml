@@ -36,15 +36,11 @@ GridLayout{
 
                 MenuOptionBtn {
                     id:infoItem
-                    optionText:i18nd("lliurex-onedrive","Account")
-                    optionIcon:"/usr/share/icons/breeze/actions/16/actor.svg"
+                    optionText:i18nd("lliurex-onedrive","Space")
+                    optionIcon:"/usr/share/icons/breeze/places/16/folder.svg"
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(0)
-                            /*
-                            onedriveBridge.hideSettingsMessage()
-                            onedriveBridge.hideSynchronizeMessage()
-                            */
                         }
                     }
                 }
@@ -56,10 +52,6 @@ GridLayout{
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(1)
-                            /*
-                            onedriveBridge.hideSettingsMessage()
-                            onedriveBridge.hideSynchronizeMessage()
-                            */
                         }
                     }
                 }
@@ -71,10 +63,6 @@ GridLayout{
                     Connections{
                         function onMenuOptionClicked(){
                         onedriveBridge.moveToManageOption(2)
-                            /*
-                            onedriveBridge.hideSettingsMessage()
-                            onedriveBridge.hideSynchronizeMessage() 
-                            */
                         }
                     }
                 }
@@ -85,10 +73,6 @@ GridLayout{
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(3)
-                            /*
-                            onedriveBridge.hideSettingsMessage()
-                            onedriveBridge.hideSynchronizeMessage()
-                            */       
                         }
                     }
                 }

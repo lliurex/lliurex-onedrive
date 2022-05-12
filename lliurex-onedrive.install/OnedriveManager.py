@@ -31,6 +31,7 @@ class OnedriveManager:
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
 		self.onedriveConfigDir="/home/%s/.config/onedrives"%self.user
 		self.sharePointConfigDir="/home/%s/.config/sharepoints"%self.user
+		self.spaceBasicInfo=[]
 		self.spaceLocalFolder=""
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
@@ -56,6 +57,8 @@ class OnedriveManager:
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
 		self.createEnvironment()
+		self.clearCache()
+
 
 	#def __init__
 
@@ -134,6 +137,7 @@ class OnedriveManager:
 
 	def initSpacesSettings(self):
 
+		self.spaceBasicInfo=[]
 		self.spaceLocalFolder=""
 		self.spaceConfPath=""
 		self.spaceServiceFile=""
@@ -223,7 +227,7 @@ class OnedriveManager:
 						break
 			else:
 				for item in self.onedriveConfig["spacesList"]:
-					if item["id"]==spaceId:
+					if item["driveId"]==spaceId:
 						duplicateSpace=True
 						break
 
@@ -269,7 +273,8 @@ class OnedriveManager:
 		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
 		spaceId=spaceInfo[4]
-
+		self.spaceBasicInfo=[spaceEmail,spaceType]
+		
 		self._createSpaceConfFolder(spaceType,spaceId)
 		if reuseToken:
 			self._copyToken(spaceEmail)
@@ -443,9 +448,9 @@ class OnedriveManager:
 		tmp["configPath"]=self.spaceConfPath
 		tmp["systemd"]=self.spaceServiceFile
 		if spaceInfo[4]!=None:
-			tmp["drive_id"]=spaceInfo[4]
+			tmp["driveId"]=spaceInfo[4]
 		else:
-			tmp["drive_id"]=""
+			tmp["driveId"]=""
 
 		self.onedriveConfig["spacesList"].append(tmp)
 		with open(self.onedriveConfigFile,'w') as fd:
@@ -632,6 +637,7 @@ class OnedriveManager:
 		self.initSpacesSettings()
 		for item in self.onedriveConfig['spacesList']:
 			if os.path.basename(item["localFolder"])==spaceName:
+				self.spaceBasicInfo=[item["email"],item["type"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
@@ -758,10 +764,13 @@ class OnedriveManager:
 
 	#def manageSync
 
-	def getAccountStatus(self,spaceConfPath=None):
+	def getAccountStatus(self,spaceConfPath=None,spaceType=None):
 
 		if spaceConfPath==None:
 			spaceConfPath=self.spaceConfPath
+
+		if spaceType==None:
+			spaceType=self.spaceBasicInfo[1]
 
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
@@ -806,7 +815,9 @@ class OnedriveManager:
 						code=ZERO_SPACE_AVAILABLE_ERROR
 						break
 					elif 'quota information' in item:
-						code=QUOTA_RESTRICTED_ERROR
+						print("detectado_error")
+						if spaceType!="sharepoint":
+							code=QUOTA_RESTRICTED_ERROR
 					elif 'database' in item:
 						code=DATABASE_ERROR
 					elif 'Unauthorized' in item:
@@ -1493,5 +1504,53 @@ class OnedriveManager:
 			return True
 
 	#def _syncResync
+
+	def clearCache(self):
+
+		clear=False
+		versionFile="/home/%s/.config/lliurex-onedrive.conf"%self.user
+		cachePath1="/home/%s/.cache/lliurex-onedrive"%self.user
+		installedVersion=self.getPackageVersion()
+
+		if not os.path.exists(versionFile):
+			with open(versionFile,'w') as fd:
+				fd.write(installedVersion)
+				fd.close()
+
+			clear=True
+
+		else:
+			with open(versionFile,'r') as fd:
+				fileVersion=fd.readline()
+				fd.close()
+
+			if fileVersion!=installedVersion:
+				with open(versionFile,'w') as fd:
+					fd.write(installedVersion)
+					fd.close()
+				clear=True
+		
+		if clear:
+			if os.path.exists(cachePath1):
+				shutil.rmtree(cachePath1)
+
+	#def clearCache
+
+	def getPackageVersion(self):
+
+		command = "LANG=C LANGUAGE=en apt-cache policy lliurex-onedrive"
+		p = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE)
+		installed = None
+		for line in iter(p.stdout.readline,b""):
+			if type(line) is bytes:
+				line=line.decode()
+
+			stripedline = line.strip()
+			if stripedline.startswith("Installed"):
+				installed = stripedline.replace("Installed: ","")
+
+		return installed
+
+	#def getPackageVersion
 
 #class OnedriveManager
