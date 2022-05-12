@@ -5,7 +5,10 @@ from PySide2 import QtCore, QtGui, QtQml
 
 class SpacesModel(QtCore.QAbstractListModel):
 
-	NameRole= QtCore.Qt.UserRole + 1000
+	IdRole= QtCore.Qt.UserRole + 1000
+	NameRole= QtCore.Qt.UserRole + 1001
+	StatusRole= QtCore.Qt.UserRole + 1002
+	IsRunningRole=QtCore.Qt.UserRole+1003
 
 	def __init__(self,parent=None):
 		
@@ -25,28 +28,38 @@ class SpacesModel(QtCore.QAbstractListModel):
 		
 		if 0 <= index.row() < self.rowCount() and index.isValid():
 			item = self._entries[index.row()]
-			if role == SpacesModel.NameRole:
+			if role == SpacesModel.IdRole:
+				return item["id"]
+			elif role == SpacesModel.NameRole:
 				return item["name"]
+			elif role == SpacesModel.StatusRole:
+				return item["status"]
+			elif role == SpacesModel.IsRunningRole:
+				return item["isRunning"]
+
 	#def data
 
 	def roleNames(self):
 		
 		roles = dict()
+		roles[SpacesModel.IdRole] = b"id"
 		roles[SpacesModel.NameRole] = b"name"
+		roles[SpacesModel.StatusRole] = b"status"
+		roles[SpacesModel.IsRunningRole] = b"isRunning"
 
 		return roles
 
 	#def roleName
 
-	def appendRow(self,n):
+	def appendRow(self,i,n,s,r):
 		
 		tmpId=[]
 		for item in self._entries:
-			tmpId.append(item["name"])
+			tmpId.append(item["id"])
 		tmpN=n.strip()
-		if n not in tmpId and n !="" and len(tmpN)>0:
+		if i not in tmpId and n !="" and len(tmpN)>0:
 			self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(),self.rowCount())
-			self._entries.append(dict(name=n))
+			self._entries.append(dict(id=i,name=n,status=s,isRunning=r ))
 			self.endInsertRows()
 
 	#def appendRow
@@ -62,7 +75,7 @@ class SpacesModel(QtCore.QAbstractListModel):
 		
 		if role == QtCore.Qt.EditRole:
 			row = index.row()
-			if param in ["isLocked"]:
+			if param in ["status","isRunning"]:
 				self._entries[row][param]=value
 				self.dataChanged.emit(index,index)
 				return True

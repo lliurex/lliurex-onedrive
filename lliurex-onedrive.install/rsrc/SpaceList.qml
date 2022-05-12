@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQml.Models 2.8
 import org.kde.plasma.components 2.0 as Components
+import org.kde.kirigami 2.16 as Kirigami
 
 
 
@@ -30,7 +31,18 @@ Rectangle {
         highlightResizeDuration: 0
         delegate: ListDelegateSpaceItem{
             width:spaceTable.width
-            name:model.name
+            idSpace:model.id
+            nameSpace:model.name
+            statusSpace:model.status
+            isRunningSpace:model.isRunning
+        }
+
+        Kirigami.PlaceholderMessage { 
+            id: emptyHint
+            anchors.centerIn: parent
+            width: parent.width - (units.largeSpacing * 4)
+            visible: listSpace.count==0?true:false
+            text: i18nd("lliurex-onedrive","No space is being sinced")
         }
 
      } 

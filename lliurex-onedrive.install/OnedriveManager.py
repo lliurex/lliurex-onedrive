@@ -11,6 +11,7 @@ import re
 import unicodedata
 import configparser
 import tempfile
+import hashlib
 
 
 class OnedriveManager:
@@ -128,8 +129,9 @@ class OnedriveManager:
 		spaces=self.onedriveConfig["spacesList"]
 		for item in spaces:
 			tmp={}
+			tmp["id"]=item["id"]
 			tmp["name"]=os.path.basename(item["localFolder"])
-			tmp["status"]=""
+			tmp["status"]=0
 			tmp["isRunning"]=False
 			self.spacesConfigData.append(tmp)
 	
@@ -440,6 +442,10 @@ class OnedriveManager:
 	def _updateOneDriveConfig(self,spaceInfo):
 
 		tmp={}
+		h=hashlib.md5()
+		tmpId=spaceInfo[0]+"_"+os.path.basename(self.spaceLocalFolder)
+		h.update(tmpId.encode("utf-8"))
+		tmp["id"]=h.hexdigest()
 		tmp["email"]=spaceInfo[0]
 		tmp["type"]=spaceInfo[1]
 		tmp["sharepoint"]=spaceInfo[2]
@@ -632,11 +638,11 @@ class OnedriveManager:
 
 	#def _formatFreeSpace
 
-	def loadSpaceSettings(self,spaceName):
+	def loadSpaceSettings(self,spaceId):
 
 		self.initSpacesSettings()
 		for item in self.onedriveConfig['spacesList']:
-			if os.path.basename(item["localFolder"])==spaceName:
+			if item["id"]==spaceId:
 				self.spaceBasicInfo=[item["email"],item["type"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
@@ -815,7 +821,6 @@ class OnedriveManager:
 						code=ZERO_SPACE_AVAILABLE_ERROR
 						break
 					elif 'quota information' in item:
-						print("detectado_error")
 						if spaceType!="sharepoint":
 							code=QUOTA_RESTRICTED_ERROR
 					elif 'database' in item:

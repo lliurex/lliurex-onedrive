@@ -824,8 +824,8 @@ class Bridge(QObject):
 		ret=self._spacesModel.clear()
 		spacesEntries=Bridge.onedriveMan.spacesConfigData
 		for item in spacesEntries:
-			if item["name"]!="":
-				self._spacesModel.appendRow(item["name"])
+			if item["id"]!="":
+				self._spacesModel.appendRow(item["id"],item["name"],item["status"],item["isRunning"])
 	
 	#def _updateSpacesModel
 
@@ -1003,7 +1003,7 @@ class Bridge(QObject):
 			self._initialStartUp()
 		else:
 			self.currentStack=2
-			self.manageCurrentOption=0
+			self.manageCurrentOption=1
 
 	#def manageDownloadDialog
 
@@ -1030,11 +1030,11 @@ class Bridge(QObject):
 	#def _endInitialStartUp
 	
 	@Slot(str)
-	def loadSpace(self,space):
+	def loadSpace(self,idSpace):
 
 		self.closePopUp=[False,SPACE_LOADING_SETTINGS]
 		self.closeGui=False
-		self.getSpaceSettings=GatherSpaceSettings(space)
+		self.getSpaceSettings=GatherSpaceSettings(idSpace)
 		self.getSpaceSettings.start()
 		self.getSpaceSettings.finished.connect(self._loadSpace)
 

@@ -50,8 +50,8 @@ GridLayout{
         implicitHeight: 450
         Layout.alignment:Qt.AlignHCenter
 
-        SpacesSettings{
-            id:spaceSettings
+        SpacesInfo{
+            id:spaceInfo
         }
 
         SpaceForm{
