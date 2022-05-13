@@ -284,7 +284,7 @@ class Bridge(QObject):
 		self._showDownloadDialog=False
 		self._showAccountMessage=[False,""]
 		self._manageCurrentOption=0
-		self._spaceBasicInfo=["",""]
+		self._spaceBasicInfo=["","","",""]
 		self._spaceLocalFolder=""
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)

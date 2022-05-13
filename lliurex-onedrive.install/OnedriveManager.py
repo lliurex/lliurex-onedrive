@@ -274,8 +274,11 @@ class OnedriveManager:
 
 		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
+		spaceName=spaceInfo[2]
+		spaceLibrary=spaceInfo[3]
 		spaceId=spaceInfo[4]
-		self.spaceBasicInfo=[spaceEmail,spaceType]
+
+		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary]
 		
 		self._createSpaceConfFolder(spaceType,spaceId)
 		if reuseToken:
@@ -643,7 +646,7 @@ class OnedriveManager:
 		self.initSpacesSettings()
 		for item in self.onedriveConfig['spacesList']:
 			if item["id"]==spaceId:
-				self.spaceBasicInfo=[item["email"],item["type"]]
+				self.spaceBasicInfo=[item["email"],item["type"],item["sharepoint"],item["library"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]

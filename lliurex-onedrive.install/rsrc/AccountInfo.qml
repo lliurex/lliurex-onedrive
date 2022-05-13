@@ -58,7 +58,7 @@ Rectangle{
                 Layout.bottomMargin:10
             }
       
-            Text{
+           Text{
                 id:spaceTypeText
                 Layout.bottomMargin:10
                 Layout.alignment:Qt.AlignRight
@@ -67,21 +67,55 @@ Rectangle{
                 font.pointSize: 10
             }
 
-            Text{
+           Text{
                 id:spaceTypeValue
-                text:{
-                    if (onedriveBridge.spaceBasicInfo[1]=="onedrive"){
-                        "OneDrive"
-                    }else{
-                        "SharePoint"
-                    }
-                }
+                text:onedriveBridge.spaceBasicInfo[1]=="onedrive"?  "OneDrive":"SharePoint"
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
             }
- 
+
+            Text{
+                id:sharePointText
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignRight
+                text:i18nd("lliurex-onedrive","SharePoint:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+            }
+
+           Text{
+                id:sharePointValue
+                text:onedriveBridge.spaceBasicInfo[2]
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+            }
+
+            Text{
+                id:libraryText
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignRight
+                text:i18nd("lliurex-onedrive","Library:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+            }
+
+            Text{
+                id:libraryValue
+                text:onedriveBridge.spaceBasicInfo[3]
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignLeft
+                Layout.bottomMargin:10
+                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+            }
+
             Text{
                 id:syncFolderText
                 Layout.bottomMargin:10
@@ -90,7 +124,6 @@ Rectangle{
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
             }
-
             Row {
                 id:folderRow
                 spacing:10
@@ -123,15 +156,7 @@ Rectangle{
             }
             Text{
                 id:freeSpaceText
-                text:{
-                    var headText=i18nd("lliurex-onedrive","Free Space on")
-                    if (onedriveBridge.spaceBasicInfo[1]=="onedrive"){
-                        var text="OneDrive"
-                    }else{
-                        var text="SharePoint"
-                    }
-                    headText+" "+text
-                }
+                text:i18nd("lliurex-onedrive","Free Space:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignRight
@@ -140,13 +165,7 @@ Rectangle{
 
             Text{
                 id:freeSpaceValue
-                text:{
-                    if (onedriveBridge.freeSpace==""){
-                        i18nd("lliurex-onedrive","Information not available")
-                    }else{
-                        onedriveBridge.freeSpace
-                    }
-                }    
+                text:onedriveBridge.freeSpace==""?i18nd("lliurex-onedrive","Information not available"):onedriveBridge.freeSpace
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
