@@ -140,6 +140,7 @@ class OnedriveManager:
 	def initSpacesSettings(self):
 
 		self.spaceBasicInfo=[]
+		self.spaceId=""
 		self.spaceLocalFolder=""
 		self.spaceConfPath=""
 		self.spaceServiceFile=""
@@ -214,7 +215,7 @@ class OnedriveManager:
 
 		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
-		spaceId=spaceInfo[4]
+		driveId=spaceInfo[4]
 		
 		matchId=0
 		duplicateSpace=False
@@ -229,7 +230,7 @@ class OnedriveManager:
 						break
 			else:
 				for item in self.onedriveConfig["spacesList"]:
-					if item["driveId"]==spaceId:
+					if item["driveId"]==driveId:
 						duplicateSpace=True
 						break
 
@@ -276,11 +277,11 @@ class OnedriveManager:
 		spaceType=spaceInfo[1]
 		spaceName=spaceInfo[2]
 		spaceLibrary=spaceInfo[3]
-		spaceId=spaceInfo[4]
+		spaceDriveId=spaceInfo[4]
 
 		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary]
 		
-		self._createSpaceConfFolder(spaceType,spaceId)
+		self._createSpaceConfFolder(spaceType,spaceDriveId)
 		if reuseToken:
 			self._copyToken(spaceEmail)
 			if spaceType=="sharepoint":
@@ -304,7 +305,7 @@ class OnedriveManager:
 
 	#def createSpace 
 
-	def _createSpaceConfFolder(self,spaceType,spaceId):
+	def _createSpaceConfFolder(self,spaceType,spaceDriveId):
 
 		self.spaceConfPath=""
 		createConfig=False
@@ -333,7 +334,7 @@ class OnedriveManager:
 						fd.write(tmpLine)
 					else:
 						if spaceType=="sharepoint" and 'drive_id' in line:
-							newLine='drive_id = "%s"'%spaceId
+							newLine='drive_id = "%s"'%spaceDriveId
 							tmpLine=line.replace('# drive_id = ""',newLine)
 							fd.write(tmpLine)
 						else:
@@ -461,6 +462,7 @@ class OnedriveManager:
 		else:
 			tmp["driveId"]=""
 
+		self.spaceId=tmp["id"]
 		self.onedriveConfig["spacesList"].append(tmp)
 		with open(self.onedriveConfigFile,'w') as fd:
 			json.dump(self.onedriveConfig,fd)
@@ -646,6 +648,7 @@ class OnedriveManager:
 		self.initSpacesSettings()
 		for item in self.onedriveConfig['spacesList']:
 			if item["id"]==spaceId:
+				self.spaceId=spaceId
 				self.spaceBasicInfo=[item["email"],item["type"],item["sharepoint"],item["library"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
@@ -755,9 +758,12 @@ class OnedriveManager:
 	
 	#def manageAutostart
 
-	def manageSync(self,value):
+	def manageSync(self,startSync):
 
-		if value:
+		result=[True,True]
+		ok=True
+
+		if startSync:
 			self.manageFileFilter("restore")
 			cmd="systemctl --user start %s"%self.spaceServiceFile
 		else:
@@ -767,9 +773,17 @@ class OnedriveManager:
 			if os.path.exists(self.localFolderEmptyToken):
 				self._manageEmptyToken()
 			p=subprocess.run(cmd,shell=True,check=True)
-			return True
 		except subprocess.CalledProcessError as e:
-			return False
+			ok=False
+			pass
+		
+		isOnedriveRunning=self.isOnedriveRunning()
+		
+		if (startSync and isOnedriveRunning) or (not startSync and not isOnedriveRunning):
+			self._updateSpaceConfigData("isRunning",isOnedriveRunning)
+			return[ok,isOnedriveRunning]
+		else:
+			return[ok,isOnedriveRunning]
 
 	#def manageSync
 
@@ -861,9 +875,25 @@ class OnedriveManager:
 			error=True
 			code=WITH_OUT_CONFIG
 
+		if error:
+			paramValue=1
+		else:
+			paramValue=0
+
+		self._updateSpaceConfigData('status',paramValue)
 		return [error,code,freespace]
 
 	#def getAccountStatus
+	
+	def _updateSpaceConfigData(self,param,value):
+
+		for item in self.spacesConfigData:
+			if item["id"]==self.spaceId:
+				if item[param]!=value:
+					item[param]=value
+				break		
+
+	#def _updateSpaceInfo	
 
 	def removeAccount(self):
 

@@ -1017,7 +1017,7 @@ class Bridge(QObject):
 
 	def _endInitialStartUp(self):
 
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.isOnedriveRunning=self.manageSync.ret[1]
 		self.initStartUp=True
 		
 		if not self.isOnedriveRunning:
@@ -1025,6 +1025,7 @@ class Bridge(QObject):
 			self.currentStack=2
 			self.manageCurrentOption=0
 		else:
+			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
 
 	#def _endInitialStartUp
@@ -1152,14 +1153,14 @@ class Bridge(QObject):
 	@Slot(bool)
 	def manageSync(self,startSync):
 
-		if startSync:
+		self.startSync=startSync
+		if self.startSync:
 			msg=START_SYNC_MESSAGE
 		else:
 			msg=STOP_SYNC_MESSAGE
 
 		self.closePopup=[False,msg]
-		self.isRunningBefore=Bridge.onedriveMan.isOnedriveRunning()
-		self.manageSyncT=ManageSync(startSync)
+		self.manageSyncT=ManageSync(self.startSync)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._manageSync)
 
@@ -1167,15 +1168,16 @@ class Bridge(QObject):
 
 	def _manageSync(self):
 
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-		if self.isRunningBefore==self.isOnedriveRunning:
-			if self.isRunningBefore:
+		if not self.manageSyncT.ret[0]:
+			if self.startSync:
 				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]
 			else:
 				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
 		else:
 			self.showAccountMessage=[False,""]
+			self._updateSpacesModelInfo('isRunning')
 		
+		self.isOnedriveRunning=self.manageSyncT.ret[1]
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		else:
@@ -1184,6 +1186,15 @@ class Bridge(QObject):
 		self.closePopUp=[True,""]
 	
 	#def _manageSync
+
+	def _updateSpacesModelInfo(self,param):
+
+		updatedInfo=Bridge.onedriveMan.spacesConfigData
+		for i in range(len(updatedInfo)):
+			index=self._spacesModel.index(i)
+			self._spacesModel.setData(index,param,updatedInfo[i][param])
+
+	#def _updateSpacesModelInfo
 
 	@Slot()
 	def checkAccountStatus(self):
@@ -1205,6 +1216,7 @@ class Bridge(QObject):
 		else:
 			self.closePopUp=[True,""]
 
+		self._updateSpacesModelInfo("status")
 		self.accountStatus=self.getAccountStatus.ret[1]
 		self.freeSpace=self.getAccountStatus.ret[2]
 

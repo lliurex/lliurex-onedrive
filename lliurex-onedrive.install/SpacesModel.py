@@ -76,9 +76,12 @@ class SpacesModel(QtCore.QAbstractListModel):
 		if role == QtCore.Qt.EditRole:
 			row = index.row()
 			if param in ["status","isRunning"]:
-				self._entries[row][param]=value
-				self.dataChanged.emit(index,index)
-				return True
+				if self._entries[row][param]!=value:
+					self._entries[row][param]=value
+					self.dataChanged.emit(index,index)
+					return True
+				else:
+					return False
 			else:
 				return False
 	
