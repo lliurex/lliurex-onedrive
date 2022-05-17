@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import subprocess
 import json
@@ -72,7 +74,8 @@ class checkSpaceLocalFolder(Thread):
 
 	def _stopClient(self,spaceConfigPath,spaceService):
 
-		if LliurexOneDriveAC.isOnedriveRunning(spaceConfigPath):
+		ret=self._isOnedriveRunning(spaceConfigPath)
+		if ret:
 			cmd="systemctl --user stop %s"%spaceService
 			try:
 				p=subprocess.run(cmd,shell=True,check=True)
@@ -110,6 +113,20 @@ class checkSpaceLocalFolder(Thread):
 
 	#def _manageAutoStart
 
+	def _isOnedriveRunning(self,spaceConfigPath=None):
+
+		if spaceConfigPath!=None:
+			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
+
+			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+				return True
+			else:
+				return False
+
+		return False
+
+	#def _isOnedriveRunning
+
 #class checkSpaceLocalFolder
 
 class getSpaceStatusWorker(Thread):
@@ -124,6 +141,9 @@ class getSpaceStatusWorker(Thread):
 	def run(self):
 
 		spaceConfigPath=self.queue.get()
+		localFolderEmptyToken=os.path.join(spaceConfigPath,'.localFolderEmptyToken')
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
+
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
 		LOCAL_FILE_SYSTEM_ERROR=-3
@@ -142,85 +162,96 @@ class getSpaceStatusWorker(Thread):
 		code=""
 		freespace=""
 
-		if LliurexOneDriveAC.isOnedriveRunning(spaceConfigPath):
-			if os.path.join(spaceConfigPath,'refresh_token'):
-				cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
-				p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-				poutput,perror=p.communicate()
+		if self._isOnedriveRunning(spaceConfigPath):
+			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+				if os.path.join(spaceConfigPath,'refresh_token'):
+					cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
+					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+					poutput,perror=p.communicate()
 
-				if type(poutput) is bytes:
-					poutput=poutput.decode()
+					if type(poutput) is bytes:
+						poutput=poutput.decode()
 
-				if type(perror) is bytes:
-					perror=perror.decode()
+					if type(perror) is bytes:
+						perror=perror.decode()
 
-				if len(perror)>0:
-					perror=perror.split('\n')
-					error=True
-					for item in perror:
-						if 'OneDrive API returned an error' in item:
-							code=MICROSOFT_API_ERROR
-						elif 'Cannot connect to' in item:
-							code=UNABLE_CONNECT_MICROSOFT_ERROR
-							break
-						elif 'local file system' in item:
-							code=LOCAL_FILE_SYSTEM_ERROR
-						elif 'zero space available' in item:
-							code=ZERO_SPACE_AVAILABLE_ERROR
-							break
-						elif 'quota information' in item:
-							if spaceType!="sharepoint":
-								code=QUOTA_RESTRICTED_ERROR
-						elif 'database' in item:
-							code=DATABASE_ERROR
-						elif 'Unauthorized' in item:
-							code=UNAUTHORIZED_ERROR
-						elif '416' in item:
-							code=UPLOADING_CANCEL_ERROR
-							break
-						elif 'Unable to query OneDrive' in item:
-							code=UNAUTHORIZED_ERROR
-							break
-						elif '503' in item:
-							code=SERVICE_UNAVAILABLE
-						elif 'Free Space' in item:
-							tmp_freespace=item.split(':')[1].strip()
-							freespace=self._formatFreeSpace(tmp_freespace)
-
+					if len(perror)>0:
+						perror=perror.split('\n')
+						error=True
+						for item in perror:
+							if 'OneDrive API returned an error' in item:
+								code=MICROSOFT_API_ERROR
+							elif 'Cannot connect to' in item:
+								code=UNABLE_CONNECT_MICROSOFT_ERROR
+								break
+							elif 'local file system' in item:
+								code=LOCAL_FILE_SYSTEM_ERROR
+							elif 'zero space available' in item:
+								code=ZERO_SPACE_AVAILABLE_ERROR
+								break
+							elif 'quota information' in item:
+								if spaceType!="sharepoint":
+									code=QUOTA_RESTRICTED_ERROR
+							elif 'database' in item:
+								code=DATABASE_ERROR
+							elif 'Unauthorized' in item:
+								code=UNAUTHORIZED_ERROR
+							elif '416' in item:
+								code=UPLOADING_CANCEL_ERROR
+								break
+							elif 'Unable to query OneDrive' in item:
+								code=UNAUTHORIZED_ERROR
+								break
+							elif '503' in item:
+								code=SERVICE_UNAVAILABLE
+							elif 'Free Space' in item:
+								tmp_freespace=item.split(':')[1].strip()
+								freespace=self._formatFreeSpace(tmp_freespace)
+					else:
+						poutput=poutput.split('\n')
+						for item in poutput:
+							if 'No pending' in item:
+								code=ALL_SYNCHRONIZE_MSG
+							elif 'out of sync' in item:
+								code=OUT_OF_SYNC_MSG
+							elif 'HTTP 403 - Forbidden' in item:
+								code=UNAUTHORIZED_ERROR
+								error=True
+								break
+							elif 'Free Space' in item:
+								tmp_freespace=item.split(':')[1].strip()
+								freespace=tmp_freespace
 				else:
-					poutput=poutput.split('\n')
-					for item in poutput:
-						if 'No pending' in item:
-							code=ALL_SYNCHRONIZE_MSG
-						elif 'out of sync' in item:
-							code=OUT_OF_SYNC_MSG
-						elif 'HTTP 403 - Forbidden' in item:
-							code=UNAUTHORIZED_ERROR
-							error=True
-							break
-						elif 'Free Space' in item:
-							tmp_freespace=item.split(':')[1].strip()
-							freespace=tmp_freespace
+					error=True
+					code=WITH_OUT_CONFIG
 
-			else:
-				error=True
-				code=WITH_OUT_CONFIG
-				
-			try:
-				with open(os.path.join(spaceConfigPath,".statusToken"),'w') as fd:
-					tmpLine=str(error)+("\n")
-					fd.write(tmpLine)
-					tmpLine=str(code)+("\n")
-					fd.write(tmpLine)
-					tmpLine=str(freespace)+("\n")
-					fd.write(tmpLine)
-			except:
-				pass
+				try:
+					with open(os.path.join(spaceConfigPath,".statusToken"),'w') as fd:
+						tmpLine=str(error)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(code)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(freespace)+("\n")
+						fd.write(tmpLine)
+				except:
+					pass
 
 		self.queue.task_done()
 
 	#def run
 
+	def _isOnedriveRunning(self,spaceConfigPath=None):
+
+		if spaceConfigPath!=None:
+			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
+			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+				return True
+			else:
+				return False
+
+		return False
+
+	#def _isOnedriveRunning
 
 #class getSpaceStatusWorker
 
@@ -326,6 +357,8 @@ class LliurexOneDriveAC:
 
 	def isOnedriveRunning(self,spaceConfigPath=None):
 
+		print("comprobando")
+		print(spaceConfigPath)
 		if spaceConfigPath!=None:
 			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
 
