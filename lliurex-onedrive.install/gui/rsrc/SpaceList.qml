@@ -35,6 +35,7 @@ Rectangle {
             nameSpace:model.name
             statusSpace:model.status
             isRunningSpace:model.isRunning
+            localFolderWarning:model.localFolderWarning
         }
 
         Kirigami.PlaceholderMessage { 

@@ -28,6 +28,7 @@ SPACE_FOLDER_RESTORE_MESSAGE=11
 APPLY_SPACE_CHANGES_MESSAGE=12
 SPACE_RUNNING_TEST_MESSAGE=13
 SPACE_RUNNING_REPAIR_MESSAGE=14
+SPACE_GLOBAL_WARNING=15
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -101,11 +102,6 @@ class GatherSpaceSettings(QThread):
 	def __init__(self,*args):
 		
 		QThread.__init__(self)
-		self.isOnedriveRunning=False
-		self.localFolderEmpty=False
-		self.localFolderRemoved=False
-		self.accountStatus=0
-		self.freeSpace=""
 		self.spaceToLoad=args[0]
 
 	#def _init__
@@ -114,8 +110,6 @@ class GatherSpaceSettings(QThread):
 		
 		time.sleep(1)
 		Bridge.onedriveMan.loadSpaceSettings(self.spaceToLoad)
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder()
 		'''
 		if not self.localFolderRemoved:
 			error,self.accountStatus,self.freeSpace=Bridge.onedriveMan.getAccountStatus()
@@ -319,6 +313,10 @@ class Bridge(QObject):
 		self.moveToOption=""
 		self.moveToStack=""
 		self.initStartUp=False
+		self.checkGlobalLocalFolderTimer=QTimer(None)
+		self.checkGlobalLocalFolderTimer.timeout.connect(self.getGlobalLocalFolderInfo)
+		self.checkGlobalStatusTimer=QTimer(None)
+		self.checkGlobalStatusTimer.timeout.connect(self.getGlobalStatusInfo)
 		
 		self.initBridge()
 
@@ -335,10 +333,16 @@ class Bridge(QObject):
 	
 	def _loadConfig(self):
 
-		self._updateSpacesModel()
+		if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
+			self.checkGlobalLocalFolderTimer.start(5000)
+			self.checkGlobalStatusTimer.start(30000)
+			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+			
+			self._updateSpacesModel()
 		self.currentStack=1
 
-	#def _loadAccount
+	#def _loadConfig
 
 	def _getCurrentStack(self):
 
@@ -825,7 +829,7 @@ class Bridge(QObject):
 		spacesEntries=Bridge.onedriveMan.spacesConfigData
 		for item in spacesEntries:
 			if item["id"]!="":
-				self._spacesModel.appendRow(item["id"],item["name"],item["status"],item["isRunning"])
+				self._spacesModel.appendRow(item["id"],item["name"],item["status"],item["isRunning"],item["localFolderWarning"])
 	
 	#def _updateSpacesModel
 
@@ -1039,28 +1043,28 @@ class Bridge(QObject):
 		self.getSpaceSettings.start()
 		self.getSpaceSettings.finished.connect(self._loadSpace)
 
-	#def gotToSpace
+	#def loadSpace
 
 	def _loadSpace(self):
 
+		#self.checkGlobalLocalFolderTimer.stop()
 		self._getInitialSettings()
 		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 		self.syncAll=Bridge.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		self.isOnedriveRunning=self.getSpaceSettings.isOnedriveRunning
-		self.localFolderEmpty=self.getSpaceSettings.localFolderEmpty
-		self.localFolderRemoved=self.getSpaceSettings.localFolderRemoved
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
+		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
 
 		if not self.localFolderRemoved:
-			self.accountStatus=self.getSpaceSettings.accountStatus
-			self.freeSpace=self.getSpaceSettings.freeSpace
+			self.accountStatus=Bridge.onedriveMan.accountStatus
+			self.freeSpace=Bridge.onedriveMan.freeSpace
 			if not self.syncAll:
 				if not self.localFolderEmpty:
 					self.getFolderStruct=GetFolderStruct(True)
 					self.getFolderStruct.start()
 					self.getFolderStruct.finished.connect(self._endLoading)
-
 				else:
 					self._endLoading()
 			else:
@@ -1082,6 +1086,10 @@ class Bridge(QObject):
 		else:
 			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 		
+		self.checkSpaceLocalFolderTimer=QTimer(None)
+		self.checkSpaceLocalFolderTimer.timeout.connect(self.checkSpaceLocalFolder)
+		self.checkSpaceLocalFolderTimer.start(5000)
+
 		self.closePopUp=[True,""]
 		self.closeGui=True
 
@@ -1125,6 +1133,11 @@ class Bridge(QObject):
 			self.currentStack=1
 			self.spacesCurrentOption=0
 			self.moveToStack=""
+			try:
+				self.checkSpaceLocalFolderTimer.stop()
+			except:
+				pass
+			#self.checkGlobalLocalFolderTimer.start()
 		else:
 			self.moveToStack=1
 			if self.settingsChanged:
@@ -1423,6 +1436,12 @@ class Bridge(QObject):
 			self.moveToOption=""
 			self.moveToStack=""
 
+		self._manageGoToStack()
+
+	#def _applySyncChanges		
+
+	def _manageGoToStack(self):
+
 		if self.moveToOption!="":
 			self.manageCurrentOption=self.moveToOption
 			self.moveToOption=""
@@ -1430,8 +1449,13 @@ class Bridge(QObject):
 			self.currentStack=self.moveToStack
 			self.spacesCurrentOption=0
 			self.moveToStack=""
+			try:
+				self.checkSpaceLocalFolderTimer.stop()
+			except:
+				pass
+			#self.checkGlobalLocalFolderTimer.start()
 
-	#def _applySyncChanges		
+	#def _manageGoToStack
 
 	@Slot()
 	def hideSynchronizeMessage(self):
@@ -1512,15 +1536,9 @@ class Bridge(QObject):
 			self.moveToOption=""
 			self.moveToStack=""
 
-		if self.moveToOption!="":
-			self.manageCurrentOption=self.moveToOption
-			self.showSettingsMessage=[False,""]
-			self.moveToOption=""
-		elif self.moveToStack!="":
-			self.showSettingsMessage=[False,""]
-			self.currentStack=self.moveToStack
-			self.spacesCurrentOption=0
-			self.moveToStack=""
+		self.showSettingsMessage=[False,""]
+
+		self._manageGoToStack()
 
 	#def _applySettingsChanges
 
@@ -1534,12 +1552,8 @@ class Bridge(QObject):
 		self.autoStartEnabled=self.initialConfig[0]
 		self.monitorInterval=int(self.initialConfig[1])
 		self.rateLimit=self.initialConfig[2]
-		if self.moveToOption!="":
-			self.manageCurrentOption=self.moveToOption
-			self.moveToOption=""
-		elif self.moveToStack!="":
-			self.currentStack=self.moveToStack
-			self.moveToStack=""
+
+		self._manageGoToStack()
 
 	#def cancelSettingsChanges
 
@@ -1599,6 +1613,53 @@ class Bridge(QObject):
 
 	#def _repairOnedrive
 
+	def getGlobalLocalFolderInfo(self):
+
+		Bridge.onedriveMan.updateGlobalLocalFolderInfo()
+		self._updateSpacesModelInfo('localFolderWarning')	
+		self._updateSpacesModelInfo('isRunning')	
+		self._manageSpaceSettinsMessage()
+
+	#def getGlobalLocalFolderInfo
+
+	def getGlobalStatusInfo(self):
+
+		localStatusWarning=Bridge.onedriveMan.updateGlobalStatusInfo()
+		self._updateSpacesModelInfo('status')	
+		self._manageSpaceSettinsMessage()
+
+	#def getGlobalStatusInfo
+
+	def _manageSpaceSettinsMessage(self):
+
+		if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+			self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+		else:
+			self.showSpaceSettingsMessage=[False,"","Information"]
+
+	#def _manageSpaceSettingsMessage
+
+	def checkSpaceLocalFolder(self):
+
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		
+		if self.isOnedriveRunning:
+			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+		else:
+			if not self.changedSyncWorked:
+				self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+
+		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder(Bridge.onedriveMan.spaceConfPath)
+	
+		if self.localFolderEmpty:
+			self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
+		else:
+			if self.localFolderRemoved:
+				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
+			else:
+				self.showAccountMessage=[False,""]
+
+	#def checkSpaceLocalFolder
 
 	@Slot()
 	def openHelp(self):

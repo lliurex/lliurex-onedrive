@@ -57,6 +57,9 @@ class OnedriveManager:
 		self.excludeFolders=[]
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
+		self.globalOneDriveFolderWarning=False
+		self.globalOneDriveStatusWarning=False
+		self.correctStatusCode=[0,1,2]
 		self.createEnvironment()
 		self.clearCache()
 
@@ -127,15 +130,55 @@ class OnedriveManager:
 
 		self.spacesConfigData=[]
 		spaces=self.onedriveConfig["spacesList"]
+		count=0
+		
+
 		for item in spaces:
 			tmp={}
 			tmp["id"]=item["id"]
 			tmp["name"]=os.path.basename(item["localFolder"])
-			tmp["status"]=0
-			tmp["isRunning"]=False
+			status=int(self._readSpaceStatusToken(item['configPath'])[1])
+			if status not in self.correctStatusCode:
+				count+=1
+			tmp["status"]=status
+			tmp["isRunning"]=self.isOnedriveRunning(item['configPath'])
+			localFolderWarning=self.checkLocalFolder(item['configPath'])
+			warning=False
+			if localFolderWarning[0] or localFolderWarning[1]:
+				count+=1
+				warning=True
+			tmp["localFolderWarning"]=warning
 			self.spacesConfigData.append(tmp)
-	
+		
+		if count>0:
+			self.globalOneDriveFolderWarning=True
+		else:
+			self.globalOneDriveFolderWarning=False
+
 	#def getSpacesConfig
+
+	def _readSpaceStatusToken(self,spaceConfPath):
+
+		error=False
+		code=0
+		freeSpace=''
+
+		spaceStatusToken=os.path.join(spaceConfPath,".statusToken")
+
+		if os.path.exists(spaceStatusToken):
+			with open(spaceStatusToken,'r') as fd:
+				lines=fd.readlines()
+
+			if len(lines)==3:
+				error=lines[0].strip()
+				code=lines[1].strip()
+				freeSpace=lines[2].strip()
+				if freeSpace!="":
+					freeSpace=self._formatFreeSpace(freeSpace)
+
+		return [error,code,freeSpace]
+
+	#def readSpaceStatusToken
 
 	def initSpacesSettings(self):
 
@@ -153,6 +196,8 @@ class OnedriveManager:
 		self.monitorInterval=1
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
 		self.syncAll=True
+		self.freeSpace=""
+		self.accountStatus=0
 		self.filterFile=""
 		self.filerFileHash=""
 		self.errorFolder=False
@@ -162,7 +207,9 @@ class OnedriveManager:
 		self.includeFolders=[]
 		self.excludeFolders=[]
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
-
+		self.localFolderEmpty=False
+		self.localFolderRemoved=False
+	
 	#def initSpacesSettings
 
 	def checkIfEmailExists(self,email):
@@ -483,6 +530,7 @@ class OnedriveManager:
 		self.filterFileHash=os.path.join(self.spaceConfPath,self.filterFileHashName)
 		self.localFolderEmptyToken=os.path.join(self.spaceConfPath,".localFolderEmptyToken")
 		self.localFolderRemovedToken=os.path.join(self.spaceConfPath,".localFolderRemovedToken")
+		self.lockAutoStartToken=os.path.join(self.spaceConfPath,".lockAutoStartToken")
 
 	#def _createAuxVariables
 
@@ -669,6 +717,11 @@ class OnedriveManager:
 			self.currentSyncConfig[1]=self.foldersSelected
 			self.currentSyncConfig[2]=self.foldersUnSelected
 		
+		statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
+		self.accountStatus=int(statusInfo[1])
+		self.freeSpace=statusInfo[2]
+		self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
+	
 	#def loadSpaceSettings
 
 	def existsFilterFile(self):
@@ -708,7 +761,7 @@ class OnedriveManager:
 					if tmpLine not in self.foldersSelected:
 						self.foldersSelected.append(tmpLine)
 
-	#def readFilterFile			
+	#def readFilterFile	
 
 	def isOnedriveRunning(self,spaceConfPath=None):
 
@@ -729,8 +782,9 @@ class OnedriveManager:
 		tmpService=os.path.join(self.userSystemdPath,self.spaceServiceFile)
 		tmpAutoStartService=os.path.join(self.userSystemdAutoStartPath,self.spaceServiceFile)
 
-		if os.path.exists(tmpService) and os.path.exists(tmpAutoStartService):
-			return True
+		if os.path.exists(tmpService):
+			if os.path.exists(tmpAutoStartService) or os.path.exists(self.lockAutoStartToken):
+				return True
 
 		return False
 
@@ -765,6 +819,8 @@ class OnedriveManager:
 
 		if startSync:
 			self.manageFileFilter("restore")
+			if os.path.exists(self.lockAutoStartToken):
+				ret=self.manageAutostart(True)
 			cmd="systemctl --user start %s"%self.spaceServiceFile
 		else:
 			cmd="systemctl --user stop %s"%self.spaceServiceFile
@@ -885,10 +941,13 @@ class OnedriveManager:
 
 	#def getAccountStatus
 	
-	def _updateSpaceConfigData(self,param,value):
+	def _updateSpaceConfigData(self,param,value,spaceId=None):
+
+		if spaceId==None:
+			spaceId=self.spaceId
 
 		for item in self.spacesConfigData:
-			if item["id"]==self.spaceId:
+			if item["id"]==spaceId:
 				if item[param]!=value:
 					item[param]=value
 				break		
@@ -938,17 +997,17 @@ class OnedriveManager:
 
 	#def _removeEnvConfigFiles
 
-	def checkLocalFolder(self):
+	def checkLocalFolder(self,spaceConfPath):
 
 		localFolderEmpty=False;
 		localFolderRemoved=False;
 
-		self.localFolderEmptyToken=os.path.join(self.spaceConfPath,".localFolderEmptyToken")
-		self.localFolderRemovedToken=os.path.join(self.spaceConfPath,".localFolderRemovedToken")
+		localFolderEmptyToken=os.path.join(spaceConfPath,".localFolderEmptyToken")
+		localFolderRemovedToken=os.path.join(spaceConfPath,".localFolderRemovedToken")
 		
-		if os.path.exists(self.localFolderEmptyToken):
+		if os.path.exists(localFolderEmptyToken):
 			localFolderEmpty=True;
-		if os.path.exists(self.localFolderRemovedToken):
+		if os.path.exists(localFolderRemovedToken):
 			localFolderRemoved=True;
 
 		return [localFolderEmpty,localFolderRemoved]
@@ -967,7 +1026,6 @@ class OnedriveManager:
 			self.getCloudFolderStruct()
 
 	#def getFolderStruct	
-
 
 	def getCloudFolderStruct(self):
 		
@@ -1198,7 +1256,6 @@ class OnedriveManager:
 				path=os.path.realpath(item)
 				tmpFolders.append(path)
 			
-			
 			for item in tmpFolders:
 				countChildren=0
 				tmpList={}
@@ -1410,6 +1467,7 @@ class OnedriveManager:
 			self.folderStruct=copy.deepcopy(self.folderStructBack)
 
 	#def cancelSyncChanges
+
 	def applySettingsChanges(self,value):
 
 		SYSTEMD_ERROR=-10
@@ -1435,7 +1493,6 @@ class OnedriveManager:
 			if not errorRL:
 				self.currentConfig[2]=value[2]
 			
-		
 		if errorSD and not errorMI and not errorRL:
 			return[True,SYSTEMD_ERROR]
 
@@ -1542,6 +1599,52 @@ class OnedriveManager:
 			return True
 
 	#def _syncResync
+
+	def updateGlobalLocalFolderInfo(self):
+
+		count=0
+
+		for item in self.onedriveConfig["spacesList"]:
+			tmpSpaceId=item["id"]
+			tmpConfigPath=item["configPath"]
+			tmpLocalFolderEmpty,tmpLocalFolderRemoved=self.checkLocalFolder(tmpConfigPath)
+			if tmpLocalFolderEmpty or tmpLocalFolderRemoved:
+				warning=True
+				count+=1
+			else:
+				warning=False
+			tmpIsOneDriveRunning=self.isOnedriveRunning(item['configPath'])
+			
+			self._updateSpaceConfigData("localFolderWarning",warning,tmpSpaceId)
+			self._updateSpaceConfigData("isRunning",tmpIsOneDriveRunning,tmpSpaceId)
+
+		if count>0:
+			self.globalOneDriveFolderWarning=True
+		else:
+			self.globalOneDriveFolderWarning=False
+	
+	#def updateGlobalLocalFolderInfo
+
+	def updateGlobalStatusInfo(self):
+
+		count=0
+
+		for item in self.onedriveConfig["spacesList"]:
+			tmpSpaceId=item["id"]
+			tmpConfigPath=item["configPath"]
+			tmpStatus=int(self._readSpaceStatusToken(item['configPath'])[1])
+
+			if tmpStatus not in self.correctStatusCode:
+				count+=1
+
+			self._updateSpaceConfigData("status",tmpStatus,tmpSpaceId)
+
+		if count>0:
+			self.globalOneDriveStatusWarning=True
+		else:
+			self.globalOneDriveStatusWarning=False
+	
+	#def updateGlobalLocalFolderInfo
 
 	def clearCache(self):
 

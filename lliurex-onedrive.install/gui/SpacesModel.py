@@ -9,6 +9,7 @@ class SpacesModel(QtCore.QAbstractListModel):
 	NameRole= QtCore.Qt.UserRole + 1001
 	StatusRole= QtCore.Qt.UserRole + 1002
 	IsRunningRole=QtCore.Qt.UserRole+1003
+	LocalFolderWarningRole=QtCore.Qt.UserRole+1004
 
 	def __init__(self,parent=None):
 		
@@ -36,6 +37,8 @@ class SpacesModel(QtCore.QAbstractListModel):
 				return item["status"]
 			elif role == SpacesModel.IsRunningRole:
 				return item["isRunning"]
+			elif role == SpacesModel.LocalFolderWarningRole:
+				return item["localFolderWarning"]
 
 	#def data
 
@@ -46,12 +49,13 @@ class SpacesModel(QtCore.QAbstractListModel):
 		roles[SpacesModel.NameRole] = b"name"
 		roles[SpacesModel.StatusRole] = b"status"
 		roles[SpacesModel.IsRunningRole] = b"isRunning"
+		roles[SpacesModel.LocalFolderWarningRole] = b"localFolderWarning"
 
 		return roles
 
 	#def roleName
 
-	def appendRow(self,i,n,s,r):
+	def appendRow(self,i,n,s,r,l):
 		
 		tmpId=[]
 		for item in self._entries:
@@ -59,7 +63,7 @@ class SpacesModel(QtCore.QAbstractListModel):
 		tmpN=n.strip()
 		if i not in tmpId and n !="" and len(tmpN)>0:
 			self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(),self.rowCount())
-			self._entries.append(dict(id=i,name=n,status=s,isRunning=r ))
+			self._entries.append(dict(id=i,name=n,status=s,isRunning=r,localFolderWarning=l))
 			self.endInsertRows()
 
 	#def appendRow
@@ -75,7 +79,7 @@ class SpacesModel(QtCore.QAbstractListModel):
 		
 		if role == QtCore.Qt.EditRole:
 			row = index.row()
-			if param in ["status","isRunning"]:
+			if param in ["status","isRunning","localFolderWarning"]:
 				if self._entries[row][param]!=value:
 					self._entries[row][param]=value
 					self.dataChanged.emit(index,index)

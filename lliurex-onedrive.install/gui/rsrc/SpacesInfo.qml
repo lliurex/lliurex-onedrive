@@ -83,6 +83,9 @@ Rectangle{
             case 0:
                 var msg=i18nd("lliurex-onedrive","The new space to synchronize has been configured successfully")
                 break;
+            case 15:
+                var msg=i18nd("lliurex-onedrive","One or more spaces require your attention")
+                break;
             case -3:
                 var msg=i18nd("lliurex-onedrive","An error occurred during setup. Wait a moment and try again")
                 break;
@@ -101,7 +104,9 @@ Rectangle{
             case "Ok":
                 return Kirigami.MessageType.Positive
             case "Error":
-            return Kirigami.MessageType.Error
+                return Kirigami.MessageType.Error
+            case "Warning":
+                return Kirigami.MessageType.Warning
         }
     }
 } 

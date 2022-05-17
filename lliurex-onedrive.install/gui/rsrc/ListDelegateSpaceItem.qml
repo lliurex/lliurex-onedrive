@@ -11,6 +11,7 @@ Components.ListItem{
     property string nameSpace
     property int statusSpace
     property bool isRunningSpace
+    property bool localFolderWarning
 
     enabled:true
 
@@ -38,7 +39,7 @@ Components.ListItem{
         Image {
             id:spaceStatusIcon
             source:{
-                if (statusSpace==0){
+                if ((statusSpace==0) && (!localFolderWarning)){
                     "/usr/share/icons/breeze/status/16/state-ok.svg"
                 }else{
                     "/usr/share/icons/breeze/status/16/state-warning.svg"
