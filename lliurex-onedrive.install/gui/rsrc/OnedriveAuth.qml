@@ -2,7 +2,6 @@ import QtQuick 2.6
 import QtWebEngine 1.10
 import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
 
 
 Rectangle {
