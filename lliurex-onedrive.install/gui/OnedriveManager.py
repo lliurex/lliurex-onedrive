@@ -58,7 +58,7 @@ class OnedriveManager:
 		self.includeFolders=[]
 		self.excludeFolders=[]
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
-		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal"]
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2]
@@ -335,7 +335,7 @@ class OnedriveManager:
 			self._copyToken(spaceEmail)
 			if spaceType=="sharepoint":
 				if os.path.exists(self.tempConfigPath) and len(self.tempConfigPath)>0:
-					self._deleteTempConfig()
+					self.deleteTempConfig()
 		else:
 			cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
@@ -588,6 +588,7 @@ class OnedriveManager:
 
 	def createTempConfig(self):
 
+		self.deleteTempConfig()
 		self.tempConfigPath=tempfile.mkdtemp("_sharepoint")
 		self.tempFolder=os.path.join(self.tempConfigPath,"Sharepoint")
 
@@ -615,13 +616,14 @@ class OnedriveManager:
 
 	#def createTempConfig(self):
 
-	def _deleteTempConfig(self):
+	def deleteTempConfig(self):
 
-		cmd='onedrive --logout --confdir="%s"'%self.tempConfigPath
-		p=subprocess.run(cmd,shell=True,check=True)
-		shutil.rmtree(self.tempConfigPath)
+		if os.path.exists(self.tempConfigPath):
+			cmd='onedrive --logout --confdir="%s"'%self.tempConfigPath
+			p=subprocess.run(cmd,shell=True,check=True)
+			shutil.rmtree(self.tempConfigPath)
 
-	#def _deleteTempConfig
+	#def deleteTempConfig
 
 	def isConfigured(self,spaceConfPath=None):
 

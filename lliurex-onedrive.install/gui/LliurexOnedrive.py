@@ -851,6 +851,7 @@ class Bridge(QObject):
 	def moveToSpaceOption(self,option):
 		
 		Bridge.onedriveMan.initSpacesSettings()
+		Bridge.onedriveMan.deleteTempConfig()
 		self.showSpaceSettingsMessage=[False,"","Information"]
 		self.showSpaceFormMessage=[False,"","Information"]
 		self._libraryModel.clear()
@@ -1690,6 +1691,8 @@ class Bridge(QObject):
 
 	@Slot()
 	def closeOnedrive(self):
+
+		Bridge.onedriveMan.deleteTempConfig()
 
 		if not self.removeAction:
 			if self.settingsChanged:
