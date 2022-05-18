@@ -29,6 +29,7 @@ APPLY_SPACE_CHANGES_MESSAGE=12
 SPACE_RUNNING_TEST_MESSAGE=13
 SPACE_RUNNING_REPAIR_MESSAGE=14
 SPACE_GLOBAL_WARNING=15
+SPACE_INITIAL_STARTUP=16
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -980,7 +981,6 @@ class Bridge(QObject):
 		self.closePopUp=[True,""]
 		self.reuseToken=False
 		self.tempConfig=False
-		self.closeGui=True
 		self._libraryModel.clear()
 
 		if self.createSpaceT.ret:
@@ -993,8 +993,10 @@ class Bridge(QObject):
 			if self.initialDownload!="":
 				self.showDownloadDialog=True
 			else:
-				self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
+				self._initialStartUp()
+				#self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
 		else:
+			self.closeGui=True
 			self.showSpaceSettingsMessage=[True,SPACE_CREATION_ERROR,"Error"]		
 
 	#def _createSpace
@@ -1013,6 +1015,7 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
+		self.closePopUp=[False,SPACE_INITIAL_STARTUP]
 		self.manageSync=ManageSync(True)
 		self.manageSync.start()
 		self.manageSync.finished.connect(self._endInitialStartUp)
@@ -1023,7 +1026,9 @@ class Bridge(QObject):
 
 		self.isOnedriveRunning=self.manageSync.ret[1]
 		self.initStartUp=True
-		
+		self.closePopUp=[True,""]
+		self.closeGui=True
+
 		if not self.isOnedriveRunning:
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
 			self.currentStack=2
