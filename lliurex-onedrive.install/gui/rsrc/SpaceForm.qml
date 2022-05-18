@@ -140,13 +140,7 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Library to sync:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:{
-                    if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.count>0)){
-                        true
-                    }else{
-                        false
-                    }
-                }
+                visible:libraryVisible()
             }
             ComboBox{
                 id:spaceLibraryEntry
@@ -155,13 +149,7 @@ Rectangle{
                 valueRole:"idLibrary"
                 model:onedriveBridge.libraryModel
                 implicitWidth:400
-                visible:{
-                    if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.count>0)){
-                        true
-                    }else{
-                        false
-                    }
-                }
+                visible:libraryVisible()
             }
         }
     }
@@ -398,6 +386,16 @@ Rectangle{
                 if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.currentText!="")){
                     return true
                 }
+            }
+        }
+        return false
+    }
+
+    function libraryVisible(){
+
+        if (sharePointOption.checked){
+            if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.count>0)){
+                 return true
             }
         }
         return false
