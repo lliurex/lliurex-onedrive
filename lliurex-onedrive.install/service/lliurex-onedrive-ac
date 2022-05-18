@@ -4,27 +4,24 @@ import os
 import subprocess
 import json
 from threading import Thread
-from queue import Queue
-import time
+import concurrent.futures
 
+import time
 
 MAX_CHECK_FOLDER_INTERVAL=5
 MAX_CHECK_STATUS_INTERVAL=30
-MAX_STATUS_WORKER=2
 
-class checkSpaceLocalFolder(Thread):
+class checkSpaceLocalFolder():
 
-	def __init__(self,queue):
+	def __init__(self,*args):
 
-		Thread.__init__(self)
-		self.queue=queue
+		pass
 
 	#def __init__
 
-	def run(self):
+	def checkFolder(self,spaceInfo):
 
-		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=self.queue.get()
-
+		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=spaceInfo
 		self.localFolderEmptyToken=os.path.join(spaceConfigPath,".localFolderEmptyToken");
 		self.localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".emptyToken")
@@ -48,9 +45,9 @@ class checkSpaceLocalFolder(Thread):
 
 		self._manageAutoStart(spaceConfigPath,spaceService)
 
-		self.queue.task_done()
-
-	#def run
+		return True
+	
+	#def checkFolder
 
 	def _manageFolderToken(self,remove,empty):
 
@@ -128,18 +125,16 @@ class checkSpaceLocalFolder(Thread):
 
 #class checkSpaceLocalFolder
 
-class getSpaceStatusWorker(Thread):
+class getSpaceStatusWorker():
 
-	def __init__(self,queue):
+	def __init__(self,*args):
 
-		Thread.__init__(self)
-		self.queue=queue
+		pass
 
 	#def __init__
 
-	def run(self):
+	def checkStatus(self,spaceConfigPath):
 
-		spaceConfigPath=self.queue.get()
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
 
@@ -235,9 +230,9 @@ class getSpaceStatusWorker(Thread):
 				except:
 					pass
 
-		self.queue.task_done()
+		return True
 
-	#def run
+	#def checkStatus
 
 	def _isOnedriveRunning(self,spaceConfigPath=None):
 
@@ -276,10 +271,11 @@ class LliurexOneDriveAC:
 		self.folderWorkerThread=Thread(target=self.checkSpaceFolder)
 		self.folderWorkerThread.setDaemon(True)
 		self.folderWorkerThread.start()
+		
 		self.statusWorkerThread=Thread(target=self.checkSpaceStatus)
 		self.statusWorkerThread.setDaemon(True)
 		self.statusWorkerThread.start()
-	
+		
 	#def initWorker
 
 	def checkSpaceFolder(self):
@@ -289,27 +285,29 @@ class LliurexOneDriveAC:
 				time.sleep(1)
 				self.lastFolderCheck+=1
 				if self.lastFolderCheck > MAX_CHECK_FOLDER_INTERVAL:
-					folderQ=Queue()
+					#folderQ=Queue()
 					self.folderWorker=True
 					oneDriveSpaces=self.readOneDriveConfig()
-		
-					for i in range(MAX_STATUS_WORKER):
-						workerF=checkSpaceLocalFolder(folderQ)
-						workerF.daemon=True
-						workerF.start()
+					checkSpaceFolder=checkSpaceLocalFolder()
 
-					for space in oneDriveSpaces:
-						folderQ.put([space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath])
+					with concurrent.futures.ThreadPoolExecutor() as executor:
+						futures=[]
+						for space in oneDriveSpaces:
+							tmp=[]
+							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
+							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
-					folderQ.join()
-					self.folderWorker=False
-					self.lastFolderCheck=0
+						for future in concurrent.futures.as_completed(futures):
+							print(future.result())	
+
+						self.folderWorker=False
+						self.lastFolderCheck=0
 				
 				else:
 					self.lastFolderCheck+=1
 
 	#def checkSpaceFolder
-
+	
 	def checkSpaceStatus(self):
 
 		while True:
@@ -317,19 +315,18 @@ class LliurexOneDriveAC:
 				time.sleep(1)
 				self.lastStatusCheck+=1
 				if self.lastStatusCheck > MAX_CHECK_STATUS_INTERVAL:
-					workerQ=Queue()
 					self.statusWorker=True
 					oneDriveSpaces=self.readOneDriveConfig()
+					checkSpaceStatus=getSpaceStatusWorker()
+					
+					with concurrent.futures.ThreadPoolExecutor() as executor:
+						futures=[]
+						for space in oneDriveSpaces:
+							tmp=[]
+							futures.append(executor.submit(checkSpaceStatus.checkStatus,space['configPath']))
 
-					for i in range(MAX_STATUS_WORKER):
-						worker=getSpaceStatusWorker(workerQ)
-						worker.daemon=True
-						worker.start()
-
-					for space in oneDriveSpaces:
-						workerQ.put(space["configPath"])
-
-					workerQ.join()
+						for future in concurrent.futures.as_completed(futures):
+							print(future.result())	
 
 					self.statusWorker=False
 					self.lastStatusCheck=0
@@ -337,7 +334,7 @@ class LliurexOneDriveAC:
 					self.lastStatusCheck+=1
 	
 	#def checkSpaceStatus
-
+	
 	def readOneDriveConfig(self):
 
 		tmpSpacesList=[]
@@ -353,23 +350,6 @@ class LliurexOneDriveAC:
 		return tmpSpacesList
 	
 	#def readOneDriveConfig
-
-	def isOnedriveRunning(self,spaceConfigPath=None):
-
-		print("comprobando")
-		print(spaceConfigPath)
-		if spaceConfigPath!=None:
-			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
-
-			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
-				return True
-			else:
-				return False
-
-		return False
-
-	#def isOnedriveRunning
-
 
 #class LliurexOneDriveAC
 
