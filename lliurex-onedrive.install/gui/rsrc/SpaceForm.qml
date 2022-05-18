@@ -214,7 +214,7 @@ Rectangle{
         contentItem: Rectangle {
             color: "#ebeced"
             implicitWidth: 700
-            implicitHeight: 105
+            implicitHeight: 115
             anchors.topMargin:5
             anchors.leftMargin:5
 
@@ -226,7 +226,7 @@ Rectangle{
             
             Text {
                 id:previousFolderDialogText
-                text:i18nd("lliurex-onedrive","A local OneDrive folder containing content has been detected on this computer.\nIf you link this computer with OneDrive, the existing content in that folder will be added to OneDrive.\nDo you want to continue with the pairing process?")
+                text:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:previousFolderDialogIcon.right
@@ -285,7 +285,7 @@ Rectangle{
         contentItem: Rectangle {
             color: "#ebeced"
             implicitWidth: 700
-            implicitHeight: 105
+            implicitHeight: 115
             anchors.topMargin:5
             anchors.leftMargin:5
 
@@ -298,7 +298,7 @@ Rectangle{
             Text {
                 id:dialogText
                 text:i18nd("lliurex-onedrive","Its content in OneDrive is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
-                i18nd("lliurex-onedrive","\nDo you want to sync all the content or do you prefer to select the content to sync?")
+                i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:dialogIcon.right
