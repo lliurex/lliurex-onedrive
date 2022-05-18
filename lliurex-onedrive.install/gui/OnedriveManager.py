@@ -30,8 +30,10 @@ class OnedriveManager:
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
 		self.userSystemdPath="/home/%s/.config/systemd/user"%self.user
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
-		self.onedriveConfigDir="/home/%s/.config/onedrives"%self.user
-		self.sharePointConfigDir="/home/%s/.config/sharepoints"%self.user
+		self.aCServicePath="/usr/share/lliurex-onedrive/llx-data/"
+		self.aCServiceFile="lliurex-onedrive-ac.service"
+		self.onedriveConfigDir="/home/%s/.config/onedrive"%self.user
+		self.sharePointConfigDir="/home/%s/.config/sharepoint"%self.user
 		self.spaceBasicInfo=[]
 		self.spaceLocalFolder=""
 		self.spaceSuffixName=""
@@ -343,6 +345,7 @@ class OnedriveManager:
 				return False
 
 		self._createSpaceServiceUnit(spaceType)
+		self._createOneDriveACService()
 		self._updateOneDriveConfig(spaceInfo)
 		self._manageEmptyToken()
 		self._createAuxVariables()
@@ -360,11 +363,12 @@ class OnedriveManager:
 		if spaceType=="onedrive":
 			tmpFolder="onedrive_%s"%self.spaceSuffixName
 			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
-			if not os.path.exists(os.path.join(self.onedriveConfigDir,tmpFolder)):
+			if not os.path.exists(self.spaceConfPath):
 				createConfig=True
 		else:
-			self.spaceConfPath=os.path.join(self.sharePointConfigDir,self.folderSuffixName.lower())
-			if not os.path.exists(os.path.join(self.sharePointConfigDir,self.folderSuffixName.lower())):
+			tmpFolder="sharepoint_%s"%self.folderSuffixName.lower()
+			self.spaceConfPath=os.path.join(self.sharePointConfigDir,tmpFolder)
+			if not os.path.exists(self.spaceConfPath):
 				createConfig=True 
 
 		if createConfig:
@@ -489,6 +493,17 @@ class OnedriveManager:
 		self.manageAutostart(True)
 				
 	#def _createSpaceServiceUnit
+
+	def _createOneDriveACService(self):
+
+		if not os.path.exists(os.path.join(self.userSystemdPath,self.aCServiceFile)):
+			shutil.copyfile(os.path.join(self.aCServicePath,self.aCServiceFile),os.path.join(self.userSystemdPath,self.aCServiceFile))
+			cmd="systemctl --user enable %s"%self.aCServiceFile
+			os.system(cmd)
+			cmd="systemctl --user start %s"%self.aCServiceFile
+			os.system(cmd)
+
+	#def _createOneDriveACService
 
 	def _updateOneDriveConfig(self,spaceInfo):
 
@@ -982,6 +997,19 @@ class OnedriveManager:
 			if os.path.exists(serviceFile):
 				os.remove(serviceFile)
 
+	#def _removeSystemdConfig
+
+	def removeACService(self):
+
+		if len(self.onedriveConfig["spacesList"])==0:
+			if os.path.exists(os.path.join(self.userSystemdAutoStartPath,self.aCServiceFile)):
+				cmd="systemctl --user stop %s"%self.aCServiceFile
+				os.system(cmd)
+				cmd="systemctl --user disable %s"%self.aCServiceFile
+				os.system(cmd)
+				os.remove(os.path.join(self.userSystemdPath,self.aCServiceFile))
+
+	#def removeACService
 
 	def _removeEnvConfigFiles(self):
 

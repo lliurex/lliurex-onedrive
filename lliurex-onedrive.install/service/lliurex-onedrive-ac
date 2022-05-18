@@ -74,8 +74,7 @@ class checkSpaceLocalFolder(Thread):
 
 	def _stopClient(self,spaceConfigPath,spaceService):
 
-		ret=self._isOnedriveRunning(spaceConfigPath)
-		if ret:
+		if self._isOnedriveRunning(spaceConfigPath):
 			cmd="systemctl --user stop %s"%spaceService
 			try:
 				p=subprocess.run(cmd,shell=True,check=True)

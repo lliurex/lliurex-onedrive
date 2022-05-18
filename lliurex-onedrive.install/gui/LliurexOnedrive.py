@@ -1251,6 +1251,7 @@ class Bridge(QObject):
 
 		if self.removeAccountT.ret:
 			Bridge.onedriveMan.loadOneDriveConfig()
+			Bridge.onedriveMan.removeACService()
 			self._updateSpacesModel()
 			self.currentStack=1
 			self.spacesCurrentOption=0
