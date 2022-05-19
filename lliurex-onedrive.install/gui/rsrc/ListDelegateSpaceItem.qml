@@ -31,6 +31,7 @@ Components.ListItem{
             id: spaceName
             text: nameSpace
             width:500
+            elide:Text.ElideMiddle
             clip: true
             anchors.leftMargin:15
             anchors.verticalCenter:parent.verticalCenter

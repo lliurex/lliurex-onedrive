@@ -89,6 +89,8 @@ Rectangle{
            Text{
                 id:sharePointValue
                 text:onedriveBridge.spaceBasicInfo[2]
+                Layout.preferredWidth:400
+                elide:Text.ElideMiddle
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -124,7 +126,7 @@ Rectangle{
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
             }
-            Row {
+            RowLayout{
                 id:folderRow
                 spacing:10
                 Layout.alignment:Qt.AlignLeft
@@ -133,9 +135,11 @@ Rectangle{
                 Text{
                     id:syncFolderPath
                     text:onedriveBridge.spaceLocalFolder
+                    Layout.maximumWidth:400
+                    elide:Text.ElideMiddle
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
-                    anchors.verticalCenter:openFolderBtn.verticalCenter
+                    Layout.alignment:Qt.AlignVCenter
                 }
 
                 Button {
