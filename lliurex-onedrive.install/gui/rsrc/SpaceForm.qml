@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
     property alias email:spaceMailEntry.text
     property alias onedriveRb:oneDriveOption.checked
-    property alias sharePoint:spaceSharePointEntry.text
+    /*property alias sharePoint:spaceSharePointEntry.text*/
 
     Text{ 
         text:i18nd("lliurex-onedrive","New Space")
@@ -87,6 +87,7 @@ Rectangle{
                     id:sharePointOption
                     checked:false
                     text:"SharePoint"
+                    onToggled:onedriveBridge.getSpaceSharePoints(spaceMailEntry.text)
                 }
             }
             Text{
@@ -96,44 +97,17 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","SharePoint name:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:sharePointOption.checked && spaceMailEntry.acceptableInput
+                visible:sharePointVisible()
             }
-            Row{
-                id:sharePointRow
-                spacing:10
-                Layout.alignment:Qt.AlignLeft
-                Layout.bottomMargin:10
-                visible:sharePointOption.checked && spaceMailEntry.acceptableInput
-
-                TextField{
-                    id:spaceSharePointEntry
-                    font.pointSize:10
-                    horizontalAlignment:TextInput.AlignLeft
-                    focus:true
-                    implicitWidth:400
-                }
-
-                Button{
-                    id:searchLibraryBtn
-                    display:AbstractButton.IconOnly
-                    icon.name:"search.svg"
-                    enabled:spaceSharePointEntry.text.trim().length>0?true:false
-                    focus:true
-                    ToolTip.delay: 1000
-                    ToolTip.timeout: 3000
-                    ToolTip.visible: hovered
-                    ToolTip.text:i18nd("lliurex-onedrive","Click to search sharepoint libraries")
-                    Keys.onReturnPressed: searchLibraryBtn.clicked()
-                    Keys.onEnterPressed: searchLibraryBtn.clicked()
-                    onClicked:{
-                        oneDriveAuth.authUrl=onedriveBridge.authUrl
-                        onedriveBridge.getSharePointLibraries([spaceMailEntry.text,spaceSharePointEntry.text])
-                    }
-
-                }
-
+            ComboBox{
+                id:spaceSharePointEntry
+                font.pointSize:10
+                textRole:"nameSharePoint"
+                model:onedriveBridge.sharePointModel
+                implicitWidth:400
+                visible:sharePointVisible()
+                onActivated:onedriveBridge.getSharePointLibraries(spaceSharePointEntry.currentText)
             }
-
             Text{
                 id:spaceLibrary
                 Layout.alignment:Qt.AlignRight
@@ -180,7 +154,7 @@ Rectangle{
                 }else{
                     type="sharepoint"
                 }
-                onedriveBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.text,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
+                onedriveBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.currentText,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
             }
         }
         Button {
@@ -357,6 +331,9 @@ Rectangle{
             case -2:
                 var msg=i18nd("lliurex-onedrive","No libraries found for the indicated SharePoint");
                 break
+            case -14:
+                var msg=i18nd("lliurex-onedrive","No SharePoints found for the indicated email");
+                break
             default:
                 var msg=""
                 break;
@@ -386,6 +363,16 @@ Rectangle{
                 if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.currentText!="")){
                     return true
                 }
+            }
+        }
+        return false
+    }
+
+    function sharePointVisible(){
+
+        if (sharePointOption.checked){
+            if (spaceSharePointEntry.count>0){
+                return true
             }
         }
         return false

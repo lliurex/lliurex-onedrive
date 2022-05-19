@@ -23,6 +23,7 @@ class OnedriveManager:
 		self.onedriveConfigFile=os.path.join(self.llxOnedriveConfigDir,"onedriveConfig.json")
 		self.onedriveConfig={}
 		self.spacesConfigData=[]
+		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
 		self.authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
@@ -192,6 +193,8 @@ class OnedriveManager:
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.tempConfigPath=""	
+		self.tempConfDir=""
+		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
 		self.autoStartEnabled=True
 		self.rateLimit=2
@@ -225,20 +228,38 @@ class OnedriveManager:
 
 	#def checkIfEmailExists
 
-	def getSharePointLibraries(self,email,sharePoint):
+	def getSpaceSharePoints(self,email):
 
-		self.librariesConfigData=[]
-		confDir=""
+		self.sharePointsConfigData=[]
+		self.tempConfDir=""
+		
 		for item in self.onedriveConfig["spacesList"]:
 			if item["email"]==email:
-				confDir=item["configPath"]
+				self.tempConfDir=item["configPath"]
 				break
 
-		if confDir=="":
+		if self.tempConfDir=="":
 			ret=self.createTempConfig()
-			confDir=self.tempConfigPath
+			self.tempConfDir=self.tempConfigPath
 
-		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,confDir)
+		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --confdir="%s"'%(self.tempConfDir)
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		pout,perror=p.communicate()
+
+		if len(pout)>0:
+			pout=pout.decode().split("\n")
+			for item in pout:
+				if "*" in item:
+					self.sharePointsConfigData.append(item.split("*")[1].strip())
+
+
+	#def getSpaceSharePoints
+	
+	def getSharePointLibraries(self,sharePoint):
+
+		self.librariesConfigData=[]
+		
+		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,self.tempConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 

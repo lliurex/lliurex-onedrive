@@ -89,7 +89,7 @@ Rectangle{
            Text{
                 id:sharePointValue
                 text:onedriveBridge.spaceBasicInfo[2]
-                Layout.preferredWidth:400
+                Layout.maximumWidth:400
                 elide:Text.ElideMiddle
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10

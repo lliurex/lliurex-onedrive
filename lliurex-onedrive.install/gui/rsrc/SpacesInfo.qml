@@ -3,7 +3,7 @@ import org.kde.kirigami 2.16 as Kirigami
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-
+import QtQuick.Dialogs 1.3
 
 Rectangle{
     color:"transparent"
@@ -65,7 +65,7 @@ Rectangle{
             onClicked:{
                 spaceForm.email=""
                 spaceForm.onedriveRb=true
-                spaceForm.sharePoint=""
+                /*spaceForm.sharePoint=""*/
                 oneDriveAuth.closeConnection()
                 onedriveBridge.moveToSpaceOption(1)
             }

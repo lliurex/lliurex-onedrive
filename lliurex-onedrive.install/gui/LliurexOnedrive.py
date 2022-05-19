@@ -6,6 +6,7 @@ import threading
 import time
 import copy
 import SpacesModel
+import SharePointModel
 import LibraryModel
 import FolderModel
 
@@ -30,6 +31,7 @@ SPACE_RUNNING_TEST_MESSAGE=13
 SPACE_RUNNING_REPAIR_MESSAGE=14
 SPACE_GLOBAL_WARNING=15
 SPACE_INITIAL_STARTUP=16
+SEARCH_SPACE_SHAREPOINT=17
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -40,6 +42,7 @@ START_SYNCHRONIZATION_ERROR=-10
 STOP_SYNCHRONIZATION_ERROR=-11
 LOCAL_FOLDER_EMPTY=-12
 LOCAL_FOLDER_REMOVED=-13
+SPACE_SHAREPOINT_EMPTY_ERROR=-14
 
 
 class GatherInfo(QThread):
@@ -81,6 +84,24 @@ class CreateSpace(QThread):
 
 #class CreateSpace
 
+class GatherSharePoints(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.dataSP=args[0]
+
+	#def __init__
+
+	def run (self,*args):
+		
+		Bridge.onedriveMan.getSpaceSharePoints(self.dataSP)
+
+	#def run
+
+#class GatherSharePoints 
+
+
 class GatherLibraries(QThread):
 
 	def __init__(self,*args):
@@ -92,7 +113,7 @@ class GatherLibraries(QThread):
 
 	def run (self,*args):
 		
-		Bridge.onedriveMan.getSharePointLibraries(self.dataSP[0],self.dataSP[1])
+		Bridge.onedriveMan.getSharePointLibraries(self.dataSP)
 
 	#def run 
 
@@ -263,6 +284,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self._spacesModel=SpacesModel.SpacesModel()
+		self._sharePointModel=SharePointModel.SharePointModel()
 		self._libraryModel=LibraryModel.LibraryModel()
 		self._currentStack=0
 		self._spacesCurrentOption=0
@@ -341,6 +363,7 @@ class Bridge(QObject):
 				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 			
 			self._updateSpacesModel()
+		
 		self.currentStack=1
 
 	#def _loadConfig
@@ -384,6 +407,12 @@ class Bridge(QObject):
 		return self._spacesModel
 
 	#def _getSpacesModel
+
+	def _getSharePointModel(self):
+
+		return self._sharePointModel
+
+	#def _getSharePointModel
 
 	def _getLibraryModel(self):
 
@@ -834,6 +863,18 @@ class Bridge(QObject):
 	
 	#def _updateSpacesModel
 
+	def _updateSharePointModel(self):
+
+		ret=self._sharePointModel.clear()
+		sharePointsEntries=Bridge.onedriveMan.sharePointsConfigData
+		if len(sharePointsEntries)>0:
+			for item in sharePointsEntries:
+				self._sharePointModel.appendRow(item)
+		else:
+			self.showSpaceFormMessage=[True,SPACE_SHAREPOINT_EMPTY_ERROR,"Error"]
+	
+	#def _updateSharePointModel
+
 	def _updateLibraryModel(self):
 
 		ret=self._libraryModel.clear()
@@ -859,19 +900,48 @@ class Bridge(QObject):
 
 	#def moveToSpaceOption
 
-	@Slot('QVariantList')
-	def getSharePointLibraries(self,data):
+	@Slot(str)
+	def getSpaceSharePoints(self,data):
 
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=True
 		self.tempConfig=False
 		self.data=data
 
-		if Bridge.onedriveMan.checkIfEmailExists(self.data[0]):
-			self.gatherLibraries()
+		if Bridge.onedriveMan.checkIfEmailExists(data):
+			self.gatherSharePoints()
 		else:
 			self.tempConfig=True
 			self.spacesCurrentOption=2
+
+	#def getSpaceSharePoints
+
+	def gatherSharePoints(self):
+
+		self.closePopUp=[False,SEARCH_SPACE_SHAREPOINT]
+		self.closeGui=False
+		self.gatherSharePointsT=GatherSharePoints(self.data)
+		self.gatherSharePointsT.start()
+		self.gatherSharePointsT.finished.connect(self._gatherSharePoints)
+	
+	#def gatherLibraries
+
+	def _gatherSharePoints(self):
+
+		self._updateSharePointModel()
+		self.closePopUp=[True,""]
+		self.closeGui=True
+
+	#def _gatherLibraries
+
+
+	@Slot(str)
+	def getSharePointLibraries(self,data):
+
+		self.showSpaceFormMessage=[False,"","Information"]
+		self.data=data
+
+		self.gatherLibraries()
 
 	#def getSharePointLibraries
 
@@ -919,7 +989,7 @@ class Bridge(QObject):
 		if not self.tempConfig:
 			self.addSpace()
 		else:
-			self.gatherLibraries()
+			self.gatherSharePoints()
 
 	#def getToken
 
@@ -1813,6 +1883,7 @@ class Bridge(QObject):
 
 	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
+	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	folderModel=Property(QObject,_getFolderModel,constant=True)
