@@ -22,50 +22,52 @@ class checkSpaceLocalFolder():
 	def checkFolder(self,spaceInfo):
 
 		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=spaceInfo
-		self.localFolderEmptyToken=os.path.join(spaceConfigPath,".localFolderEmptyToken");
-		self.localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
+		localFolderEmptyToken=os.path.join(spaceConfigPath,".localFolderEmptyToken");
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".emptyToken")
 
 		if os.path.exists(spaceLocalFolder):
 			if os.listdir(spaceLocalFolder):
-				self._manageFolderToken(False,False)
+				self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
 				if os.path.exists(emptyToken):
 					os.remove(emptyToken)
 			else:
 				if not os.path.exists(emptyToken):
-					if not os.path.exists(self.localFolderEmptyToken):
-						self._manageFolderToken(False,True)
+					if not os.path.exists(localFolderEmptyToken):
+						self._manageFolderToken(False,True,localFolderRemovedToken,localFolderEmptyToken)
 					
 					self._stopClient(spaceConfigPath,spaceService)
 				else:
-					self._manageFolderToken(False,False)
+					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
 		else:
-			self._manageFolderToken(True,False)
-			self._stopClient(spaceConfigPath,spaceService)
-
-		self._manageAutoStart(spaceConfigPath,spaceService)
+			if not os.path.exists(localFolderRemovedToken):
+				self._manageFolderToken(True,False,localFolderRemovedToken,localFolderEmptyToken)
+				self._stopClient(spaceConfigPath,spaceService)
+			else:
+				pass
+		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken)
 
 		return True
 	
 	#def checkFolder
 
-	def _manageFolderToken(self,remove,empty):
+	def _manageFolderToken(self,remove,empty,localFolderRemovedToken,localFolderEmptyToken):
 
 		if remove:
-			if not os.path.exists(self.localFolderRemovedToken):
-				with open(self.localFolderRemovedToken,'w') as fd:
+			if not os.path.exists(localFolderRemovedToken):
+				with open(localFolderRemovedToken,'w') as fd:
 					pass
 		else:
-			if os.path.exists(self.localFolderRemovedToken):
-				os.remove(self.localFolderRemovedToken)
+			if os.path.exists(localFolderRemovedToken):
+				os.remove(localFolderRemovedToken)
 
 		if empty:
-			if not os.path.exists(self.localFolderEmptyToken):
-				with open(self.localFolderEmptyToken,'w') as fd:
+			if not os.path.exists(localFolderEmptyToken):
+				with open(localFolderEmptyToken,'w') as fd:
 					pass
 		else:
-			if os.path.exists(self.localFolderEmptyToken):
-				os.remove(self.localFolderEmptyToken)
+			if os.path.exists(localFolderEmptyToken):
+				os.remove(localFolderEmptyToken)
 
 	#def _manageFolderToken
 
@@ -80,12 +82,12 @@ class checkSpaceLocalFolder():
 
 	#def _stopClient
 
-	def _manageAutoStart(self,spaceConfigPath,spaceService):
+	def _manageAutoStart(self,spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken):
 
 		lockAutoStartToken=os.path.join(spaceConfigPath,".lockAutoStartToken")
 
 		if os.path.exists(os.path.join(self.userSystemdAutoStartPath,spaceService)):
-			if os.path.exists(self.localFolderEmptyToken) or os.path.exists(self.localFolderRemovedToken):
+			if os.path.exists(localFolderEmptyToken) or os.path.exists(localFolderRemovedToken):
 				if not os.path.exists(lockAutoStartToken):
 					with open(lockAutoStartToken,'w') as fd:
 						pass
@@ -98,7 +100,7 @@ class checkSpaceLocalFolder():
 				if os.path.exists(lockAutoStartToken):
 					os.remove(lockAutoStartToken)
 		else:
-		    if not os.path.exists(self.localFolderEmptyToken) and not os.path.exists(self.localFolderRemovedToken):
+		    if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
 		    	if os.path.exists(lockAutoStartToken):
 		    		os.remove(lockAutoStartToken)
 		    		cmd="systemctl --user enable %s"%spaceService

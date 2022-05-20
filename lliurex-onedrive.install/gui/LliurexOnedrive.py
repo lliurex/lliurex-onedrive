@@ -316,6 +316,7 @@ class Bridge(QObject):
 		self._showAccountMessage=[False,""]
 		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
+		self._showSynchronizePendingDialog=False
 		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		self._syncAll=Bridge.onedriveMan.syncAll
@@ -741,19 +742,6 @@ class Bridge(QObject):
 
 	#def _setShowUnlinkDialog
 	'''
-	def _getShowAccountMessage(self):
-
-		return self._showAccountMessage
-
-	#def _getShowAccountMessage
-
-	def _setShowAccountMessage(self,showAccountMessage):
-
-		if self._showAccountMessage!=showAccountMessage:
-			self._showAccountMessage=showAccountMessage	
-			self.on_showAccountMessage.emit()
-
-	#def _setShowAccountMessage
 
 	def _getShowSynchronizeDialog(self):
 
@@ -768,6 +756,20 @@ class Bridge(QObject):
 			self.on_showSynchronizeDialog.emit()
 
 	#def _setShowSynchronizeDialog
+
+	def _getShowSynchronizePendingDialog(self):
+
+		return self._showSynchronizePendingDialog
+
+	#def _getShowSynchronizePendingDialog
+	
+	def _setShowSynchronizePendingDialog(self,showSynchronizePendingDialog):
+
+		if self._showSynchronizePendingDialog!=showSynchronizePendingDialog:
+			self._showSynchronizePendingDialog=showSynchronizePendingDialog
+			self.on_showSynchronizePendingDialog.emit()
+
+	#def _setShowSynchronizePendingDialog
 
 	def _getShowSynchronizeMessage(self):
 
@@ -1014,7 +1016,7 @@ class Bridge(QObject):
 			if self.settingsChanged:
 				self.showSettingsDialog=True
 			elif self.syncCustomChanged:
-				self.showSynchronizeDialog=True
+				self.showSynchronizePendingDialog=True
 			else:
 				self.manageCurrentOption=option
 				self.moveToOption=""
@@ -1130,13 +1132,16 @@ class Bridge(QObject):
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 		self.syncAll=Bridge.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
 		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
 		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
+		self.showAccountMessage=[False,""]
+		self.accountStatus=Bridge.onedriveMan.accountStatus
+		self.freeSpace=Bridge.onedriveMan.freeSpace
+		self._folderModel.resetModel()
 
 		if not self.localFolderRemoved:
-			self.accountStatus=Bridge.onedriveMan.accountStatus
-			self.freeSpace=Bridge.onedriveMan.freeSpace
 			if not self.syncAll:
 				if not self.localFolderEmpty:
 					self.getFolderStruct=GetFolderStruct(True)
@@ -1147,6 +1152,10 @@ class Bridge(QObject):
 			else:
 				self._endLoading()
 		else:
+			if self.localFolderRemoved:
+				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
+			elif self.localFolderEmpty:
+				self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
 			self._endLoading()
 
 	#def _loadAccount
@@ -1220,7 +1229,7 @@ class Bridge(QObject):
 			if self.settingsChanged:
 				self.showSettingsDialog=True
 			else:
-				self.showSynchronizeDialog=True
+				self.showSynchronizePendingDialog=True
 
 	#def goHome
 
@@ -1454,7 +1463,7 @@ class Bridge(QObject):
 	#def applySyncBtn
 
 	@Slot()
-	def cancelSyncBtn(self):
+	def cancelSyncChanges(self):
 		
 		self.closePopUp=[False,SPACE_FOLDER_RESTORE_MESSAGE]
 		
@@ -1470,7 +1479,7 @@ class Bridge(QObject):
 
 		self.closePopUp=[True,""]
 	
-	#def cancelSyncBtn
+	#def cancelSyncChanges
 
 	@Slot(str)
 	def manageSynchronizeDialog(self,action):
@@ -1484,6 +1493,21 @@ class Bridge(QObject):
 		elif action=="Cancel":
 			pass		
 		self.showSynchronizeDialog=False
+
+	#def manageSynchronizeDialog
+
+	@Slot(str)
+	def manageSynchronizePendingDialog(self,action):
+
+		if action=="Accept":
+			self.showSynchronizePendingDialog=False
+			self.showSynchronizeDialog=True
+			self.applySyncChanges()
+		elif action=="Discard":
+			self.showSynchronizePendingDialog=False
+			self.cancelSyncChanges()
+		elif action=="Cancel":
+			self.showSynchronizePendingDialog=False
 
 	#def manageSynchronizeDialog
 	
@@ -1776,7 +1800,7 @@ class Bridge(QObject):
 				if self.syncCustomChanged:
 					self.closeGui=False
 					if self.closePopUp[0]:
-						self.showSynchronizeDialog=True
+						self.showSynchronizePendingDialog=True
 				else:
 					if self.closePopUp[0]:
 						#Bridge.onedriveMan.manageFileFilter("restore")
@@ -1872,6 +1896,9 @@ class Bridge(QObject):
 
 	on_showSynchronizeDialog=Signal()
 	showSynchronizeDialog=Property(bool,_getShowSynchronizeDialog,_setShowSynchronizeDialog,notify=on_showSynchronizeDialog)
+
+	on_showSynchronizePendingDialog=Signal()
+	showSynchronizePendingDialog=Property(bool,_getShowSynchronizePendingDialog,_setShowSynchronizePendingDialog,notify=on_showSynchronizePendingDialog)
 	
 	on_syncCustomChanged=Signal()
 	syncCustomChanged=Property(bool,_getSyncCustomChanged,_setSyncCustomChanged,notify=on_syncCustomChanged)

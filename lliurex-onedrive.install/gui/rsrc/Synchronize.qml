@@ -199,7 +199,7 @@ Rectangle{
                         }
                     }
                 })
-                onedriveBridge.cancelSyncBtn()
+                onedriveBridge.cancelSyncChanges()
             }
         }
     }
@@ -315,6 +315,88 @@ Rectangle{
 
                 onRejected:{
                     onedriveBridge.manageSynchronizeDialog("Cancel")
+                }
+            }
+        }
+    }
+
+    Dialog {
+        id: pendingDialog
+        visible:onedriveBridge.showSynchronizePendingDialog
+        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
+        modality:Qt.WindowModal
+
+        contentItem: Rectangle {
+            color: "#ebeced"
+            implicitWidth: 500
+            implicitHeight: 105
+            anchors.topMargin:5
+            anchors.leftMargin:5
+
+
+            Image{
+                id:dialogPendingIcon
+                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+
+            }
+                
+            Text {
+                id:dialogPendingText
+                text:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                anchors.left:dialogPendingIcon.right
+                anchors.verticalCenter:dialogPendingIcon.verticalCenter
+                anchors.leftMargin:10
+                
+            }
+              
+            DialogButtonBox {
+                buttonLayout:DialogButtonBox.KdeLayout
+                anchors.bottom:parent.bottom
+                anchors.right:parent.right
+                anchors.topMargin:15
+
+                Button {
+                    id:dialogPendingApplyBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-ok.svg"
+                    text: i18nd("lliurex-onedrive","Apply")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+                }
+
+                Button {
+                    id:dialogPendingDiscardBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"delete.svg"
+                    text: i18nd("lliurex-onedrive","Discard")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+                }
+
+                Button {
+                    id:dialogPendingCancelBtn
+                    display:AbstractButton.TextBesideIcon
+                    icon.name:"dialog-cancel.svg"
+                    text: i18nd("lliurex-onedrive","Cancel")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
+                }
+
+                onApplied:{
+                    onedriveBridge.manageSynchronizePendingDialog("Accept")
+                }
+
+                onDiscarded:{
+                    onedriveBridge.manageSynchronizePendingDialog("Discard")
+                }
+
+                onRejected:{
+                    onedriveBridge.manageSynchronizePendingDialog("Cancel")
                 }
             }
         }

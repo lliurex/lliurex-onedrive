@@ -39,7 +39,7 @@ Rectangle{
             id: newSpaceOptions
             columns: 2
             flow: GridLayout.LeftToRight
-            columnSpacing:10
+            columnSpacing:15
             Layout.alignment:Qt.AlignHCenter
             Layout.topMargin: newSpaceMessageLabel.visible?0:50
 
