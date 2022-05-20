@@ -133,8 +133,9 @@ class getSpaceStatusWorker():
 
 	#def __init__
 
-	def checkStatus(self,spaceConfigPath):
+	def checkStatus(self,spaceInfo):
 
+		spaceConfigPath,spaceType=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
 
@@ -151,9 +152,10 @@ class getSpaceStatusWorker():
 		ALL_SYNCHRONIZE_MSG=0
 		OUT_OF_SYNC_MSG=2
 		WITH_OUT_CONFIG=1
+		INFORMATION_NOT_AVAILABLE=3
 
 		error=False
-		code=""
+		code=INFORMATION_NOT_AVAILABLE
 		freespace=""
 
 		if self._isOnedriveRunning(spaceConfigPath):
@@ -186,6 +188,8 @@ class getSpaceStatusWorker():
 							elif 'quota information' in item:
 								if spaceType!="sharepoint":
 									code=QUOTA_RESTRICTED_ERROR
+								else:
+									error=False
 							elif 'database' in item:
 								code=DATABASE_ERROR
 							elif 'Unauthorized' in item:
@@ -200,21 +204,24 @@ class getSpaceStatusWorker():
 								code=SERVICE_UNAVAILABLE
 							elif 'Free Space' in item:
 								tmp_freespace=item.split(':')[1].strip()
-								freespace=self._formatFreeSpace(tmp_freespace)
-					else:
-						poutput=poutput.split('\n')
-						for item in poutput:
-							if 'No pending' in item:
-								code=ALL_SYNCHRONIZE_MSG
-							elif 'out of sync' in item:
-								code=OUT_OF_SYNC_MSG
-							elif 'HTTP 403 - Forbidden' in item:
-								code=UNAUTHORIZED_ERROR
-								error=True
-								break
-							elif 'Free Space' in item:
-								tmp_freespace=item.split(':')[1].strip()
-								freespace=tmp_freespace
+								if not 'Not Available' in tmp_freespace:
+									freespace=tmp_freespace
+					if not error:
+						if len(poutput)>0:
+							poutput=poutput.split('\n')
+							for item in poutput:
+								if 'No pending' in item:
+									code=ALL_SYNCHRONIZE_MSG
+								elif 'out of sync' in item:
+									code=OUT_OF_SYNC_MSG
+								elif 'HTTP 403 - Forbidden' in item:
+									code=UNAUTHORIZED_ERROR
+									error=True
+									break
+								elif 'Free Space' in item:
+									tmp_freespace=item.split(':')[1].strip()
+									if not 'Not Available' in tmp_freespace:
+										freespace=tmp_freespace
 				else:
 					error=True
 					code=WITH_OUT_CONFIG
@@ -227,7 +234,7 @@ class getSpaceStatusWorker():
 						fd.write(tmpLine)
 						tmpLine=str(freespace)+("\n")
 						fd.write(tmpLine)
-				except:
+				except Exception as e:
 					pass
 
 		return True
@@ -298,7 +305,7 @@ class LliurexOneDriveAC:
 							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
 						for future in concurrent.futures.as_completed(futures):
-							print(future.result())	
+							pass	
 
 						self.folderWorker=False
 						self.lastFolderCheck=0
@@ -323,10 +330,12 @@ class LliurexOneDriveAC:
 						futures=[]
 						for space in oneDriveSpaces:
 							tmp=[]
-							futures.append(executor.submit(checkSpaceStatus.checkStatus,space['configPath']))
-
+							tmpInfo=[space['configPath'],space['type']]
+							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
+						
 						for future in concurrent.futures.as_completed(futures):
-							print(future.result())	
+							pass	
+
 
 					self.statusWorker=False
 					self.lastStatusCheck=0

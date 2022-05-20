@@ -902,10 +902,13 @@ class OnedriveManager:
 		ALL_SYNCHRONIZE_MSG=0
 		OUT_OF_SYNC_MSG=2
 		WITH_OUT_CONFIG=1
+		INFORMATION_NOT_AVAILABLE=3
 
 		error=False
-		code=""
+		code=INFORMATION_NOT_AVAILABLE=3
+
 		freespace=""
+
 		if self.isConfigured():
 			cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -934,6 +937,8 @@ class OnedriveManager:
 					elif 'quota information' in item:
 						if spaceType!="sharepoint":
 							code=QUOTA_RESTRICTED_ERROR
+						else:
+							error=False
 					elif 'database' in item:
 						code=DATABASE_ERROR
 					elif 'Unauthorized' in item:
@@ -948,9 +953,10 @@ class OnedriveManager:
 						code=SERVICE_UNAVAILABLE
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
-						freespace=self._formatFreeSpace(tmp_freespace)
+						if not 'Not Available' in tmp_freespace:
+							freespace=self._formatFreeSpace(tmp_freespace)
 
-			else:
+			if not error and len(poutput)>0:
 				poutput=poutput.split('\n')
 				for item in poutput:
 					if 'No pending' in item:
@@ -963,7 +969,8 @@ class OnedriveManager:
 						break
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
-						freespace=self._formatFreeSpace(tmp_freespace)
+						if not 'Not Available' in tmp_freespace:
+							freespace=self._formatFreeSpace(tmp_freespace)
 
 		else:
 			error=True

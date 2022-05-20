@@ -358,7 +358,7 @@ class Bridge(QObject):
 
 		if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
 			self.checkGlobalLocalFolderTimer.start(5000)
-			self.checkGlobalStatusTimer.start(30000)
+			self.checkGlobalStatusTimer.start(15000)
 			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
 				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 			
@@ -1709,8 +1709,11 @@ class Bridge(QObject):
 
 	def _manageSpaceSettinsMessage(self):
 
-		if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
-			self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+		if len(Bridge.onedriveMan.onedriveConfig)>0:
+			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+			else:
+				self.showSpaceSettingsMessage=[False,"","Information"]
 		else:
 			self.showSpaceSettingsMessage=[False,"","Information"]
 
