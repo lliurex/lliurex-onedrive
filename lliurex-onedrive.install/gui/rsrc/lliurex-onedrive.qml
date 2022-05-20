@@ -56,6 +56,7 @@ ApplicationWindow {
             Image{
                 id:banner
                 source: "/usr/share/lliurex-onedrive/rsrc/lliurex-onedrive.png"
+                asynchronous:true
             }
         }
 

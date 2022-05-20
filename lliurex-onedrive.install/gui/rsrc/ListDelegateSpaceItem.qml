@@ -39,14 +39,7 @@ Components.ListItem{
 
         Image {
             id:spaceStatusIcon
-            source:{
-                if ((statusSpace==0) && (!localFolderWarning)){
-                    "/usr/share/icons/breeze/status/16/state-ok.svg"
-                }else{
-                    "/usr/share/icons/breeze/status/16/state-warning.svg"
-                }
-
-            }
+            source:getStatusIcon(statusSpace,localFolderWarning)
             sourceSize.width:32
             sourceSize.height:32
             anchors.leftMargin:15
@@ -86,6 +79,26 @@ Components.ListItem{
             ToolTip.visible: hovered
             ToolTip.text:i18nd("lliurex-onedrive","Clic to manage this space")
             onClicked:onedriveBridge.loadSpace(idSpace)
+        }
+
+    }
+
+    function getStatusIcon(statusSpace,localFolderWarning){
+
+        switch (statusSpace){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                if (!localFolderWarning){
+                    return "/usr/share/icons/breeze/status/16/state-ok.svg"
+                }else{
+                    return "/usr/share/icons/breeze/status/16/state-warning.svg"
+                }
+                break;
+            default:
+                return "/usr/share/icons/breeze/status/16/state-warning.svg"
+                break
         }
 
     }

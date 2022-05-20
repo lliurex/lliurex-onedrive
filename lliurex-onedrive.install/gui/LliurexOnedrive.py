@@ -1096,9 +1096,6 @@ class Bridge(QObject):
 	def _endInitialStartUp(self):
 
 		self.isOnedriveRunning=self.manageSync.ret[1]
-		self.initStartUp=True
-		self.closePopUp=[True,""]
-		self.closeGui=True
 
 		if not self.isOnedriveRunning:
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
@@ -1107,6 +1104,10 @@ class Bridge(QObject):
 		else:
 			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
+
+		self.initStartUp=True
+		self.closePopUp=[True,""]
+		self.closeGui=True
 
 	#def _endInitialStartUp
 	

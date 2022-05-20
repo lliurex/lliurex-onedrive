@@ -193,7 +193,7 @@ class OnedriveManager:
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.tempConfigPath=""	
-		self.tempConfDir=""
+		self.tmpConfDir=""
 		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
 		self.autoStartEnabled=True
@@ -231,18 +231,18 @@ class OnedriveManager:
 	def getSpaceSharePoints(self,email):
 
 		self.sharePointsConfigData=[]
-		self.tempConfDir=""
+		self.tmpConfDir=""
 		
 		for item in self.onedriveConfig["spacesList"]:
 			if item["email"]==email:
-				self.tempConfDir=item["configPath"]
+				self.tmpConfDir=item["configPath"]
 				break
 
-		if self.tempConfDir=="":
+		if self.tmpConfDir=="":
 			ret=self.createTempConfig()
-			self.tempConfDir=self.tempConfigPath
+			self.tmpConfDir=self.tempConfigPath
 
-		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --confdir="%s"'%(self.tempConfDir)
+		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --confdir="%s"'%(self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 
@@ -259,7 +259,7 @@ class OnedriveManager:
 
 		self.librariesConfigData=[]
 		
-		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,self.tempConfDir)
+		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 

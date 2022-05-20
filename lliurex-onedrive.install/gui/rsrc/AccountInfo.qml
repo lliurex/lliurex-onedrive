@@ -356,13 +356,10 @@ Rectangle{
                 onApplied:{
                     unlinkDialog.close()
                     onedriveBridge.removeAccount()
-                
-                
                 }
 
                 onRejected:{
                     unlinkDialog.close()
-
                 }
             }
         }
