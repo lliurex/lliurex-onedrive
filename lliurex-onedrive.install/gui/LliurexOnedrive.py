@@ -321,6 +321,7 @@ class Bridge(QObject):
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		self._syncAll=Bridge.onedriveMan.syncAll
 		self._syncCustomChanged=False
+		self._showFolderStruct=Bridge.onedriveMan.showFolderStruct
 		self.keepFolders=True
 		self._initialDownload=""
 		self._hddFreeSpace=""
@@ -727,22 +728,6 @@ class Bridge(QObject):
 
 	#def _setShowSettingsDialog
 
-	'''
-	def _getShowUnlinkDialog(self):
-
-		return self._showUnlinkDialog
-
-	#def _getShowUnlinkDialog
-	
-	def _setShowUnlinkDialog(self,showUnlinkDialog):
-
-		if self._showUnlinkDialog!=showUnlinkDialog:
-			self._showUnlinkDialog=showUnlinkDialog
-			self.on_showUnlinkDialog.emit()
-
-	#def _setShowUnlinkDialog
-	'''
-
 	def _getShowSynchronizeDialog(self):
 
 		return self._showSynchronizeDialog
@@ -793,11 +778,26 @@ class Bridge(QObject):
 	
 	def _setSyncAll(self,syncAll):
 
+		
 		if self._syncAll!=syncAll:
 			self._syncAll=syncAll
 			self.on_syncAll.emit()
 
 	#def _setSyncAll	
+
+	def _getShowFolderStruct(self):
+
+		return self._showFolderStruct
+
+	#def _getShowFolderStruct
+	
+	def _setShowFolderStruct(self,showFolderStruct):
+
+		if self._showFolderStruct!=showFolderStruct:
+			self._showFolderStruct=showFolderStruct
+			self.on_showFolderStruct.emit()
+
+	#def _setShowFolderStruct	
 
 	def _getSyncCustomChanged(self):
 
@@ -1126,7 +1126,6 @@ class Bridge(QObject):
 
 	def _loadSpace(self):
 
-		#self.checkGlobalLocalFolderTimer.stop()
 		self._getInitialSettings()
 		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
@@ -1166,6 +1165,7 @@ class Bridge(QObject):
 			self._updateFolderStruct()
 		else:
 			self._folderModel.resetModel()
+			self.showFolderStruct=False
 			
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
@@ -1183,16 +1183,6 @@ class Bridge(QObject):
 		self.manageCurrentOption=0
 	
 	#def _endLoading
-
-	def _updateFolderStruct(self):
-
-		self.errorGetFolder=Bridge.onedriveMan.errorFolder
-		self._insertModelEntries()
-		
-		if self.errorGetFolder:
-			self.showSynchronizeMessage=[True,CHANGE_SYNC_FOLDERS_ERROR,"Error"]
-
-	#def _updateFolderStruct
 
 	def _insertModelEntries(self):
 
@@ -1223,7 +1213,6 @@ class Bridge(QObject):
 				self.checkSpaceLocalFolderTimer.stop()
 			except:
 				pass
-			#self.checkGlobalLocalFolderTimer.start()
 		else:
 			self.moveToStack=1
 			if self.settingsChanged:
@@ -1326,7 +1315,6 @@ class Bridge(QObject):
 
 		self.closePopUp=[False,REMOVE_SPACE_MESSAGE]
 		self.closeGui=False
-		#self.showUnlinkDialog=False
 		self.removeAccountT=RemoveAccount()
 		self.removeAccountT.start()
 		self.removeAccountT.finished.connect(self._removeAccount)
@@ -1355,6 +1343,7 @@ class Bridge(QObject):
 		
 		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
 		self.closePopUp=[False,SPACE_GET_FOLDER_MESSAGE]
+		self.showFolderStruct=False
 		self.getFolderStruct=GetFolderStruct(localFolder)
 		self.getFolderStruct.start()
 		self.getFolderStruct.finished.connect(self._updateFolderStruct)
@@ -1366,7 +1355,7 @@ class Bridge(QObject):
 		self.errorGetFolder=Bridge.onedriveMan.errorFolder
 		self._insertModelEntries()
 		self.closePopUp=[True,""]
-		
+		self.showFolderStruct=True
 		if self.errorGetFolder:
 			self.showSynchronizeMessage=[True,CHANGE_SYNC_FOLDERS_ERROR,"Error"]
 
@@ -1439,6 +1428,7 @@ class Bridge(QObject):
 	def getSyncMode(self,value):
 
 		self.hideSynchronizeMessage()
+
 		if value!=self.initialSyncConfig[0]:
 			if value!=Bridge.onedriveMan.currentSyncConfig[0]:
 				if not value and (len(self.initialSyncConfig[1])>0 or len(self.initialSyncConfig[2])>0):
@@ -1450,9 +1440,19 @@ class Bridge(QObject):
 						self.syncCustomChanged=False
 			else:
 				self.syncCustomChanged=False
+
+			self.syncAll=value
 			self.initialSyncConfig[0]=value
 		else:
 			self.syncCustomChanged=False
+
+		if not value:
+			if self._folderModel.rowCount()<2:
+				self.updateFolderStruct(True)
+			else:
+				self.showFolderStruct=True
+		else:
+			self.showFolderStruct=False
 
 	#def getSyncModel 
 	
@@ -1471,6 +1471,10 @@ class Bridge(QObject):
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		Bridge.onedriveMan.cancelSyncChanges()
 		self.syncAll=self.initialSyncConfig[0]
+		if self.syncAll:
+			self.showFolderStruct=False
+		else:
+			self.showFolderStruct=True
 
 		self._insertModelEntries()
 
@@ -1528,6 +1532,7 @@ class Bridge(QObject):
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		self.syncAll=self.initialSyncConfig[0]
 		self.closePopUp=[True,""]
+		self.showFolderStruct!=self.syncAll
 
 		if self.applySynChangesT.ret:
 			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_OK,"Ok"]
@@ -1555,7 +1560,6 @@ class Bridge(QObject):
 				self.checkSpaceLocalFolderTimer.stop()
 			except:
 				pass
-			#self.checkGlobalLocalFolderTimer.start()
 
 	#def _manageGoToStack
 
@@ -1881,15 +1885,14 @@ class Bridge(QObject):
 	on_showSettingsDialog=Signal()
 	showSettingsDialog=Property(bool,_getShowSettingsDialog,_setShowSettingsDialog,notify=on_showSettingsDialog)
 
-	'''
-	on_showUnlinkDialog=Signal()
-	showUnlinkDialog=Property(bool,_getShowUnlinkDialog,_setShowUnlinkDialog,notify=on_showUnlinkDialog)
-	'''
 	on_showAccountMessage=Signal()
 	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
 
 	on_syncAll=Signal()
 	syncAll=Property(bool,_getSyncAll,_setSyncAll,notify=on_syncAll)
+
+	on_showFolderStruct=Signal()
+	showFolderStruct=Property(bool,_getShowFolderStruct,_setShowFolderStruct,notify=on_showFolderStruct)
 
 	on_showSynchronizeMessage=Signal()
 	showSynchronizeMessage=Property('QVariantList',_getShowSynchronizeMessage,_setShowSynchronizeMessage,notify=on_showSynchronizeMessage)

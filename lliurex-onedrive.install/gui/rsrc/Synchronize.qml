@@ -51,7 +51,9 @@ Rectangle{
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
                 onToggled:{
+                    /*syncCustom.checked=!checked*/
                     onedriveBridge.getSyncMode(checked)
+                    /*
                     if (checked){
                         folderList.structVisible=false
                     }else{
@@ -59,6 +61,7 @@ Rectangle{
                             folderList.structVisible=true
                         }
                     }
+                    */
                 }
 
                 Layout.bottomMargin:10
@@ -74,32 +77,11 @@ Rectangle{
                 CheckBox {
                     id:syncCustom
                     text:i18nd("lliurex-onedrive","Synchronize only those content")
-                    checked:!syncAll.checked
+                    checked:!onedriveBridge.syncAll
                     enabled:getEnabledStatus()
                     font.pointSize: 10
                     focusPolicy: Qt.NoFocus
-                    onToggled:{
-                        syncAll.checked=!checked
-                        if (checked){
-                            if (folderList.listCount<2){
-                                folderList.structVisible=false
-                                delay(1000, function() {
-                                    if (onedriveBridge.closePopUp[0]){
-                                        timer.stop(),
-                                        folderList.structVisible=true;
-                                    }
-                                })
-                                
-                                onedriveBridge.updateFolderStruct(true)
-                            }
-                            folderList.structVisible=true;
-
-                       }else{
-                            folderList.structVisible=false
-                       }
-                       onedriveBridge.getSyncMode(!checked)
-
-                    }
+                    onToggled:onedriveBridge.getSyncMode(!checked)
                     anchors.verticalCenter:parent.verticalCenter
                 }
 
@@ -126,21 +108,11 @@ Rectangle{
                     ToolTip.visible: hovered
                     ToolTip.text:i18nd("lliurex-onedrive","Click to update the OneDrive folder structure")
                     hoverEnabled:true
-                    onClicked:{
-                        folderList.structVisible=false
-                        delay(1000, function() {
-                            if (onedriveBridge.closePopUp[0]){
-                                timer.stop(),
-                                folderList.structVisible=true;
-                            }
-                        })
-                        onedriveBridge.updateFolderStruct(false)
-                    }
+                    onClicked:onedriveBridge.updateFolderStruct(false)
                 }
             }
             FolderList{
                 id:folderList
-                structVisible:syncCustom.checked
                 structModel:onedriveBridge.folderModel
                 structEnabled:getEnabledStatus()
             }
@@ -187,20 +159,7 @@ Rectangle{
                     false
                 }
             }            
-            onClicked:{
-                syncAll.checked=onedriveBridge.syncAll
-                delay(1000, function() {
-                    if (onedriveBridge.closePopUp[0]){
-                        timer.stop()
-                        if (syncAll.checked){
-                            folderList.structVisible=false
-                        }else{
-                            folderList.structVisible=true
-                        }
-                    }
-                })
-                onedriveBridge.cancelSyncChanges()
-            }
+            onClicked:onedriveBridge.cancelSyncChanges()
         }
     }
 
@@ -286,33 +245,8 @@ Rectangle{
                     DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
                 }
 
-                onApplied:{
-                    synchronizePopup.open()
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp[0]){
-                            timer.stop()
-                            if (syncAll.checked){
-                                folderList.structVisible=false;   
-                            }
-              
-                        }
-                    })
-                    onedriveBridge.manageSynchronizeDialog("Accept")
-                }
-
-                onDiscarded:{
-                    delay(1000, function() {
-                        if (onedriveBridge.closePopUp[0]){
-                            timer.stop()
-                            if (syncAll.checked){
-                                folderList.structVisible=false;   
-                            }
-                        }
-                    })
-               
-                    onedriveBridge.manageSynchronizeDialog("Keep")
-                }
-
+                onApplied:onedriveBridge.manageSynchronizeDialog("Accept")
+                onDiscarded:onedriveBridge.manageSynchronizeDialog("Keep")
                 onRejected:{
                     onedriveBridge.manageSynchronizeDialog("Cancel")
                 }
@@ -404,7 +338,7 @@ Rectangle{
 
     CustomPopup{
         id:synchronizePopup
-     }
+    }
 
     Timer{
         id:timer

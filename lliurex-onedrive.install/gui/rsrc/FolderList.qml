@@ -5,13 +5,12 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 
 Rectangle {
-    property alias structVisible:folderTable.visible
     property alias structModel:listFolder.model
     property alias listCount:listFolder.count
     property alias structEnabled:listFolder.enabled
 
     id:folderTable
-    visible: structVisible
+    visible: onedriveBridge.showFolderStruct
     width: 660; height: 240
     border.color: "#d3d3d3"
 

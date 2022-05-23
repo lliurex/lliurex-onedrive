@@ -58,6 +58,7 @@ class OnedriveManager:
 		self.foldersUnSelected=[]
 		self.includeFolders=[]
 		self.excludeFolders=[]
+		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
 		self.globalOneDriveFolderWarning=False
@@ -200,7 +201,6 @@ class OnedriveManager:
 		self.rateLimit=2
 		self.monitorInterval=1
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
-		self.syncAll=True
 		self.freeSpace=""
 		self.accountStatus=0
 		self.filterFile=""
@@ -211,9 +211,11 @@ class OnedriveManager:
 		self.foldersUnSelected=[]
 		self.includeFolders=[]
 		self.excludeFolders=[]
+		self.syncAll=True
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.localFolderEmpty=False
 		self.localFolderRemoved=False
+		self.showFolderStruct=False
 	
 	#def initSpacesSettings
 
@@ -751,10 +753,14 @@ class OnedriveManager:
 		if self.existsFilterFile():
 			self.syncAll=False
 			self.readFilterFile()
-			self.currentSyncConfig[0]=self.syncAll
-			self.currentSyncConfig[1]=self.foldersSelected
-			self.currentSyncConfig[2]=self.foldersUnSelected
-		
+		else:
+			self.syncAll=True
+
+		self.showFolderStruct!=self.syncAll
+		self.currentSyncConfig[0]=self.syncAll
+		self.currentSyncConfig[1]=self.foldersSelected
+		self.currentSyncConfig[2]=self.foldersUnSelected
+
 		statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
 		self.accountStatus=int(statusInfo[1])
 		self.freeSpace=statusInfo[2]
