@@ -1066,6 +1066,8 @@ class Bridge(QObject):
 			if self.initialDownload!="":
 				self.showDownloadDialog=True
 			else:
+				self.showFolderStruct=False
+				self.syncAll=True
 				self._initialStartUp()
 				#self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
 		else:
@@ -1080,6 +1082,8 @@ class Bridge(QObject):
 		self.showDownloadDialog=False
 		if option=="All":
 			self._initialStartUp()
+			self.syncAll=True
+			self.showFolderStruct=True
 		else:
 			self.currentStack=2
 			self.manageCurrentOption=1
@@ -1506,7 +1510,7 @@ class Bridge(QObject):
 		if action=="Accept":
 			self.showSynchronizePendingDialog=False
 			self.showSynchronizeDialog=True
-			self.applySyncChanges()
+			#self.applySyncChanges()
 		elif action=="Discard":
 			self.showSynchronizePendingDialog=False
 			self.cancelSyncChanges()

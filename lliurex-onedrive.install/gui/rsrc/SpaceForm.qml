@@ -87,7 +87,14 @@ Rectangle{
                     id:sharePointOption
                     checked:false
                     text:"SharePoint"
-                    onToggled:onedriveBridge.getSpaceSharePoints(spaceMailEntry.text)
+                    onToggled:{
+                        if (spaceMailEntry.acceptableInput){    
+                            onedriveBridge.getSpaceSharePoints(spaceMailEntry.text)
+                        }else{
+                            sharePointOption.checked=false
+                            oneDriveOption.checked=true
+                        }
+                    }
                 }
             }
             Text{
