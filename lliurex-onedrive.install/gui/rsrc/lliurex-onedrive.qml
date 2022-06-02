@@ -23,7 +23,7 @@ ApplicationWindow {
     maximumHeight: mainLayout.Layout.maximumHeight + 2 * margin
     Component.onCompleted: {
         x = Screen.width / 2 - width / 2
-        y = Screen.height / 2 - height / 2
+        y = Screen.height / 2 - height/0.4
     }
 
     onClosing: {
@@ -60,24 +60,62 @@ ApplicationWindow {
             }
         }
 
-        StackLayout {
-            id: stackLayout
-            currentIndex:onedriveBridge.currentStack
+        StackView {
+            id: mainView
+            property int currentIndex:onedriveBridge.currentStack
             implicitWidth: 725
             Layout.alignment:Qt.AlignHCenter
             Layout.leftMargin:0
             Layout.fillWidth:true
             Layout.fillHeight: true
-
-            SyncWaiting{
-                id:syncWaiting
+            initialItem:syncView
+            onCurrentIndexChanged:{
+                switch (currentIndex){
+                    case 0:
+                        mainView.replace(syncView)
+                        break;
+                    case 1:
+                        mainView.replace(spaceView)
+                        break;
+                    case 2:
+                        mainView.replace(accountView)
+                        break;
+                }
+            }
+            replaceEnter: Transition {
+                PropertyAnimation {
+                    property: "opacity"
+                    from: 0
+                    to:1
+                    duration: 600
+                }
+            }
+            replaceExit: Transition {
+                PropertyAnimation {
+                    property: "opacity"
+                    from: 1
+                    to:0
+                    duration: 600
+                }
             }
 
-            SpacesOptions{
-                id:spacesOptions
+            Component{
+                id:syncView
+                SyncWaiting{
+                    id:syncWaiting
+                }
             }
-            AccountOptions{
-                id:accountOptions
+            Component{
+                id:spaceView
+                SpacesOptions{
+                    id:spacesOptions
+                }
+            }
+            Component{
+                id:accountView
+                AccountOptions{
+                    id:accountOptions
+                }
             }
         }
 

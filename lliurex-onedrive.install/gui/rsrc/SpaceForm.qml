@@ -8,9 +8,6 @@ import QtQuick.Dialogs 1.3
 
 Rectangle{
     color:"transparent"
-    property alias email:spaceMailEntry.text
-    property alias onedriveRb:oneDriveOption.checked
-    /*property alias sharePoint:spaceSharePointEntry.text*/
 
     Text{ 
         text:i18nd("lliurex-onedrive","New Space")
@@ -55,6 +52,7 @@ Rectangle{
                 font.pointSize:10
                 horizontalAlignment:TextInput.AlignLeft
                 focus:true
+                text:onedriveBridge.formData[0]
                 validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
             }
@@ -79,17 +77,17 @@ Rectangle{
                 }
                 RadioButton{
                     id:oneDriveOption
-                    checked:true
+                    checked:onedriveBridge.formData[1]
                     text:"OneDrive"
                 }
 
                 RadioButton{
                     id:sharePointOption
-                    checked:false
+                    checked:!onedriveBridge.formData[1]
                     text:"SharePoint"
                     onToggled:{
                         if (spaceMailEntry.acceptableInput){    
-                            onedriveBridge.getSpaceSharePoints(spaceMailEntry.text)
+                            onedriveBridge.getSpaceSharePoints([spaceMailEntry.text,false])
                         }else{
                             sharePointOption.checked=false
                             oneDriveOption.checked=true
@@ -154,7 +152,6 @@ Rectangle{
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
-                oneDriveAuth.authUrl=onedriveBridge.authUrl
                 var type=""
                 if (oneDriveOption.checked){
                     type="onedrive"
@@ -202,7 +199,6 @@ Rectangle{
             Image{
                 id:previousFolderDialogIcon
                 source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-
             }
             
             Text {
@@ -213,7 +209,6 @@ Rectangle{
                 anchors.left:previousFolderDialogIcon.right
                 anchors.verticalCenter:previousFolderDialogIcon.verticalCenter
                 anchors.leftMargin:10
-            
             }
           
             DialogButtonBox {
@@ -288,7 +283,6 @@ Rectangle{
             
             }
           
-
             DialogButtonBox {
                 buttonLayout:DialogButtonBox.KdeLayout
                 anchors.bottom:parent.bottom

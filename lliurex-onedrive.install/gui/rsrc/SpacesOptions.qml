@@ -44,26 +44,62 @@ GridLayout{
         }
     }
 
-    StackLayout {
-        id: optionsLayout
-        currentIndex:onedriveBridge.spacesCurrentOption
+    StackView {
+        id: optionsView
+        property int currentIndex:onedriveBridge.spacesCurrentOption
         implicitHeight: 450
-        Layout.alignment:Qt.AlignHCenter
+        Layout.fillWidth:true
+        Layout.fillHeight:true
+        initialItem:spacesInfoView
 
-        SpacesInfo{
-            id:spaceInfo
+        onCurrentIndexChanged:{
+            switch(currentIndex){
+                case 0:
+                    optionsView.replace(spacesInfoView)
+                    break;
+                case 1:
+                    optionsView.replace(spaceFormView)
+                    break;
+                case 2:
+                    optionsView.replace(oneDriveAuthView)
+                    break;
+            }
+        }
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 600
+            }
+        }
+        replaceExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 600
+            }
         }
 
-        SpaceForm{
-            id:spaceForm
-            email:""
-            onedriveRb:true
-            /*sharePoint:""*/
+        Component{
+            id:spacesInfoView
+            SpacesInfo{
+                id:spaceInfo
+            }
         }
-
-        OnedriveAuth{
-            id:oneDriveAuth
-            authUrl:onedriveBridge.authUrl
+        Component{
+            id:spaceFormView
+            SpaceForm{
+                id:spaceForm
+            }
+        }
+        Component{
+            id:oneDriveAuthView
+            OnedriveAuth{
+                id:oneDriveAuth
+                authUrl:onedriveBridge.authUrl
+            }
         }
 
     }

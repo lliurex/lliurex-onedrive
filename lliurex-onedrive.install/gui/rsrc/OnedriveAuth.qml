@@ -5,10 +5,14 @@ import QtQuick.Layouts 1.12
 
 
 Rectangle {
-    width: 725
-    height: 615
     visible: true
     property alias authUrl:webEngine.url
+
+    Component.onDestruction:{
+        console.log("destruyendo")
+        closeConnection()
+    }
+
 
     WebEngineView {
         id:webEngine

@@ -295,6 +295,7 @@ class Bridge(QObject):
 		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=False
 		self.tempConfig=False
+		self._formData=["",True]
 		self._showPreviousFolderDialog=False
 		self._initialDownload=""
 		self._hddFreeSpace=""
@@ -421,6 +422,20 @@ class Bridge(QObject):
 		return self._libraryModel
 
 	#def _getLibraryModel
+
+	def _getFormData(self):
+
+		return self._formData
+
+	#def _getFormData
+
+	def _setFormData(self,formData):
+
+		if self._formData!=formData:
+			self._formData=formData
+			self.on_formData.emit()
+
+	#def _setFormData
 
 	def _getCloseGui(self):
 
@@ -895,6 +910,7 @@ class Bridge(QObject):
 		
 		Bridge.onedriveMan.initSpacesSettings()
 		Bridge.onedriveMan.deleteTempConfig()
+		self.formData=["",True]
 		self.showSpaceSettingsMessage=[False,"","Information"]
 		self.showSpaceFormMessage=[False,"","Information"]
 		self._libraryModel.clear()
@@ -902,18 +918,19 @@ class Bridge(QObject):
 
 	#def moveToSpaceOption
 
-	@Slot(str)
+	@Slot('QVariantList')
 	def getSpaceSharePoints(self,data):
 
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=True
 		self.tempConfig=False
-		self.data=data
+		self.data=data[0]
 
-		if Bridge.onedriveMan.checkIfEmailExists(data):
+		if Bridge.onedriveMan.checkIfEmailExists(data[0]):
 			self.gatherSharePoints()
 		else:
 			self.tempConfig=True
+			self.formData=[data[0],data[1]]
 			self.spacesCurrentOption=2
 
 	#def getSpaceSharePoints
@@ -970,6 +987,12 @@ class Bridge(QObject):
 
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.spaceInfo=spaceInfo
+		self.formData[0]=spaceInfo[0]
+		if spaceInfo[1]=="onedrive":
+			self.formData[1]=True
+		else:
+			self.formData[1]=False
+
 		self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
 		
 		if not self.checkDuplicate[0]:
@@ -1087,6 +1110,8 @@ class Bridge(QObject):
 		else:
 			self.currentStack=2
 			self.manageCurrentOption=1
+			self.spacesCurrentOption=0
+
 
 	#def manageDownloadDialog
 
@@ -1107,6 +1132,8 @@ class Bridge(QObject):
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
 			self.currentStack=2
 			self.manageCurrentOption=0
+			self.spacesCurrentOption=0
+
 		else:
 			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
@@ -1212,6 +1239,7 @@ class Bridge(QObject):
 		if not self.settingsChanged and not self.syncCustomChanged:
 			self.currentStack=1
 			self.spacesCurrentOption=0
+			self.manageCurrentOption=0
 			self.moveToStack=""
 			try:
 				self.checkSpaceLocalFolderTimer.stop()
@@ -1304,6 +1332,8 @@ class Bridge(QObject):
 		if self.initStartUp:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 			self.currentStack=2
+			self.manageCurrentOption=0
+			self.spacesCurrentOption=0
 			self.initStartUp=False
 		else:
 			self.closePopUp=[True,""]
@@ -1333,6 +1363,7 @@ class Bridge(QObject):
 			self._updateSpacesModel()
 			self.currentStack=1
 			self.spacesCurrentOption=0
+			self.manageCurrentOption=0
 			self.removeAction=True
 		else:
 			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]	
@@ -1559,6 +1590,7 @@ class Bridge(QObject):
 		elif self.moveToStack!="":
 			self.currentStack=self.moveToStack
 			self.spacesCurrentOption=0
+			self.manageCurrentOption=0
 			self.moveToStack=""
 			try:
 				self.checkSpaceLocalFolderTimer.stop()
@@ -1825,6 +1857,9 @@ class Bridge(QObject):
 
 	on_spacesCurrentOption=Signal()
 	spacesCurrentOption=Property(int,_getSpacesCurrentOption,_setSpacesCurrentOption, notify=on_spacesCurrentOption)
+
+	on_formData=Signal()
+	formData=Property('QVariantList',_getFormData,_setFormData, notify=on_formData)
 
 	on_accountStatus=Signal()
 	accountStatus=Property(int,_getAccountStatus,_setAccountStatus, notify=on_accountStatus)

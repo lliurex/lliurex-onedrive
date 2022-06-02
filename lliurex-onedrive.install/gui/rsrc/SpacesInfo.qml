@@ -63,10 +63,6 @@ Rectangle{
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
-                spaceForm.email=""
-                spaceForm.onedriveRb=true
-                /*spaceForm.sharePoint=""*/
-                oneDriveAuth.closeConnection()
                 onedriveBridge.moveToSpaceOption(1)
             }
         }

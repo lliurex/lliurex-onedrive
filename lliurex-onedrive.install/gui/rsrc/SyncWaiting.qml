@@ -3,8 +3,6 @@ import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.12
 
 Rectangle{
-    width: 700
-    height: 615
     visible: true
 
     GridLayout{

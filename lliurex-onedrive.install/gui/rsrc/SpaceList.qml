@@ -24,7 +24,6 @@ Rectangle {
         enabled:true
         currentIndex:-1
         clip: true
-        focus: true
         boundsBehavior: Flickable.StopAtBounds
         highlight: Rectangle { color: "#add8e6"; opacity:0.8;border.color:"#53a1c9" }
         highlightMoveDuration: 0

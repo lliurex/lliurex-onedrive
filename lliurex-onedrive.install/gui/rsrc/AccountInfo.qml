@@ -246,6 +246,7 @@ Rectangle{
                     text:getTextOption(onedriveBridge.accountStatus)
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
+                    Layout.maximumWidth:300
                     anchors.verticalCenter:parent.verticalCenter
                 }
 
