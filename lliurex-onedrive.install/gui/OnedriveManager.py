@@ -244,7 +244,7 @@ class OnedriveManager:
 			ret=self.createTempConfig()
 			self.tmpConfDir=self.tempConfigPath
 
-		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --confdir="%s"'%(self.tmpConfDir)
+		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 
@@ -261,7 +261,7 @@ class OnedriveManager:
 
 		self.librariesConfigData=[]
 		
-		cmd='onedrive --get-O365-drive-id "%s" --confdir="%s"'%(sharePoint,self.tmpConfDir)
+		cmd='onedrive --get-O365-drive-id "%s" --dry-run --confdir="%s"'%(sharePoint,self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		pout,perror=p.communicate()
 
@@ -673,7 +673,7 @@ class OnedriveManager:
 	def getInitialDownload(self):
 
 		download=""
-		cmd='/usr/bin/onedrive --display-sync-status --confdir="%s"'%(self.spaceConfPath)
+		cmd='/usr/bin/onedrive --display-sync-status --dry-run --confdir="%s"'%(self.spaceConfPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()[0]
 		rc=p.returncode
@@ -916,7 +916,7 @@ class OnedriveManager:
 		freespace=""
 
 		if self.isConfigured():
-			cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
+			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%self.spaceConfPath
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			poutput,perror=p.communicate()
 
@@ -1627,7 +1627,7 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
 		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
