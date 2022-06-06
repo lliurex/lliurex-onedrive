@@ -141,7 +141,7 @@ class OnedriveManager:
 	def getInitialDownload(self):
 
 		download=""
-		cmd="/usr/bin/onedrive --display-sync-status"
+		cmd="/usr/bin/onedrive --display-sync-status --dry-run"
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()[0]
 		rc=p.returncode
@@ -395,7 +395,7 @@ class OnedriveManager:
 		code=""
 		freespace=""
 		if self.isConfigured():
-			cmd="/usr/bin/onedrive --display-sync-status --verbose"
+			cmd="/usr/bin/onedrive --display-sync-status --verbose --dry-run"
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			poutput,perror=p.communicate()
 
@@ -513,7 +513,7 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd="/usr/bin/onedrive --display-sync-status --verbose >>%s 2>&1"%self.testPath
+		cmd="/usr/bin/onedrive --display-sync-status --verbose --dry-run >>%s 2>&1"%self.testPath
 		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
