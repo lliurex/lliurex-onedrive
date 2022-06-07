@@ -238,7 +238,10 @@ class getSpaceStatusWorker():
 						fd.write(tmpLine)
 				except Exception as e:
 					pass
-
+		else:
+			if os.path.exists(os.path.join(spaceConfigPath,".statusToken")):
+				os.remove(os.path.join(spaceConfigPath,".statusToken"))
+		
 		return True
 
 	#def checkStatus
@@ -294,7 +297,6 @@ class LliurexOneDriveAC:
 				time.sleep(1)
 				self.lastFolderCheck+=1
 				if self.lastFolderCheck > MAX_CHECK_FOLDER_INTERVAL:
-					#folderQ=Queue()
 					self.folderWorker=True
 					oneDriveSpaces=self.readOneDriveConfig()
 					checkSpaceFolder=checkSpaceLocalFolder()
@@ -304,7 +306,8 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
-							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
+							if os.path.exists(os.path.joint(space["configPath"]."refresh_token")):
+								futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
 						for future in concurrent.futures.as_completed(futures):
 							pass	
@@ -333,7 +336,7 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space['configPath'],space['type']]
-							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
+								futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):
 							pass	
