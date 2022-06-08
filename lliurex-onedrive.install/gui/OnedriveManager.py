@@ -909,6 +909,7 @@ class OnedriveManager:
 		OUT_OF_SYNC_MSG=2
 		WITH_OUT_CONFIG=1
 		INFORMATION_NOT_AVAILABLE=3
+		UPLOADING_PENDING_CHANGES=4
 
 		error=False
 		code=INFORMATION_NOT_AVAILABLE=3
@@ -950,7 +951,7 @@ class OnedriveManager:
 					elif 'Unauthorized' in item:
 						code=UNAUTHORIZED_ERROR
 					elif '416' in item:
-						code=UPLOADING_CANCEL_ERROR
+						code=UPLOADING_PENDING_CHANGES
 						break
 					elif 'Unable to query OneDrive' in item:
 						code=UNAUTHORIZED_ERROR
