@@ -306,7 +306,7 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
-							if os.path.exists(os.path.joint(space["configPath"]."refresh_token")):
+							if os.path.exists(os.path.join(space["configPath"],"refresh_token")):
 								futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
 						for future in concurrent.futures.as_completed(futures):
@@ -336,6 +336,7 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space['configPath'],space['type']]
+							if os.path.exists(os.path.join(space["configPath"],"refresh_token")):
 								futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):
