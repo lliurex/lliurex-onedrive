@@ -26,6 +26,7 @@ class checkSpaceLocalFolder():
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".emptyToken")
 
+		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
 			if os.listdir(spaceLocalFolder):
 				self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
@@ -36,13 +37,15 @@ class checkSpaceLocalFolder():
 					if not os.path.exists(localFolderEmptyToken):
 						self._manageFolderToken(False,True,localFolderRemovedToken,localFolderEmptyToken)
 					
-					self._stopClient(spaceConfigPath,spaceService)
+					if isRunning:
+						self._stopClient(spaceConfigPath,spaceService)
 				else:
 					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
 		else:
 			if not os.path.exists(localFolderRemovedToken):
 				self._manageFolderToken(True,False,localFolderRemovedToken,localFolderEmptyToken)
-				self._stopClient(spaceConfigPath,spaceService)
+				if isRunning:
+					self._stopClient(spaceConfigPath,spaceService)
 			else:
 				pass
 		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken)
@@ -73,12 +76,11 @@ class checkSpaceLocalFolder():
 
 	def _stopClient(self,spaceConfigPath,spaceService):
 
-		if self._isOnedriveRunning(spaceConfigPath):
-			cmd="systemctl --user stop %s"%spaceService
-			try:
-				p=subprocess.run(cmd,shell=True,check=True)
-			except subprocess.CalledProcessError as e:
-				pass
+		cmd="systemctl --user stop %s"%spaceService
+		try:
+			p=subprocess.run(cmd,shell=True,check=True)
+		except subprocess.CalledProcessError as e:
+			pass
 
 	#def _stopClient
 
@@ -113,12 +115,19 @@ class checkSpaceLocalFolder():
 
 	def _isOnedriveRunning(self,spaceConfigPath=None):
 
+		runToken=os.path.join(spaceConfigPath,".runToken")
+
 		if spaceConfigPath!=None:
 			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
 
 			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+				if not os.path.exists(runToken):
+					with open(runToken,'w') as fd:
+						pass
 				return True
 			else:
+				if os.path.exists(runToken):
+					os.remove(runToken)
 				return False
 
 		return False
