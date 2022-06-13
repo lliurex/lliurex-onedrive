@@ -62,7 +62,7 @@ GridLayout{
                     optionIcon:"/usr/share/icons/breeze/actions/16/configure.svg"
                     Connections{
                         function onMenuOptionClicked(){
-                        onedriveBridge.moveToManageOption(2)
+                            onedriveBridge.moveToManageOption(2)
                         }
                     }
                 }
@@ -76,33 +76,77 @@ GridLayout{
                         }
                     }
                 }
-
                 
             }
         }
     }
 
-    StackLayout {
-        id: manageLayout
-        currentIndex:onedriveBridge.manageCurrentOption
+    StackView {
+        id: manageView
+        property int currentOption:onedriveBridge.manageCurrentOption
         implicitHeight: 450
-        Layout.alignment:Qt.AlignHCenter
+        Layout.fillWidth:true
+        Layout.fillHeight: true
+        initialItem:accountView
 
-        AccountInfo{
-            id:accountInfo
-        }
-        
-        Synchronize{
-            id:synchronize
-        }
-        Settings{
-            id:settings
-        }
-        Tools{
-            id:tools
-        }
-        
+        onCurrentOptionChanged:{
+            switch(currentOption){
+                case 0:
+                    manageView.replace(accountView)
+                    break;
+                case 1:
+                    manageView.replace(synchronizeView)
+                    break;
+                case 2:
+                    manageView.replace(settingsView)
+                    break;
+                case 3:
+                    manageView.replace(toolsView)
+                    break
+            }
 
+        }
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 600
+            }
+        }
+        replaceExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 600
+            }
+        }
+
+        Component{
+            id:accountView
+            AccountInfo{
+                id:accountInfo
+            }
+        }
+        Component{
+            id:synchronizeView
+            Synchronize{
+                id:synchronize
+            }
+        }
+        Component{
+            id:settingsView
+            Settings{
+                id:settings
+            }
+        }
+        Component{
+            id:toolsView
+            Tools{
+                id:tools
+            }
+        }
     }
 }
 
