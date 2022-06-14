@@ -85,21 +85,25 @@ Components.ListItem{
 
     function getStatusIcon(statusSpace,localFolderWarning){
 
-        switch (statusSpace){
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-                if (!localFolderWarning){
+       if (localFolderWarning){
+            return "/usr/share/icons/breeze/status/16/state-warning.svg"
+        }else{
+            switch (statusSpace){
+                case 0:
+                case 3:
                     return "/usr/share/icons/breeze/status/16/state-ok.svg"
-                }else{
+                    break;
+                case 2:
+                case 4:
+                    return "/usr/share/icons/breeze/status/16/state-sync.svg"
+                    break;
+                default:
                     return "/usr/share/icons/breeze/status/16/state-warning.svg"
-                }
-                break;
-            default:
-                return "/usr/share/icons/breeze/status/16/state-warning.svg"
-                break
+                    break
+            }
+               
         }
 
     }
+
 }

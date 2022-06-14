@@ -131,7 +131,7 @@ class GatherSpaceSettings(QThread):
 	def run(self,*args):
 		
 		time.sleep(1)
-		Bridge.onedriveMan.loadSpaceSettings(self.spaceToLoad)
+		self.matchSpace=Bridge.onedriveMan.loadSpaceSettings(self.spaceToLoad)
 		'''
 		if not self.localFolderRemoved:
 			error,self.accountStatus,self.freeSpace=Bridge.onedriveMan.getAccountStatus()
@@ -344,6 +344,11 @@ class Bridge(QObject):
 		self.checkGlobalStatusTimer=QTimer(None)
 		self.checkGlobalStatusTimer.timeout.connect(self.getGlobalStatusInfo)
 		
+		if len(sys.argv)>1:
+			self.spaceToManage=sys.argv[1]
+		else:
+			self.spaceToManage=""
+
 		self.initBridge()
 
 	#def _init__
@@ -366,8 +371,10 @@ class Bridge(QObject):
 				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 			
 			self._updateSpacesModel()
-		
-		self.currentStack=1
+		if self.spaceToManage!="":
+			self.loadSpace(self.spaceToManage)
+		else:	
+			self.currentStack=1
 
 	#def _loadConfig
 
@@ -1157,37 +1164,43 @@ class Bridge(QObject):
 
 	def _loadSpace(self):
 
-		self._getInitialSettings()
-		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
-		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-		self.syncAll=Bridge.onedriveMan.syncAll
-		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
-		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
-		self.showAccountMessage=[False,""]
-		self.accountStatus=Bridge.onedriveMan.accountStatus
-		self.freeSpace=Bridge.onedriveMan.freeSpace
-		self._folderModel.resetModel()
+		if self.getSpaceSettings.matchSpace:
+			self._getInitialSettings()
+			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
+			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
+			self.syncAll=Bridge.onedriveMan.syncAll
+			self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+			self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+			self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
+			self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
+			self.showAccountMessage=[False,""]
+			self.accountStatus=Bridge.onedriveMan.accountStatus
+			self.freeSpace=Bridge.onedriveMan.freeSpace
+			self._folderModel.resetModel()
 
-		if not self.localFolderRemoved:
-			if not self.syncAll:
-				if not self.localFolderEmpty:
-					self.getFolderStruct=GetFolderStruct(True)
-					self.getFolderStruct.start()
-					self.getFolderStruct.finished.connect(self._endLoading)
+			if not self.localFolderRemoved:
+				if not self.syncAll:
+					if not self.localFolderEmpty:
+						self.getFolderStruct=GetFolderStruct(True)
+						self.getFolderStruct.start()
+						self.getFolderStruct.finished.connect(self._endLoading)
+					else:
+						self._endLoading()
 				else:
 					self._endLoading()
 			else:
+				if self.localFolderRemoved:
+					self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
+				elif self.localFolderEmpty:
+					self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
 				self._endLoading()
 		else:
-			if self.localFolderRemoved:
-				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
-			elif self.localFolderEmpty:
-				self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
-			self._endLoading()
+			self.closePopUp=[True,""]
+			self.closeGui=True
+			self.currentStack=1
 
+		
 	#def _loadAccount
 
 	def _endLoading(self):

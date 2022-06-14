@@ -734,6 +734,7 @@ class OnedriveManager:
 	def loadSpaceSettings(self,spaceId):
 
 		self.initSpacesSettings()
+		matchSpace=False
 		for item in self.onedriveConfig['spacesList']:
 			if item["id"]==spaceId:
 				self.spaceId=spaceId
@@ -741,31 +742,36 @@ class OnedriveManager:
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
+				matchSpace=True
 				break
 
-		self._createAuxVariables()
-		spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
-		self.readSpaceConfigFile(spaceConfigFilePath)
-		if not self.isAutoStartEnabled():
-			self.autoStartEnabled=False
-			self.currentConfig[0]=False
+		if matchSpace:
+			self._createAuxVariables()
+			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
+			self.readSpaceConfigFile(spaceConfigFilePath)
+			if not self.isAutoStartEnabled():
+				self.autoStartEnabled=False
+				self.currentConfig[0]=False
 
-		if self.existsFilterFile():
-			self.syncAll=False
-			self.readFilterFile()
-		else:
-			self.syncAll=True
+			if self.existsFilterFile():
+				self.syncAll=False
+				self.readFilterFile()
+			else:
+				self.syncAll=True
 
-		self.showFolderStruct!=self.syncAll
-		self.currentSyncConfig[0]=self.syncAll
-		self.currentSyncConfig[1]=self.foldersSelected
-		self.currentSyncConfig[2]=self.foldersUnSelected
+			self.showFolderStruct!=self.syncAll
+			self.currentSyncConfig[0]=self.syncAll
+			self.currentSyncConfig[1]=self.foldersSelected
+			self.currentSyncConfig[2]=self.foldersUnSelected
 
-		statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
-		self.accountStatus=int(statusInfo[1])
-		self.freeSpace=statusInfo[2]
-		self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
-	
+			statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
+			self.accountStatus=int(statusInfo[1])
+			self.freeSpace=statusInfo[2]
+			self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
+			
+			return True
+		return False
+		
 	#def loadSpaceSettings
 
 	def existsFilterFile(self):
