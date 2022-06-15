@@ -132,10 +132,7 @@ class GatherSpaceSettings(QThread):
 		
 		time.sleep(1)
 		self.matchSpace=Bridge.onedriveMan.loadSpaceSettings(self.spaceToLoad)
-		'''
-		if not self.localFolderRemoved:
-			error,self.accountStatus,self.freeSpace=Bridge.onedriveMan.getAccountStatus()
-		'''
+
 	#def run
 
 #class GatherSpaceSettings
@@ -1081,7 +1078,7 @@ class Bridge(QObject):
 	def _addSpace(self):
 
 		self._updateSpacesModel()
-		self.closePopUp=[True,""]
+		#self.closePopUp=[True,""]
 		self.reuseToken=False
 		self.tempConfig=False
 		self._libraryModel.clear()
@@ -1101,6 +1098,7 @@ class Bridge(QObject):
 				self._initialStartUp()
 				#self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
 		else:
+			self.closePopUp=[True,""]
 			self.closeGui=True
 			self.showSpaceSettingsMessage=[True,SPACE_CREATION_ERROR,"Error"]		
 
@@ -1118,6 +1116,8 @@ class Bridge(QObject):
 			self.currentStack=2
 			self.manageCurrentOption=1
 			self.spacesCurrentOption=0
+			self.closePopUp=[True,""]
+			self.closeGui=True
 
 
 	#def manageDownloadDialog
@@ -1140,14 +1140,15 @@ class Bridge(QObject):
 			self.currentStack=2
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
+			self.closePopUp=[True,""]
+			self.closeGui=True
 
 		else:
 			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
 
 		self.initStartUp=True
-		self.closePopUp=[True,""]
-		self.closeGui=True
+	
 
 	#def _endInitialStartUp
 	
@@ -1348,9 +1349,9 @@ class Bridge(QObject):
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
 			self.initStartUp=False
-		else:
-			self.closePopUp=[True,""]
 
+		self.closePopUp=[True,""]
+		self.closeGui=True
 		self._updateSpacesModelInfo("status")
 		self.accountStatus=self.getAccountStatus.ret[1]
 		self.freeSpace=self.getAccountStatus.ret[2]
