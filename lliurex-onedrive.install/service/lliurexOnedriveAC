@@ -222,6 +222,9 @@ class getSpaceStatusWorker():
 						if len(poutput)>0:
 							poutput=poutput.split('\n')
 							for item in poutput:
+								if 'Uploading' in item:
+									code=UPLOADING_PENDING_CHANGES
+									break;
 								if 'No pending' in item:
 									code=ALL_SYNCHRONIZE_MSG
 								elif 'out of sync' in item:
@@ -307,6 +310,7 @@ class LliurexOneDriveAC:
 				time.sleep(1)
 				self.lastFolderCheck+=1
 				if self.lastFolderCheck > MAX_CHECK_FOLDER_INTERVAL:
+					#folderQ=Queue()
 					self.folderWorker=True
 					oneDriveSpaces=self.readOneDriveConfig()
 					checkSpaceFolder=checkSpaceLocalFolder()
@@ -316,8 +320,7 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
-							if os.path.exists(os.path.join(space["configPath"],"refresh_token")):
-								futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
+							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
 						for future in concurrent.futures.as_completed(futures):
 							pass	
@@ -346,8 +349,7 @@ class LliurexOneDriveAC:
 						for space in oneDriveSpaces:
 							tmp=[]
 							tmpInfo=[space['configPath'],space['type']]
-							if os.path.exists(os.path.join(space["configPath"],"refresh_token")):
-								futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
+							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):
 							pass	
