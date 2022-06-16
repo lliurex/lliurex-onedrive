@@ -1040,6 +1040,7 @@ class Bridge(QObject):
 		
 		if self.manageCurrentOption!=option:
 			self.moveToOption=option
+			self.showSettingsMessage=[False,'']
 			if self.settingsChanged:
 				self.showSettingsDialog=True
 			elif self.syncCustomChanged:
@@ -1601,6 +1602,7 @@ class Bridge(QObject):
 		if self.moveToOption!="":
 			self.manageCurrentOption=self.moveToOption
 			self.moveToOption=""
+			self.showSettingsMessage=[False,'']
 		elif self.moveToStack!="":
 			self.currentStack=self.moveToStack
 			self.spacesCurrentOption=0
@@ -1670,6 +1672,7 @@ class Bridge(QObject):
 	@Slot()
 	def applySettingsChanges(self):
 
+		self.showSettingsMessage=[False,'']
 		self.closePopUp=[False,APPLY_SPACE_CHANGES_MESSAGE]
 		self.closeGui=False
 		self.applySettingsChangesT=ApplySettingsChanges(self.initialConfig)
@@ -1691,8 +1694,6 @@ class Bridge(QObject):
 		else:
 			self.moveToOption=""
 			self.moveToStack=""
-
-		self.showSettingsMessage=[False,""]
 
 		self._manageGoToStack()
 

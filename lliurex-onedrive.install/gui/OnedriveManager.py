@@ -60,7 +60,7 @@ class OnedriveManager:
 		self.excludeFolders=[]
 		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
-		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken",".runToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2]
