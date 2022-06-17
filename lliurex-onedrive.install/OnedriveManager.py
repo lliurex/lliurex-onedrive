@@ -906,9 +906,12 @@ class OnedriveManager:
 					tmp=foldersUnSelected[i]+"/*"
 					if tmp in self.includeFolders:
 						self.includeFolders.remove(tmp)
-				tmpFolder=foldersUnSelected[i]+"/"
-				if tmpFolder in element:
-					foldersUnSelected.pop(i)
+				try:
+					tmpFolder=foldersUnSelected[i]+"/"
+					if tmpFolder in element:
+						foldersUnSelected.pop(i)
+				except:
+					pass
 
 		
 		for element in foldersSelected:
@@ -972,9 +975,12 @@ class OnedriveManager:
 			
 			for i in range(len(self.excludeFolders)-1,-1,-1):
 				for element in self.includeFolders:
-					tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]+"/"
-					if tmp in element:
-						self.excludeFolders.pop(i)
+					try:
+						tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]+"/"
+						if tmp in element:
+							self.excludeFolders.pop(i)
+					except:
+						pass
 
 			with open(self.filterFile,'w') as fd:
 				
