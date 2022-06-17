@@ -1,3 +1,9 @@
+lliurex-onedrive (1.2.10) focal-updates; urgency=medium
+
+  * Fixed bug in filter file creation
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 17 Jun 2022 09:04:19 +0200
+
 lliurex-onedrive (1.2.9) focal-updates; urgency=medium
 
   * Updated to support onedrive v2.4.18
