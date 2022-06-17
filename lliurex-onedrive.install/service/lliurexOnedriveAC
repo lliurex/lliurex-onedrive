@@ -42,12 +42,13 @@ class checkSpaceLocalFolder():
 				else:
 					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
 		else:
-			if not os.path.exists(localFolderRemovedToken):
-				self._manageFolderToken(True,False,localFolderRemovedToken,localFolderEmptyToken)
-				if isRunning:
-					self._stopClient(spaceConfigPath,spaceService)
-			else:
-				pass
+			if not os.path.exists(emptyToken):
+				if not os.path.exists(localFolderRemovedToken):
+					self._manageFolderToken(True,False,localFolderRemovedToken,localFolderEmptyToken)
+					if isRunning:
+						self._stopClient(spaceConfigPath,spaceService)
+				else:
+					pass
 		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken)
 
 		return True
