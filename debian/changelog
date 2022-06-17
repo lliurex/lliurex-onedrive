@@ -1,3 +1,9 @@
+lliurex-onedrive (0.1.11) bionic-updates; urgency=medium
+
+  * Fixed bug in filter file creation
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 17 Jun 2022 09:07:36 +0200
+
 lliurex-onedrive (0.1.10) bionic-updates; urgency=medium
 
   * Updated to support onedrive v2.4.18
