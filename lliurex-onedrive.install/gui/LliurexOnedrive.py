@@ -32,6 +32,7 @@ SPACE_RUNNING_REPAIR_MESSAGE=14
 SPACE_GLOBAL_WARNING=15
 SPACE_INITIAL_STARTUP=16
 SEARCH_SPACE_SHAREPOINT=17
+SPACE_MIGRATION_MESSAGE=18
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -224,6 +225,7 @@ class ApplySyncChanges(QThread):
 	#def run
 
 #class ApplySyncChanges
+
 class ApplySettingsChanges(QThread):
 
 	def __init__(self,*args):
@@ -271,6 +273,24 @@ class RepairOneDrive(QThread):
 	#def run
 
 #class RepairOneDrive
+
+class MigrateSpace(QThread):
+
+	def __init__(self,*args):
+		QThread.__init__(self)
+		self.spaceInfo=args[0]
+		self.ret=[]
+
+	#def __init__
+
+	def run (self,*args):
+		
+		self.ret=Bridge.onedriveMan.migrateSpace(self.spaceInfo)
+	
+	#def run
+
+#class MigrateSpace
+
 
 class Bridge(QObject):
 
@@ -336,6 +356,7 @@ class Bridge(QObject):
 		self.moveToOption=""
 		self.moveToStack=""
 		self.initStartUp=False
+		self._requiredMigration=False
 		self.checkGlobalLocalFolderTimer=QTimer(None)
 		self.checkGlobalLocalFolderTimer.timeout.connect(self.getGlobalLocalFolderInfo)
 		self.checkGlobalStatusTimer=QTimer(None)
@@ -361,17 +382,22 @@ class Bridge(QObject):
 	
 	def _loadConfig(self):
 
-		if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
-			self.checkGlobalLocalFolderTimer.start(5000)
-			self.checkGlobalStatusTimer.start(15000)
-			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
-				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
-			
-			self._updateSpacesModel()
-		if self.spaceToManage!="":
-			self.loadSpace(self.spaceToManage)
-		else:	
+		if not os.path.exists(Bridge.onedriveMan.oldConfigPath):
+			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
+				self.checkGlobalLocalFolderTimer.start(5000)
+				self.checkGlobalStatusTimer.start(15000)
+				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+				
+				self._updateSpacesModel()
+			if self.spaceToManage!="":
+				self.loadSpace(self.spaceToManage)
+			else:	
+				self.currentStack=1
+		else:
+			self.requiredMigration=True
 			self.currentStack=1
+			self.spacesCurrentOption=3
 
 	#def _loadConfig
 
@@ -874,6 +900,20 @@ class Bridge(QObject):
 
 	#def _setIsOnedriveRunning
 
+	def _getRequiredMigration(self):
+
+		return self._requiredMigration
+
+	#def _getRequiredMigration
+
+	def _setRequiredMigration(self,requiredMigration):
+
+		if self._requiredMigration!=requiredMigration:
+			self._requiredMigration=requiredMigration
+			self.on_requiredMigration.emit()
+
+	#def setRequiredMigration
+
 	def _updateSpacesModel(self):
 
 		ret=self._spacesModel.clear()
@@ -997,18 +1037,51 @@ class Bridge(QObject):
 		else:
 			self.formData[1]=False
 
-		self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
-		
-		if not self.checkDuplicate[0]:
-			ret=Bridge.onedriveMan.checkPreviousLocalFolder(spaceInfo)
-			if ret:
-				self.showPreviousFolderDialog=True
+		if not self.requiredMigration:
+			self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
+			
+			if not self.checkDuplicate[0]:
+				ret=Bridge.onedriveMan.checkPreviousLocalFolder(spaceInfo)
+				if ret:
+					self.showPreviousFolderDialog=True
+				else:
+					self.createSpace()
 			else:
-				self.createSpace()
+				self.showSpaceFormMessage=[True,SPACE_DUPLICATE_ERROR,"Error"]
 		else:
-			self.showSpaceFormMessage=[True,SPACE_DUPLICATE_ERROR,"Error"]
+			self.migrateSpace()
 
 	#def checkData
+
+	def migrateSpace(self):
+
+		self.closePopUp=[False,SPACE_MIGRATION_MESSAGE]
+		self.closeGui=False
+		self.migrateSpaceT=MigrateSpace(self.spaceInfo)
+		self.migrateSpaceT.start()
+		self.migrateSpaceT.finished.connect(self._migrateSpace)
+
+	#def migrateSpace
+
+	def _migrateSpace(self):
+
+		self._updateSpacesModel()
+		#self.closePopUp=[True,""]
+		self.tempConfig=False
+
+		if self.migrateSpaceT.ret:
+			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
+			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
+			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
+			self._getInitialSettings()
+			self.currentStack=2
+			self.manageCurrentOption=0
+			self.spacesCurrentOption=0
+			self.closePopUp=[True,""]
+			self.closeGui=True
+			self.requiredMigration=False
+
+	#def _migrateSpace
 
 	@Slot(str)
 	def getToken(self,token):
@@ -1969,6 +2042,9 @@ class Bridge(QObject):
 	on_isOnedriveRunning=Signal()
 	isOnedriveRunning=Property(bool,_getIsOnedriveRunning,_setIsOnedriveRunning, notify=on_isOnedriveRunning)
 
+	on_requiredMigration=Signal()
+	requiredMigration=Property(bool,_getRequiredMigration,_setRequiredMigration, notify=on_requiredMigration)
+	
 	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)

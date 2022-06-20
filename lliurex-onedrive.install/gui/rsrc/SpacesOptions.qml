@@ -26,7 +26,9 @@ GridLayout{
                 optionIcon:"/usr/share/icons/breeze/places/16/folder-cloud.svg"
                 Connections{
                     function onMenuOptionClicked(){
-                        onedriveBridge.moveToSpaceOption(0);
+                        if (!onedriveBridge.requiredMigration){
+                            onedriveBridge.moveToSpaceOption(0);
+                        }
                     }
                 }
             }
@@ -62,6 +64,9 @@ GridLayout{
                     break;
                 case 2:
                     optionsView.replace(oneDriveAuthView)
+                    break;
+                case 3:
+                    optionsView.replace(migrationView)
                     break;
             }
         }
@@ -99,6 +104,12 @@ GridLayout{
             OnedriveAuth{
                 id:oneDriveAuth
                 authUrl:onedriveBridge.authUrl
+            }
+        }
+        Component{
+            id:migrationView
+            SpaceMigration{
+                id:spaceMigration
             }
         }
 

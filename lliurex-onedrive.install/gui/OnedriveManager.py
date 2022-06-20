@@ -64,6 +64,8 @@ class OnedriveManager:
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2]
+		self.oldConfigPath=os.path.join(self.onedriveConfigDir,"refresh_token")
+		self.filesToMigrate=["config","items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
 		self.createEnvironment()
 		self.clearCache()
 
@@ -1770,5 +1772,90 @@ class OnedriveManager:
 		return installed
 
 	#def getPackageVersion
+
+	def migrateSpace(self,spaceInfo):
+
+		spaceEmail=spaceInfo[0]
+		spaceType=spaceInfo[1]
+		spaceName=spaceInfo[2]
+		spaceLibrary=spaceInfo[3]
+		spaceDriveId=spaceInfo[4]
+
+		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary]
+		ret=self._stopOldService()
+		
+		if ret:
+			self._getSpaceSuffixName(spaceInfo)
+			self._createSpaceConfFolder(spaceType,spaceDriveId)
+			oldLocalFolder="/home/%s/OneDrive"%self.user
+			self.spaceLocalFolder="/home/%s/OneDrive_%s"%(self.user,self.spaceSuffixName)
+			try:
+				if os.path.exists(oldLocalFolder):
+					os.rename(oldLocalFolder,self.spaceLocalFolder)
+			except Exception as e:
+				print(str(e))
+				return False
+
+			self._moveOldConfig()
+			self._manageEmptyToken()
+			self._createSpaceServiceUnit(spaceType)
+			self._createOneDriveACService()
+			self._updateOneDriveConfig(spaceInfo)
+			self._createAuxVariables()
+			self.loadOneDriveConfig()			
+
+		return ret
+
+	#def migrateSpace
+
+	def _stopOldService(self):
+
+		oldServicePath=os.path.join(self.userSystemdPath,"onedrive.service")
+		ok=True
+		alreadyMasked=False
+		if not os.path.exists(oldServicePath):
+			cmd="systemctl --user stop onedrive.service"
+			try:
+				p=subprocess.run(cmd,shell=True,check=True)
+				
+			except subprocess.CalledProcessError as e:
+				ok=False
+				pass
+		
+		else:
+			alreadyMasked=True
+		
+		isRunning=self.isOnedriveRunning(self.onedriveConfigDir)
+		
+		if isRunning:
+			try:
+				cmd="ps -ef | grep 'onedrive --monitor' | grep -v grep | awk '{print $2}' | xargs kill -9"				
+				p=subprocess.run(cmd,shell=True,check=True)
+			except subprocess.CalledProcessError as e:
+				ok=False
+				pass
+	
+		if not alreadyMasked:
+			try:	
+				cmd="systemctl --user mask onedrive.service"
+				p=subprocess.run(cmd,shell=True,check=True)
+			
+			except subprocess.CalledProcessError as e:
+				ok=False
+				pass
+
+		return ok
+
+	#def _stopOldService
+
+	def _moveOldConfig(self):
+
+		for item in self.filesToMigrate:
+			tmpFile=os.path.join(self.onedriveConfigDir,item)
+			if os.path.exists(tmpFile):
+				newFile=os.path.join(self.spaceConfPath,item)
+				shutil.move(tmpFile,newFile)
+
+	#def _moveOldConfig
 
 #class OnedriveManager

@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
 
     Text{ 
-        text:i18nd("lliurex-onedrive","New Space")
+        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Space Migration"):i18nd("lliurex-onedrive","New Space")
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
@@ -173,7 +173,12 @@ Rectangle{
             Keys.onReturnPressed: cancelBtn.clicked()
             Keys.onEnterPressed: cancelBtn.clicked()
             onClicked:{
-                onedriveBridge.moveToSpaceOption(0)
+                if (!onedriveBridge.requiredMigration){
+                    onedriveBridge.moveToSpaceOption(0);
+                }else{
+                     onedriveBridge.moveToSpaceOption(3);
+                   
+                }
             }
         }
     } 
