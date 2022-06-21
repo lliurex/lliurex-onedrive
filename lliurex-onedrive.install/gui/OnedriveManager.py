@@ -41,7 +41,7 @@ class OnedriveManager:
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
-		self.customizeConfigParam=['sync_dir','drive_id','monitor_interval','rate_limit']
+		self.customizeConfigParam=['monitor_interval','rate_limit']
 		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
@@ -65,7 +65,8 @@ class OnedriveManager:
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2]
 		self.oldConfigPath=os.path.join(self.onedriveConfigDir,"refresh_token")
-		self.filesToMigrate=["config","items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
+		self.filesToMigrate=["items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
+		self.oldFilesToDelete=["config",".config.backup",".config.hash","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
 		self.createEnvironment()
 		self.clearCache()
 
@@ -354,7 +355,7 @@ class OnedriveManager:
 		spaceDriveId=spaceInfo[4]
 
 		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary]
-		
+		ret=self._stopOldService()
 		self._createSpaceConfFolder(spaceType,spaceDriveId)
 		if reuseToken:
 			self._copyToken(spaceEmail)
@@ -369,10 +370,10 @@ class OnedriveManager:
 			if rc not in [0,1]:
 				return False
 
+		self._manageEmptyToken()
 		self._createSpaceServiceUnit(spaceType)
 		self._createOneDriveACService()
 		self._updateOneDriveConfig(spaceInfo)
-		self._manageEmptyToken()
 		self._createAuxVariables()
 		self.loadOneDriveConfig()
 
@@ -396,32 +397,36 @@ class OnedriveManager:
 			if not os.path.exists(self.spaceConfPath):
 				createConfig=True 
 
-		if createConfig:
+		if not createConfig:
+			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
+			customParam=self.readSpaceConfigFile(spaceConfigFilePath)
+		else:
 			os.mkdir(self.spaceConfPath)
-			shutil.copy(self.configTemplatePath,self.spaceConfPath)
-			
-			with open(os.path.join(self.spaceConfPath,"config"),'r') as fd:
-				lines=fd.readlines()
-			
-			with open(os.path.join(self.spaceConfPath,"config"),'w') as fd:
-				for line in lines:
-					if 'sync_dir =' in line:
-						tmpLine=line.replace("{{LOCAL_FOLDER}}",self.spaceLocalFolder)
+		
+		shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		
+		with open(os.path.join(self.spaceConfPath,"config"),'r') as fd:
+			lines=fd.readlines()
+		
+		with open(os.path.join(self.spaceConfPath,"config"),'w') as fd:
+			for line in lines:
+				if 'sync_dir =' in line:
+					tmpLine=line.replace("{{LOCAL_FOLDER}}",self.spaceLocalFolder)
+					fd.write(tmpLine)
+				else:
+					if spaceType=="sharepoint" and 'drive_id' in line:
+						newLine='drive_id = "%s"'%spaceDriveId
+						tmpLine=line.replace('# drive_id = ""',newLine)
 						fd.write(tmpLine)
 					else:
-						if spaceType=="sharepoint" and 'drive_id' in line:
-							newLine='drive_id = "%s"'%spaceDriveId
-							tmpLine=line.replace('# drive_id = ""',newLine)
-							fd.write(tmpLine)
-						else:
-							fd.write(line)
-		else:
-			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
-			self.readSpaceConfigFile(spaceConfigFilePath)
+						fd.write(line)
+		
+		if not createConfig:
+			self.updateConfigFile(customParam)
 
 	#def _createSpaceConfFolder
 
-	def readSpaceConfigFile(self,spaceConfigFilePath,newAccount=False):
+	def readSpaceConfigFile(self,spaceConfigFilePath):
 
 		if os.path.exists(spaceConfigFilePath):
 			customParam=self._readCustomParams(spaceConfigFilePath)
@@ -434,8 +439,7 @@ class OnedriveManager:
 					self.currentConfig[2]=self.rateLimit
 					break
 
-			if newAccount:
-				self._updateOneDriveConfig(customParam)
+			return customParam
 
 	#def readConfigFile
 
@@ -443,38 +447,39 @@ class OnedriveManager:
 
 		customParam={}
 
-		with open(spaceConfigFilePath,'r') as fd:
-			lines=fd.readlines()
-			for line in lines:
-				for param in self.customizeConfigParam:
-					tmpLine=line.split("=")
-					if param==tmpLine[0].strip():
-						value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-						customParam[param]=value
+		if os.path.exists(spaceConfigFilePath):
+			with open(spaceConfigFilePath,'r') as fd:
+				lines=fd.readlines()
+				for line in lines:
+					for param in self.customizeConfigParam:
+						tmpLine=line.split("=")
+						if param==tmpLine[0].strip():
+							value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+							customParam[param]=value
 
 		return customParam 
 
 	#def _readCustomParams
 
-	def _updateConfigFile(self,customParam):
+	def updateConfigFile(self,customParam):
 
-		shutil.copy(self.configTemplatePath,self.spaceConfPath)
 		configFile=os.path.join(self.spaceConfPath,'config')
 
-		with open(configFile,'r') as fd:
-			lines=fd.readlines()
+		if os.path.exists(configFile):
+			with open(configFile,'r') as fd:
+				lines=fd.readlines()
 
-		with open(configFile,'w') as fd:
-			for line in lines:
-				for param in customParam:
-					tmpLine=line.split("=")
-					if param==tmpLine[0].strip():
-						value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-						if value!=customParam[param]:
-							line=param+' = '+'"'+customParam[param]+'"\n'
-						break
-				
-				fd.write(line)
+			with open(configFile,'w') as fd:
+				for line in lines:
+					for param in customParam:
+						tmpLine=line.split("=")
+						if param==tmpLine[0].strip():
+							value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+							if value!=customParam[param]:
+								line=param+' = '+'"'+customParam[param]+'"\n'
+							break
+					
+					fd.write(line)
 
 	#def _updateConfigFile
 
@@ -815,12 +820,15 @@ class OnedriveManager:
 
 	#def readFilterFile	
 
-	def isOnedriveRunning(self,spaceConfPath=None):
+	def isOnedriveRunning(self,spaceConfPath=None,oldCommand=False):
 
 		if spaceConfPath==None:
 			spaceConfPath=self.spaceConfPath
 
-		onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfPath
+		if oldCommand:
+			onedriveCommand='onedrive --monitor'
+		else:	
+			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfPath
 
 		if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
 			return True
@@ -1786,24 +1794,31 @@ class OnedriveManager:
 		
 		if ret:
 			self._getSpaceSuffixName(spaceInfo)
-			self._createSpaceConfFolder(spaceType,spaceDriveId)
-			oldLocalFolder="/home/%s/OneDrive"%self.user
 			self.spaceLocalFolder="/home/%s/OneDrive_%s"%(self.user,self.spaceSuffixName)
-			try:
-				if os.path.exists(oldLocalFolder):
-					os.rename(oldLocalFolder,self.spaceLocalFolder)
-			except Exception as e:
-				print(str(e))
+			self._createSpaceConfFolder(spaceType,spaceDriveId)
+			if os.path.exists(self.spaceConfPath):
+				self._moveOldConfig(self.onedriveConfigDir,self.spaceConfPath)
+				oldLocalFolder="/home/%s/OneDrive"%self.user
+				try:
+					if os.path.exists(oldLocalFolder):
+						os.rename(oldLocalFolder,self.spaceLocalFolder)
+				except Exception as e:
+					self._restoreOldConfig(oldLocalFolder)
+					return False
+
+				customParam=self.readSpaceConfigFile(os.path.join(self.onedriveConfigDir,"config"))
+				self.updateConfigFile(customParam)
+				self._manageEmptyToken()
+				self._createSpaceServiceUnit(spaceType)
+				self._createOneDriveACService()
+				self._updateOneDriveConfig(spaceInfo)
+				self._createAuxVariables()
+				self.loadOneDriveConfig()
+				self._deleteOldFiles()
+				return True			
+			else:
 				return False
-
-			self._moveOldConfig()
-			self._manageEmptyToken()
-			self._createSpaceServiceUnit(spaceType)
-			self._createOneDriveACService()
-			self._updateOneDriveConfig(spaceInfo)
-			self._createAuxVariables()
-			self.loadOneDriveConfig()			
-
+		
 		return ret
 
 	#def migrateSpace
@@ -1825,7 +1840,7 @@ class OnedriveManager:
 		else:
 			alreadyMasked=True
 		
-		isRunning=self.isOnedriveRunning(self.onedriveConfigDir)
+		isRunning=self.isOnedriveRunning(self.onedriveConfigDir,True)
 		
 		if isRunning:
 			try:
@@ -1848,14 +1863,33 @@ class OnedriveManager:
 
 	#def _stopOldService
 
-	def _moveOldConfig(self):
+	def _moveOldConfig(self,origPath,destPath):
 
 		for item in self.filesToMigrate:
-			tmpFile=os.path.join(self.onedriveConfigDir,item)
+			tmpFile=os.path.join(origPath,item)
 			if os.path.exists(tmpFile):
-				newFile=os.path.join(self.spaceConfPath,item)
+				newFile=os.path.join(destPath,item)
 				shutil.move(tmpFile,newFile)
+
 
 	#def _moveOldConfig
 
+	def _restoreOldConfig(self,oldLocalFolder):
+
+		if not os.path.exists(oldLocalFolder):
+			if os.path.exists(self.spaceLocalFolder):
+				os.rename(self.spaceLocalFolder,oldLocalFolder)
+				self._moveOldConfig(self.spaceConfPath,self.onedriveConfigDir)
+
+	#def _restoreOldConfig
+
+	def _deleteOldFiles(self):
+
+		for item in self.oldFilesToDelete:
+			tmpFile=os.path.join(self.onedriveConfigDir,item)
+			if os.path.exists(tmpFile):
+				os.remove(tmpFile)
+
+	#def _deleteOldFiles
+		
 #class OnedriveManager

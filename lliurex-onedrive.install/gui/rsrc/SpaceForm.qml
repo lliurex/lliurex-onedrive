@@ -85,6 +85,7 @@ Rectangle{
                     id:sharePointOption
                     checked:!onedriveBridge.formData[1]
                     text:"SharePoint"
+                    enabled:!onedriveBridge.requiredMigration
                     onToggled:{
                         if (spaceMailEntry.acceptableInput){    
                             onedriveBridge.getSpaceSharePoints([spaceMailEntry.text,false])
@@ -339,6 +340,9 @@ Rectangle{
                 break
             case -14:
                 var msg=i18nd("lliurex-onedrive","No SharePoints found for the indicated email");
+                break
+            case -15:
+                var msg=i18nd("lliurex-onedrive","Unable to migrate old configuration");
                 break
             default:
                 var msg=""

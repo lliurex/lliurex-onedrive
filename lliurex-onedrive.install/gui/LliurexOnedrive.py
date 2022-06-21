@@ -44,6 +44,7 @@ STOP_SYNCHRONIZATION_ERROR=-11
 LOCAL_FOLDER_EMPTY=-12
 LOCAL_FOLDER_REMOVED=-13
 SPACE_SHAREPOINT_EMPTY_ERROR=-14
+SPACE_MIGRATION_ERROR=-15
 
 
 class GatherInfo(QThread):
@@ -1080,6 +1081,10 @@ class Bridge(QObject):
 			self.closePopUp=[True,""]
 			self.closeGui=True
 			self.requiredMigration=False
+		else:
+			self.closePopUp=[True,""]
+			self.closeGui=True
+			self.showSpaceFormMessage=[True,SPACE_MIGRATION_ERROR,"Error"]		
 
 	#def _migrateSpace
 
