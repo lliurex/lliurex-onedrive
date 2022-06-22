@@ -181,7 +181,7 @@ Rectangle{
                 
             Text {
                 id:dialogText
-                text:i18nd("lliurex-onedrive","The settings of OneDrive have changed.\nDo you want apply the changes or discard them?")
+                text:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:dialogIcon.right

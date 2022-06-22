@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
 
     Text{ 
-        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Space Migration"):i18nd("lliurex-onedrive","New Space")
+        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Configuration Migration"):i18nd("lliurex-onedrive","New Space")
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
@@ -61,7 +61,7 @@ Rectangle{
                 id:spaceType
                 Layout.alignment:Qt.AlignRight
                 Layout.bottomMargin:10
-                text:i18nd("lliurex-onedrive","Kind of space:")
+                text:i18nd("lliurex-onedrive","Space Type:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
             }
@@ -279,7 +279,7 @@ Rectangle{
             
             Text {
                 id:dialogText
-                text:i18nd("lliurex-onedrive","Its content in OneDrive is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
+                text:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
                 i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
@@ -333,7 +333,7 @@ Rectangle{
     function getTextMessage(){
         switch (onedriveBridge.showSpaceFormMessage[1]){
             case -1:
-                var msg=i18nd("lliurex-onedrive","A OneDrive space associated with the indicated email is already being synced");
+                var msg=i18nd("lliurex-onedrive","A OneDrive/SharePoint space associated with the indicated email is already being synced");
                 break
             case -2:
                 var msg=i18nd("lliurex-onedrive","No libraries found for the indicated SharePoint");

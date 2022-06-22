@@ -150,7 +150,7 @@ Rectangle{
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:i18nd("lliurex-onedrive","Click to open OneDrive Folder")
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to open local folder of space")
 
                     hoverEnabled:true
                     onClicked:{
@@ -386,7 +386,7 @@ Rectangle{
             
             Text {
                 id:startEmptyDialogText
-                text:i18nd("lliurex-onedrive","Local OneDrive folder is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive")
+                text:i18nd("lliurex-onedrive","The local folder of space is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive/SharePoint")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:startEmptyDialogIcon.right
@@ -440,7 +440,7 @@ Rectangle{
 
     function getTextOption(errorCode){
 
-        var additionalText=i18nd("lliurex-onedrive","Wait a moment and update the status\nIf persist run a OneDrive test")
+        var additionalText=i18nd("lliurex-onedrive","Wait a moment and update the status\nIf persist run a LliureX-OneDrive test")
         var helpText=i18nd("lliurex-onedrive","Consult the help to solve the situation")
         switch (errorCode) {
             case 0:
@@ -483,10 +483,10 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","Unable to stop synchronization")
                 break;
             case -12:
-                var msg=i18nd("lliurex-onedrive","Local OneDrive Folder is empty. ")+helpText
+                var msg=i18nd("lliurex-onedrive","The local folder of space is empty. ")+helpText
                 break;
             case -13:
-                var msg=i18nd("lliurex-onedrive","Local OneDrive Folder not exist. ")+helpText
+                var msg=i18nd("lliurex-onedrive","The local folder of space not exist. ")+helpText
                 break;
             case " ":
                 var msg=""
@@ -496,36 +496,6 @@ Rectangle{
                 break;
         }
         return msg
-    }
-
-    function getChangesText(){
-
-        var aditionalText=i18nd("lliurex-onedrive","Apply or cancel changes before starting synchronization.")
-
-        if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
-            var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Settings.\n")
-
-        }else{
-            if ((!onedriveBridge.settingsChanged) && (onedriveBridge.syncCustomChanged)){
-                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Synchronize.\n")
-            }else{
-                var text=i18nd("lliurex-onedrive","There are pending changes to be applied in Synchronize and Settings.\n")
-          
-            }
-
-        }
-        return text+aditionalText
-
-    }
-
-    function getTransition(){
-
-        if ((onedriveBridge.settingsChanged) && (!onedriveBridge.syncCustomChanged)){
-            return 2
-        }else{
-            return 1
-        }
-
     }
 
     function changeSyncStatus(){

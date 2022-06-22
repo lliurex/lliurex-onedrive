@@ -45,23 +45,14 @@ Rectangle{
 
             CheckBox {
                 id:syncAll
-                text:i18nd("lliurex-onedrive","Synchronize all content of OneDrive")
+                text:i18nd("lliurex-onedrive","Synchronize all content of space")
                 checked:onedriveBridge.syncAll
                 enabled:getEnabledStatus()
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
                 onToggled:{
-                    /*syncCustom.checked=!checked*/
                     onedriveBridge.getSyncMode(checked)
-                    /*
-                    if (checked){
-                        folderList.structVisible=false
-                    }else{
-                        if (folderList.listCount>1){
-                            folderList.structVisible=true
-                        }
-                    }
-                    */
+                    
                 }
 
                 Layout.bottomMargin:10
@@ -106,7 +97,7 @@ Rectangle{
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:i18nd("lliurex-onedrive","Click to update the OneDrive folder structure")
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to update the space folder structure")
                     hoverEnabled:true
                     onClicked:onedriveBridge.updateFolderStruct(false)
                 }
@@ -188,7 +179,7 @@ Rectangle{
                     if (!syncAll.checked){
                         i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nDo you want to delete the rest of the folders from this computer?")
                     }else{
-                          i18nd("lliurex-onedrive","Applying the changes will sync all the content of your Onedrive account")
+                          i18nd("lliurex-onedrive","Applying the changes will sync all the content of your space")
                     }
                 }
                 font.family: "Quattrocento Sans Bold"
@@ -368,7 +359,7 @@ Rectangle{
                 break
                 
             case -5:
-                var msg=i18nd("lliurex-onedrive","An error occurred while getting the OneDrive folder structure");
+                var msg=i18nd("lliurex-onedrive","An error occurred while getting the space folder structure");
                 break
 
             default:

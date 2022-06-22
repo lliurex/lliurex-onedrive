@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.12
 
 Popup {
     id:popUpWaiting
-    width:500
+    width:550
     height:80
     anchors.centerIn: Overlay.overlay
     modal:true
@@ -50,7 +50,7 @@ Popup {
     function getTextMessage(){
         switch (onedriveBridge.closePopUp[1]){
             case 1:
-                var msg=i18nd("lliurex-onedrive","Creating a new space. Wait a moment...");
+                var msg=i18nd("lliurex-onedrive","Configuring a new space. Wait a moment...");
                 break;
             case 2:
                 var msg=i18nd("lliurex-onedrive","Looking for libraries. Wait a moment...");
@@ -71,7 +71,7 @@ Popup {
                 var msg=i18nd("lliurex-onedrive","Unlinking from space. Wait a moment...")
                 break
             case 10:
-                var msg=i18nd("lliurex-onedrive","Gathering OneDrive folder structure. Wait a moment...")
+                var msg=i18nd("lliurex-onedrive","Gathering OneDrive/SharePoint folder structure. Wait a moment...")
                 break
             case 11:
                 var msg=i18nd("lliurex-ondrive","Restoring values . Wait a moment...")
@@ -86,13 +86,10 @@ Popup {
                 var msg=i18nd("lliurex-onedrive","Running the repair command. Wait a moment...")
                 break
             case 16:
-                var msg=i18nd("lliurex-onedrive","Starting the sync. Wait a moment...")
-                break
-            case 17:
                 var msg=i18nd("lliurex-onedrive","Looking for SharePoints. Wait a moment...")
                 break
-            case 18:
-                var msg=i18nd("lliurex-onedrive","Migrating space. Wait a moment...")
+            case 17:
+                var msg=i18nd("lliurex-onedrive","Migrating configuration. Wait a moment...")
                 break
             default:
                 var msg=""

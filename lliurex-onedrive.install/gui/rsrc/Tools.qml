@@ -43,7 +43,7 @@ Rectangle{
 
             Text{
                 id:testText
-                text:i18nd("lliurex-onedrive","Run a OneDrive test:")
+                text:i18nd("lliurex-onedrive","Run a LliureX-OneDrive test:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCente
             }
@@ -60,7 +60,7 @@ Rectangle{
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
-                ToolTip.text:i18nd("lliurex-onedrive","Click to run an OneDrive test command")
+                ToolTip.text:i18nd("lliurex-onedrive","Click to run an LliureX-OneDrive test command")
 
                 onClicked:{
                     onedriveBridge.testOnedrive();
@@ -69,7 +69,7 @@ Rectangle{
 
             Text{
                 id:repairText
-                text:i18nd("lliurex-onedrive","Repair OneDrive:")
+                text:i18nd("lliurex-onedrive","Repair space:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             }
@@ -116,7 +116,7 @@ Rectangle{
             
             Text {
                 id:repairRemovedDialogText
-                text:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local OneDrive folder not exists.\nAre you sure you want to repair OneDrive?\nThis action can lead to deletion of files stored on OneDrive"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive.\nAre you sure you want to repair OneDrive?")
+                text:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to repair the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to repair the space?")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 anchors.left:repairRemovedDialogIcon.right

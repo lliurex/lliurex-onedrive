@@ -9,7 +9,6 @@ Rectangle {
     property alias authUrl:webEngine.url
 
     Component.onDestruction:{
-        console.log("destruyendo")
         closeConnection()
     }
 
@@ -22,7 +21,6 @@ Rectangle {
         onLoadingChanged:{
             var ret=loadRequest.url.toString()
             if (ret.indexOf("nativeclient?code=")===48){
-                console.log("hecho");
                 onedriveBridge.getToken(ret);
                 profile.clearHttpCache();
                 webEngine.action(webEngine.Stop);
