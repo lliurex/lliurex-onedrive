@@ -1,3 +1,9 @@
+lliurex-onedrive (0.1.12) bionic-updates; urgency=medium
+
+  * Improved speed when gather info about space struct folder.
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 22 Jun 2022 13:16:24 +0200
+
 lliurex-onedrive (0.1.11) bionic-updates; urgency=medium
 
   * Fixed bug in filter file creation
