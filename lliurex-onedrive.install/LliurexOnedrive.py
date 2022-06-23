@@ -730,9 +730,9 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
-		self.manageSync=ManageSync(True)
-		self.manageSync.start()
-		self.manageSync.finished.connect(self._endInitialStartUp)
+		self.manageSyncT=ManageSync(True)
+		self.manageSyncT.start()
+		self.manageSyncT.finished.connect(self._endInitialStartUp)
 		
 	#def _initialStartUp
 
