@@ -1203,15 +1203,15 @@ class Bridge(QObject):
 	def _initialStartUp(self):
 
 		self.closePopUp=[False,START_SYNC_MESSAGE]
-		self.manageSync=ManageSync(True)
-		self.manageSync.start()
-		self.manageSync.finished.connect(self._endInitialStartUp)
+		self.manageSyncT=ManageSync(True)
+		self.manageSyncT.start()
+		self.manageSyncT.finished.connect(self._endInitialStartUp)
 		
 	#def _initialStartUp
 
 	def _endInitialStartUp(self):
 
-		self.isOnedriveRunning=self.manageSync.ret[1]
+		self.isOnedriveRunning=self.manageSyncT.ret[1]
 
 		if not self.isOnedriveRunning:
 			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
