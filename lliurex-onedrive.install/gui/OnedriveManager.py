@@ -1114,7 +1114,7 @@ class OnedriveManager:
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
 
-		cmd='onedrive --synchronize --resync --resync-auth --dry-run --verbose --confdir="%s"'%self.spaceConfPath
+		cmd='onedrive --synchronize --resync --resync-auth --dry-run --verbose --skip-file="*.*" --confdir="%s"'%self.spaceConfPath
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		out=p.communicate()[0]
 		out=out.decode().split("\n")
