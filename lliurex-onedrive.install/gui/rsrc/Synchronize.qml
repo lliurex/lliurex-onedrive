@@ -154,178 +154,71 @@ Rectangle{
         }
     }
 
-    Dialog{
-        id: syncDialog
-        visible:onedriveBridge.showSynchronizeDialog
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
-        modality:Qt.WindowModal
-
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 700
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:dialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-question.svg"
-
+    ChangesDialog{
+        id:syncDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
+        dialogVisible:onedriveBridge.showSynchronizeDialog
+        dialogMsg:{
+            if (!syncAll.checked){
+                i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nDo you want to delete the rest of the folders from this computer?")
+            }else{
+                i18nd("lliurex-onedrive","Applying the changes will sync all the content of your space")
             }
-            
-            Text {
-                id:dialogText
-                text:{
-                    if (!syncAll.checked){
-                        i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nDo you want to delete the rest of the folders from this computer?")
-                    }else{
-                          i18nd("lliurex-onedrive","Applying the changes will sync all the content of your space")
-                    }
-                }
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:dialogIcon.right
-                anchors.verticalCenter:dialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
+        }
+        dialogWidth:700
+        btnAcceptVisible:!syncAll.checked
+        btnAcceptText:i18nd("lliurex-onedrive","Yes, delete unselected folders")
+        btnDiscardText:{
+            if (!syncAll.checked){
+                i18nd("lliurex-onedrive","No, keep folders unselected")
+            }else{
+                i18nd("lliurex-onedrive","Accept")
             }
-          
-
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:dialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Yes, delete unselected folders")
-                    visible:!syncAll.checked
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                Button {
-                    id:dialogDiscardBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: {
-                       if (!syncAll.checked){
-                            i18nd("lliurex-onedrive","No, keep folders unselected")
-                       }else{
-                            i18nd("lliurex-onedrive","Accept")
-                       }
                         
-                    }
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-                }
-
-                Button {
-                    id:dialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:onedriveBridge.manageSynchronizeDialog("Accept")
-                onDiscarded:onedriveBridge.manageSynchronizeDialog("Keep")
-                onRejected:{
-                    onedriveBridge.manageSynchronizeDialog("Cancel")
-                }
+        }
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:syncDialog
+            function onDialogApplyClicked(){
+                onedriveBridge.manageSynchronizeDialog("Accept")
+            }
+            function onDiscardDialogClicked(){
+                onedriveBridge.manageSynchronizeDialog("Keep")  
+            }
+            function onRejectDialogClicked(){
+                onedriveBridge.manageSynchronizeDialog("Cancel")
             }
         }
+    }       
+    ChangesDialog{
+        id:pendingDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
+        dialogVisible:onedriveBridge.showSynchronizePendingDialog
+        dialogMsg:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
+        dialogWidth:400
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Apply")
+        btnDiscardText:i18nd("lliurex-onedrive","Discard")
+        btnDiscardIcon:"delete.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:pendingDialog
+            function onDialogApplyClicked(){
+                onedriveBridge.manageSynchronizePendingDialog("Accept")
+            }
+            function onDiscardDialogClicked(){
+                onedriveBridge.manageSynchronizePendingDialog("Discard")  
+            }
+            function onRejectDialogClicked(){
+                onedriveBridge.manageSynchronizePendingDialog("Cancel")
+            }
+        }    
     }
-
-    Dialog {
-        id: pendingDialog
-        visible:onedriveBridge.showSynchronizePendingDialog
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
-        modality:Qt.WindowModal
-
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 500
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-
-            Image{
-                id:dialogPendingIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-
-            }
-                
-            Text {
-                id:dialogPendingText
-                text:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:dialogPendingIcon.right
-                anchors.verticalCenter:dialogPendingIcon.verticalCenter
-                anchors.leftMargin:10
-                
-            }
-              
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:dialogPendingApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Apply")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                Button {
-                    id:dialogPendingDiscardBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"delete.svg"
-                    text: i18nd("lliurex-onedrive","Discard")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-                }
-
-                Button {
-                    id:dialogPendingCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                    onedriveBridge.manageSynchronizePendingDialog("Accept")
-                }
-
-                onDiscarded:{
-                    onedriveBridge.manageSynchronizePendingDialog("Discard")
-                }
-
-                onRejected:{
-                    onedriveBridge.manageSynchronizePendingDialog("Cancel")
-                }
-            }
-        }
-     }
 
     CustomPopup{
         id:synchronizePopup

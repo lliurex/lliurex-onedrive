@@ -6,9 +6,17 @@ import QtQuick.Dialogs 1.3
 
 Dialog {
     id: customDialog
+    property alias dialogIcon:dialogIcon.source
     property alias dialogTitle:customDialog.title
     property alias dialogVisible:customDialog.visible
     property alias dialogMsg:dialogText.text
+    property alias dialogWidth:container.implicitWidth
+    property alias btnAcceptVisible:dialogApplyBtn.visible
+    property alias btnAcceptText:dialogApplyBtn.text
+    property alias btnDiscardText:dialogDiscardBtn.text
+    property alias btnDiscardIcon:dialogDiscardBtn.icon.name
+    property alias btnCancelText:dialogCancelBtn.text
+    property alias btnCancelIcon:dialogCancelBtn.icon.name
     signal dialogApplyClicked
     signal discardDialogClicked
     signal rejectDialogClicked
@@ -18,15 +26,16 @@ Dialog {
     modality:Qt.WindowModal
 
     contentItem: Rectangle {
+        id:container
         color: "#ebeced"
-        implicitWidth: 400
-        implicitHeight: 105
+        implicitWidth: dialogWidth
+        implicitHeight: 115
         anchors.topMargin:5
         anchors.leftMargin:5
 
         Image{
             id:dialogIcon
-            source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+            source:dialogIcon
 
         }
         
@@ -51,8 +60,9 @@ Dialog {
                 id:dialogApplyBtn
                 display:AbstractButton.TextBesideIcon
                 icon.name:"dialog-ok.svg"
-                text: i18nd("lliurex-onedrive","Apply")
+                text: btnAcceptText
                 focus:true
+                visible:btnAcceptVisible
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
@@ -64,8 +74,8 @@ Dialog {
             Button {
                 id:dialogDiscardBtn
                 display:AbstractButton.TextBesideIcon
-                icon.name:"delete.svg"
-                text: i18nd("lliurex-onedrive","Discard")
+                icon.name:btnDiscardIcon
+                text: btnDiscardText
                 focus:true
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
@@ -79,8 +89,8 @@ Dialog {
             Button {
                 id:dialogCancelBtn
                 display:AbstractButton.TextBesideIcon
-                icon.name:"dialog-cancel.svg"
-                text: i18nd("lliurex-onedrive","Cancel")
+                icon.name:btnCancelIcon
+                text: btnCancelText
                 focus:true
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10

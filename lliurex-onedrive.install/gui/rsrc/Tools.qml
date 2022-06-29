@@ -89,81 +89,37 @@ Rectangle{
                 ToolTip.text:i18nd("lliurex-onedrive","Click to run an OneDrive client repair command")
 
                 onClicked:{
-                    repairRemovedDialog.open()
+                    repairRemoveDialog.open()
                 }   
             } 
-     
        }
     }
 
-    Dialog {
-        id: repairRemovedDialog
-        modality:Qt.WindowModal
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+    ChangesDialog{
+        id:repairRemoveDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+        dialogMsg:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to repair the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to repair the space?")
+        dialogWidth:560
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
 
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 560
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:repairRemovedDialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-
+        Connections{
+            target:repairRemoveDialog
+            function onDiscardDialogClicked(){
+                repairRemoveDialog.close()
+                repair()  
             }
-            
-            Text {
-                id:repairRemovedDialogText
-                text:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to repair the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to repair the space?")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:repairRemovedDialogIcon.right
-                anchors.verticalCenter:repairRemovedDialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
-            }
-
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:repairRemovedDialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Accept")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-                Button {
-                    id:repairRemovedDialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                    repairRemovedDialog.close()
-                    repair()
-                
-                }
-                onRejected:{
-                    repairRemovedDialog.close()
-
-                }
-
+            function onRejectDialogClicked(){
+                repairRemoveDialog.close()
             }
         }
-     }
-    
+    } 
+        
     CustomPopup{
         id:toolsPopup
     }

@@ -189,146 +189,58 @@ Rectangle{
         
     }
 
-    Dialog{
-        id: previousFolderDialog
-        visible:onedriveBridge.showPreviousFolderDialog
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
-        modality:Qt.WindowModal
+    ChangesDialog{
+        id:previousFolderDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogVisible:onedriveBridge.showPreviousFolderDialog
+        dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
+        dialogWidth:700
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
 
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 700
-            implicitHeight: 115
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:previousFolderDialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        Connections{
+            target:previousFolderDialog
+            function onDiscardDialogClicked(){
+                previousFolderDialog.close()
+                onedriveBridge.managePreviousFolderDialog(0)                 
             }
-            
-            Text {
-                id:previousFolderDialogText
-                text:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:previousFolderDialogIcon.right
-                anchors.verticalCenter:previousFolderDialogIcon.verticalCenter
-                anchors.leftMargin:10
-            }
-          
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:previousFolderDialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Accept")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                Button {
-                    id:previousFolderDialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                    previousFolderDialog.close()
-                    onedriveBridge.managePreviousFolderDialog(0)                 
-            
-                }
-
-                onRejected:{
-                    previousFolderDialog.close()
-                    onedriveBridge.managePreviousFolderDialog(1)                 
-
-                }
+            function onRejectDialogClicked(){
+                previousFolderDialog.close()
+                onedriveBridge.managePreviousFolderDialog(1)                 
             }
         }
     }
 
-    Dialog{
-        id: downloadDialog
-        visible:onedriveBridge.showDownloadDialog
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New Space")
-        modality:Qt.WindowModal
-
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 700
-            implicitHeight: 115
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:dialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-
+    ChangesDialog{
+        id:downloadDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New Space")
+        dialogVisible:onedriveBridge.showDownloadDialog
+        dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
+        i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
+        dialogWidth:700
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Synchronize all content")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Select content to synchronize")
+        btnCancelIcon:"configure.svg"
+        Connections{
+            target:downloadDialog
+            function onDiscardDialogClicked(){
+                onedriveBridge.manageDownloadDialog("All")
             }
-            
-            Text {
-                id:dialogText
-                text:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
-                i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:dialogIcon.right
-                anchors.verticalCenter:dialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
+            function onRejectDialogClicked(){
+                onedriveBridge.manageDownloadDialog("Custom")
             }
-          
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:dialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Synchronize all content")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                Button {
-                    id:dialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"configure.svg"
-                    text: i18nd("lliurex-onedrive","Select content to synchronize")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                                      
-                    onedriveBridge.manageDownloadDialog("All")
-                
-                }
-
-                onRejected:{
-                    onedriveBridge.manageDownloadDialog("Custom")
-
-                }
-            }
-        }
-     }
-
+        }               
+    
+    }
 
     function getTextMessage(){
         switch (onedriveBridge.showSpaceFormMessage[1]){

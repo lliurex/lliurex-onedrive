@@ -299,144 +299,59 @@ Rectangle{
             }
         }
     }
-    Dialog {
-        id: unlinkDialog
-        modality:Qt.WindowModal
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
-
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 560
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:dialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-question.svg"
-
+    ChangesDialog{
+        id:unlinkDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from this space?.\nThe files will stop syncing, but the contents of the space\nwill not be erased")
+        dialogWidth:560
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:unlinkDialog
+            function onDiscardDialogClicked(){
+                unlinkDialog.close()
+                onedriveBridge.removeAccount()
             }
-            
-            Text {
-                id:dialogText
-                text:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from this space?.\nThe files will stop syncing, but the contents of the space\nwill not be erased")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:dialogIcon.right
-                anchors.verticalCenter:dialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
-            }
-
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
-
-                Button {
-                    id:dialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Accept")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                Button {
-                    id:dialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                    unlinkDialog.close()
-                    onedriveBridge.removeAccount()
-                }
-
-                onRejected:{
-                    unlinkDialog.close()
-                }
+            function onRejectDialogClicked(){
+                unlinkDialog.close()
             }
         }
-     }
 
-    Dialog {
-        id: startEmptyDialog
-        modality:Qt.WindowModal
-        title:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+    }
+    ChangesDialog{
+        id:startEmptyDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogMsg:i18nd("lliurex-onedrive","The local folder of space is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive/SharePoint")
+        dialogWidth:560
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
 
-        contentItem: Rectangle {
-            color: "#ebeced"
-            implicitWidth: 560
-            implicitHeight: 105
-            anchors.topMargin:5
-            anchors.leftMargin:5
-
-            Image{
-                id:startEmptyDialogIcon
-                source:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-
+        Connections{
+            target:unlinkDialog
+            function onDiscardDialogClicked(){
+                startEmptyDialog.close()
+                changeSyncStatus()
             }
-            
-            Text {
-                id:startEmptyDialogText
-                text:i18nd("lliurex-onedrive","The local folder of space is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive/SharePoint")
-                font.family: "Quattrocento Sans Bold"
-                font.pointSize: 10
-                anchors.left:startEmptyDialogIcon.right
-                anchors.verticalCenter:startEmptyDialogIcon.verticalCenter
-                anchors.leftMargin:10
-            
+            function onRejectDialogClicked(){
+                startEmptyDialog.close()
             }
+        }        
 
-            DialogButtonBox {
-                buttonLayout:DialogButtonBox.KdeLayout
-                anchors.bottom:parent.bottom
-                anchors.right:parent.right
-                anchors.topMargin:15
+    }
 
-                Button {
-                    id:startEmptyDialogApplyBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-ok.svg"
-                    text: i18nd("lliurex-onedrive","Accept")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-                Button {
-                    id:startEmptyDialogCancelBtn
-                    display:AbstractButton.TextBesideIcon
-                    icon.name:"dialog-cancel.svg"
-                    text: i18nd("lliurex-onedrive","Cancel")
-                    font.family: "Quattrocento Sans Bold"
-                    font.pointSize: 10
-                    DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                }
-
-                onApplied:{
-                    startEmptyDialog.close()
-                    changeSyncStatus()
-                
-                }
-                onRejected:{
-                    startEmptyDialog.close()
-
-                }
-
-            }
-        }
-     }
-
-     CustomPopup{
+    CustomPopup{
         id:accountPopup
-     }
+    }
 
     function getTextOption(errorCode){
 

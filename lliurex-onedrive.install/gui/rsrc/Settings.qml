@@ -161,9 +161,17 @@ Rectangle{
 
     ChangesDialog{
         id:settingsChangesDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogVisible:onedriveBridge.showSettingsDialog
         dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
+        dialogWidth:400
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Apply")
+        btnDiscardText:i18nd("lliurex-onedrive","Discard")
+        btnDiscardIcon:"delete.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
         Connections{
             target:settingsChangesDialog
             function onDialogApplyClicked(){
