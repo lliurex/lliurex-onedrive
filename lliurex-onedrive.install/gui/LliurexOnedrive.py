@@ -202,6 +202,9 @@ class RemoveAccount(QThread):
 	def run(self,*args):
 
 		self.ret=Bridge.onedriveMan.removeAccount()
+		if self.ret:
+			Bridge.onedriveMan.loadOneDriveConfig()
+			Bridge.onedriveMan.removeACService()
 
 	#def run
 
@@ -1450,8 +1453,6 @@ class Bridge(QObject):
 	def _removeAccount(self):
 
 		if self.removeAccountT.ret:
-			Bridge.onedriveMan.loadOneDriveConfig()
-			Bridge.onedriveMan.removeACService()
 			self._updateSpacesModel()
 			self.currentStack=1
 			self.spacesCurrentOption=0

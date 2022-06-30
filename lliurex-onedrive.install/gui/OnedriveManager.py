@@ -355,8 +355,12 @@ class OnedriveManager:
 		spaceDriveId=spaceInfo[4]
 
 		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary]
-		ret=self._stopOldService()
+		
+		if not os.path.exists(os.path.join(self.userSystemdPath,self.aCServiceFile)):
+			ret=self._stopOldService()
+		
 		self._createSpaceConfFolder(spaceType,spaceDriveId)
+		
 		if reuseToken:
 			self._copyToken(spaceEmail)
 			if spaceType=="sharepoint":

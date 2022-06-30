@@ -337,7 +337,7 @@ Rectangle{
         btnCancelIcon:"dialog-cancel.svg"
 
         Connections{
-            target:unlinkDialog
+            target:startEmptyDialog
             function onDiscardDialogClicked(){
                 startEmptyDialog.close()
                 changeSyncStatus()
