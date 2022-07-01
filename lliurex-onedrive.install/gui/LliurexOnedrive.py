@@ -388,7 +388,7 @@ class Bridge(QObject):
 		if not os.path.exists(Bridge.onedriveMan.oldConfigPath):
 			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
 				self.checkGlobalLocalFolderTimer.start(5000)
-				self.checkGlobalStatusTimer.start(15000)
+				self.checkGlobalStatusTimer.start(60000)
 				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
 					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 				

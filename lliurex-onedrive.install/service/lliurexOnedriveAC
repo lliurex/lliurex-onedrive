@@ -9,7 +9,7 @@ import concurrent.futures
 import time
 
 MAX_CHECK_FOLDER_INTERVAL=5
-MAX_CHECK_STATUS_INTERVAL=30
+MAX_CHECK_STATUS_INTERVAL=90
 
 class checkSpaceLocalFolder():
 

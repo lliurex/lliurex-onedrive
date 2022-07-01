@@ -137,7 +137,8 @@ class OnedriveManager:
 
 		self.spacesConfigData=[]
 		spaces=self.onedriveConfig["spacesList"]
-		count=0
+		countStatus=0
+		countFolder=0
 		
 
 		for item in spaces:
@@ -146,21 +147,26 @@ class OnedriveManager:
 			tmp["name"]=os.path.basename(item["localFolder"])
 			status=int(self._readSpaceStatusToken(item['configPath'])[1])
 			if status not in self.correctStatusCode:
-				count+=1
+				countStatus+=1
 			tmp["status"]=status
 			tmp["isRunning"]=self.isOnedriveRunning(item['configPath'])
 			localFolderWarning=self.checkLocalFolder(item['configPath'])
 			warning=False
 			if localFolderWarning[0] or localFolderWarning[1]:
-				count+=1
+				countFolder+=1
 				warning=True
 			tmp["localFolderWarning"]=warning
 			self.spacesConfigData.append(tmp)
 		
-		if count>0:
+		if countFolder>0:
 			self.globalOneDriveFolderWarning=True
 		else:
 			self.globalOneDriveFolderWarning=False
+
+		if countStatus>0:
+			self.globalOneDriveStatusWarning=True
+		else:
+			self.globaOneDriveStatusWarning=False
 
 	#def getSpacesConfig
 
