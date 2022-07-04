@@ -23,9 +23,9 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: messageToolLabel
-            visible:onedriveBridge.isOnedriveRunning?true:false
-            text:i18nd("lliurex-onedrive","Some options can only be executed if the synchronization is stopped")
-            type:Kirigami.MessageType.Information;
+            visible:onedriveBridge.showToolsMessage[0]
+            text:getMessageText()
+            type:getTypeMessage()
             Layout.alignment:Qt.AlignLeft
             Layout.minimumWidth:650
             Layout.maximumWidth:650
@@ -91,7 +91,31 @@ Rectangle{
                 onClicked:{
                     repairRemoveDialog.open()
                 }   
-            } 
+            }
+            Text{
+                id:updateAuth
+                text:i18nd("lliurex-onedrive","Update space authorization:")
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            }
+            Button {
+                id:updateAuthBtn
+                display:AbstractButton.IconOnly
+                icon.name:"view-refresh.svg"
+                Layout.preferredHeight: 30
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Layout.bottomMargin:20
+                hoverEnabled:true
+                enabled:!onedriveBridge.isOnedriveRunning && !onedriveBridge.localFolderEmpty
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to update space authorization")
+                onClicked:{
+                    updateAuthDialog.open()
+                }   
+            }
+
        }
     }
 
@@ -119,13 +143,66 @@ Rectangle{
             }
         }
     } 
-        
+
+    ChangesDialog{
+        id:updateAuthDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+        dialogMsg:i18nd("lliurex-onedrive","This action will update the authorization to sync this space.\nAre you sure you want to continue?")
+        dialogWidth:560
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:updateAuthDialog
+            function onDiscardDialogClicked(){
+                updateAuthDialog.close()
+                onedriveBridge.updateAuth()  
+            }
+            function onRejectDialogClicked(){
+                updateAuthDialog.close()
+                console.log("NO")
+            }
+        }
+    }        
     CustomPopup{
         id:toolsPopup
     }
   
     function repair(){
         onedriveBridge.repairOnedrive();
+    }
+
+    function getMessageText(){
+
+        switch (onedriveBridge.showToolsMessage[1]){
+            case 18:
+                var msg=i18nd("lliurex-onedrive","Some options can only be executed if the synchronization is stopped")
+                break;
+            case 19:
+                var msg=i18nd("lliurex-onedrive","The authorization to sync the space has been updated")
+                break;
+            case -16:
+                var msg=i18nd("lliurex-onedrive","It is not possible to update the authorization to syn the space.\nWait a moment and try again")
+                break
+        }
+        return msg
+    }
+
+    function getTypeMessage(){
+
+        switch (onedriveBridge.showToolsMessage[2]){
+            case "Information":
+                return Kirigami.MessageType.Information
+            case "Ok":
+                return Kirigami.MessageType.Positive
+            case "Error":
+                return Kirigami.MessageType.Error
+        }
     }
 
 }

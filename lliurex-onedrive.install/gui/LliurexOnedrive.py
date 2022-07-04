@@ -32,6 +32,8 @@ SPACE_RUNNING_REPAIR_MESSAGE=14
 SPACE_GLOBAL_WARNING=15
 SEARCH_SPACE_SHAREPOINT=16
 SPACE_MIGRATION_MESSAGE=17
+TOOLS_DEFAULT_MESSAGE=18
+UPDATE_TOKEN_MESSAGE=19
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -44,6 +46,7 @@ LOCAL_FOLDER_EMPTY=-12
 LOCAL_FOLDER_REMOVED=-13
 SPACE_SHAREPOINT_EMPTY_ERROR=-14
 SPACE_MIGRATION_ERROR=-15
+UPDATE_TOKEN_ERROR=-16
 
 
 class GatherInfo(QThread):
@@ -364,7 +367,9 @@ class Bridge(QObject):
 		self.checkGlobalLocalFolderTimer.timeout.connect(self.getGlobalLocalFolderInfo)
 		self.checkGlobalStatusTimer=QTimer(None)
 		self.checkGlobalStatusTimer.timeout.connect(self.getGlobalStatusInfo)
-		
+		self._showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
+		self.updateSpaceAuth=False
+
 		if len(sys.argv)>1:
 			self.spaceToManage=sys.argv[1]
 		else:
@@ -917,6 +922,20 @@ class Bridge(QObject):
 
 	#def setRequiredMigration
 
+	def _getShowToolsMessage(self):
+
+		return self._showToolsMessage
+
+	#def _getShowToolsMessage
+
+	def _setShowToolsMessage(self,showToolsMessage):
+
+		if self._showToolsMessage!=showToolsMessage:
+			self._showToolsMessage=showToolsMessage
+			self.on_showToolsMessage.emit() 
+
+	#def _setShowToolsMessage
+
 	def _updateSpacesModel(self):
 
 		ret=self._spacesModel.clear()
@@ -1094,11 +1113,15 @@ class Bridge(QObject):
 	def getToken(self,token):
 
 		Bridge.onedriveMan.createToken(token)
-		self.spacesCurrentOption=1
-		if not self.tempConfig:
-			self.addSpace()
+		if not self.updateSpaceAuth:
+			self.spacesCurrentOption=1
+			if not self.tempConfig:
+				self.addSpace()
+			else:
+				self.gatherSharePoints()
 		else:
-			self.gatherSharePoints()
+			self.manageCurrentOption=3
+			self.updateSpaceAuthorization()
 
 	#def getToken
 
@@ -1260,6 +1283,7 @@ class Bridge(QObject):
 			self.accountStatus=Bridge.onedriveMan.accountStatus
 			self.freeSpace=Bridge.onedriveMan.freeSpace
 			self._folderModel.resetModel()
+			self.updateSpaceAuth=False
 
 			if not self.localFolderRemoved:
 				if not self.syncAll:
@@ -1277,6 +1301,11 @@ class Bridge(QObject):
 				elif self.localFolderEmpty:
 					self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
 				self._endLoading()
+			
+			if self.isOnedriveRunning:
+				self.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
+			else:
+				self.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
@@ -1331,6 +1360,7 @@ class Bridge(QObject):
 	@Slot()
 	def goHome(self):
 
+		self.updateSpaceAuth=False
 		if not self.settingsChanged and not self.syncCustomChanged:
 			self.currentStack=1
 			self.spacesCurrentOption=0
@@ -1848,6 +1878,25 @@ class Bridge(QObject):
 
 	#def _repairOnedrive
 
+	@Slot()
+	def updateAuth(self):
+
+		self.updateSpaceAuth=True
+		self.manageCurrentOption=4
+
+	#def updateAuth
+
+	def updateSpaceAuthorization(self):
+
+		ret=Bridge.onedriveMan.updateSpaceAuth()
+		self.updateSpaceAuth=False
+		if ret:
+			self.showToolsMessage=[True,UPDATE_TOKEN_MESSAGE,"Ok"]
+		else:
+			self.showToolsMessage=[True,UPDATE_TOKEN_ERROR,"Error"]
+		
+	#def updateSpaceAuthorization
+
 	def getGlobalLocalFolderInfo(self):
 
 		Bridge.onedriveMan.updateGlobalLocalFolderInfo()
@@ -1883,7 +1932,9 @@ class Bridge(QObject):
 		
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
+			self.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
 		else:
+			self.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 			if not self.changedSyncWorked:
 				self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 
@@ -2049,7 +2100,10 @@ class Bridge(QObject):
 
 	on_requiredMigration=Signal()
 	requiredMigration=Property(bool,_getRequiredMigration,_setRequiredMigration, notify=on_requiredMigration)
-	
+
+	on_showToolsMessage=Signal()
+	showToolsMessage=Property('QVariantList',_getShowToolsMessage,_setShowToolsMessage,notify=on_showToolsMessage)
+
 	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)

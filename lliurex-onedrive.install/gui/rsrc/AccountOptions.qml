@@ -103,6 +103,9 @@ GridLayout{
                 case 3:
                     manageView.replace(toolsView)
                     break
+                case 4:
+                    manageView.replace(updateAuthView)
+                    break
             }
 
         }
@@ -145,6 +148,13 @@ GridLayout{
             id:toolsView
             Tools{
                 id:tools
+            }
+        }
+        Component{
+            id:updateAuthView
+            OnedriveAuth{
+                id:oneDriveUpdateAuth
+                authUrl:onedriveBridge.authUrl
             }
         }
     }

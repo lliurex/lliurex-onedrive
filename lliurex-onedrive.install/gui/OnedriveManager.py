@@ -1682,6 +1682,19 @@ class OnedriveManager:
 
 	#def repairDB
 
+	def updateSpaceAuth(self):
+
+		cmd='/usr/bin/onedrive --reauth --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		poutput=p.communicate()
+		rc=p.returncode
+		if rc not in [0,1]:
+			return False
+
+		return True
+
+	#def updateSpaceAuth
+
 	def _syncResync(self):
 
 		cmd='/usr/bin/onedrive --synchronize --resync --resync-auth --confdir="%s"'%self.spaceConfPath
