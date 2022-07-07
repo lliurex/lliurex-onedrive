@@ -113,9 +113,42 @@ Rectangle{
                     onedriveBridge.getRateLimit(bandwidthValues.currentIndex)
                 }
             }
+            Text{
+                id:skipSizeText
+                text:i18nd("lliurex-onedrive","Maximun fize size to sync:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignRight
+                Layout.bottomMargin:10
+            }
+            RowLayout{
+                CheckBox {
+                    id:skipSizeCB
+                    text:i18nd("lliurex-onedrive","Don't sync files larger than")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    focusPolicy: Qt.NoFocus
+                    checked:onedriveBridge.skipSize[0]
+                    enabled:getEnabledStatus()
+                    Layout.bottomMargin:10
+                    Layout.rightMargin:5
+                    Layout.alignment:Qt.AlignLeft
+                    onToggled:onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
 
+                }
+                ComboBox{
+                    id:skipSizeValues
+                    currentIndex:onedriveBridge.skipSize[1]
+                    model:onedriveBridge.maxFileSizeNames
+                    enabled:skipSizeCB.checked
+                    Layout.alignment:Qt.AlignVCenter
+                    Layout.bottomMargin:10
+                    onActivated:{
+                        onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
+                    }
+                }
+            }
         }
-
     }
 
     RowLayout{

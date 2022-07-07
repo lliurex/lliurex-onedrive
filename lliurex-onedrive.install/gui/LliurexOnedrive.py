@@ -329,11 +329,13 @@ class Bridge(QObject):
 		self._spaceLocalFolder=""
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
-		self._rateLimit=int(Bridge.onedriveMan.rateLimit)	
+		self._rateLimit=int(Bridge.onedriveMan.rateLimit)
+		self._skipSize=Bridge.onedriveMan.skipSize	
 		self._showSettingsDialog=False
 		self._isOnedriveRunning=False
 		self._accountStatus=0
 		self._bandWidthNames=Bridge.onedriveMan.bandWidthNames
+		self._maxFileSizeNames=Bridge.onedriveMan.maxFileSizeNames
 		self._freeSpace=""
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
@@ -528,6 +530,12 @@ class Bridge(QObject):
 		return self._bandWidthNames
 
 	#def _getBandWidthNames
+
+	def _getMaxFileSizeNames(self):
+
+		return self._maxFileSizeNames
+
+	#def _getMaxFileSizeNames
 
 	def _setClosePopUp(self,closePopUp):
 		
@@ -724,6 +732,20 @@ class Bridge(QObject):
 			self.on_monitorInterval.emit()
 
 	#def _setMonitorInterval
+
+	def _getSkipSize(self):
+
+		return self._skipSize
+
+	#def _getSkipSize
+
+	def _setSkipSize(self,skipSize):
+
+		if self._skipSize!=skipSize:
+			self._skipSize=skipSize
+			self.on_skipSize.emit()
+
+	#def _setSkipSize
 
 	def _getFreeSpace(self):
 
@@ -1353,6 +1375,7 @@ class Bridge(QObject):
 		self.autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self.monitorInterval=int(Bridge.onedriveMan.monitorInterval)
 		self.rateLimit=int(Bridge.onedriveMan.rateLimit)
+		self.skipSize=Bridge.onedriveMan.skipSize
 		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 
 	#def _getInitialConfig
@@ -1777,6 +1800,22 @@ class Bridge(QObject):
 
 	#def getRateLimit
 
+	@Slot('QVariantList')
+	def getSkipSize(self,value):
+
+		value[1]=int(value[1])
+		if value!=self.initialConfig[3]:
+			if value!=Bridge.onedriveMan.currentConfig[3]:
+				self.settingsChanged=True
+			else:
+				self.settingsChanged=False
+			self.skipSize=value
+			self.initialConfig[3]=value
+		else:
+			self.settingsChanged=False
+
+	#def getSkipSize
+
 	@Slot()
 	def applySettingsChanges(self):
 
@@ -1817,6 +1856,7 @@ class Bridge(QObject):
 		self.autoStartEnabled=self.initialConfig[0]
 		self.monitorInterval=int(self.initialConfig[1])
 		self.rateLimit=self.initialConfig[2]
+		self.skipSize=self.initialConfig[3]
 
 		self._manageGoToStack()
 
@@ -2056,6 +2096,9 @@ class Bridge(QObject):
 	on_monitorInterval=Signal()
 	monitorInterval=Property(int,_getMonitorInterval,_setMonitorInterval,notify=on_monitorInterval)
 
+	on_skipSize=Signal()
+	skipSize=Property('QVariantList',_getSkipSize,_setSkipSize,notify=on_skipSize)
+	
 	on_freeSpace=Signal()
 	freeSpace=Property(str,_getFreeSpace,_setFreeSpace, notify=on_freeSpace)
 
@@ -2109,6 +2152,8 @@ class Bridge(QObject):
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
+	maxFileSizeNames=Property('QVariant',_getMaxFileSizeNames,constant=True)
+
 	folderModel=Property(QObject,_getFolderModel,constant=True)
 
 #class Bridge

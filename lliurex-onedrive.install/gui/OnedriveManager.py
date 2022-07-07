@@ -41,16 +41,20 @@ class OnedriveManager:
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
-		self.customizeConfigParam=['monitor_interval','rate_limit']
+		self.customizeConfigParam=['monitor_interval','rate_limit',"skip_size"]
 		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
 			self.bandWidthNames.append(item["name"])
-		
+		self.maxFileSize=[{"name":"10 MB","value":"10"},{"name":"25 MB","value":"25"},{"name":"50 MB","value":"50"},{"name":"75 MB","value":"75"},{"name":"100 MB","value":"100"},{"name":"150 MB","value":"150"},{"name":"250 MB","value":"250"},{"name":"500 MB","value":"500"},{"name":"1 GB","value":"1024"},{"name":"5 GB","value":"5120"},{"name":"10 GB","value":"10240"},{"name":"15 GB","value":"15360"},{"name":"25 GB","value":"20480"},{"name":"50 GB","value":"51200"},{"name":"100 GB","value":"102400"}]
+		self.maxFileSizeNames=[]
+		for item in self.maxFileSize:
+			self.maxFileSizeNames.append(item["name"])
 		self.autoStartEnabled=True
 		self.rateLimit=2
 		self.monitorInterval=1
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
+		self.skipSize=[False,0]
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
 		self.syncAll=True
 		self.filterFileName="sync_list"
 		self.filterFileHashName=".sync_list.hash"
@@ -209,7 +213,8 @@ class OnedriveManager:
 		self.autoStartEnabled=True
 		self.rateLimit=2
 		self.monitorInterval=1
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit]
+		self.skipSize=[False,0]
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
 		self.freeSpace=""
 		self.accountStatus=0
 		self.filterFile=""
@@ -449,6 +454,14 @@ class OnedriveManager:
 					self.currentConfig[2]=self.rateLimit
 					break
 
+			self.skipSize[0]=customParam['skip_size'][0]
+
+			for i in range(len(self.maxFileSize)):
+				if self.maxFileSize[i]["value"]==customParam['skip_size'][1]:
+					self.skipSize[1]=i
+					self.currentConfig[3]=self.skipSize
+					break
+			
 			return customParam
 
 	#def readConfigFile
@@ -458,14 +471,25 @@ class OnedriveManager:
 		customParam={}
 
 		if os.path.exists(spaceConfigFilePath):
+			customParam["skip_size"]=[False,10]
 			with open(spaceConfigFilePath,'r') as fd:
 				lines=fd.readlines()
 				for line in lines:
 					for param in self.customizeConfigParam:
 						tmpLine=line.split("=")
-						if param==tmpLine[0].strip():
-							value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-							customParam[param]=value
+						if param=="skip_size":
+							if "skip_size" in tmpLine[0]:
+								tmpValue=[]
+								if "#" in tmpLine[0].strip():
+									tmpValue.append(False)
+								else:
+									tmpValue.append(True)
+								tmpValue.append(tmpLine[1].split("\n")[0].strip().split('"')[1])
+								customParam[param]=tmpValue
+						else:
+							if param==tmpLine[0].strip():
+								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+								customParam[param]=value
 
 		return customParam 
 
@@ -483,15 +507,25 @@ class OnedriveManager:
 				for line in lines:
 					for param in customParam:
 						tmpLine=line.split("=")
-						if param==tmpLine[0].strip():
-							value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-							if value!=customParam[param]:
-								line=param+' = '+'"'+customParam[param]+'"\n'
-							break
+						if param=="skip_size":
+							if "skip_size" in tmpLine[0]:
+								if customParam[param][0]:
+									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									if value!=customParam[param][1]:
+										line=param+' = '+'"'+customParam[param][1]+'"\n'
+								else:
+									if "#" not in tmpLine[1]:
+										line='# '+param+' = '+'"'+customParam[param][1]+'"\n'
+						else:
+							if param==tmpLine[0].strip():
+								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+								if value!=customParam[param]:
+									line=param+' = '+'"'+customParam[param]+'"\n'
+								break
 					
 					fd.write(line)
 
-	#def _updateConfigFile
+	#def updateConfigFile
 
 	def _copyToken(self,email):
 
@@ -1574,6 +1608,7 @@ class OnedriveManager:
 		errorSD=False
 		errorMI=False
 		errorRL=False
+		errorSS=False
 
 		if value[0]!=self.currentConfig[0]:
 			errorSD=self.manageAutostart(value[0])
@@ -1590,16 +1625,21 @@ class OnedriveManager:
 			if not errorRL:
 				self.currentConfig[2]=value[2]
 			
-		if errorSD and not errorMI and not errorRL:
+		if value[3]!=self.currentConfig[3]:
+			errorSS=self.manageSkipSize(value[3])
+			if not errorSS:
+				self.currentConfig[3]=value[3]
+
+		if errorSD and not errorMI and not errorRL and not errorSS:
 			return[True,SYSTEMD_ERROR]
 
-		elif errorSD and (errorMI or errorRL):
+		elif errorSD and (errorMI or errorRL or errorSS):
 			return [True,MULTIPLE_SETTINGS_ERROR]
 
-		elif not errorSD and (errorMI or errorRL):
+		elif not errorSD and (errorMI or errorRL or errorSS):
 			return [True,WRITE_CONFIG_ERROR]
 
-		elif not errorSD and errorMI and errorRL:
+		elif not errorSD and errorMI and errorRL and errorSS:
 			return [True,WRITE_CONFIG_ERROR]
 
 		else:
@@ -1621,9 +1661,20 @@ class OnedriveManager:
 
 	#def manageRateLimit
 
+	def manageSkipSize(self,value):
+
+		value[1]=self.maxFileSize[value[1]]["value"]
+		return self._writeConfigFile('skip_size',value)
+
+	#def manageSkipSize
+
+
 	def _writeConfigFile(self,param,value):
 
 		configFile=os.path.join(self.spaceConfPath,'config')
+		self.matchParam=True
+		if param=="skip_size":
+			self.matchParam=False
 		if os.path.exists(configFile):
 			try:
 				with open(configFile,'r') as fd:
@@ -1634,10 +1685,25 @@ class OnedriveManager:
 
 					for line in lines:
 						if  param in line:
-							tmp_line=param+' = '+'"'+value+'"\n'
-							fd.write(tmp_line)
+							if param =="skip_size":
+								self.matchParam=True
+								if value[0]: 
+									tmpLine=param+' = '+'"'+value[1]+'"\n'
+								else:
+									tmpLine='# '+param+' = '+'"'+value[1]+'"\n'
+							else:
+								tmpLine=param+' = '+'"'+value+'"\n'
+							
+							fd.write(tmpLine)
 						else:
 							fd.write(line)
+
+					if not self.matchParam:
+						if value[0]: 
+							line=param+' = '+'"'+value[1]+'"\n'
+						else:
+							line='# '+param+' = '+'"'+value[1]+'"\n'
+						fd.write(line)
 
 					fd.close()
 					return False
