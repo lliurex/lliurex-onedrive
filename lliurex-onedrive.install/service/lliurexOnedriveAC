@@ -7,9 +7,12 @@ from threading import Thread
 import concurrent.futures
 
 import time
+import psutil
 
 MAX_CHECK_FOLDER_INTERVAL=5
 MAX_CHECK_STATUS_INTERVAL=90
+MAX_CHECK_FREE_SPACE=150
+FREE_SPACE_LIMIT=1000000000
 
 class checkSpaceLocalFolder():
 
@@ -286,11 +289,16 @@ class LliurexOneDriveAC:
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
 		self.folderWorker=False
 		self.statusWorker=False
+		self.freeSpaceWorker=False
 		self.lastFolderCheck=MAX_CHECK_FOLDER_INTERVAL
 		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
+		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
+		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
+		self.freeSpaceFullToken=os.path.join(self.llxOnedriveConfigDir,".hddFullToken")
+		
 		self.initWorker()
 
-	#def __ini__
+	#def __init__
 
 	def initWorker(self):
 
@@ -301,6 +309,10 @@ class LliurexOneDriveAC:
 		self.statusWorkerThread=Thread(target=self.checkSpaceStatus)
 		self.statusWorkerThread.setDaemon(True)
 		self.statusWorkerThread.start()
+
+		self.freeSpaceWorkerThread=Thread(target=self.checkFreeSpace)
+		self.freeSpaceWorkerThread.setDaemon(True)
+		self.freeSpaceWorkerThread.start()
 		
 	#def initWorker
 
@@ -355,13 +367,52 @@ class LliurexOneDriveAC:
 						for future in concurrent.futures.as_completed(futures):
 							pass	
 
-
 					self.statusWorker=False
 					self.lastStatusCheck=0
 				else:
 					self.lastStatusCheck+=1
 	
 	#def checkSpaceStatus
+
+	def checkFreeSpace(self):
+
+		while True:
+			if not self.freeSpaceWorker:
+				time.sleep(1)
+				self.lastFreeSpaceCheck+=1
+				if self.lastFreeSpaceCheck>MAX_CHECK_FREE_SPACE:
+					self.freeSpaceWorker=True
+					hdd=psutil.disk_usage('/home')
+					if hdd.free<=(2*FREE_SPACE_LIMIT):
+						if hdd.free<=(FREE_SPACE_LIMIT):
+							if os.path.exists(self.freeSpaceFullToken):
+								os.remove(self.freeSpaceFullToken)
+							with open(self.freeSpaceFullToken,'w') as fd:
+								tmpLine=str(hdd.free)+("\n")
+								fd.write(tmpLine)
+							if os.path.exists(self.freeSpaceWarningToken):
+								os.remove(self.freeSpaceWarningToken)
+						else:
+							if os.path.exists(self.freeSpaceWarningToken):
+								os.remove(self.freeSpaceWarningToken)
+							with open(self.freeSpaceWarningToken,'w') as fd:
+								tmpLine=str(hdd.free)+("\n")
+								fd.write(tmpLine)
+							if os.path.exists(self.freeSpaceFullToken):
+								os.remove(self.freeSpaceFullToken)
+					else:
+						if os.path.exists(self.freeSpaceWarningToken):
+							os.remove(self.freeSpaceWarningToken)
+						if os.path.exists(self.freeSpaceFullToken):
+							os.remove(self.freeSpaceFullToken)
+
+
+					self.freeSpaceWorker=False
+					self.lastFreeSpaceCheck=0
+				else:
+					self.lastFreeSpaceCheck+=1
+
+	#def checkFreeSpace
 	
 	def readOneDriveConfig(self):
 
