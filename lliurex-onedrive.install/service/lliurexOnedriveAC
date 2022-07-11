@@ -294,7 +294,7 @@ class LliurexOneDriveAC:
 		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
 		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
-		self.freeSpaceFullToken=os.path.join(self.llxOnedriveConfigDir,".hddFullToken")
+		self.freeSpaceFullToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
 		
 		self.initWorker()
 
