@@ -71,6 +71,9 @@ class OnedriveManager:
 		self.oldConfigPath=os.path.join(self.onedriveConfigDir,"refresh_token")
 		self.filesToMigrate=["items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
 		self.oldFilesToDelete=["config",".config.backup",".config.hash","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
+		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
+		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
+	
 		self.createEnvironment()
 		self.clearCache()
 
@@ -1980,5 +1983,27 @@ class OnedriveManager:
 				os.remove(tmpFile)
 
 	#def _deleteOldFiles
+
+	def checkHddFreeSpace(self):
+
+		HDD_FREE_SPACE_WARNING=-17
+		HDD_FREE_SPACE_ERROR=-18
+		hddAlert=False
+		code=""
+		msgType="Information"
+		
+		if os.path.exists(self.freeSpaceWarningToken):
+			hddAlert=True
+			code=HDD_FREE_SPACE_WARNING
+			msgType="Warning"
+		elif os.path.exists(self.freeSpaceErrorToken):
+			hddAlert=True
+			code=HDD_FREE_SPACE_ERROR
+			msgType="Error"
+
+		return [hddAlert,code,msgType]
+
+	#def checkHddFreeSpace
+
 		
 #class OnedriveManager

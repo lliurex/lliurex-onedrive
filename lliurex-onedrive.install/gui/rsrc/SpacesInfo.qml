@@ -85,6 +85,12 @@ Rectangle{
             case -3:
                 var msg=i18nd("lliurex-onedrive","An error occurred during setup. Wait a moment and try again")
                 break;
+            case -17:
+                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 2 GB")
+                break;
+            case -18:
+                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 1 GB")
+                break;
             default:
                 var msg=""
                 break;

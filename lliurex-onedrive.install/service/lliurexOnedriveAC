@@ -294,7 +294,7 @@ class LliurexOneDriveAC:
 		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
 		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
-		self.freeSpaceFullToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
+		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
 		
 		self.initWorker()
 
@@ -385,9 +385,9 @@ class LliurexOneDriveAC:
 					hdd=psutil.disk_usage('/home')
 					if hdd.free<=(2*FREE_SPACE_LIMIT):
 						if hdd.free<=(FREE_SPACE_LIMIT):
-							if os.path.exists(self.freeSpaceFullToken):
-								os.remove(self.freeSpaceFullToken)
-							with open(self.freeSpaceFullToken,'w') as fd:
+							if os.path.exists(self.freeSpaceErrorToken):
+								os.remove(self.freeSpaceErrorToken)
+							with open(self.freeSpaceErrorToken,'w') as fd:
 								tmpLine=str(hdd.free)+("\n")
 								fd.write(tmpLine)
 							if os.path.exists(self.freeSpaceWarningToken):
@@ -398,13 +398,13 @@ class LliurexOneDriveAC:
 							with open(self.freeSpaceWarningToken,'w') as fd:
 								tmpLine=str(hdd.free)+("\n")
 								fd.write(tmpLine)
-							if os.path.exists(self.freeSpaceFullToken):
-								os.remove(self.freeSpaceFullToken)
+							if os.path.exists(self.freeSpaceErrorToken):
+								os.remove(self.freeSpaceErrorToken)
 					else:
 						if os.path.exists(self.freeSpaceWarningToken):
 							os.remove(self.freeSpaceWarningToken)
-						if os.path.exists(self.freeSpaceFullToken):
-							os.remove(self.freeSpaceFullToken)
+						if os.path.exists(self.freeSpaceErrorToken):
+							os.remove(self.freeSpaceErrorToken)
 
 
 					self.freeSpaceWorker=False

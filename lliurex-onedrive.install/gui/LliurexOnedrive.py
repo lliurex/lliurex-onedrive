@@ -1960,7 +1960,12 @@ class Bridge(QObject):
 			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
 				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 			else:
-				self.showSpaceSettingsMessage=[False,"","Information"]
+				hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
+				print(hddAlert)
+				if hddAlert[0]:
+					self.showSpaceSettingsMessage=[True,hddAlert[1],hddAlert[2]]
+				else:
+					self.showSpaceSettingsMessage=[False,"","Information"]
 		else:
 			self.showSpaceSettingsMessage=[False,"","Information"]
 
