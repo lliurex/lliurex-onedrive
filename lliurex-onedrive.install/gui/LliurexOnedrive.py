@@ -8,6 +8,7 @@ import copy
 import SpacesModel
 import SharePointModel
 import LibraryModel
+import SharedFolderModel
 import FolderModel
 
 import signal
@@ -34,6 +35,7 @@ SEARCH_SPACE_SHAREPOINT=16
 SPACE_MIGRATION_MESSAGE=17
 TOOLS_DEFAULT_MESSAGE=18
 UPDATE_TOKEN_MESSAGE=19
+SEARCH_SPACE_SHARED=20
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -47,6 +49,7 @@ LOCAL_FOLDER_REMOVED=-13
 SPACE_SHAREPOINT_EMPTY_ERROR=-14
 SPACE_MIGRATION_ERROR=-15
 UPDATE_TOKEN_ERROR=-16
+SPACE_SHARED_EMPTY_ERROR=-17
 
 
 class GatherInfo(QThread):
@@ -122,6 +125,23 @@ class GatherLibraries(QThread):
 	#def run 
 
 #class GatherLibraries
+
+class GatherSharedFolders(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.dataSF=args[0]
+
+	#def __init__
+
+	def run (self,*args):
+		
+		Bridge.onedriveMan.getSharedFolders(self.dataSF)
+
+	#def run
+
+#class GatherSharedFolders
 
 class GatherSpaceSettings(QThread):
 
@@ -309,6 +329,7 @@ class Bridge(QObject):
 		self._spacesModel=SpacesModel.SpacesModel()
 		self._sharePointModel=SharePointModel.SharePointModel()
 		self._libraryModel=LibraryModel.LibraryModel()
+		self._sharedFolderModel=SharedFolderModel.SharedFolderModel()
 		self._currentStack=0
 		self._spacesCurrentOption=0
 		self._closeGui=False
@@ -318,7 +339,7 @@ class Bridge(QObject):
 		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=False
 		self.tempConfig=False
-		self._formData=["",True]
+		self._formData=["",0]
 		self._showPreviousFolderDialog=False
 		self._initialDownload=""
 		self._hddFreeSpace=""
@@ -462,6 +483,12 @@ class Bridge(QObject):
 		return self._libraryModel
 
 	#def _getLibraryModel
+
+	def _getSharedFolderModel(self):
+
+		return self._sharedFolderModel
+
+	#def _getSharedFolderModel
 
 	def _getFormData(self):
 
@@ -993,12 +1020,24 @@ class Bridge(QObject):
 	
 	#def _updateLibraryModel
 
+	def _updateSharedFoldersModel(self):
+
+		ret=self._sharedFolderModel.clear()
+		sharedFoldersEntries=Bridge.onedriveMan.sharedFoldersConfigData
+		if len(sharedFoldersEntries)>0:
+			for item in sharedFoldersEntries:
+				self._sharedFolderModel.appendRow(item)
+		else:
+			self.showSpaceFormMessage=[True,SPACE_SHARED_EMPTY_ERROR,"Error"]
+	
+	#def _updateSharedFoldersModel
+
 	@Slot(int)
 	def moveToSpaceOption(self,option):
 		
 		Bridge.onedriveMan.initSpacesSettings()
 		Bridge.onedriveMan.deleteTempConfig()
-		self.formData=["",True]
+		self.formData=["",0]
 		self.showSpaceSettingsMessage=[False,"","Information"]
 		self.showSpaceFormMessage=[False,"","Information"]
 		self._libraryModel.clear()
@@ -1071,15 +1110,52 @@ class Bridge(QObject):
 	#def _gatherLibraries
 
 	@Slot('QVariantList')
+	def getSpaceSharedFolders(self,data):
+
+		self.showSpaceFormMessage=[False,"","Information"]
+		self.reuseToken=True
+		self.tempConfig=False
+		self.data=data[0]
+
+		if Bridge.onedriveMan.checkIfEmailExists(data[0]):
+			self.gatherSharedFolders()
+		else:
+			self.tempConfig=True
+			self.formData=[data[0],data[1]]
+			self.spacesCurrentOption=2
+
+	#def getSpaceSharedFolders
+
+	def gatherSharedFolders(self):
+
+		self.closePopUp=[False,SEARCH_SPACE_SHARED]
+		self.closeGui=False
+		self.gatherSharedFoldersT=GatherSharedFolders(self.data)
+		self.gatherSharedFoldersT.start()
+		self.gatherSharedFoldersT.finished.connect(self._gatherSharedFolders)
+	
+	#def gatherSharedFolders
+
+	def _gatherSharedFolders(self):
+
+		self._updateSharedFoldersModel()
+		self.closePopUp=[True,""]
+		self.closeGui=True
+
+	#def _gatherLibraries
+
+	@Slot('QVariantList')
 	def checkData(self,spaceInfo):
 
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.spaceInfo=spaceInfo
 		self.formData[0]=spaceInfo[0]
 		if spaceInfo[1]=="onedrive":
-			self.formData[1]=True
+			self.formData[1]=0
+		elif spaceInfo[1]=="sharepoint":
+			self.formData[1]=1
 		else:
-			self.formData[1]=False
+			self.formData[1]=2
 
 		if not self.requiredMigration:
 			self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
@@ -2156,6 +2232,7 @@ class Bridge(QObject):
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)
+	sharedFolderModel=Property(QObject,_getSharedFolderModel,constant=True)
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	maxFileSizeNames=Property('QVariant',_getMaxFileSizeNames,constant=True)
 

@@ -91,6 +91,9 @@ Popup {
             case 17:
                 var msg=i18nd("lliurex-onedrive","Migrating configuration. Wait a moment...")
                 break
+            case 20:
+                var msg=i18nd("lliurex-onedrive","Looking for shared folders. Wait a moment...")
+                break
             default:
                 var msg=""
                 break;
