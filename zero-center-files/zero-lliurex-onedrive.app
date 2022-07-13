@@ -12,7 +12,7 @@ Icon=zero-lliurex-onedrive
 Category=Internet
 Using=pkexec
 ScriptPath=zero-lliurex-onedrive.zmd
-Groups=admins;admin;sudo
+Groups=admins;admin;sudo;teachers
 Service=True
 Modal=True
 
