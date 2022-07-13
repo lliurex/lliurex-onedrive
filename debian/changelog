@@ -1,3 +1,9 @@
+lliurex-onedrive (1.2.11.2) focal-updates; urgency=medium
+
+  * Added teachers in group list to run zomando
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 13 Jul 2022 10:28:03 +0200
+
 lliurex-onedrive (1.2.11.1) focal-updates; urgency=medium
 
   * Fixed bug in manageSync btn invoke
