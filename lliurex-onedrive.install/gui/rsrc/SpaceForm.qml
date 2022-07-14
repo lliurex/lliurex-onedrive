@@ -84,7 +84,7 @@ Rectangle{
                 RadioButton{
                     id:sharePointOption
                     checked:onedriveBridge.formData[1]==1?true:false
-                    text:i18nd("lliurex-onedrive","SharePoint library")
+                    text:i18nd("lliurex-onedrive","SharePoint")
                     enabled:!onedriveBridge.requiredMigration
                     onToggled:{
                         if (spaceMailEntry.acceptableInput){

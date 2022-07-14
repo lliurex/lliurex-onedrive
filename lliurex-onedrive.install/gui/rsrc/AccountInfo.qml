@@ -26,7 +26,7 @@ Rectangle{
             id: accountMessageLabel
             visible:onedriveBridge.showAccountMessage[0]
             text:getTextOption(onedriveBridge.showAccountMessage[1])
-            type:Kirigami.MessageType.Error;
+            type:onedriveBridge.showAccountMessage[2]=="OK"?Kirigami.MessageType.Positive:Kirigami.MessageType.Error;
             Layout.minimumWidth:650
             Layout.maximumWidth:650
             Layout.topMargin: 40
@@ -69,7 +69,7 @@ Rectangle{
 
            Text{
                 id:spaceTypeValue
-                text:onedriveBridge.spaceBasicInfo[1]=="onedrive"?  "OneDrive":"SharePoint"
+                text:onedriveBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -83,19 +83,19 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","SharePoint:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
            Text{
                 id:sharePointValue
-                text:onedriveBridge.spaceBasicInfo[2]
+                text:onedriveBridge.spaceBasicInfo[3]
                 Layout.maximumWidth:400
                 elide:Text.ElideMiddle
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
@@ -105,17 +105,17 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Library:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
                 id:libraryValue
-                text:onedriveBridge.spaceBasicInfo[3]
+                text:onedriveBridge.spaceBasicInfo[4]
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                visible:onedriveBridge.spaceBasicInfo[1]=="sharepoint"?true:false
+                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
@@ -363,6 +363,9 @@ Rectangle{
                 break;
             case 2:
                 var msg=i18nd("lliurex-onedrive","Remote content pending syncing");
+                break;
+            case 20:
+                var msg=i18nd("lliurex-onedrive","Configuration migration completed successfully");
                 break;
             case -1:
                 var msg=i18nd("lliurex-onedrive","Microsoft OneDrive API return an error\n")+additionalText;

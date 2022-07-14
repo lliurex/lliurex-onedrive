@@ -35,7 +35,7 @@ SEARCH_SPACE_SHAREPOINT=16
 SPACE_MIGRATION_MESSAGE=17
 TOOLS_DEFAULT_MESSAGE=18
 UPDATE_TOKEN_MESSAGE=19
-SEARCH_SPACE_SHARED=20
+SPACE_MIGRATION_SUCCESS=20
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -76,7 +76,7 @@ class CreateSpace(QThread):
 		QThread.__init__(self)
 		self.spaceInfo=args[0]
 		self.reuseToken=args[1]
-		self.initialDownload=""
+		#self.initialDownload=""
 		self.ret=[]
 
 	#def __init__
@@ -84,9 +84,11 @@ class CreateSpace(QThread):
 	def run (self,*args):
 		
 		self.ret=Bridge.onedriveMan.createSpace(self.spaceInfo,self.reuseToken)
+		'''
 		if self.ret:
 			if Bridge.onedriveMan.isConfigured():
 				self.initialDownload=Bridge.onedriveMan.getInitialDownload()
+		'''
 	#def run
 
 #class CreateSpace
@@ -334,7 +336,7 @@ class Bridge(QObject):
 		self._spacesCurrentOption=0
 		self._closeGui=False
 		self._closePopUp=[True,""]
-		self._authUrl=Bridge.onedriveMan.authUrl
+		self._authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient&login_hint="
 		self._showSpaceSettingsMessage=[False,"","Information"]
 		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=False
@@ -344,9 +346,9 @@ class Bridge(QObject):
 		self._initialDownload=""
 		self._hddFreeSpace=""
 		self._showDownloadDialog=False
-		self._showAccountMessage=[False,""]
+		self._showAccountMessage=[False,"","Error"]
 		self._manageCurrentOption=0
-		self._spaceBasicInfo=["","","",""]
+		self._spaceBasicInfo=["","","","",""]
 		self._spaceLocalFolder=""
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
@@ -360,7 +362,6 @@ class Bridge(QObject):
 		self._freeSpace=""
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
-		self._showAccountMessage=[False,""]
 		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
 		self._showSynchronizePendingDialog=False
@@ -464,7 +465,15 @@ class Bridge(QObject):
 
 		return self._authUrl
 
-	#def _getAuthUrl	
+	#def _getAuthUrl
+
+	def _setAuthUrl(self,authUrl):
+
+		if self._authUrl!=authUrl:
+			self._authUrl=authUrl
+			self.on_authUrl.emit()
+
+	#def _setAuthUrl	
 
 	def _getSpacesModel(self):
 
@@ -1051,11 +1060,12 @@ class Bridge(QObject):
 		self.showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=True
 		self.tempConfig=False
-		self.data=data[0]
-
+		self.tmpSpaceEmail=data[0]
+		
 		if Bridge.onedriveMan.checkIfEmailExists(data[0]):
 			self.gatherSharePoints()
 		else:
+			self.authUrl=self._authUrl+self.tmpSpaceEmail
 			self.tempConfig=True
 			self.formData=[data[0],data[1]]
 			self.spacesCurrentOption=2
@@ -1066,7 +1076,7 @@ class Bridge(QObject):
 
 		self.closePopUp=[False,SEARCH_SPACE_SHAREPOINT]
 		self.closeGui=False
-		self.gatherSharePointsT=GatherSharePoints(self.data)
+		self.gatherSharePointsT=GatherSharePoints(self.tmpSpaceEmail)
 		self.gatherSharePointsT.start()
 		self.gatherSharePointsT.finished.connect(self._gatherSharePoints)
 	
@@ -1198,6 +1208,7 @@ class Bridge(QObject):
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
 			self.closePopUp=[True,""]
+			self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
 			self.closeGui=True
 			self.requiredMigration=False
 		else:
@@ -1210,7 +1221,7 @@ class Bridge(QObject):
 	@Slot(str)
 	def getToken(self,token):
 
-		Bridge.onedriveMan.createToken(token)
+		Bridge.onedriveMan.createToken(token,self.authUrl)
 		if not self.updateSpaceAuth:
 			self.spacesCurrentOption=1
 			if not self.tempConfig:
@@ -1259,6 +1270,7 @@ class Bridge(QObject):
 				self.reuseToken=True
 				self.addSpace()
 			else:
+				self.authUrl=self._authUrl+self.spaceInfo[0]
 				self.reuseToken=False
 				self.spacesCurrentOption=2
 		else:
@@ -1289,8 +1301,10 @@ class Bridge(QObject):
 			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
-			self.initialDownload=self.createSpaceT.initialDownload
+			self.initialDownload=Bridge.onedriveMan.initialDownload
 			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+			self.accountStatus=0
+			self.freeSpace=""
 			self._getInitialSettings()
 			if self.initialDownload!="":
 				self.showDownloadDialog=True
@@ -1338,7 +1352,7 @@ class Bridge(QObject):
 		self.isOnedriveRunning=self.manageSyncT.ret[1]
 
 		if not self.isOnedriveRunning:
-			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR,"Error"]
 			self.currentStack=2
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
@@ -1377,7 +1391,7 @@ class Bridge(QObject):
 			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
 			self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
 			self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
-			self.showAccountMessage=[False,""]
+			self.showAccountMessage=[False,"","Error"]
 			self.accountStatus=Bridge.onedriveMan.accountStatus
 			self.freeSpace=Bridge.onedriveMan.freeSpace
 			self._folderModel.resetModel()
@@ -1395,9 +1409,9 @@ class Bridge(QObject):
 					self._endLoading()
 			else:
 				if self.localFolderRemoved:
-					self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
+					self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED,"Error"]
 				elif self.localFolderEmpty:
-					self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
+					self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY,"Error"]
 				self._endLoading()
 			
 			if self.isOnedriveRunning:
@@ -1514,11 +1528,11 @@ class Bridge(QObject):
 
 		if not self.manageSyncT.ret[0]:
 			if self.startSync:
-				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]
+				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR,"Error"]
 			else:
-				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR]
+				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR,"Error"]
 		else:
-			self.showAccountMessage=[False,""]
+			self.showAccountMessage=[False,"","Error"]
 			self._updateSpacesModelInfo('isRunning')
 		
 		self.isOnedriveRunning=self.manageSyncT.ret[1]
@@ -1583,12 +1597,13 @@ class Bridge(QObject):
 
 		if self.removeAccountT.ret:
 			self._updateSpacesModel()
+			Bridge.onedriveMan.removeOrganizationDirectoryFile()
 			self.currentStack=1
 			self.spacesCurrentOption=0
 			self.manageCurrentOption=0
 			self.removeAction=True
 		else:
-			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR]	
+			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR,"Error"]	
 	
 		self.closePopUp=[True,""]
 		self.closeGui=True
@@ -1997,6 +2012,7 @@ class Bridge(QObject):
 	@Slot()
 	def updateAuth(self):
 
+		self.authUrl=self._authUrl+self.spaceBasicInfo[0]
 		self.updateSpaceAuth=True
 		self.manageCurrentOption=4
 
@@ -2037,7 +2053,6 @@ class Bridge(QObject):
 				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 			else:
 				hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
-				print(hddAlert)
 				if hddAlert[0]:
 					self.showSpaceSettingsMessage=[True,hddAlert[1],hddAlert[2]]
 				else:
@@ -2062,12 +2077,12 @@ class Bridge(QObject):
 		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder(Bridge.onedriveMan.spaceConfPath)
 	
 		if self.localFolderEmpty:
-			self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY]
+			self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY,"Error"]
 		else:
 			if self.localFolderRemoved:
-				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED]
+				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED,"Error"]
 			else:
-				self.showAccountMessage=[False,""]
+				self.showAccountMessage=[False,"","Error"]
 
 	#def checkSpaceLocalFolder
 
@@ -2122,6 +2137,9 @@ class Bridge(QObject):
 
 	on_spacesCurrentOption=Signal()
 	spacesCurrentOption=Property(int,_getSpacesCurrentOption,_setSpacesCurrentOption, notify=on_spacesCurrentOption)
+
+	on_authUrl=Signal()
+	authUrl=Property(str,_getAuthUrl,_setAuthUrl,notify=on_authUrl)
 
 	on_formData=Signal()
 	formData=Property('QVariantList',_getFormData,_setFormData, notify=on_formData)
@@ -2192,9 +2210,6 @@ class Bridge(QObject):
 	on_showSettingsDialog=Signal()
 	showSettingsDialog=Property(bool,_getShowSettingsDialog,_setShowSettingsDialog,notify=on_showSettingsDialog)
 
-	on_showAccountMessage=Signal()
-	showAccountMessage=Property('QVariantList',_getShowAccountMessage,_setShowAccountMessage,notify=on_showAccountMessage)
-
 	on_syncAll=Signal()
 	syncAll=Property(bool,_getSyncAll,_setSyncAll,notify=on_syncAll)
 
@@ -2228,7 +2243,6 @@ class Bridge(QObject):
 	on_showToolsMessage=Signal()
 	showToolsMessage=Property('QVariantList',_getShowToolsMessage,_setShowToolsMessage,notify=on_showToolsMessage)
 
-	authUrl=Property(str,_getAuthUrl,constant=True)
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)

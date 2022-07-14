@@ -26,7 +26,7 @@ class OnedriveManager:
 		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
 		self.sharedFoldersConfigData=[]
-		self.authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
+		#self.authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
 		self.configTemplatePath="/usr/share/lliurex-onedrive/llx-data/config"
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
@@ -75,7 +75,9 @@ class OnedriveManager:
 		self.oldFilesToDelete=["config",".config.backup",".config.hash","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
-	
+		self.oneDriveDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDrive"
+		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
+		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.createEnvironment()
 		self.clearCache()
 
@@ -96,12 +98,13 @@ class OnedriveManager:
 		if not os.path.exists(self.onedriveConfigDir):
 			os.mkdir(self.onedriveConfigDir)
 
+		'''
 		if not os.path.exists(self.sharePointConfigDir):
 			os.mkdir(self.sharePointConfigDir)
 
 		if not os.path.exists(self.sharedFolderConfigDir):
 			os.mkdir(self.sharedFolderConfigDir)
-
+		'''
 	#def createEnvironment
 
 	def loadOneDriveConfig(self):
@@ -220,6 +223,8 @@ class OnedriveManager:
 		self.librariesConfigData=[]
 		self.sharedFoldersConfigData=[]
 		self.autoStartEnabled=True
+		self.spaceAccountType=""
+		self.initialDownload=""
 		self.rateLimit=2
 		self.monitorInterval=1
 		self.skipSize=[False,0]
@@ -388,7 +393,7 @@ class OnedriveManager:
 
 	#def checkPreviousLocalFolder
 
-	def createToken(self,token):
+	def createToken(self,token,authUrl):
 		
 		if not os.path.exists(self.userTokenPath):
 			os.mkdir(self.userTokenPath)
@@ -396,7 +401,7 @@ class OnedriveManager:
 		self.urlDoc=os.path.join(self.userTokenPath,"urlToken")
 		self.tokenDoc=os.path.join(self.userTokenPath,"keyToken")
 		with open(self.urlDoc,'w') as fd:
-			fd.write(self.authUrl)
+			fd.write(authUrl)
 		with open(self.tokenDoc,'w') as fd:
 			fd.write(token)
 
@@ -405,13 +410,13 @@ class OnedriveManager:
 	def createSpace(self,spaceInfo,reuseToken):
 
 		spaceEmail=spaceInfo[0]
+		spaceAccounType=""
 		spaceType=spaceInfo[1]
 		spaceName=spaceInfo[2]
 		spaceLibrary=spaceInfo[3]
 		spaceDriveId=spaceInfo[4]
-		spaceSharedFolder=spaceInfo[5]
 
-		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary,spaceSharedFolder]
+		self.spaceBasicInfo=[spaceEmail,spaceAccounType,spaceType,spaceName,spaceLibrary]
 		
 		if not os.path.exists(os.path.join(self.userSystemdPath,self.aCServiceFile)):
 			ret=self._stopOldService()
@@ -434,8 +439,11 @@ class OnedriveManager:
 		self._manageEmptyToken()
 		self._createSpaceServiceUnit(spaceType)
 		self._createOneDriveACService()
+		if self.isConfigured():
+			self.getInitialDownload()
 		self._updateOneDriveConfig(spaceInfo)
 		self._createAuxVariables()
+		self._addDirectoryFile(spaceType)
 		self.loadOneDriveConfig()
 
 		return True
@@ -635,7 +643,8 @@ class OnedriveManager:
 		h.update(tmpId.encode("utf-8"))
 		tmp["id"]=h.hexdigest()
 		tmp["email"]=spaceInfo[0]
-		tmp["type"]=spaceInfo[1]
+		tmp["accountType"]=self.spaceAccountType
+		tmp["spaceType"]=spaceInfo[1]
 		tmp["sharepoint"]=spaceInfo[2]
 		tmp["library"]=spaceInfo[3]
 		tmp["sharedFolder"]=spaceInfo[5]
@@ -685,8 +694,13 @@ class OnedriveManager:
 
 		tmpName=email.split('@')[0]
 		tmpName=re.sub('[^0-9a-zA-Z]+', '', tmpName).lower()
-		tmpOrganization=email.split('@')[1].split(".")[0].lower()
-		self.spaceSuffixName=tmpOrganization.capitalize()+"_"+tmpName
+		tmpOrganization=email.split('@')[1]
+		if 'edu.gva' in tmpOrganization:
+			tmpOrganization="EduGva"
+		else:
+			tmpOrganization=tmpOrganization.split(".")[0].lower().capitalize()
+		
+		self.spaceSuffixName=tmpOrganization+"_"+tmpName
 		
 		if spaceType=="sharepoint":
 			tmpSharePoint=self._stripAccents(spaceName)
@@ -780,8 +794,10 @@ class OnedriveManager:
 
 	def getInitialDownload(self):
 
-		download=""
-		cmd='/usr/bin/onedrive --display-sync-status --dry-run --confdir="%s"'%(self.spaceConfPath)
+		self.initialDownload=""
+		self.spaceAccountType=""
+
+		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%(self.spaceConfPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()[0]
 		rc=p.returncode
@@ -795,10 +811,11 @@ class OnedriveManager:
 				if 'data to download' in line:
 					tmpLine=line.split(":")[1].strip()
 					if tmpLine!="":
-						download=self._formatInitialDownload(tmpLine)
-						break
+						self.initialDownload=self._formatInitialDownload(tmpLine)
+				elif 'Account Type:' in line:
+					self.spaceAccountType=line.split(":")[1].strip()
 		
-		return download
+		#return download
 
 	#def getInitialDownload
 
@@ -846,7 +863,7 @@ class OnedriveManager:
 		for item in self.onedriveConfig['spacesList']:
 			if item["id"]==spaceId:
 				self.spaceId=spaceId
-				self.spaceBasicInfo=[item["email"],item["type"],item["sharepoint"],item["library"],item["sharedFolder"]]
+				self.spaceBasicInfo=[item["email"],item["accountType"],item["spaceType"],item["sharepoint"],item["library"],item["sharedFolder"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
@@ -1010,7 +1027,7 @@ class OnedriveManager:
 			spaceConfPath=self.spaceConfPath
 
 		if spaceType==None:
-			spaceType=self.spaceBasicInfo[1]
+			spaceType=self.spaceBasicInfo[2]
 
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
@@ -1125,6 +1142,8 @@ class OnedriveManager:
 
 	def removeAccount(self):
 
+		self.organizationFolder=""
+
 		if self.isOnedriveRunning():
 			ret=self.manageSync(False)
 			
@@ -1135,6 +1154,9 @@ class OnedriveManager:
 			if not self.isConfigured():
 				self._removeSystemdConfig()
 				self._removeEnvConfigFiles()
+				self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
+				if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
+					os.remove(os.path.join(self.spaceLocalFolder,".directory"))
 				return True
 			else:
 				return False
@@ -1930,13 +1952,13 @@ class OnedriveManager:
 	def migrateSpace(self,spaceInfo):
 
 		spaceEmail=spaceInfo[0]
+		spaceAccountType=""
 		spaceType=spaceInfo[1]
 		spaceName=spaceInfo[2]
 		spaceLibrary=spaceInfo[3]
 		spaceDriveId=spaceInfo[4]
-		spaceSharedFolder=spaceInfo[5]
 
-		self.spaceBasicInfo=[spaceEmail,spaceType,spaceName,spaceLibrary.spaceSharedFolder]
+		self.spaceBasicInfo=[spaceEmail,spaceAccountType,spaceType,spaceName,spaceLibrary]
 		ret=self._stopOldService()
 		
 		if ret:
@@ -1958,8 +1980,10 @@ class OnedriveManager:
 				self._manageEmptyToken()
 				self._createSpaceServiceUnit(spaceType)
 				self._createOneDriveACService()
+				self.getInitialDownload()
 				self._updateOneDriveConfig(spaceInfo)
 				self._createAuxVariables()
+				self._addDirectoryFile()
 				self.loadOneDriveConfig()
 				self._deleteOldFiles()
 				return True			
@@ -2060,5 +2084,39 @@ class OnedriveManager:
 
 	#def checkHddFreeSpace
 
+	def _addDirectoryFile(self,spaceType):
+
+		if os.path.exists(self.spaceLocalFolder):
+			if spaceType=="onedrive":
+				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+			else:
+				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+				organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+				if not os.path.exists(os.path.join(organizationFolder,".directory")):
+					shutil.copyfile(self.organizationDirectoryFile,os.path.join(organizationFolder,".directory"))
+	
+	#def _addDirectoryFile
+
+	def removeOrganizationDirectoryFile(self):
+
+		if self.spaceBasicInfo[2]=="sharepoint":
+			removeDirectoryFile=False
+			spaces=self.onedriveConfig["spacesList"]
+
+			if len(spaces)==0:
+				removeDirectoryFile=True
+			else:
+				for item in spaces:
+					if item["spaceType"]=="sharepoint":
+						removeDirectoryFile=False
+						break
+					else:
+						removeDirectoryFile=True
+
+			if removeDirectoryFile:
+				if os.path.exists(os.path.join(self.organizationFolder,".directory")):
+					os.remove(os.path.join(self.organizationFolder,".directory"))
 		
+	#def removeOrganizationDirectoryFile
+
 #class OnedriveManager

@@ -361,7 +361,7 @@ class LliurexOneDriveAC:
 						futures=[]
 						for space in oneDriveSpaces:
 							tmp=[]
-							tmpInfo=[space['configPath'],space['type']]
+							tmpInfo=[space['configPath'],space['spaceType']]
 							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):
