@@ -89,7 +89,7 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 2 GB")
                 break;
             case -18:
-                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 1 GB")
+                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 1 GB. No more content will be synced")
                 break;
             default:
                 var msg=""

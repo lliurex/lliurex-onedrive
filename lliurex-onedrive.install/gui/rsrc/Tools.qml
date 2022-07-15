@@ -69,7 +69,7 @@ Rectangle{
 
             Text{
                 id:repairText
-                text:i18nd("lliurex-onedrive","Repair space:")
+                text:i18nd("lliurex-onedrive","Resynchronize space:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             }
@@ -86,7 +86,7 @@ Rectangle{
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
-                ToolTip.text:i18nd("lliurex-onedrive","Click to run an OneDrive client repair command")
+                ToolTip.text:i18nd("lliurex-onedrive","Click to resynchronize the space")
 
                 onClicked:{
                     repairRemoveDialog.open()
@@ -123,7 +123,7 @@ Rectangle{
         id:repairRemoveDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
-        dialogMsg:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to repair the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to repair the space?")
+        dialogMsg:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to resynchronize the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to resynchronize the space?")
         dialogWidth:560
         btnAcceptVisible:false
         btnAcceptText:""

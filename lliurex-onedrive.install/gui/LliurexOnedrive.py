@@ -1254,7 +1254,7 @@ class Bridge(QObject):
 		if option=="All":
 			self._initialStartUp()
 			self.syncAll=True
-			self.showFolderStruct=True
+			#self.showFolderStruct=True
 		else:
 			self.currentStack=2
 			self.manageCurrentOption=1

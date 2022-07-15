@@ -223,7 +223,7 @@ class OnedriveManager:
 		self.autoStartEnabled=True
 		self.spaceAccountType=""
 		self.initialDownload=""
-		self.rateLimit=2
+		self.rateLimit=4
 		self.monitorInterval=1
 		self.skipSize=[False,0]
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
@@ -1937,7 +1937,7 @@ class OnedriveManager:
 				self.getInitialDownload()
 				self._updateOneDriveConfig(spaceInfo)
 				self._createAuxVariables()
-				self._addDirectoryFile()
+				self._addDirectoryFile(spaceType)
 				self.loadOneDriveConfig()
 				self._deleteOldFiles()
 				return True			
