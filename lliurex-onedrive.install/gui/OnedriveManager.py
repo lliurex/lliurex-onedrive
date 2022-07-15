@@ -25,7 +25,6 @@ class OnedriveManager:
 		self.spacesConfigData=[]
 		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
-		self.sharedFoldersConfigData=[]
 		#self.authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
 		self.configTemplatePath="/usr/share/lliurex-onedrive/llx-data/config"
@@ -221,7 +220,6 @@ class OnedriveManager:
 		self.tmpConfDir=""
 		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
-		self.sharedFoldersConfigData=[]
 		self.autoStartEnabled=True
 		self.spaceAccountType=""
 		self.initialDownload=""
@@ -269,7 +267,7 @@ class OnedriveManager:
 				break
 
 		if self.tmpConfDir=="":
-			ret=self.createTempConfig("SharePoint")
+			ret=self.createTempConfig("sharepoint")
 			self.tmpConfDir=self.tempConfigPath
 
 		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
@@ -310,44 +308,12 @@ class OnedriveManager:
 				self.librariesConfigData.append(tmp)
 
 	#def getSharePointLibraries
-
-	def getSharedFolders(self,email):
-
-		self.sharedFoldersConfigData=[]
-		self.tmpConfDir=""
-		
-		for item in self.onedriveConfig["spacesList"]:
-			if item["email"]==email:
-				if item["type"]=="onedrive":
-					self.tmpConfDir=item["configPath"]
-					break
-
-		if self.tmpConfDir=="":
-			ret=self.createTempConfig("SharedFolder")
-			self.tmpConfDir=self.tempConfigPath
-
-		cmd='onedrive --list-shared-folders --dry-run --confdir="%s"'%(self.tmpConfDir)
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		pout,perror=p.communicate()
-
-		if len(perror)==0:
-			if len(pout)>0:
-				pout=pout.decode().split("\n")
-			
-			for i in range(0,len(pout),1):
-				if "Shared Folder: " in pout[i]:
-					tmpFolder=pout[i].split(":")[1].strip()
-					tmpOwner=pout[i+1].split(":")[1].strip().split("(")[0].strip()
-					self.sharedFoldersConfigData.append(tmpOwner+"-"+tmpFolder)
-
-	#def getSharedFolders
 	
 	def checkDuplicate(self,spaceInfo):
 
 		spaceEmail=spaceInfo[0]
 		spaceType=spaceInfo[1]
 		driveId=spaceInfo[4]
-		sharedFolder=spaceInfo[5]
 		
 		duplicateSpace=False
 		existsMail=False
@@ -364,12 +330,7 @@ class OnedriveManager:
 					if item["driveId"]==driveId:
 						duplicateSpace=True
 						break
-			else:
-				for item in self.onedriveConfig["spacesList"]:
-					if item["sharedFolder"]==sharedFolder:
-						duplicateSpace=True
-						break
-
+	
 		return [duplicateSpace,existsMail]
 
 	#def checkDuplicate
@@ -647,7 +608,6 @@ class OnedriveManager:
 		tmp["spaceType"]=spaceInfo[1]
 		tmp["sharepoint"]=spaceInfo[2]
 		tmp["library"]=spaceInfo[3]
-		tmp["sharedFolder"]=spaceInfo[5]
 		tmp["localFolder"]=self.spaceLocalFolder
 		tmp["configPath"]=self.spaceConfPath
 		tmp["systemd"]=self.spaceServiceFile
@@ -687,7 +647,6 @@ class OnedriveManager:
 		spaceType=spaceInfo[1]
 		spaceName=spaceInfo[2]
 		spaceLibrary=spaceInfo[3]
-		sharedFolder=spaceInfo[5]
 
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
@@ -708,10 +667,6 @@ class OnedriveManager:
 			tmpLibrary=self._stripAccents(spaceLibrary)
 			tmpLibrary=re.sub('[^0-9a-zA-Z]+', '_', tmpLibrary)
 			self.folderSuffixName=tmpSharePoint+"-"+tmpLibrary
-		elif spaceType=="sharedfolder":
-			tmpSharedFolder=self._stripAccents(sharedFolder)
-			tmpSharedFolder=re.sub('[^0-9a-z\-A-Z]+', '_', tmpSharedFolder)
-			self.folderSuffixName=tmpSharedFolder
 
 	#def _getSpaceSuffixName
 
@@ -731,10 +686,9 @@ class OnedriveManager:
 	def createTempConfig(self,tmpType):
 
 		self.deleteTempConfig()
-		if tmpType=="SharePoint":
+		if tmpType=="sharepoint":
 			self.tempConfigPath=tempfile.mkdtemp("_sharepoint")
-		else:
-			self.tempConfigPath=tempfile.mkdtemp("_sharedfolder")
+		
 		self.tempFolder=os.path.join(self.tempConfigPath,tmpType)
 
 		shutil.copy(self.configTemplatePath,self.tempConfigPath)
@@ -863,7 +817,7 @@ class OnedriveManager:
 		for item in self.onedriveConfig['spacesList']:
 			if item["id"]==spaceId:
 				self.spaceId=spaceId
-				self.spaceBasicInfo=[item["email"],item["accountType"],item["spaceType"],item["sharepoint"],item["library"],item["sharedFolder"]]
+				self.spaceBasicInfo=[item["email"],item["accountType"],item["spaceType"],item["sharepoint"],item["library"]]
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
