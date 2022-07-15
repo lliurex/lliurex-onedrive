@@ -315,7 +315,8 @@ class Bridge(QObject):
 		self._spacesCurrentOption=0
 		self._closeGui=False
 		self._closePopUp=[True,""]
-		self._authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient&login_hint="
+		self.loginUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient&login_hint="
+		self._authUrl=self.loginUrl
 		self._showSpaceSettingsMessage=[False,"","Information"]
 		self._showSpaceFormMessage=[False,"","Information"]
 		self.reuseToken=False
@@ -1026,7 +1027,7 @@ class Bridge(QObject):
 		if Bridge.onedriveMan.checkIfEmailExists(data[0]):
 			self.gatherSharePoints()
 		else:
-			self.authUrl=self._authUrl+self.tmpSpaceEmail
+			self.authUrl=self.loginUrl+self.tmpSpaceEmail
 			self.tempConfig=True
 			self.formData=[data[0],data[1]]
 			self.spacesCurrentOption=2
@@ -1196,7 +1197,7 @@ class Bridge(QObject):
 				self.reuseToken=True
 				self.addSpace()
 			else:
-				self.authUrl=self._authUrl+self.spaceInfo[0]
+				self.authUrl=self.loginUrl+self.spaceInfo[0]
 				self.reuseToken=False
 				self.spacesCurrentOption=2
 		else:
@@ -1938,7 +1939,7 @@ class Bridge(QObject):
 	@Slot()
 	def updateAuth(self):
 
-		self.authUrl=self._authUrl+self.spaceBasicInfo[0]
+		self.authUrl=self.loginUrl+self.spaceBasicInfo[0]
 		self.updateSpaceAuth=True
 		self.manageCurrentOption=4
 

@@ -322,7 +322,7 @@ class OnedriveManager:
 			existsMail=True
 			if spaceType=="onedrive":
 				for item in self.onedriveConfig["spacesList"]:
-					if item["email"]==spaceEmail and item["type"]=="onedrive":
+					if item["email"]==spaceEmail and item["spaceType"]=="onedrive":
 						duplicateSpace=True
 						break
 			elif spaceType=="sharepoint":
