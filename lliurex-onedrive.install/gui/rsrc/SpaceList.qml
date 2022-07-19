@@ -1,9 +1,8 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick 2.6
+import QtQuick.Controls 2.6
 import QtQml.Models 2.8
 import org.kde.plasma.components 2.0 as Components
-import org.kde.kirigami 2.16 as Kirigami
-
+import org.kde.kirigami 2.12 as Kirigami
 
 
 Rectangle {
@@ -12,7 +11,7 @@ Rectangle {
 
     id:spaceTable
     visible: true
-    width: 660; height: 300
+    width: 660; height: 312
     color:"white"
     border.color: "#d3d3d3"
 
@@ -24,6 +23,7 @@ Rectangle {
         enabled:true
         currentIndex:-1
         clip: true
+        focus:true
         boundsBehavior: Flickable.StopAtBounds
         highlight: Rectangle { color: "#add8e6"; opacity:0.8;border.color:"#53a1c9" }
         highlightMoveDuration: 0

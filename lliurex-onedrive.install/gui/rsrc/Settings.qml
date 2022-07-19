@@ -1,6 +1,6 @@
 
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.6 as Kirigami
+import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.12
@@ -108,6 +108,7 @@ Rectangle{
                 model:onedriveBridge.bandWidthNames
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
+                Layout.preferredWidth:100
                 enabled:getEnabledStatus()
                 onActivated:{
                     onedriveBridge.getRateLimit(bandwidthValues.currentIndex)
@@ -143,6 +144,7 @@ Rectangle{
                     enabled:skipSizeCB.checked
                     Layout.alignment:Qt.AlignVCenter
                     Layout.bottomMargin:10
+                    Layout.preferredWidth:100
                     onActivated:{
                         onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
                     }
