@@ -1267,11 +1267,16 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
+		self.checkAccountStatus()
+		self.initStartUp=True
+		
+		'''
 		self.closePopUp=[False,START_SYNC_MESSAGE]
 		self.manageSyncT=ManageSync(True)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._endInitialStartUp)
-		
+		'''
+
 	#def _initialStartUp
 
 	def _endInitialStartUp(self):

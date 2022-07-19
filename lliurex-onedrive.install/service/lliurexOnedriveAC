@@ -173,10 +173,13 @@ class getSpaceStatusWorker():
 		error=False
 		code=INFORMATION_NOT_AVAILABLE
 		freespace=""
+		pendingChanges="0 KB"
+		lastPendingChanges="0 KB"
 
 		if self._isOnedriveRunning(spaceConfigPath):
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
+					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					poutput,perror=p.communicate()
@@ -237,6 +240,8 @@ class getSpaceStatusWorker():
 									code=UNAUTHORIZED_ERROR
 									error=True
 									break
+								elif 'download from OneDrive:' in item:
+									pendingChanges=item.split(':')[1].strip()
 								elif 'Free Space' in item:
 									tmp_freespace=item.split(':')[1].strip()
 									if not 'Not Available' in tmp_freespace:
@@ -245,6 +250,10 @@ class getSpaceStatusWorker():
 					error=True
 					code=WITH_OUT_CONFIG
 
+				if code==OUT_OF_SYNC_MSG:
+					if pendingChanges==lastPendingChanges:
+						code=ALL_SYNCHRONIZE_MSG
+						
 				try:
 					with open(os.path.join(spaceConfigPath,".statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
@@ -252,6 +261,8 @@ class getSpaceStatusWorker():
 						tmpLine=str(code)+("\n")
 						fd.write(tmpLine)
 						tmpLine=str(freespace)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(pendingChanges)
 						fd.write(tmpLine)
 				except Exception as e:
 					pass
@@ -275,6 +286,16 @@ class getSpaceStatusWorker():
 		return False
 
 	#def _isOnedriveRunning
+
+	def _getLastPendingChanges(self,spaceConfigPath=None):
+
+		lastPendingChanges=""
+		if spaceConfigPath!=None:
+			if os.path.exists(os.path.join(spaceConfigPath,".statusToken")):
+				with open(os.path.join(spaceConfigPath,".statusToken"),'r') as fd:
+					lastPendingChanges=fd.readlines()[-1].strip()
+		
+		return lastPendingChanges
 
 #class getSpaceStatusWorker
 
