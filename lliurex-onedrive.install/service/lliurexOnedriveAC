@@ -297,6 +297,8 @@ class getSpaceStatusWorker():
 		
 		return lastPendingChanges
 
+	#def _getLastPendingChanges
+
 #class getSpaceStatusWorker
 
 class LliurexOneDriveAC:

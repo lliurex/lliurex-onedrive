@@ -48,6 +48,7 @@ LOCAL_FOLDER_REMOVED=-13
 SPACE_SHAREPOINT_EMPTY_ERROR=-14
 SPACE_MIGRATION_ERROR=-15
 UPDATE_TOKEN_ERROR=-16
+GET_TOKEN_ERROR=-17
 
 class GatherInfo(QThread):
 
@@ -96,12 +97,13 @@ class GatherSharePoints(QThread):
 		
 		QThread.__init__(self)
 		self.dataSP=args[0]
+		self.ret=True
 
 	#def __init__
 
 	def run (self,*args):
 		
-		Bridge.onedriveMan.getSpaceSharePoints(self.dataSP)
+		self.ret=Bridge.onedriveMan.getSpaceSharePoints(self.dataSP)
 
 	#def run
 
@@ -1046,12 +1048,15 @@ class Bridge(QObject):
 
 	def _gatherSharePoints(self):
 
-		self._updateSharePointModel()
+		if self.gatherSharePointsT.ret:
+			self._updateSharePointModel()
+		else:
+			self.showSpaceFormMessage=[True,GET_TOKEN_ERROR,"Error"]
+
 		self.closePopUp=[True,""]
 		self.closeGui=True
-
+	
 	#def _gatherLibraries
-
 
 	@Slot(str)
 	def getSharePointLibraries(self,data):

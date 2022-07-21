@@ -47,7 +47,7 @@ class OnedriveManager:
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
 			self.bandWidthNames.append(item["name"])
-		self.maxFileSize=[{"name":"10 MB","value":"10"},{"name":"25 MB","value":"25"},{"name":"50 MB","value":"50"},{"name":"75 MB","value":"75"},{"name":"100 MB","value":"100"},{"name":"150 MB","value":"150"},{"name":"250 MB","value":"250"},{"name":"500 MB","value":"500"},{"name":"1 GB","value":"1024"},{"name":"5 GB","value":"5120"},{"name":"10 GB","value":"10240"},{"name":"15 GB","value":"15360"},{"name":"25 GB","value":"20480"},{"name":"50 GB","value":"51200"},{"name":"100 GB","value":"102400"}]
+		self.maxFileSize=[{"name":"50 MB","value":"50"},{"name":"75 MB","value":"75"},{"name":"100 MB","value":"100"},{"name":"150 MB","value":"150"},{"name":"250 MB","value":"250"},{"name":"500 MB","value":"500"},{"name":"1 GB","value":"1024"},{"name":"2 GB","value":"2048"},{"name":"5 GB","value":"5120"},{"name":"10 GB","value":"10240"},{"name":"15 GB","value":"15360"},{"name":"20 GB","value":"20480"},{"name":"25 GB","value":"20480"},{"name":"50 GB","value":"51200"},{"name":"100 GB","value":"102400"}]
 		self.maxFileSizeNames=[]
 		for item in self.maxFileSize:
 			self.maxFileSizeNames.append(item["name"])
@@ -268,7 +268,13 @@ class OnedriveManager:
 
 		if self.tmpConfDir=="":
 			ret=self.createTempConfig("sharepoint")
-			self.tmpConfDir=self.tempConfigPath
+			if ret:
+				if os.path.exists(os.path.join(self.tempConfigPath,'refresh_token')):
+					self.tmpConfDir=self.tempConfigPath
+				else:
+					return False
+			else:
+				return False
 
 		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -280,6 +286,7 @@ class OnedriveManager:
 				if "*" in item:
 					self.sharePointsConfigData.append(item.split("*")[1].strip())
 
+		return True
 
 	#def getSpaceSharePoints
 	
@@ -396,6 +403,9 @@ class OnedriveManager:
 			rc=p.returncode
 			if rc not in [0,1]:
 				return False
+			else:
+				if not os.path.exists(os.path.join(self.spaceConfPath,'refresh_token')):
+					return False
 
 		self._manageEmptyToken()
 		self._createSpaceServiceUnit(spaceType)
@@ -1003,8 +1013,12 @@ class OnedriveManager:
 		code=INFORMATION_NOT_AVAILABLE=3
 
 		freespace=""
+		pendingChanges="0 KB"
+		lastPendingChanges="0 KB"
+
 
 		if self.isConfigured():
+			lastPendingChanges=self._getLastPendingChanges()
 			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%self.spaceConfPath
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			poutput,perror=p.communicate()
@@ -1062,6 +1076,8 @@ class OnedriveManager:
 						code=UNAUTHORIZED_ERROR
 						error=True
 						break
+					elif 'download from OneDrive:' in item:
+						pendingChanges=item.split(':')[1].strip()
 					elif 'Free Space' in item:
 						tmp_freespace=item.split(':')[1].strip()
 						if not 'Not Available' in tmp_freespace:
@@ -1071,6 +1087,10 @@ class OnedriveManager:
 			error=True
 			code=WITH_OUT_CONFIG
 
+		if code==OUT_OF_SYNC_MSG:
+			if pendingChanges==lastPendingChanges:
+				code=ALL_SYNCHRONIZE_MSG
+	
 		if error:
 			paramValue=1
 		else:
@@ -2072,5 +2092,17 @@ class OnedriveManager:
 					os.remove(os.path.join(self.organizationFolder,".directory"))
 		
 	#def removeOrganizationDirectoryFile
+
+	def _getLastPendingChanges(self):
+
+		lastPendingChanges=""
+		if os.path.exists(os.path.join(self.spaceConfPath,".statusToken")):
+			with open(os.path.join(self.spaceConfPath,".statusToken"),'r') as fd:
+				lastPendingChanges=fd.readlines()[-1].strip()
+		
+		return lastPendingChanges
+
+	#def _getLastPendingChanges
+
 
 #class OnedriveManager

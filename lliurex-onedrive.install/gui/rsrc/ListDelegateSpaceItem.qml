@@ -1,5 +1,5 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick 2.6
+import QtQuick.Controls 2.6
 import QtQml.Models 2.8
 import org.kde.plasma.components 2.0 as Components
 

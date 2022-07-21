@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-15 11:58+0200\n"
-"PO-Revision-Date: 2022-07-15 14:36+0200\n"
+"POT-Creation-Date: 2022-07-21 13:57+0200\n"
+"PO-Revision-Date: 2022-07-21 14:00+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -28,35 +28,35 @@ msgstr "Espais"
 msgid "Help"
 msgstr "Ajuda"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:11
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:10
 msgid "Synchronized spaces"
 msgstr "Espais sincronitzats"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:61
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:60
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:13
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:224
 msgid "New Space"
 msgstr "Nou espai"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:80
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:79
 msgid "The new space to synchronize has been configured successfully"
 msgstr "El nou espai ha sincronitzar s'ha configurat correctament"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:83
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:82
 msgid "One or more spaces require your attention"
 msgstr "Un o més espais requereixen la seua atenció"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:86
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:85
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
 "S'ha produït un error durant la instal·lació. Espereu un moment i torneu-ho "
 "a provar"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:89
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:88
 msgid "The available space in HDD is less than 2 GB"
 msgstr "L'espai disponible en el disc dur és menor de 2 GB"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:92
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:91
 msgid ""
 "The available space in HDD is less than 1 GB. No more content will be synced"
 msgstr ""
@@ -100,8 +100,8 @@ msgstr "Biblioteca a sincronitzar:"
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:150
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:126
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:204
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:167
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:203
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:169
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:205
 msgid "Apply"
 msgstr "Aplica"
 
@@ -112,8 +112,8 @@ msgstr "Aplica"
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:312
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:336
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:180
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:206
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:182
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:208
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:132
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:157
 msgid "Cancel"
@@ -203,11 +203,19 @@ msgstr "No s'han trobat SharePoints per al correu indicat"
 msgid "Unable to migrate old configuration"
 msgstr "No s'ha pogut migrar la configuració antiga"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:13
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:262
+msgid ""
+"Unable to get authorization to sync space.\n"
+"Wait a moment and try again"
+msgstr ""
+"No és possible obtindre l'autorització per a sincronitzar l'espai\n"
+"Espereu un moment i torneu a intentar-lo"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:12
 msgid "Migration information"
 msgstr "Informació sobre la migració"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:27
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:26
 msgid ""
 "In order to continue using LliureX-OneDrive it is necessary to migrate the "
 "current configurarion.\n"
@@ -223,7 +231,7 @@ msgstr ""
 "finalitze el procés, podrà iniciar la sincronització de nou.\n"
 "Per a iniciar la migració feu clic a Continua"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:50
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:49
 msgid "Continue"
 msgstr "Continua"
 
@@ -277,7 +285,7 @@ msgstr ""
 "Voleu aplicar els canvis o descartar-los?"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:205
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:204
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:206
 msgid "Discard"
 msgstr "Descarta"
 
@@ -303,7 +311,7 @@ msgstr "Informació de l'espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:83
 msgid "SharePoint:"
-msgstr "SahrePoint:"
+msgstr "SharePoint:"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:105
 msgid "Library:"
@@ -472,7 +480,7 @@ msgstr "Espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:61
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:14
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:198
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:200
 msgid "Settings"
 msgstr "Preferèncias"
 
@@ -499,15 +507,15 @@ msgstr "Sincronitza els canvis remots cada (en minuts):"
 msgid "Download/Upload network bandwidth:"
 msgstr "Ample de banda de xarxa per a descàrrega/pujada:"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:118
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:119
 msgid "Maximun fize size to sync:"
 msgstr "Grandària màxima dels fitxers a sincronitzar:"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:127
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:128
 msgid "Don't sync files larger than"
 msgstr "Excloure fitxers de més de"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:200
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:202
 msgid ""
 "The settings of space have changed.\n"
 "Do you want apply the changes or discard them?"
@@ -515,19 +523,19 @@ msgstr ""
 "Les preferències de l'espai han canviat.\n"
 "Voleu aplicar els canvis o descartar-los?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:227
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:229
 msgid "Failed to change synchronization boot configuration"
 msgstr "No s'ha pogut canviar la configuració d'inici de la sincronització"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:230
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:232
 msgid "Failed to write configuration file"
 msgstr "No s'ha pogut escriure el fitxer de configuració"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:233
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:235
 msgid "Failed to apply configuration changes"
 msgstr "No s'han pogut aplicar els canvis de configuració"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:236
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:238
 msgid ""
 "The changes will take effect the next time you start session or "
 "synchronization"

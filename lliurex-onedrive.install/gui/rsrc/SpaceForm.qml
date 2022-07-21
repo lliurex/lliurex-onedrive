@@ -258,6 +258,8 @@ Rectangle{
             case -15:
                 var msg=i18nd("lliurex-onedrive","Unable to migrate old configuration");
                 break
+            case -17:
+                var msg=i18nd("lliurex-onedrive","Unable to get authorization to sync space.\nWait a moment and try again")
             default:
                 var msg=""
                 break;
