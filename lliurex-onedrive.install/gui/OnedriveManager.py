@@ -196,7 +196,7 @@ class OnedriveManager:
 			with open(spaceStatusToken,'r') as fd:
 				lines=fd.readlines()
 
-			if len(lines)==3:
+			if len(lines)==4:
 				error=lines[0].strip()
 				code=lines[1].strip()
 				freeSpace=lines[2].strip()
@@ -1014,7 +1014,7 @@ class OnedriveManager:
 
 		freespace=""
 		pendingChanges="0 KB"
-		lastPendingChanges="0 KB"
+		lastPendingChanges=[0,pendingChanges]
 
 
 		if self.isConfigured():
@@ -1088,8 +1088,9 @@ class OnedriveManager:
 			code=WITH_OUT_CONFIG
 
 		if code==OUT_OF_SYNC_MSG:
-			if pendingChanges==lastPendingChanges:
-				code=ALL_SYNCHRONIZE_MSG
+			if pendingChanges==lastPendingChanges[1]:
+				if lastPendingChanges[0]==0:
+					code=ALL_SYNCHRONIZE_MSG
 	
 		if error:
 			paramValue=1
@@ -2095,13 +2096,15 @@ class OnedriveManager:
 
 	def _getLastPendingChanges(self):
 
+		code=0
 		lastPendingChanges=""
 		if os.path.exists(os.path.join(self.spaceConfPath,".statusToken")):
 			with open(os.path.join(self.spaceConfPath,".statusToken"),'r') as fd:
-				lastPendingChanges=fd.readlines()[-1].strip()
+				content=fd.readlines()
+			code=int(content[1].strip())
+			lastPendingChanges=content[-1].strip()
 		
-		return lastPendingChanges
-
+		return [code,lastPendingChanges]
 	#def _getLastPendingChanges
 
 
