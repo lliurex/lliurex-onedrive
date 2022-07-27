@@ -220,25 +220,38 @@ Rectangle{
 
     ChangesDialog{
         id:downloadDialog
-        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogIcon:{
+            if (onedriveBridge.withHDDSpace){
+               "/usr/share/icons/breeze/status/64/dialog-question.svg" 
+            }else{
+                "/usr/share/icons/breeze/status/64/dialog-warning.svg"
+            }
+        }
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New Space")
         dialogVisible:onedriveBridge.showDownloadDialog
-        dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+
-        i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
+        dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+getLastMessage()
         dialogWidth:700
         btnAcceptVisible:false
         btnAcceptText:""
-        btnDiscardText:i18nd("lliurex-onedrive","Synchronize all content")
-        btnDiscardIcon:"dialog-ok.svg"
-        btnCancelText:i18nd("lliurex-onedrive","Select content to synchronize")
-        btnCancelIcon:"configure.svg"
+        btnDiscardText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Synchronize all content"):i18nd("lliurex-onedrive","Select content to synchronize")
+        btnDiscardIcon:onedriveBridge.withHDDSpace?"dialog-ok.svg":"configure.svg"
+        btnCancelText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize"):i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:onedriveBridge.withHDDSpace?"configure.svg":"dialog-cancel.svg"
         Connections{
             target:downloadDialog
             function onDiscardDialogClicked(){
-                onedriveBridge.manageDownloadDialog("All")
+                if (onedriveBridge.withHDDSpace){
+                    onedriveBridge.manageDownloadDialog("All")
+                }else{
+                    onedriveBridge.manageDownloadDialog("Custom")
+                }
             }
             function onRejectDialogClicked(){
-                onedriveBridge.manageDownloadDialog("Custom")
+                if (onedriveBridge.withHDDSpace){
+                    onedriveBridge.manageDownloadDialog("Custom")
+                }else{
+                    onedriveBridge.manageDownloadDialog("Cancel")
+                }
             }
         }               
     
@@ -258,7 +271,7 @@ Rectangle{
             case -15:
                 var msg=i18nd("lliurex-onedrive","Unable to migrate old configuration");
                 break
-            case -17:
+            case -19:
                 var msg=i18nd("lliurex-onedrive","Unable to get authorization to sync space.\nWait a moment and try again")
             default:
                 var msg=""
@@ -312,6 +325,17 @@ Rectangle{
             }
         }
         return false
+    }
+
+    function getLastMessage(){
+
+        if (onedriveBridge.withHDDSpace){
+            var msg=i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
+        }else{
+            var msg=i18nd("lliurex-onedrive","\nThere is no space available on the HDD to sync all the content.\nDo you want to to select the content to sync or cancel the space settings?")
+        }
+        return msg
+
     }
 }
 

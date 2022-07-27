@@ -85,10 +85,13 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","An error occurred during setup. Wait a moment and try again")
                 break;
             case -17:
-                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 2 GB")
+                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 10 GB")
                 break;
             case -18:
-                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 1 GB. No more content will be synced")
+                var msg=i18nd("lliurex-onedrive","The available space in HDD is less than 5 GB. No more content will be synced")
+                break;
+            case -20:
+                var msg=i18nd("lliurex-onedrive","There is not enough space in HDD to sync more spaces")
                 break;
             default:
                 var msg=""

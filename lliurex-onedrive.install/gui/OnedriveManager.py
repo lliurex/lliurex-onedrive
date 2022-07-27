@@ -77,6 +77,7 @@ class OnedriveManager:
 		self.oneDriveDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDrive"
 		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
+		self.limitHDDSpace=5368709120
 		self.createEnvironment()
 		self.clearCache()
 
@@ -150,7 +151,7 @@ class OnedriveManager:
 	def getSpacesConfig(self):
 
 		self.spacesConfigData=[]
-		spaces=self.onedriveConfig["spacesList"]
+		spaces=sorted(self.onedriveConfig["spacesList"],key=lambda d:(d["spaceType"],d["localFolder"]))
 		countStatus=0
 		countFolder=0
 		
@@ -750,11 +751,29 @@ class OnedriveManager:
 
 	def getHddFreeSpace(self):
 
+		self.freeSpaceBytes=""
 		hdd=psutil.disk_usage('/home')
-		hddFreeSpace=self._formatFreeSpace(hdd.free)
+		self.freeSpaceBytes=hdd.free-self.limitHDDSpace
+		hddFreeSpace=self._formatFreeSpace(self.freeSpaceBytes)
 		return hddFreeSpace
 
 	#def getHddFreeSpace
+
+	def thereAreHDDAvailableSpace(self,initial=False):
+
+		if not initial:
+			hdd=psutil.disk_usage('/home')
+			if (hdd.free > self.limitHDDSpace):
+				return True
+			else:
+				return False
+		else:
+			if (self.freeSpaceBytes>self.initialDownloadBytes):
+				return True
+			else:
+				return False
+	
+	#def thereAreHDDAvailableSpace
 
 	def getInitialDownload(self):
 
@@ -785,20 +804,22 @@ class OnedriveManager:
 
 	def _formatInitialDownload(self,value):
 
+		self.initialDownloadBytes=""
+
 		if "KB" in value:
 			tmp=value.split(" ")[0]
-			tmp=int(tmp)*1024
+			self.initialDownloadBytes=int(tmp)*1024
 		elif "MB" in value:
 			tmp=value.split(" ")[0]
-			tmp=int(tmp)*1024*1024
+			self.initialDownloadBytes=int(tmp)*1024*1024
 		elif "GB" in value:
 			tmp=value.split(" ")[0]
-			tmp=int(tmp)*1024*1024*1024
+			self.initialDownloadBytes=int(tmp)*1024*1024*1024
 		else:
 			tmp=value.split(" ")[0]
-			tmp=int(tmp)
+			self.initialDownloadBytes=int(tmp)
 
-		return self._formatFreeSpace(tmp)
+		return self._formatFreeSpace(self.initialDownloadBytes)
 	
 	#def _formatInitialDownload
 
@@ -1160,6 +1181,12 @@ class OnedriveManager:
 				os.system(cmd)
 				os.remove(os.path.join(self.userSystemdPath,self.aCServiceFile))
 
+			if os.path.exists(self.freeSpaceWarningToken):
+				os.remove(self.freeSpaceWarningToken)
+
+			if os.path.exists(self.freeSpaceErrorToken):
+				os.remove(self.freeSpaceErrorToken)
+
 	#def removeACService
 
 	def _removeEnvConfigFiles(self):
@@ -1506,6 +1533,7 @@ class OnedriveManager:
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 
 		ret=self._syncResync()
+		self._addDirectoryFile(self.spaceBasicInfo[2])	
 		return ret
 
 	#def applySyncChanges

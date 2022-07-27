@@ -48,7 +48,8 @@ LOCAL_FOLDER_REMOVED=-13
 SPACE_SHAREPOINT_EMPTY_ERROR=-14
 SPACE_MIGRATION_ERROR=-15
 UPDATE_TOKEN_ERROR=-16
-GET_TOKEN_ERROR=-17
+GET_TOKEN_ERROR=-19
+HDD_SPACE_AVAILABLE_ERROR=-20
 
 class GatherInfo(QThread):
 
@@ -375,6 +376,7 @@ class Bridge(QObject):
 		self.checkGlobalStatusTimer.timeout.connect(self.getGlobalStatusInfo)
 		self._showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 		self.updateSpaceAuth=False
+		self._withHDDSpace=True
 
 		if len(sys.argv)>1:
 			self.spaceToManage=sys.argv[1]
@@ -970,6 +972,20 @@ class Bridge(QObject):
 
 	#def _setShowToolsMessage
 
+	def _getWithHDDSpace(self):
+
+		return self._withHDDSpace
+
+	#def _getWithHDDSpace
+
+	def _setWithHDDSpace(self,withHDDSpace):
+
+		if self._withHDDSpace!=withHDDSpace:
+			self._withHDDSpace=withHDDSpace
+			self.on_withHDDSpace.emit() 
+
+	#def _setWithHDDSpace
+
 	def _updateSpacesModel(self):
 
 		ret=self._spacesModel.clear()
@@ -1010,11 +1026,19 @@ class Bridge(QObject):
 		
 		Bridge.onedriveMan.initSpacesSettings()
 		Bridge.onedriveMan.deleteTempConfig()
-		self.formData=["",0]
-		self.showSpaceSettingsMessage=[False,"","Information"]
-		self.showSpaceFormMessage=[False,"","Information"]
-		self._libraryModel.clear()
-		self.spacesCurrentOption=option
+		moveTo=True
+		if option==1:
+			if not (Bridge.onedriveMan.thereAreHDDAvailableSpace()):
+				moveTo=False
+
+		if moveTo:		
+			self.formData=["",0]
+			self.showSpaceSettingsMessage=[False,"","Information"]
+			self.showSpaceFormMessage=[False,"","Information"]
+			self._libraryModel.clear()
+			self.spacesCurrentOption=option
+		else:
+			self.showSpaceSettingsMessage=[True,HDD_SPACE_AVAILABLE_ERROR,"Error"]
 
 	#def moveToSpaceOption
 
@@ -1193,7 +1217,7 @@ class Bridge(QObject):
 				self.manageCurrentOption=option
 				self.moveToOption=""
 
-	#def moveToSpaceOption
+	#def moveToManageOption
 
 	def createSpace(self):
 
@@ -1228,6 +1252,7 @@ class Bridge(QObject):
 		self.reuseToken=False
 		self.tempConfig=False
 		self._libraryModel.clear()
+		self.withHDDSpace=True
 
 		if self.createSpaceT.ret:
 			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
@@ -1239,6 +1264,7 @@ class Bridge(QObject):
 			self.freeSpace=""
 			self._getInitialSettings()
 			if self.initialDownload!="":
+				self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
 				self.showDownloadDialog=True
 			else:
 				self.showFolderStruct=False
@@ -1248,7 +1274,7 @@ class Bridge(QObject):
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
-			self.showSpaceSettingsMessage=[True,SPACE_CREATION_ERROR,"Error"]		
+			self.showSpaceFormMessage=[True,GET_TOKEN_ERROR,"Error"]
 
 	#def _createSpace
 
@@ -1260,13 +1286,14 @@ class Bridge(QObject):
 			self._initialStartUp()
 			self.syncAll=True
 			#self.showFolderStruct=True
-		else:
+		elif option=="Custom":
 			self.currentStack=2
 			self.manageCurrentOption=1
 			self.spacesCurrentOption=0
 			self.closePopUp=[True,""]
 			self.closeGui=True
-
+		else:
+			self.removeAccount()
 
 	#def manageDownloadDialog
 
@@ -2180,6 +2207,9 @@ class Bridge(QObject):
 	on_showToolsMessage=Signal()
 	showToolsMessage=Property('QVariantList',_getShowToolsMessage,_setShowToolsMessage,notify=on_showToolsMessage)
 
+	on_withHDDSpace=Signal()
+	withHDDSpace=Property(bool,_getWithHDDSpace,_setWithHDDSpace,notify=on_withHDDSpace)
+	
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)

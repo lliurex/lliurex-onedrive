@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-21 13:57+0200\n"
-"PO-Revision-Date: 2022-07-21 13:58+0200\n"
+"POT-Creation-Date: 2022-07-27 14:21+0200\n"
+"PO-Revision-Date: 2022-07-27 14:24+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -35,7 +35,7 @@ msgstr "Espacios sincronizados"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:60
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:13
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:224
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:230
 msgid "New Space"
 msgstr "Nuevo Espacio"
 
@@ -54,15 +54,20 @@ msgstr ""
 "de nuevo"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:88
-msgid "The available space in HDD is less than 2 GB"
-msgstr "El espacio disponible en el disco duro es menor de 2 GB"
+msgid "The available space in HDD is less than 10 GB"
+msgstr "El espacio disponible en el disco duro es menor de 10 GB"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:91
 msgid ""
-"The available space in HDD is less than 1 GB. No more content will be synced"
+"The available space in HDD is less than 5 GB. No more content will be synced"
 msgstr ""
-"El espacio disponible en el disco duro es menos de 1 GB. No se sincronizará "
+"El espacio disponible en el disco duro es menos de 5 GB. No se sincronizará "
 "más contenido"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:94
+msgid "There is not enough space in HDD to sync more spaces"
+msgstr ""
+"No hay espacio suficiente en el disco duro para sincronizar más espacios"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceList.qml:45
 msgid "No space is being sinced"
@@ -108,6 +113,7 @@ msgstr "Aplicar"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:173
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:205
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:238
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:144
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:181
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
@@ -151,11 +157,11 @@ msgstr ""
 msgid "Accept"
 msgstr "Aceptar"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:226
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
 msgid "Its content in OneDrive/SharePoint is approximately "
 msgstr "Su contenido en OneDrive/SharePoint es aproximadamente de "
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:226
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
 msgid ""
 "\n"
 "The space available on the computer is "
@@ -163,7 +169,44 @@ msgstr ""
 "\n"
 "El espacio disponible en el equipo es de "
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:227
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
+msgid "Synchronize all content"
+msgstr "Sincronizar todo el contenido"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:238
+msgid "Select content to synchronize"
+msgstr "Seleccionar el contenido a sincronizar"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:263
+msgid ""
+"A OneDrive/SharePoint space associated with the indicated email is already "
+"being synced"
+msgstr ""
+"El espacio de OneDrive/SharePoint asociado al correo indicado ya está siendo "
+"sincronizado"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:266
+msgid "No libraries found for the indicated SharePoint"
+msgstr "No se han encontrado bibliotecas para el SharePoint indicado"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:269
+msgid "No SharePoints found for the indicated email"
+msgstr "No se han encontrado SharePoints para el correo indicado"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:272
+msgid "Unable to migrate old configuration"
+msgstr "Error al migrar la configuración antigua"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:275
+msgid ""
+"Unable to get authorization to sync space.\n"
+"Wait a moment and try again"
+msgstr ""
+"No es posible obtener la autorización para sincronizar el espacio.\n"
+"Espere un mmento e inténtelo de nuevo"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:333
 msgid ""
 "\n"
 "The content that is synchronized will reduce available space on the "
@@ -176,41 +219,17 @@ msgstr ""
 "¿Quiere sincronizar todo el contenido o prefiere seleccionar el contenido a "
 "sincronizar?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:231
-msgid "Synchronize all content"
-msgstr "Sincronizar todo el contenido"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:233
-msgid "Select content to synchronize"
-msgstr "Seleccionar el contenido a sincronizar"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:250
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:335
 msgid ""
-"A OneDrive/SharePoint space associated with the indicated email is already "
-"being synced"
+"\n"
+"There is no space available on the HDD to sync all the content.\n"
+"Do you want to to select the content to sync or cancel the space settings?"
 msgstr ""
-"El espacio de OneDrive/SharePoint asociado al correo indicado ya está siendo "
-"sincronizado"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:253
-msgid "No libraries found for the indicated SharePoint"
-msgstr "No se han encontrado bibliotecas para el SharePoint indicado"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:256
-msgid "No SharePoints found for the indicated email"
-msgstr "No se han encontrado SharePoints para el correo indicado"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:259
-msgid "Unable to migrate old configuration"
-msgstr "Error al migrar la configuración antigua"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:262
-msgid ""
-"Unable to get authorization to sync space.\n"
-"Wait a moment and try again"
-msgstr ""
-"No es posible obtener la autorización para sincronizar el espacio.\n"
-"Espere un mmento e inténtelo de nuevo"
+"\n"
+"No hay espacio suficiente en el disco duro para sincronizar todo el "
+"contenido.\n"
+"¿Quiere seleccionar el contenido a sincronizar o cancelar la configuración "
+"del espacio?"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:12
 msgid "Migration information"
