@@ -629,6 +629,7 @@ class OnedriveManager:
 
 		self.spaceId=tmp["id"]
 		self.onedriveConfig["spacesList"].append(tmp)
+		self.onedriveConfig["spacesList"]=sorted(self.onedriveConfig["spacesList"],key=lambda d:(d["spaceType"],d["localFolder"]))
 		with open(self.onedriveConfigFile,'w') as fd:
 			json.dump(self.onedriveConfig,fd)
 
