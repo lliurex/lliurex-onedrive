@@ -65,7 +65,7 @@ class OnedriveManager:
 		self.excludeFolders=[]
 		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
-		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken",".runToken"]
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken",".runToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2]
@@ -411,14 +411,21 @@ class OnedriveManager:
 		self._manageEmptyToken()
 		self._createSpaceServiceUnit(spaceType)
 		self._createOneDriveACService()
-		if self.isConfigured():
-			self.getInitialDownload()
-		self._updateOneDriveConfig(spaceInfo)
 		self._createAuxVariables()
-		self._addDirectoryFile(spaceType)
-		self.loadOneDriveConfig()
+		if self.isConfigured():
+			ret=self.getInitialDownload()
+		else:
+			ret=False
 
-		return True
+		if ret:
+			self._updateOneDriveConfig(spaceInfo)
+			self._addDirectoryFile(spaceType)
+			self.loadOneDriveConfig()
+			return True
+		else:
+			ret=self.removeAccount()
+			return False
+
 
 	#def createSpace 
 
@@ -780,25 +787,33 @@ class OnedriveManager:
 
 		self.initialDownload=""
 		self.spaceAccountType=""
-
-		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%(self.spaceConfPath)
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		poutput=p.communicate()[0]
-		rc=p.returncode
-		if rc==0:
-			if type(poutput) is bytes:
-				poutput=poutput.decode()
-
-			poutput=poutput.split("\n")
-
-			for line in poutput:
-				if 'data to download' in line:
-					tmpLine=line.split(":")[1].strip()
-					if tmpLine!="":
-						self.initialDownload=self._formatInitialDownload(tmpLine)
-				elif 'Account Type:' in line:
-					self.spaceAccountType=line.split(":")[1].strip()
 		
+		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --operation-timeout="60" --confdir="%s"'%(self.spaceConfPath)
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		
+		try:
+			poutput=p.communicate(timeout=90)[0]
+			rc=p.returncode
+			if rc==0:
+				if type(poutput) is bytes:
+					poutput=poutput.decode()
+					poutput=poutput.split("\n")
+
+					for line in poutput:
+						if 'data to download' in line:
+							tmpLine=line.split(":")[1].strip()
+							if tmpLine!="":
+								self.initialDownload=self._formatInitialDownload(tmpLine)
+						elif 'Account Type:' in line:
+							self.spaceAccountType=line.split(":")[1].strip()
+				
+					return True
+			else:
+				return False
+		except Exception as e:
+			p.kill()
+			return False	
+	
 		#return download
 
 	#def getInitialDownload
@@ -1041,70 +1056,74 @@ class OnedriveManager:
 
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
-			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%self.spaceConfPath
+			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="60" --confdir="%s"'%self.spaceConfPath
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-			poutput,perror=p.communicate()
+			try:
+				poutput,perror=p.communicate(timeout=90)
 
-			if type(poutput) is bytes:
-				poutput=poutput.decode()
+				if type(poutput) is bytes:
+					poutput=poutput.decode()
 
-			if type(perror) is bytes:
-				perror=perror.decode()
+				if type(perror) is bytes:
+					perror=perror.decode()
 
-			if len(perror)>0:
-				perror=perror.split('\n')
+				if len(perror)>0:
+					perror=perror.split('\n')
+					error=True
+					for item in perror:
+						if 'OneDrive API returned an error' in item:
+							code=MICROSOFT_API_ERROR
+						elif 'Cannot connect to' in item:
+							code=UNABLE_CONNECT_MICROSOFT_ERROR
+							break
+						elif 'local file system' in item:
+							code=LOCAL_FILE_SYSTEM_ERROR
+						elif 'zero space available' in item:
+							code=ZERO_SPACE_AVAILABLE_ERROR
+							break
+						elif 'quota information' in item:
+							if spaceType!="sharepoint":
+								code=QUOTA_RESTRICTED_ERROR
+							else:
+								error=False
+						elif 'database' in item:
+							code=DATABASE_ERROR
+						elif 'Unauthorized' in item:
+							code=UNAUTHORIZED_ERROR
+						elif '416' in item:
+							code=UPLOADING_PENDING_CHANGES
+							break
+						elif 'Unable to query OneDrive' in item:
+							code=UNAUTHORIZED_ERROR
+							break
+						elif '503' in item:
+							code=SERVICE_UNAVAILABLE
+						elif 'Free Space' in item:
+							tmp_freespace=item.split(':')[1].strip()
+							if not 'Not Available' in tmp_freespace:
+								freespace=self._formatFreeSpace(tmp_freespace)
+
+				if not error and len(poutput)>0:
+					poutput=poutput.split('\n')
+					for item in poutput:
+						if 'No pending' in item:
+							code=ALL_SYNCHRONIZE_MSG
+						elif 'out of sync' in item:
+							code=OUT_OF_SYNC_MSG
+						elif 'HTTP 403 - Forbidden' in item:
+							code=UNAUTHORIZED_ERROR
+							error=True
+							break
+						elif 'download from OneDrive:' in item:
+							pendingChanges=item.split(':')[1].strip()
+						elif 'Free Space' in item:
+							tmp_freespace=item.split(':')[1].strip()
+							if not 'Not Available' in tmp_freespace:
+								freespace=self._formatFreeSpace(tmp_freespace)
+			except:
+				p.kill()
 				error=True
-				for item in perror:
-					if 'OneDrive API returned an error' in item:
-						code=MICROSOFT_API_ERROR
-					elif 'Cannot connect to' in item:
-						code=UNABLE_CONNECT_MICROSOFT_ERROR
-						break
-					elif 'local file system' in item:
-						code=LOCAL_FILE_SYSTEM_ERROR
-					elif 'zero space available' in item:
-						code=ZERO_SPACE_AVAILABLE_ERROR
-						break
-					elif 'quota information' in item:
-						if spaceType!="sharepoint":
-							code=QUOTA_RESTRICTED_ERROR
-						else:
-							error=False
-					elif 'database' in item:
-						code=DATABASE_ERROR
-					elif 'Unauthorized' in item:
-						code=UNAUTHORIZED_ERROR
-					elif '416' in item:
-						code=UPLOADING_PENDING_CHANGES
-						break
-					elif 'Unable to query OneDrive' in item:
-						code=UNAUTHORIZED_ERROR
-						break
-					elif '503' in item:
-						code=SERVICE_UNAVAILABLE
-					elif 'Free Space' in item:
-						tmp_freespace=item.split(':')[1].strip()
-						if not 'Not Available' in tmp_freespace:
-							freespace=self._formatFreeSpace(tmp_freespace)
-
-			if not error and len(poutput)>0:
-				poutput=poutput.split('\n')
-				for item in poutput:
-					if 'No pending' in item:
-						code=ALL_SYNCHRONIZE_MSG
-					elif 'out of sync' in item:
-						code=OUT_OF_SYNC_MSG
-					elif 'HTTP 403 - Forbidden' in item:
-						code=UNAUTHORIZED_ERROR
-						error=True
-						break
-					elif 'download from OneDrive:' in item:
-						pendingChanges=item.split(':')[1].strip()
-					elif 'Free Space' in item:
-						tmp_freespace=item.split(':')[1].strip()
-						if not 'Not Available' in tmp_freespace:
-							freespace=self._formatFreeSpace(tmp_freespace)
-
+				code=UNABLE_CONNECT_MICROSOFT_ERROR
 		else:
 			error=True
 			code=WITH_OUT_CONFIG
@@ -1809,7 +1828,7 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="120" --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
 		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
@@ -1984,7 +2003,7 @@ class OnedriveManager:
 				self._manageEmptyToken()
 				self._createSpaceServiceUnit(spaceType)
 				self._createOneDriveACService()
-				self.getInitialDownload()
+				ret=self.getInitialDownload()
 				self._updateOneDriveConfig(spaceInfo)
 				self._createAuxVariables()
 				self._addDirectoryFile(spaceType)

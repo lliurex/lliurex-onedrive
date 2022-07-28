@@ -273,6 +273,7 @@ Rectangle{
                 break
             case -19:
                 var msg=i18nd("lliurex-onedrive","Unable to get authorization to sync space.\nWait a moment and try again")
+                break
             default:
                 var msg=""
                 break;

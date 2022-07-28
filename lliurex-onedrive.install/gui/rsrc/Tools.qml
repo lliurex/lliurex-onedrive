@@ -77,7 +77,7 @@ Rectangle{
             Button {
                 id:repairBtn
                 display:AbstractButton.IconOnly
-                icon.name:"kt-start.svg"
+                icon.name:"view-refresh.svg"
                 Layout.preferredHeight: 30
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
@@ -101,7 +101,7 @@ Rectangle{
             Button {
                 id:updateAuthBtn
                 display:AbstractButton.IconOnly
-                icon.name:"view-refresh.svg"
+                icon.name:"document-encrypted.svg"
                 Layout.preferredHeight: 30
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
