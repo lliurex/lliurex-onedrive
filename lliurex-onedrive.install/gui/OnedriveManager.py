@@ -438,6 +438,7 @@ class OnedriveManager:
 
 		self.spaceConfPath=""
 		createConfig=False
+		customParam={}
 
 		if spaceType=="onedrive":
 			tmpFolder="onedrive_%s"%self.spaceSuffixName.lower()
@@ -476,32 +477,38 @@ class OnedriveManager:
 						fd.write(line)
 		
 		if not createConfig:
-			self.updateConfigFile(customParam)
+			if len(customParam)>0:
+				self.updateConfigFile(customParam)
 
 	#def _createSpaceConfFolder
 
 	def readSpaceConfigFile(self,spaceConfigFilePath):
 
+		customParam={}
 		if os.path.exists(spaceConfigFilePath):
 			customParam=self._readCustomParams(spaceConfigFilePath)
-			self.monitorInterval="{:.0f}".format(int(customParam['monitor_interval'])/60)
-			self.currentConfig[1]=self.monitorInterval
+			if len(customParam)>0:
+				try:
+					self.monitorInterval="{:.0f}".format(int(customParam['monitor_interval'])/60)
+					self.currentConfig[1]=self.monitorInterval
 
-			for i in range(len(self.bandWidth)):
-				if self.bandWidth[i]["value"]==customParam['rate_limit']:
-					self.rateLimit=i
-					self.currentConfig[2]=self.rateLimit
-					break
+					for i in range(len(self.bandWidth)):
+						if self.bandWidth[i]["value"]==customParam['rate_limit']:
+							self.rateLimit=i
+							self.currentConfig[2]=self.rateLimit
+							break
 
-			self.skipSize[0]=customParam['skip_size'][0]
+					self.skipSize[0]=customParam['skip_size'][0]
 
-			for i in range(len(self.maxFileSize)):
-				if self.maxFileSize[i]["value"]==customParam['skip_size'][1]:
-					self.skipSize[1]=i
-					self.currentConfig[3]=self.skipSize
-					break
+					for i in range(len(self.maxFileSize)):
+						if self.maxFileSize[i]["value"]==customParam['skip_size'][1]:
+							self.skipSize[1]=i
+							self.currentConfig[3]=self.skipSize
+							break
+				except:
+					pass
 			
-			return customParam
+		return customParam
 
 	#def readConfigFile
 
@@ -510,25 +517,26 @@ class OnedriveManager:
 		customParam={}
 
 		if os.path.exists(spaceConfigFilePath):
-			customParam["skip_size"]=[False,10]
 			with open(spaceConfigFilePath,'r') as fd:
 				lines=fd.readlines()
-				for line in lines:
-					for param in self.customizeConfigParam:
-						tmpLine=line.split("=")
-						if param=="skip_size":
-							if "skip_size" in tmpLine[0]:
-								tmpValue=[]
-								if "#" in tmpLine[0].strip():
-									tmpValue.append(False)
-								else:
-									tmpValue.append(True)
-								tmpValue.append(tmpLine[1].split("\n")[0].strip().split('"')[1])
-								customParam[param]=tmpValue
-						else:
-							if param==tmpLine[0].strip():
-								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-								customParam[param]=value
+				if len(lines)>0:
+					customParam["skip_size"]=[False,50]
+					for line in lines:
+						for param in self.customizeConfigParam:
+							tmpLine=line.split("=")
+							if param=="skip_size":
+								if "skip_size" in tmpLine[0]:
+									tmpValue=[]
+									if "#" in tmpLine[0].strip():
+										tmpValue.append(False)
+									else:
+										tmpValue.append(True)
+									tmpValue.append(tmpLine[1].split("\n")[0].strip().split('"')[1])
+									customParam[param]=tmpValue
+							else:
+								if param==tmpLine[0].strip():
+									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									customParam[param]=value
 
 		return customParam 
 
