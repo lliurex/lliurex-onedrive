@@ -289,7 +289,7 @@ Rectangle{
             case "Ok":
                 return Kirigami.MessageType.Positive
             case "Error":
-            return Kirigami.MessageType.Error
+                return Kirigami.MessageType.Error
         }
     }
 

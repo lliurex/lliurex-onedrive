@@ -28,7 +28,7 @@ Rectangle{
             width:650
             wrapMode:Text.WordWrap
             font.family: "Quattrocento Sans Bold"
-            font.pointSize: 11
+            font.pointSize: 10
 
        }
     }
