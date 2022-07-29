@@ -287,6 +287,8 @@ class OnedriveManager:
 				if "*" in item:
 					self.sharePointsConfigData.append(item.split("*")[1].strip())
 
+		self.sharePointsConfigData=sorted(self.sharePointsConfigData)
+		
 		return True
 
 	#def getSpaceSharePoints
@@ -315,6 +317,9 @@ class OnedriveManager:
 				tmp['nameLibrary']=pout[i].split(":")[1].strip()
 				self.librariesConfigData.append(tmp)
 
+			if len(self.librariesConfigData)>0:
+				self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
+	
 	#def getSharePointLibraries
 	
 	def checkDuplicate(self,spaceInfo):
