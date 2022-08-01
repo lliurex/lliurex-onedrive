@@ -7,7 +7,7 @@ Rectangle{
 
     GridLayout{
         id: loadGrid
-        rows: 4
+        rows: 2
         flow: GridLayout.TopToBottom
         anchors.centerIn:parent
 
@@ -22,7 +22,7 @@ Rectangle{
                 
                 AnimatedImage{
                     source: "/usr/share/lliurex-onedrive/rsrc/loading.gif"
-                    transform: Scale {xScale:0.15;yScale:0.15}
+                    transform: Scale {xScale:0.45;yScale:0.45}
                 }
             }
         }
