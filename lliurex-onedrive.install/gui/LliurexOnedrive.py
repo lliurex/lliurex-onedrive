@@ -1260,7 +1260,7 @@ class Bridge(QObject):
 			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
 			self.initialDownload=Bridge.onedriveMan.initialDownload
 			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-			self.accountStatus=0
+			#self.accountStatus=0
 			self.freeSpace=""
 			self._getInitialSettings()
 			if self.initialDownload!="":
@@ -1292,6 +1292,7 @@ class Bridge(QObject):
 			self.spacesCurrentOption=0
 			self.closePopUp=[True,""]
 			self.closeGui=True
+			self.accountStatus=3
 		else:
 			self.removeAccount()
 
@@ -1299,15 +1300,14 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
-		self.checkAccountStatus()
+		#self.checkAccountStatus()
 		self.initStartUp=True
 		
-		'''
 		self.closePopUp=[False,START_SYNC_MESSAGE]
 		self.manageSyncT=ManageSync(True)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._endInitialStartUp)
-		'''
+		
 
 	#def _initialStartUp
 
@@ -1327,7 +1327,7 @@ class Bridge(QObject):
 			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
 
-		self.initStartUp=True
+		#self.initStartUp=True
 	
 
 	#def _endInitialStartUp
@@ -1537,6 +1537,8 @@ class Bridge(QObject):
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
 			self.initStartUp=False
+			if self.isOnedriveRunning:
+				self.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
 
 		self.closePopUp=[True,""]
 		self.closeGui=True

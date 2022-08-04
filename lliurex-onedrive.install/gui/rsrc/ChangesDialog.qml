@@ -29,7 +29,7 @@ Dialog {
         id:container
         color: "#ebeced"
         implicitWidth: dialogWidth
-        implicitHeight: 115
+        implicitHeight: 120
         anchors.topMargin:5
         anchors.leftMargin:5
 

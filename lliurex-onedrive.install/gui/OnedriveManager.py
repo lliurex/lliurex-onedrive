@@ -68,7 +68,7 @@ class OnedriveManager:
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken",".runToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
-		self.correctStatusCode=[0,1,2]
+		self.correctStatusCode=[0,1,2,3,4]
 		self.oldConfigPath=os.path.join(self.onedriveConfigDir,"refresh_token")
 		self.filesToMigrate=["items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
 		self.oldFilesToDelete=["config",".config.backup",".config.hash","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
@@ -188,7 +188,7 @@ class OnedriveManager:
 	def _readSpaceStatusToken(self,spaceConfPath):
 
 		error=False
-		code=0
+		code=3
 		freeSpace=''
 
 		spaceStatusToken=os.path.join(spaceConfPath,".statusToken")
@@ -229,7 +229,7 @@ class OnedriveManager:
 		self.skipSize=[False,0]
 		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
 		self.freeSpace=""
-		self.accountStatus=0
+		self.accountStatus=3
 		self.filterFile=""
 		self.filerFileHash=""
 		self.errorFolder=False
@@ -1060,7 +1060,7 @@ class OnedriveManager:
 		UPLOADING_PENDING_CHANGES=4
 
 		error=False
-		code=INFORMATION_NOT_AVAILABLE=3
+		code=INFORMATION_NOT_AVAILABLE
 
 		freespace=""
 		pendingChanges="0 KB"

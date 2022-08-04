@@ -230,12 +230,12 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New Space")
         dialogVisible:onedriveBridge.showDownloadDialog
         dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+getLastMessage()
-        dialogWidth:700
+        dialogWidth:710
         btnAcceptVisible:false
         btnAcceptText:""
-        btnDiscardText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Synchronize all content"):i18nd("lliurex-onedrive","Select content to synchronize")
+        btnDiscardText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")
         btnDiscardIcon:onedriveBridge.withHDDSpace?"dialog-ok.svg":"configure.svg"
-        btnCancelText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize"):i18nd("lliurex-onedrive","Cancel")
+        btnCancelText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize and/or review settings"):i18nd("lliurex-onedrive","Cancel")
         btnCancelIcon:onedriveBridge.withHDDSpace?"configure.svg":"dialog-cancel.svg"
         Connections{
             target:downloadDialog
@@ -331,9 +331,9 @@ Rectangle{
     function getLastMessage(){
 
         if (onedriveBridge.withHDDSpace){
-            var msg=i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to sync all the content or do you prefer to select the content to sync?")
+            var msg=i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to start syncing or select the content and/or review settings?")
         }else{
-            var msg=i18nd("lliurex-onedrive","\nThere is no space available on the HDD to sync all the content.\nDo you want to to select the content to sync or cancel the space settings?")
+            var msg=i18nd("lliurex-onedrive","\nThere is no space available on the HDD to sync all the content.\nDo you want to select the content and/or review settings or cancel the space settings?")
         }
         return msg
 

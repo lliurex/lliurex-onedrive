@@ -90,8 +90,10 @@ Components.ListItem{
         }else{
             switch (statusSpace){
                 case 0:
-                case 3:
                     return "/usr/share/icons/breeze/status/16/state-ok.svg"
+                    break;
+                case 3:
+                    return "/usr/share/icons/breeze/status/16/state-offline.svg"
                     break;
                 case 2:
                 case 4:

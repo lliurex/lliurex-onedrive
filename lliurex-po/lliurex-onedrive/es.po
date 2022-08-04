@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-27 14:21+0200\n"
-"PO-Revision-Date: 2022-07-27 14:24+0200\n"
+"POT-Creation-Date: 2022-08-04 11:22+0200\n"
+"PO-Revision-Date: 2022-08-04 11:25+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -170,13 +170,13 @@ msgstr ""
 "El espacio disponible en el equipo es de "
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
-msgid "Synchronize all content"
-msgstr "Sincronizar todo el contenido"
+msgid "Start syncing all content"
+msgstr "Iniciar la sincronización de todo el contenido"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:238
-msgid "Select content to synchronize"
-msgstr "Seleccionar el contenido a sincronizar"
+msgid "Select content to synchronize and/or review settings"
+msgstr "Seleccionar el contenido y/o revisar preferencias"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:263
 msgid ""
@@ -206,30 +206,30 @@ msgstr ""
 "No es posible obtener la autorización para sincronizar el espacio.\n"
 "Espere un mmento e inténtelo de nuevo"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:333
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:334
 msgid ""
 "\n"
 "The content that is synchronized will reduce available space on the "
 "computer.\n"
-"Do you want to sync all the content or do you prefer to select the content "
-"to sync?"
+"Do you want to start syncing or select the content and/or review settings?"
 msgstr ""
 "\n"
 "El contenido que se sincronize reducirá el espacio disponible en el equipo.\n"
-"¿Quiere sincronizar todo el contenido o prefiere seleccionar el contenido a "
-"sincronizar?"
+"¿Quiere iniciar la sincronizacion o seleccionar el contenido a sincronizar y/"
+"o revisar preferencias?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:335
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:336
 msgid ""
 "\n"
 "There is no space available on the HDD to sync all the content.\n"
-"Do you want to to select the content to sync or cancel the space settings?"
+"Do you want to select the content and/or review settings or cancel the space "
+"settings?"
 msgstr ""
 "\n"
 "No hay espacio suficiente en el disco duro para sincronizar todo el "
 "contenido.\n"
-"¿Quiere seleccionar el contenido a sincronizar o cancelar la configuración "
-"del espacio?"
+"¿Quiere seleccionar el contenido y/o revisar preferencias o cancelar la "
+"configuración del espacio?"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceMigration.qml:12
 msgid "Migration information"
@@ -350,6 +350,8 @@ msgid "Free Space:"
 msgstr "Espacio disponible:"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:172
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:368
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:417
 msgid "Information not available"
 msgstr "Información no disponible"
 
@@ -412,9 +414,11 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:358
 msgid ""
+"\n"
 "Wait a moment and update the status\n"
 "If persist run a LliureX-OneDrive test"
 msgstr ""
+"\n"
 "Espere un momento y actualice el estado\n"
 "Si persiste ejecute el test de LliureX-OneDrive"
 
@@ -430,27 +434,27 @@ msgstr "Todo el contenido remoto esta sincronizado"
 msgid "Remote content pending syncing"
 msgstr "Cambios remotos pendiente de sincronizar"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:368
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:371
 msgid "Configuration migration completed successfully"
 msgstr "La migración de la configuración se ha completado correctamente"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:371
-msgid "Microsoft OneDrive API return an error\n"
-msgstr "Microsoft OneDrive API ha devuelto un error\n"
-
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:374
-msgid "Unable to connect with Microsoft OneDrive\n"
-msgstr "No es posible conectar con Microsoft OneDrive\n"
+msgid "Microsoft OneDrive API return an error"
+msgstr "Microsoft OneDrive API ha devuelto un error"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:377
-msgid "Problems with local file system\n"
-msgstr "Problemas con el sistema local de ficheros\n"
+msgid "Unable to connect with Microsoft OneDrive"
+msgstr "No es posible conectar con Microsoft OneDrive"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:380
+msgid "Problems with local file system"
+msgstr "Problemas con el sistema local de ficheros"
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:383
 msgid "Your free space is 0"
 msgstr "Su espacio disponible es 0"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:383
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:386
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
@@ -458,41 +462,37 @@ msgstr ""
 "La información sobre su quota esta restringida\n"
 "Puede que el espacio disponible sea 0"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:386
-msgid "Problems with database\n"
-msgstr "Problemas con la base de datos\n"
-
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:389
+msgid "Problems with database"
+msgstr "Problemas con la base de datos"
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:392
 msgid "The authorization to access your account has expired"
 msgstr "La autorización para acceder a su cuenta ha caducado"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:392
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:396
 msgid "Uploading pending changes"
 msgstr "Subiendo cambios pendientes"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:395
-msgid "Microsoft OneDrive not available\n"
-msgstr "Microsoft OneDrive no esta disponible\n"
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:399
+msgid "Microsoft OneDrive not available"
+msgstr "Microsoft OneDrive no esta disponible"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:398
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:402
 msgid "Unable to start synchronization"
 msgstr "No es posible iniciar la sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:401
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:405
 msgid "Unable to stop synchronization"
 msgstr "No es posible detener la sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:404
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:408
 msgid "The local folder of space is empty. "
 msgstr "La carpeta local del espacio está vacía. "
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:407
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:411
 msgid "The local folder of space not exist. "
 msgstr "La carpeta local del espacio no existe. "
-
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:413
-msgid "Information not available\n"
-msgstr "Información no disponible\n"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:39
 msgid "Space"
@@ -563,7 +563,7 @@ msgstr ""
 "Los cambios tendrán efecto la próxima vez que inicie sesión o la "
 "sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:36
+#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:37
 msgid "Loading. Wait a moment..."
 msgstr "Cargando. Espere un momento..."
 

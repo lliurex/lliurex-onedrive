@@ -355,7 +355,7 @@ Rectangle{
 
     function getTextOption(errorCode){
 
-        var additionalText=i18nd("lliurex-onedrive","Wait a moment and update the status\nIf persist run a LliureX-OneDrive test")
+        var additionalText=i18nd("lliurex-onedrive","\nWait a moment and update the status\nIf persist run a LliureX-OneDrive test")
         var helpText=i18nd("lliurex-onedrive","Consult the help to solve the situation")
         switch (errorCode) {
             case 0:
@@ -364,17 +364,20 @@ Rectangle{
             case 2:
                 var msg=i18nd("lliurex-onedrive","Remote content pending syncing");
                 break;
+            case 3:
+                var msg=i18nd("lliurex-onedrive","Information not available");
+                break;
             case 20:
                 var msg=i18nd("lliurex-onedrive","Configuration migration completed successfully");
                 break;
             case -1:
-                var msg=i18nd("lliurex-onedrive","Microsoft OneDrive API return an error\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Microsoft OneDrive API return an error")+additionalText;
                 break;
             case -2:
-                var msg=i18nd("lliurex-onedrive","Unable to connect with Microsoft OneDrive\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Unable to connect with Microsoft OneDrive")+additionalText;
                 break;
             case -3:
-                var msg=i18nd("lliurex-onedrive","Problems with local file system\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Problems with local file system")+additionalText;
                 break;
             case -4:
                 var msg=i18nd("lliurex-onedrive","Your free space is 0");
@@ -383,16 +386,17 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","Information about yor quota information is restricted\nMaybe your free space is 0");
                 break;
             case -6:
-                var msg=i18nd("lliurex-onedrive","Problems with database\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Problems with database")+additionalText;
                 break;
             case -7:
                 var msg=i18nd("lliurex-onedrive","The authorization to access your account has expired");
                 break;
+            case 4:
             case -8:
                 var msg=i18nd("lliurex-onedrive","Uploading pending changes");
                 break;
             case -9:
-                var msg=i18nd("lliurex-onedrive","Microsoft OneDrive not available\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Microsoft OneDrive not available")+additionalText;
                 break;
             case -10:
                 var msg=i18nd("lliurex-onedrive","Unable to start synchronization")
@@ -410,7 +414,7 @@ Rectangle{
                 var msg=""
                 break;
             default:
-                var msg=i18nd("lliurex-onedrive","Information not available\n")+additionalText;
+                var msg=i18nd("lliurex-onedrive","Information not available")+additionalText;
                 break;
         }
         return msg
