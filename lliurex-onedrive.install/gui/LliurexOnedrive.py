@@ -400,8 +400,8 @@ class Bridge(QObject):
 
 		if not os.path.exists(Bridge.onedriveMan.oldConfigPath):
 			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
-				self.checkGlobalLocalFolderTimer.start(5000)
-				self.checkGlobalStatusTimer.start(60000)
+				self.checkGlobalLocalFolderTimer.start(1000)
+				self.checkGlobalStatusTimer.start(30000)
 				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
 					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 				
@@ -867,7 +867,6 @@ class Bridge(QObject):
 	
 	def _setSyncAll(self,syncAll):
 
-		
 		if self._syncAll!=syncAll:
 			self._syncAll=syncAll
 			self.on_syncAll.emit()
@@ -1031,7 +1030,7 @@ class Bridge(QObject):
 			if not (Bridge.onedriveMan.thereAreHDDAvailableSpace()):
 				moveTo=False
 
-		if moveTo:		
+		if moveTo:
 			self.formData=["",0]
 			self.showSpaceSettingsMessage=[False,"","Information"]
 			self.showSpaceFormMessage=[False,"","Information"]
@@ -1209,6 +1208,7 @@ class Bridge(QObject):
 		if self.manageCurrentOption!=option:
 			self.moveToOption=option
 			self.showSettingsMessage=[False,'']
+			self.updateSpaceAuth=False
 			if self.settingsChanged:
 				self.showSettingsDialog=True
 			elif self.syncCustomChanged:
@@ -1255,22 +1255,18 @@ class Bridge(QObject):
 		self.withHDDSpace=True
 
 		if self.createSpaceT.ret:
-			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
-			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
+			self._initializeVars()
+			self._getInitialSettings()
 			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
 			self.initialDownload=Bridge.onedriveMan.initialDownload
-			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-			#self.accountStatus=0
-			self.freeSpace=""
-			self._getInitialSettings()
+			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+			self.showFolderStruct=False
+
 			if self.initialDownload!="":
 				self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
 				self.showDownloadDialog=True
 			else:
-				self.showFolderStruct=False
-				self.syncAll=True
 				self._initialStartUp()
-				#self.showSpaceSettingsMessage=[True,SPACE_CREATION_SUCCESSFULL,"Ok"]		
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
@@ -1284,8 +1280,6 @@ class Bridge(QObject):
 		self.showDownloadDialog=False
 		if option=="All":
 			self._initialStartUp()
-			self.syncAll=True
-			#self.showFolderStruct=True
 		elif option=="Custom":
 			self.currentStack=2
 			self.manageCurrentOption=1
@@ -1346,21 +1340,9 @@ class Bridge(QObject):
 	def _loadSpace(self):
 
 		if self.getSpaceSettings.matchSpace:
+			self._initializeVars()
 			self._getInitialSettings()
-			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
-			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-			self.syncAll=Bridge.onedriveMan.syncAll
-			self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-			self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
-			self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-			self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
-			self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
-			self.showAccountMessage=[False,"","Error"]
-			self.accountStatus=Bridge.onedriveMan.accountStatus
-			self.freeSpace=Bridge.onedriveMan.freeSpace
-			self._folderModel.resetModel()
-			self.updateSpaceAuth=False
-
+	
 			if not self.localFolderRemoved:
 				if not self.syncAll:
 					if not self.localFolderEmpty:
@@ -1424,6 +1406,24 @@ class Bridge(QObject):
 
 	#def _insertModelEntries
 
+	def _initializeVars(self):
+
+		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
+		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
+		self.syncAll=Bridge.onedriveMan.syncAll
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
+		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
+		self.showAccountMessage=[False,"","Error"]
+		self.accountStatus=Bridge.onedriveMan.accountStatus
+		self.freeSpace=Bridge.onedriveMan.freeSpace
+		self._folderModel.resetModel()
+		self.updateSpaceAuth=False
+
+	#def _initializeVars
+
 	def _getInitialSettings(self):
 
 		self.autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
@@ -1432,7 +1432,7 @@ class Bridge(QObject):
 		self.skipSize=Bridge.onedriveMan.skipSize
 		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 
-	#def _getInitialConfig
+	#def _getInitialSettings
 
 	@Slot()
 	def goHome(self):
@@ -1987,7 +1987,7 @@ class Bridge(QObject):
 	def updateSpaceAuthorization(self):
 
 		ret=Bridge.onedriveMan.updateSpaceAuth()
-		self.updateSpaceAuth=False
+		
 		if ret:
 			self.showToolsMessage=[True,UPDATE_TOKEN_MESSAGE,"Ok"]
 		else:
@@ -2034,9 +2034,11 @@ class Bridge(QObject):
 		
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
-			self.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
+			if not self.updateSpaceAuth:
+				self.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
 		else:
-			self.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
+			if not self.updateSpaceAuth:
+				self.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 			if not self.changedSyncWorked:
 				self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 

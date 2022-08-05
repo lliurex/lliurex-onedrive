@@ -1257,7 +1257,10 @@ class OnedriveManager:
 
 		if localFolder:
 			if os.path.exists(self.spaceLocalFolder):
-				if os.listdir(self.spaceLocalFolder):
+				content=os.listdir(self.spaceLocalFolder)
+				if ".directory" in content:
+					content.remove(".directory")
+				if len(content)>0:
 					self.getLocalFolderStruct()
 				else:
 					self.getCloudFolderStruct()

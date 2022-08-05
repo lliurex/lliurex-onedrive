@@ -32,7 +32,9 @@ class checkSpaceLocalFolder():
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
-			if os.listdir(spaceLocalFolder):
+			content=os.listdir(spaceLocalFolder)
+			
+			if (len(content)>1) or (len(content)>0 and ".directory" not in content):
 				self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
 				if os.path.exists(emptyToken):
 					os.remove(emptyToken)
