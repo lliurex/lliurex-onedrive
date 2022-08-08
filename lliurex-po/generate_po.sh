@@ -16,4 +16,5 @@ xgettext --join-existing -kde -ki18nd:2 ../lliurex-onedrive.install/gui/rsrc/Syn
 xgettext --join-existing -kde -ki18nd:2 ../lliurex-onedrive.install/gui/rsrc/Tools.qml -o ../lliurex-po/lliurex-onedrive/lliurex-onedrive.pot
 xgettext --join-existing -kde -ki18nd:2 ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml -o ../lliurex-po/lliurex-onedrive/lliurex-onedrive.pot
 xgettext --join-existing -kde -ki18nd:2 ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml -o ../lliurex-po/lliurex-onedrive/lliurex-onedrive.pot
+xgettext --join-existing -L python ../lliurex-onedrive.install/gui/lliurex-onedrive -o ../lliurex-po/lliurex-onedrive/lliurex-onedrive.pot
 

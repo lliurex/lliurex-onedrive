@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-04 11:22+0200\n"
+"POT-Creation-Date: 2022-08-08 13:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -506,7 +506,7 @@ msgid ""
 "synchronization"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:37
+#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:36
 msgid "Loading. Wait a moment..."
 msgstr ""
 
@@ -623,4 +623,8 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:92
 msgid "Migrating configuration. Wait a moment..."
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/lliurex-onedrive:29
+msgid "Lliurex-Onedrive is now running. Wait a moment and try again"
 msgstr ""

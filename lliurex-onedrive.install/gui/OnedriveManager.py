@@ -78,6 +78,8 @@ class OnedriveManager:
 		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.limitHDDSpace=5368709120
+		self.lockToken=os.path.join(self.llxOnedriveConfigDir,"llxOneDrive.lock")
+		self._createLockToken()
 		self.createEnvironment()
 		self.clearCache()
 
@@ -2169,7 +2171,27 @@ class OnedriveManager:
 			lastPendingChanges=content[-1].strip()
 		
 		return [code,lastPendingChanges]
+	
 	#def _getLastPendingChanges
+
+	def _createLockToken(self):
+
+		if os.path.exists(self.llxOnedriveConfigDir):
+			self.removeLockToken()
+			if not os.path.exists(self.lockToken):
+				with open(self.lockToken,'w') as fd:
+					tmpPID=os.getpid()
+					fd.write(str(tmpPID))
+					pass
+
+	#def _createLockToken
+
+	def removeLockToken(self):
+
+		if os.path.exists(self.lockToken):
+			os.remove(self.lockToken)
+
+	#def removeLockToken
 
 
 #class OnedriveManager

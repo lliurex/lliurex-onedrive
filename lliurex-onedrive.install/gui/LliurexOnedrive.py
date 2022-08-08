@@ -2092,10 +2092,12 @@ class Bridge(QObject):
 				else:
 					if self.closePopUp[0]:
 						#Bridge.onedriveMan.manageFileFilter("restore")
+						Bridge.onedriveMan.removeLockToken()
 						self.closeGui=True
 					else:
 						self.closeGui=False
 		else:
+			Bridge.onedriveMan.removeLockToken()
 			self.closeGui=True
 
 	#def closeOnedrive

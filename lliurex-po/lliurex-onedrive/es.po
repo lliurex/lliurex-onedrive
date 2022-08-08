@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-04 11:22+0200\n"
-"PO-Revision-Date: 2022-08-04 11:25+0200\n"
+"POT-Creation-Date: 2022-08-08 13:46+0200\n"
+"PO-Revision-Date: 2022-08-08 13:47+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -563,7 +563,7 @@ msgstr ""
 "Los cambios tendrán efecto la próxima vez que inicie sesión o la "
 "sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:37
+#: ../lliurex-onedrive.install/gui/rsrc/SyncWaiting.qml:36
 msgid "Loading. Wait a moment..."
 msgstr "Cargando. Espere un momento..."
 
@@ -696,3 +696,8 @@ msgstr "Buscando SharePoints. Espere un momento..."
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:92
 msgid "Migrating configuration. Wait a moment..."
 msgstr "Migrando la configuración. Espere un momento..."
+
+#: ../lliurex-onedrive.install/gui/lliurex-onedrive:29
+msgid "Lliurex-Onedrive is now running. Wait a moment and try again"
+msgstr ""
+"Lliurex-OneDrive esta siendo ejecutado Espere un momento e inténtelo de nuevo"
