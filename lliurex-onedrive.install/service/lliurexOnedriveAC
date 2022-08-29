@@ -26,9 +26,9 @@ class checkSpaceLocalFolder():
 	def checkFolder(self,spaceInfo):
 
 		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=spaceInfo
-		localFolderEmptyToken=os.path.join(spaceConfigPath,".localFolderEmptyToken");
-		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
-		emptyToken=os.path.join(spaceConfigPath,".emptyToken")
+		localFolderEmptyToken=os.path.join(spaceConfigPath,".run/localFolderEmptyToken");
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
+		emptyToken=os.path.join(spaceConfigPath,".run/emptyToken")
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
@@ -93,7 +93,7 @@ class checkSpaceLocalFolder():
 
 	def _manageAutoStart(self,spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken):
 
-		lockAutoStartToken=os.path.join(spaceConfigPath,".lockAutoStartToken")
+		lockAutoStartToken=os.path.join(spaceConfigPath,".run/lockAutoStartToken")
 
 		if os.path.exists(os.path.join(self.userSystemdAutoStartPath,spaceService)):
 			if os.path.exists(localFolderEmptyToken) or os.path.exists(localFolderRemovedToken):
@@ -122,7 +122,7 @@ class checkSpaceLocalFolder():
 
 	def _isOnedriveRunning(self,spaceConfigPath=None):
 
-		runToken=os.path.join(spaceConfigPath,".runToken")
+		runToken=os.path.join(spaceConfigPath,".run/runToken")
 
 		if spaceConfigPath!=None:
 			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
@@ -154,8 +154,8 @@ class getSpaceStatusWorker():
 	def checkStatus(self,spaceInfo):
 
 		spaceConfigPath,spaceType=spaceInfo
-		localFolderEmptyToken=os.path.join(spaceConfigPath,'.localFolderEmptyToken')
-		localFolderRemovedToken=os.path.join(spaceConfigPath,".localFolderRemovedToken");
+		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
@@ -264,7 +264,7 @@ class getSpaceStatusWorker():
 						code=ALL_SYNCHRONIZE_MSG
 						
 				try:
-					with open(os.path.join(spaceConfigPath,".statusToken"),'w') as fd:
+					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
 						fd.write(tmpLine)
 						tmpLine=str(code)+("\n")
@@ -276,8 +276,8 @@ class getSpaceStatusWorker():
 				except Exception as e:
 					pass
 		else:
-			if os.path.exists(os.path.join(spaceConfigPath,".statusToken")):
-				os.remove(os.path.join(spaceConfigPath,".statusToken"))
+			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
+				os.remove(os.path.join(spaceConfigPath,".run/statusToken"))
 		
 		return True
 
@@ -300,8 +300,8 @@ class getSpaceStatusWorker():
 
 		lastPendingChanges=""
 		if spaceConfigPath!=None:
-			if os.path.exists(os.path.join(spaceConfigPath,".statusToken")):
-				with open(os.path.join(spaceConfigPath,".statusToken"),'r') as fd:
+			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
+				with open(os.path.join(spaceConfigPath,".run/statusToken"),'r') as fd:
 					lastPendingChanges=fd.readlines()[-1].strip()
 		
 		return lastPendingChanges
@@ -325,8 +325,8 @@ class LliurexOneDriveAC:
 		self.lastFolderCheck=MAX_CHECK_FOLDER_INTERVAL
 		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
 		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
-		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
-		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
+		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
+		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		
 		self.initWorker()
 
