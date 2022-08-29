@@ -57,7 +57,7 @@ Rectangle{
             focus:true
             display:AbstractButton.TextBesideIcon
             icon.name:"list-add.svg"
-            text:i18nd("lliurex-onedrive","New Space")
+            text:i18nd("lliurex-onedrive","New space")
             Layout.preferredHeight:40
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()

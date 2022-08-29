@@ -377,6 +377,7 @@ class Bridge(QObject):
 		self._showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 		self.updateSpaceAuth=False
 		self._withHDDSpace=True
+		self.waitForUpdateGlobalMessage=10
 
 		if len(sys.argv)>1:
 			self.spaceToManage=sys.argv[1]
@@ -399,9 +400,9 @@ class Bridge(QObject):
 	def _loadConfig(self):
 
 		if not os.path.exists(Bridge.onedriveMan.oldConfigPath):
+			self.checkGlobalLocalFolderTimer.start(1000)
+			self.checkGlobalStatusTimer.start(30000)
 			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
-				self.checkGlobalLocalFolderTimer.start(1000)
-				self.checkGlobalStatusTimer.start(30000)
 				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
 					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 				
@@ -1037,6 +1038,7 @@ class Bridge(QObject):
 			self._libraryModel.clear()
 			self.spacesCurrentOption=option
 		else:
+			self.waitForUpdateGlobalMessage=0
 			self.showSpaceSettingsMessage=[True,HDD_SPACE_AVAILABLE_ERROR,"Error"]
 
 	#def moveToSpaceOption
@@ -1157,15 +1159,26 @@ class Bridge(QObject):
 		if self.migrateSpaceT.ret:
 			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
+			'''
+			self._initializeVars()
 			self._getInitialSettings()
+			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
+
+			if self.syncAll:
+				self.showFolderStruct=False
+			else:
+				self.showFolderStruct=True
 			self.currentStack=2
 			self.manageCurrentOption=0
 			self.spacesCurrentOption=0
 			self.closePopUp=[True,""]
-			self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
-			self.closeGui=True
-			self.requiredMigration=False
+			'''
+			spaceId=Bridge.onedriveMan.spaceId
+			self.loadSpace(spaceId)
+			
+			#self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
+			#self.closeGui=True
+			#self.requiredMigration=False
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
@@ -1392,6 +1405,11 @@ class Bridge(QObject):
 		self.closePopUp=[True,""]
 		self.closeGui=True
 
+		if self.requiredMigration:
+			self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
+			self.requiredMigration=False
+			self.spacesCurrentOption=0
+
 		self.currentStack=2
 		self.manageCurrentOption=0
 	
@@ -1412,7 +1430,7 @@ class Bridge(QObject):
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 		self.syncAll=Bridge.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		#self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
 		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
 		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
@@ -1512,9 +1530,10 @@ class Bridge(QObject):
 	def _updateSpacesModelInfo(self,param):
 
 		updatedInfo=Bridge.onedriveMan.spacesConfigData
-		for i in range(len(updatedInfo)):
-			index=self._spacesModel.index(i)
-			self._spacesModel.setData(index,param,updatedInfo[i][param])
+		if len(updatedInfo)>0:
+			for i in range(len(updatedInfo)):
+				index=self._spacesModel.index(i)
+				self._spacesModel.setData(index,param,updatedInfo[i][param])
 
 	#def _updateSpacesModelInfo
 
@@ -2014,17 +2033,20 @@ class Bridge(QObject):
 
 	def _manageSpaceSettinsMessage(self):
 
-		if len(Bridge.onedriveMan.onedriveConfig)>0:
-			if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
-				self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
-			else:
-				hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
-				if hddAlert[0]:
-					self.showSpaceSettingsMessage=[True,hddAlert[1],hddAlert[2]]
+		if self.waitForUpdateGlobalMessage==10:
+			if len(Bridge.onedriveMan.onedriveConfig)>0:
+				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
 				else:
-					self.showSpaceSettingsMessage=[False,"","Information"]
+					hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
+					if hddAlert[0]:
+						self.showSpaceSettingsMessage=[True,hddAlert[1],hddAlert[2]]
+					else:
+						self.showSpaceSettingsMessage=[False,"","Information"]
+			else:
+				self.showSpaceSettingsMessage=[False,"","Information"]
 		else:
-			self.showSpaceSettingsMessage=[False,"","Information"]
+			self.waitForUpdateGlobalMessage=self.waitForUpdateGlobalMessage+1
 
 	#def _manageSpaceSettingsMessage
 

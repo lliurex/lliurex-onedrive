@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-08 13:46+0200\n"
-"PO-Revision-Date: 2022-08-08 13:48+0200\n"
+"POT-Creation-Date: 2022-08-26 11:50+0200\n"
+"PO-Revision-Date: 2022-08-26 11:52+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -34,8 +34,9 @@ msgstr "Espais sincronitzats"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:60
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:13
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:230
-msgid "New Space"
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:197
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:224
+msgid "New space"
 msgstr "Nou espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:79
@@ -111,7 +112,7 @@ msgstr "Aplica"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:173
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:205
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:238
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:144
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:181
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
@@ -123,12 +124,6 @@ msgstr "Aplica"
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:157
 msgid "Cancel"
 msgstr "Cancel·la"
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:197
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:305
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:329
-msgid "Account"
-msgstr "Compte"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:199
 msgid ""
@@ -155,11 +150,11 @@ msgstr ""
 msgid "Accept"
 msgstr "D'acord"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:226
 msgid "Its content in OneDrive/SharePoint is approximately "
 msgstr "El seu contingut en el OneDrive/SharePoint és aproximadament "
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:226
 msgid ""
 "\n"
 "The space available on the computer is "
@@ -167,16 +162,16 @@ msgstr ""
 "\n"
 "L'espai disponible a l'ordinador és "
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:230
 msgid "Start syncing all content"
 msgstr "Inicia la sincronització de tot el contingut"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:236
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:238
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:230
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
 msgid "Select content to synchronize and/or review settings"
 msgstr "Seleccionar el contingut i/o revisa preferències"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:263
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:257
 msgid ""
 "A OneDrive/SharePoint space associated with the indicated email is already "
 "being synced"
@@ -184,19 +179,19 @@ msgstr ""
 "L'espai del OneDrive/SharePoint associat al correu indicat ja està sent "
 "sincronitzat"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:266
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:260
 msgid "No libraries found for the indicated SharePoint"
 msgstr "No hi ha biblioteques associades al SharePoint indicat"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:269
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:263
 msgid "No SharePoints found for the indicated email"
 msgstr "No s'han trobat SharePoints per al correu indicat"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:272
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:266
 msgid "Unable to migrate old configuration"
 msgstr "No s'ha pogut migrar la configuració antiga"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:275
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:269
 msgid ""
 "Unable to get authorization to sync space.\n"
 "Wait a moment and try again"
@@ -204,7 +199,7 @@ msgstr ""
 "No és possible obtindre l'autorització per a sincronitzar l'espai\n"
 "Espereu un moment i torneu a intentar-lo"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:334
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:328
 msgid ""
 "\n"
 "The content that is synchronized will reduce available space on the "
@@ -216,7 +211,7 @@ msgstr ""
 "Voleu iniciar la sincronització o preferiu seleccionar el contingut i/o "
 "revisar les preferències?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:336
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:330
 msgid ""
 "\n"
 "There is no space available on the HDD to sync all the content.\n"
@@ -387,6 +382,11 @@ msgstr "Desvincular de l'espai:"
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:293
 msgid "Click to unlink from space"
 msgstr "Feu clic per a desvincular de l'espai"
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:305
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:329
+msgid "Account"
+msgstr "Compte"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:306
 msgid ""
@@ -582,12 +582,12 @@ msgid "Click to resynchronize the space"
 msgstr "Feu clic per a resincronitzar l'espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:97
-msgid "Update space authorization:"
-msgstr "Actualitzar l'autorització de l'espai:"
+msgid "Update authorization to sync space:"
+msgstr "Actualitzar l'autorització per a sincronitzar l'espai:"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:113
-msgid "Click to update space authorization"
-msgstr "Feu clic per a actualitzar l'autorització de l'espai"
+msgid "Click to update authorization to sync space"
+msgstr "Feu clic per a actualitzar l'autorització per a sincronitzar l'espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:126
 msgid ""

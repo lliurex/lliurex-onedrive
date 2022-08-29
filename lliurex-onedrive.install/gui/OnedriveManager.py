@@ -65,22 +65,23 @@ class OnedriveManager:
 		self.excludeFolders=[]
 		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
-		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken",".runToken"]
+		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",]
+		self.envRunFiles=["emptyToken","statusToken","localFolderEmptyToken","localFolderRemovedToken","runToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2,3,4]
 		self.oldConfigPath=os.path.join(self.onedriveConfigDir,"refresh_token")
 		self.filesToMigrate=["items.sqlite3","sync_list",".sync_list.hash","refresh_token"]
 		self.oldFilesToDelete=["config",".config.backup",".config.hash","items.sqlite3-shm","items.sqlite3-wal",".emptyToken",".statusToken",".localFolderEmptyToken",".localFolderRemovedToken"]
-		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".hddWarningToken")
-		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".hddErrorToken")
+		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
+		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		self.oneDriveDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDrive"
 		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.limitHDDSpace=5368709120
-		self.lockToken=os.path.join(self.llxOnedriveConfigDir,"llxOneDrive.lock")
-		self._createLockToken()
+		self.lockToken=os.path.join(self.llxOnedriveConfigDir,".run/llxOneDrive.lock")
 		self.createEnvironment()
+		self._createLockToken()
 		self.clearCache()
 
 
@@ -91,6 +92,9 @@ class OnedriveManager:
 		if not os.path.exists(self.llxOnedriveConfigDir):
 			os.mkdir(self.llxOnedriveConfigDir)
 
+		if not os.path.exists(os.path.join(self.llxOnedriveConfigDir,".run")):
+			os.mkdir(os.path.join(self.llxOnedriveConfigDir,".run"))
+		
 		if not os.path.exists(self.userSystemdPath):
 			tmpPath="/home/%s/.config/systemd"%self.user
 			if not os.path.exists(tmpPath):
@@ -193,7 +197,7 @@ class OnedriveManager:
 		code=3
 		freeSpace=''
 
-		spaceStatusToken=os.path.join(spaceConfPath,".statusToken")
+		spaceStatusToken=os.path.join(spaceConfPath,".run/statusToken")
 
 		if os.path.exists(spaceStatusToken):
 			with open(spaceStatusToken,'r') as fd:
@@ -454,11 +458,16 @@ class OnedriveManager:
 			if not os.path.exists(self.spaceConfPath):
 				createConfig=True 
 
+		logFolder=os.path.join(self.spaceConfPath,'log/')
+
 		if not createConfig:
 			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
 			customParam=self.readSpaceConfigFile(spaceConfigFilePath)
 		else:
 			os.mkdir(self.spaceConfPath)
+			runFolder=os.path.join(self.spaceConfPath,'.run')
+			os.mkdir(runFolder)
+			os.mkdir(logFolder)
 		
 		shutil.copy(self.configTemplatePath,self.spaceConfPath)
 		
@@ -469,6 +478,9 @@ class OnedriveManager:
 			for line in lines:
 				if 'sync_dir =' in line:
 					tmpLine=line.replace("{{LOCAL_FOLDER}}",self.spaceLocalFolder)
+					fd.write(tmpLine)
+				elif 'log_dir =' in line:
+					tmpLine=line.replace("{{LOG_FOLDER}}",logFolder)
 					fd.write(tmpLine)
 				else:
 					if spaceType=="sharepoint" and 'drive_id' in line:
@@ -593,7 +605,7 @@ class OnedriveManager:
 
 	#def _copyToken
 
-	def _createSpaceServiceUnit(self,spaceType):
+	def _createSpaceServiceUnit(self,spaceType,autoStart=True):
 
 		self.spaceServiceFile=""
 
@@ -614,7 +626,7 @@ class OnedriveManager:
 			with open(os.path.join(self.userSystemdPath,self.spaceServiceFile),'w') as fd:
 				configFile.write(fd)
 
-		self.manageAutostart(True)
+		self.manageAutostart(autoStart)
 				
 	#def _createSpaceServiceUnit
 
@@ -659,7 +671,7 @@ class OnedriveManager:
 
 	def _manageEmptyToken(self):
 
-		emptyToken=os.path.join(self.spaceConfPath,".emptyToken")
+		emptyToken=os.path.join(self.spaceConfPath,".run/emptyToken")
 		f=open(emptyToken,'w')
 		f.close()
 
@@ -669,9 +681,9 @@ class OnedriveManager:
 		
 		self.filterFile=os.path.join(self.spaceConfPath,self.filterFileName)
 		self.filterFileHash=os.path.join(self.spaceConfPath,self.filterFileHashName)
-		self.localFolderEmptyToken=os.path.join(self.spaceConfPath,".localFolderEmptyToken")
-		self.localFolderRemovedToken=os.path.join(self.spaceConfPath,".localFolderRemovedToken")
-		self.lockAutoStartToken=os.path.join(self.spaceConfPath,".lockAutoStartToken")
+		self.localFolderEmptyToken=os.path.join(self.spaceConfPath,".run/localFolderEmptyToken")
+		self.localFolderRemovedToken=os.path.join(self.spaceConfPath,".run/localFolderRemovedToken")
+		self.lockAutoStartToken=os.path.join(self.spaceConfPath,".run/lockAutoStartToken")
 
 	#def _createAuxVariables
 
@@ -1231,6 +1243,12 @@ class OnedriveManager:
 			if os.path.exists(tmpPath):
 				os.remove(tmpPath)
 
+		for item in self.envRunFiles:
+			tmpItem=".run/%s"%item
+			tmpPath=os.path.join(self.spaceConfPath,tmpItem)
+			if os.path.exists(tmpPath):
+				os.remove(tmpPath)
+
 		if os.path.exists(self.filterFile):
 			os.remove(self.filterFile)
 		if os.path.exists(self.filterFileHash):
@@ -1243,8 +1261,8 @@ class OnedriveManager:
 		localFolderEmpty=False;
 		localFolderRemoved=False;
 
-		localFolderEmptyToken=os.path.join(spaceConfPath,".localFolderEmptyToken")
-		localFolderRemovedToken=os.path.join(spaceConfPath,".localFolderRemovedToken")
+		localFolderEmptyToken=os.path.join(spaceConfPath,".run/localFolderEmptyToken")
+		localFolderRemovedToken=os.path.join(spaceConfPath,".run/localFolderRemovedToken")
 		
 		if os.path.exists(localFolderEmptyToken):
 			localFolderEmpty=True;
@@ -2002,7 +2020,7 @@ class OnedriveManager:
 		self.spaceBasicInfo=[spaceEmail,spaceAccountType,spaceType,spaceName,spaceLibrary]
 		ret=self._stopOldService()
 		
-		if ret:
+		if ret[0]:
 			self._getSpaceSuffixName(spaceInfo)
 			self.spaceLocalFolder="/home/%s/OneDrive-%s"%(self.user,self.spaceSuffixName)
 			self._createSpaceConfFolder(spaceType,spaceDriveId)
@@ -2019,15 +2037,15 @@ class OnedriveManager:
 				customParam=self.readSpaceConfigFile(os.path.join(self.onedriveConfigDir,"config"))
 				self.updateConfigFile(customParam)
 				self._manageEmptyToken()
-				self._createSpaceServiceUnit(spaceType)
+				self._createSpaceServiceUnit(spaceType,ret[1])
 				self._createOneDriveACService()
 				ret=self.getInitialDownload()
 				self._updateOneDriveConfig(spaceInfo)
-				self._createAuxVariables()
+				#self._createAuxVariables()
 				self._addDirectoryFile(spaceType)
 				self.loadOneDriveConfig()
 				self._deleteOldFiles()
-				return True			
+				
 			else:
 				return False
 		
@@ -2040,6 +2058,8 @@ class OnedriveManager:
 		oldServicePath=os.path.join(self.userSystemdPath,"onedrive.service")
 		ok=True
 		alreadyMasked=False
+		autoStart=True
+
 		if not os.path.exists(oldServicePath):
 			cmd="systemctl --user stop onedrive.service"
 			try:
@@ -2051,6 +2071,7 @@ class OnedriveManager:
 		
 		else:
 			alreadyMasked=True
+			autoStart=False
 		
 		isRunning=self.isOnedriveRunning(self.onedriveConfigDir,True)
 		
@@ -2071,7 +2092,7 @@ class OnedriveManager:
 				ok=False
 				pass
 
-		return ok
+		return [ok,autoStart]
 
 	#def _stopOldService
 
@@ -2164,8 +2185,8 @@ class OnedriveManager:
 
 		code=0
 		lastPendingChanges=""
-		if os.path.exists(os.path.join(self.spaceConfPath,".statusToken")):
-			with open(os.path.join(self.spaceConfPath,".statusToken"),'r') as fd:
+		if os.path.exists(os.path.join(self.spaceConfPath,".run/statusToken")):
+			with open(os.path.join(self.spaceConfPath,".run/statusToken"),'r') as fd:
 				content=fd.readlines()
 			code=int(content[1].strip())
 			lastPendingChanges=content[-1].strip()

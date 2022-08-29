@@ -94,7 +94,7 @@ Rectangle{
             }
             Text{
                 id:updateAuth
-                text:i18nd("lliurex-onedrive","Update space authorization:")
+                text:i18nd("lliurex-onedrive","Update authorization to sync space:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             }
@@ -110,7 +110,7 @@ Rectangle{
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
-                ToolTip.text:i18nd("lliurex-onedrive","Click to update space authorization")
+                ToolTip.text:i18nd("lliurex-onedrive","Click to update authorization to sync space") 
                 onClicked:{
                     updateAuthDialog.open()
                 }   

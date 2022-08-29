@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
 
     Text{ 
-        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Configuration Migration"):i18nd("lliurex-onedrive","New Space")
+        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Configuration Migration"):i18nd("lliurex-onedrive","New space")
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
@@ -194,7 +194,7 @@ Rectangle{
     ChangesDialog{
         id:previousFolderDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:onedriveBridge.showPreviousFolderDialog
         dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
@@ -220,14 +220,8 @@ Rectangle{
 
     ChangesDialog{
         id:downloadDialog
-        dialogIcon:{
-            if (onedriveBridge.withHDDSpace){
-               "/usr/share/icons/breeze/status/64/dialog-question.svg" 
-            }else{
-                "/usr/share/icons/breeze/status/64/dialog-warning.svg"
-            }
-        }
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New Space")
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:onedriveBridge.showDownloadDialog
         dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+getLastMessage()
         dialogWidth:710

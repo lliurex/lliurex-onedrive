@@ -16,8 +16,8 @@ user=os.environ["USER"]
 llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(user)
 isRunning=False
 
-if os.path.exists(os.path.join(llxOnedriveConfigDir,'llxOneDrive.lock')):
-	with open(os.path.join(llxOnedriveConfigDir,'llxOneDrive.lock'),'r') as fd:
+if os.path.exists(os.path.join(llxOnedriveConfigDir,'.run/llxOneDrive.lock')):
+	with open(os.path.join(llxOnedriveConfigDir,'.run/llxOneDrive.lock'),'r') as fd:
 		tmpPID=fd.readline().split('\n')[0]
 	
 	if tmpPID!="":
