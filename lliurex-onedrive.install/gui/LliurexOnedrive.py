@@ -1069,7 +1069,7 @@ class Bridge(QObject):
 		self.gatherSharePointsT.start()
 		self.gatherSharePointsT.finished.connect(self._gatherSharePoints)
 	
-	#def gatherLibraries
+	#def gatherSharePoints
 
 	def _gatherSharePoints(self):
 
@@ -1081,7 +1081,7 @@ class Bridge(QObject):
 		self.closePopUp=[True,""]
 		self.closeGui=True
 	
-	#def _gatherLibraries
+	#def _gatherSharePoints
 
 	@Slot(str)
 	def getSharePointLibraries(self,data):

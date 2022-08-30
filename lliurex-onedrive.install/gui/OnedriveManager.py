@@ -285,16 +285,20 @@ class OnedriveManager:
 
 		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		pout,perror=p.communicate()
+		try:
+			pout,perror=p.communicate(timeout=90)
 
-		if len(pout)>0:
-			pout=pout.decode().split("\n")
-			for item in pout:
-				if "*" in item:
-					self.sharePointsConfigData.append(item.split("*")[1].strip())
+			if len(pout)>0:
+				pout=pout.decode().split("\n")
+				for item in pout:
+					if "*" in item:
+						self.sharePointsConfigData.append(item.split("*")[1].strip())
 
-		self.sharePointsConfigData=sorted(self.sharePointsConfigData)
+			self.sharePointsConfigData=sorted(self.sharePointsConfigData)
 		
+		except Exception as e:
+			p.kill()
+
 		return True
 
 	#def getSpaceSharePoints
@@ -305,27 +309,32 @@ class OnedriveManager:
 		
 		cmd='onedrive --get-O365-drive-id "%s" --dry-run --confdir="%s"'%(sharePoint,self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		pout,perror=p.communicate()
+		
+		try:
+			pout,perror=p.communicate(timeout=90)
 
-		if len(perror)==0:
-			if len(pout)>0:
-				pout=pout.decode().split("\n")
+			if len(perror)==0:
+				if len(pout)>0:
+					pout=pout.decode().split("\n")
 
-			for i in range(len(pout)-1,-1,-1):
-				if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
-					pass
-				else:
-					pout.pop(i)	
+				for i in range(len(pout)-1,-1,-1):
+					if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
+						pass
+					else:
+						pout.pop(i)	
 
-			for i in range(0,len(pout)-1,2):
-				tmp={}
-				tmp['idLibrary']=pout[i+1].split(":")[1].strip()
-				tmp['nameLibrary']=pout[i].split(":")[1].strip()
-				self.librariesConfigData.append(tmp)
+				for i in range(0,len(pout)-1,2):
+					tmp={}
+					tmp['idLibrary']=pout[i+1].split(":")[1].strip()
+					tmp['nameLibrary']=pout[i].split(":")[1].strip()
+					self.librariesConfigData.append(tmp)
 
-			if len(self.librariesConfigData)>0:
-				self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
-	
+				if len(self.librariesConfigData)>0:
+					self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
+		
+		except Exception as e:
+			p.kill()
+
 	#def getSharePointLibraries
 	
 	def checkDuplicate(self,spaceInfo):
