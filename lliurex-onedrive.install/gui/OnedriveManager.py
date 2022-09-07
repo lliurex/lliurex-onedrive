@@ -774,8 +774,11 @@ class OnedriveManager:
 
 		if os.path.exists(self.tempConfigPath):
 			cmd='onedrive --logout --confdir="%s"'%self.tempConfigPath
-			p=subprocess.run(cmd,shell=True,check=True)
-			shutil.rmtree(self.tempConfigPath)
+			try:
+				p=subprocess.run(cmd,shell=True,check=True)
+				shutil.rmtree(self.tempConfigPath)
+			except subprocess.CalledProcessError as e:
+				pass
 
 	#def deleteTempConfig
 
@@ -1201,16 +1204,19 @@ class OnedriveManager:
 			
 		if not self.isOnedriveRunning():
 			cmd='/usr/bin/onedrive --logout --confdir="%s" &'%self.spaceConfPath
-			p=subprocess.run(cmd,shell=True,check=True)
-			time.sleep(2)
-			if not self.isConfigured():
-				self._removeSystemdConfig()
-				self._removeEnvConfigFiles()
-				self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
-				if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
-					os.remove(os.path.join(self.spaceLocalFolder,".directory"))
-				return True
-			else:
+			try:
+				p=subprocess.run(cmd,shell=True,check=True)
+				time.sleep(2)
+				if not self.isConfigured():
+					self._removeSystemdConfig()
+					self._removeEnvConfigFiles()
+					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
+					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
+						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
+					return True
+				else:
+					return False
+			except subprocess.CalledProcessError as e:
 				return False
 		else:
 			return False
