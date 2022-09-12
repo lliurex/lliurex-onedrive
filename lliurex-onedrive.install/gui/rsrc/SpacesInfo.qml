@@ -3,6 +3,7 @@ import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 
 Rectangle{
     color:"transparent"
@@ -62,7 +63,7 @@ Rectangle{
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
-                onedriveBridge.moveToSpaceOption(1)
+                informationDialog.open()
             }
         }
     } 
@@ -71,6 +72,33 @@ Rectangle{
         id:spaceSettingsPopup
         
     }
+
+    ChangesDialog{
+        id:informationDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
+        dialogVisible:false
+        dialogMsg:i18nd("lliurex-onedrive","The content that is synchronized will reduce available space on the computer.\nDo you want to continue with the pairing process?")
+        dialogWidth:550
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:informationDialog
+            function onDiscardDialogClicked(){
+                informationDialog.close()
+                onedriveBridge.moveToSpaceOption(1)                 
+            }
+            function onRejectDialogClicked(){
+                informationDialog.close()
+                                
+            }
+        }
+    }       
 
 
     function getTextMessage(){
