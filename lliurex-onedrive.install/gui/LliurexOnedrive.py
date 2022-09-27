@@ -1879,7 +1879,6 @@ class Bridge(QObject):
 	@Slot('QVariantList')
 	def getSkipSize(self,value):
 
-		value[1]=int(value[1])
 		if value!=self.initialConfig[3]:
 			if value!=Bridge.onedriveMan.currentConfig[3]:
 				self.settingsChanged=True

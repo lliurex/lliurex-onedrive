@@ -1816,8 +1816,10 @@ class OnedriveManager:
 
 	def manageSkipSize(self,value):
 
-		value[1]=self.maxFileSize[value[1]]["value"]
-		return self._writeConfigFile('skip_size',value)
+		newValue=[]
+		newValue.append(value[0])
+		newValue.append(self.maxFileSize[value[1]]["value"])
+		return self._writeConfigFile('skip_size',newValue)
 
 	#def manageSkipSize
 
