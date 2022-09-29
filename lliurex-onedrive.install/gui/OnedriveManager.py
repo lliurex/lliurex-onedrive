@@ -582,15 +582,15 @@ class OnedriveManager:
 								if customParam[param][0]:
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
 									if value!=customParam[param][1]:
-										line=param+' = '+'"'+customParam[param][1]+'"\n'
+										line=param+' = '+'"'+str(customParam[param][1])+'"\n'
 								else:
 									if "#" not in tmpLine[1]:
-										line='# '+param+' = '+'"'+customParam[param][1]+'"\n'
+										line='# '+param+' = '+'"'+str(customParam[param][1])+'"\n'
 						else:
 							if param==tmpLine[0].strip():
 								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
 								if value!=customParam[param]:
-									line=param+' = '+'"'+customParam[param]+'"\n'
+									line=param+' = '+'"'+str(customParam[param])+'"\n'
 								break
 					
 					fd.write(line)
