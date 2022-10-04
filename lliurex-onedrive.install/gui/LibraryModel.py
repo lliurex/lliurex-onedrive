@@ -70,4 +70,4 @@ class LibraryModel(QtCore.QAbstractListModel):
 	
 	#def clear
 	
-#class GroupModel
+#class LibraryModel

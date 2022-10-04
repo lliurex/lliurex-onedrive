@@ -72,7 +72,7 @@ class FolderModel(QtCore.QAbstractListModel):
 
         return roles
 
-    #def roleName
+    #def roleNames
 
     def appendRow(self,p, n, ic, ie, t, st, h, l, ce, pp):
 

@@ -37,7 +37,7 @@ class SharePointModel(QtCore.QAbstractListModel):
 
 		return roles
 
-	#def roleName
+	#def roleNames
 
 	def appendRow(self,ns):
 		

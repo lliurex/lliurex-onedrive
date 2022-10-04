@@ -25,7 +25,6 @@ class OnedriveManager:
 		self.spacesConfigData=[]
 		self.sharePointsConfigData=[]
 		self.librariesConfigData=[]
-		#self.authUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
 		self.configTemplatePath="/usr/share/lliurex-onedrive/llx-data/config"
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
@@ -34,8 +33,6 @@ class OnedriveManager:
 		self.aCServicePath="/usr/share/lliurex-onedrive/llx-data/"
 		self.aCServiceFile="lliurex-onedrive-ac.service"
 		self.onedriveConfigDir="/home/%s/.config/onedrive"%self.user
-		#self.sharePointConfigDir="/home/%s/.config/sharepoint"%self.user
-		#self.sharedFolderConfigDir="/home/%s/.config/sharedfolder"%self.user
 		self.spaceBasicInfo=[]
 		self.spaceLocalFolder=""
 		self.spaceSuffixName=""
@@ -104,20 +101,12 @@ class OnedriveManager:
 		if not os.path.exists(self.onedriveConfigDir):
 			os.mkdir(self.onedriveConfigDir)
 
-		'''
-		if not os.path.exists(self.sharePointConfigDir):
-			os.mkdir(self.sharePointConfigDir)
-
-		if not os.path.exists(self.sharedFolderConfigDir):
-			os.mkdir(self.sharedFolderConfigDir)
-		'''
 	#def createEnvironment
 
 	def loadOneDriveConfig(self):
 
 		self.readOneDriveConfig()
 		self.getSpacesConfig()
-		#self.initSpacesSettings()
 		
 	#def loadOneDriveConfig
 
@@ -161,7 +150,6 @@ class OnedriveManager:
 		countStatus=0
 		countFolder=0
 		
-
 		for item in spaces:
 			tmp={}
 			tmp["id"]=item["id"]
@@ -853,8 +841,6 @@ class OnedriveManager:
 			p.kill()
 			return False	
 	
-		#return download
-
 	#def getInitialDownload
 
 	def _formatInitialDownload(self,value):
@@ -1006,12 +992,11 @@ class OnedriveManager:
 
 		return False
 
-	#def isisAutoStartEnabledAutoStartEnabled
+	#def isAutoStartEnabled
 
 	def manageAutostart(self,enable):
 
 		isOnedriveRunning=self.isOnedriveRunning()
-		#serviceUnit=os.path.join(self.userSystemdPath,self.spaceServiceFile)
 
 		if enable:
 			cmd="systemctl --user enable %s"%self.spaceServiceFile
@@ -1193,7 +1178,7 @@ class OnedriveManager:
 					item[param]=value
 				break		
 
-	#def _updateSpaceInfo	
+	#def _updateSpaceConfigData	
 
 	def removeAccount(self):
 
@@ -1453,7 +1438,6 @@ class OnedriveManager:
 					tmpList["level"]=len(tmpEntry)*3
 					tmpList["parentPath"]=parentPath
 				
-				
 				for j in range(0,len(syncOut)-1,2):
 					tmpItem2=syncOut[j]+": "+syncOut[j+1]
 					if 'The directory' in tmpItem2:
@@ -1515,7 +1499,6 @@ class OnedriveManager:
 		self._processingFolderStruct()					
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 	
-
 	#def getLocalFolderStruct
 
 	def _processingLocalFolder(self):
@@ -1557,7 +1540,6 @@ class OnedriveManager:
 					tmpList["level"]=len(tmpEntry)*3
 					tmpList["parentPath"]=parentPath
 
-
 				for j in range(0,len(tmpFolders),1):
 					tmpItem2=tmpFolders[j]
 					tmpEntry2=tmpFolders[j]
@@ -1589,14 +1571,10 @@ class OnedriveManager:
 					shutil.rmtree(self.spaceLocalFolder)
 			self.readFilterFile()
 		else:
-			#foldersSelected=[]
-			#foldersUnSelected=[]
 			if os.path.exists(self.filterFile):
 				os.remove(self.filterFile)
 			if os.path.exists(self.filterFileHash):
 				os.remove(self.filterFileHash)
-
-			#self.folderStruct=[]
 
 		self.currentSyncConfig[0]=syncAll
 		self.currentSyncConfig[1]=foldersSelected
@@ -1798,7 +1776,7 @@ class OnedriveManager:
 		else:
 			return[False,'']
 
-	#def applyChanges
+	#def applySettingsChanges
 
 	def manageMonitorInterval(self,value):
 
@@ -1901,7 +1879,7 @@ class OnedriveManager:
 		ret=self._syncResync()
 		return ret
 
-	#def repairDB
+	#def repairOnedrive
 
 	def updateSpaceAuth(self):
 
@@ -2058,7 +2036,6 @@ class OnedriveManager:
 				self._createOneDriveACService()
 				ret=self.getInitialDownload()
 				self._updateOneDriveConfig(spaceInfo)
-				#self._createAuxVariables()
 				self._addDirectoryFile(spaceType)
 				self.loadOneDriveConfig()
 				self._deleteOldFiles()
@@ -2120,7 +2097,6 @@ class OnedriveManager:
 			if os.path.exists(tmpFile):
 				newFile=os.path.join(destPath,item)
 				shutil.move(tmpFile,newFile)
-
 
 	#def _moveOldConfig
 

@@ -53,7 +53,7 @@ class SpacesModel(QtCore.QAbstractListModel):
 
 		return roles
 
-	#def roleName
+	#def roleNames
 
 	def appendRow(self,i,n,s,r,l):
 		
@@ -100,4 +100,4 @@ class SpacesModel(QtCore.QAbstractListModel):
 	
 	#def clear
 	
-#class GroupModel
+#class SpacesModel

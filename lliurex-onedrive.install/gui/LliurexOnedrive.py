@@ -75,7 +75,6 @@ class CreateSpace(QThread):
 		QThread.__init__(self)
 		self.spaceInfo=args[0]
 		self.reuseToken=args[1]
-		#self.initialDownload=""
 		self.ret=[]
 
 	#def __init__
@@ -83,11 +82,7 @@ class CreateSpace(QThread):
 	def run (self,*args):
 		
 		self.ret=Bridge.onedriveMan.createSpace(self.spaceInfo,self.reuseToken)
-		'''
-		if self.ret:
-			if Bridge.onedriveMan.isConfigured():
-				self.initialDownload=Bridge.onedriveMan.getInitialDownload()
-		'''
+
 	#def run
 
 #class CreateSpace
@@ -109,7 +104,6 @@ class GatherSharePoints(QThread):
 	#def run
 
 #class GatherSharePoints 
-
 
 class GatherLibraries(QThread):
 
@@ -252,6 +246,8 @@ class ApplySettingsChanges(QThread):
 		self.ret=Bridge.onedriveMan.applySettingsChanges(self.initialConfig)
 
 	#def run
+
+#class ApplySettingsChanges
 
 class TestOneDrive(QThread):
 
@@ -1153,32 +1149,13 @@ class Bridge(QObject):
 	def _migrateSpace(self):
 
 		self._updateSpacesModel()
-		#self.closePopUp=[True,""]
 		self.tempConfig=False
 
 		if self.migrateSpaceT.ret:
 			self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
 			self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-			'''
-			self._initializeVars()
-			self._getInitialSettings()
-			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
-
-			if self.syncAll:
-				self.showFolderStruct=False
-			else:
-				self.showFolderStruct=True
-			self.currentStack=2
-			self.manageCurrentOption=0
-			self.spacesCurrentOption=0
-			self.closePopUp=[True,""]
-			'''
 			spaceId=Bridge.onedriveMan.spaceId
 			self.loadSpace(spaceId)
-			
-			#self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
-			#self.closeGui=True
-			#self.requiredMigration=False
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
@@ -1261,7 +1238,6 @@ class Bridge(QObject):
 	def _addSpace(self):
 
 		self._updateSpacesModel()
-		#self.closePopUp=[True,""]
 		self.reuseToken=False
 		self.tempConfig=False
 		self._libraryModel.clear()
@@ -1307,7 +1283,6 @@ class Bridge(QObject):
 
 	def _initialStartUp(self):
 
-		#self.checkAccountStatus()
 		self.initStartUp=True
 		
 		self.closePopUp=[False,START_SYNC_MESSAGE]
@@ -1315,7 +1290,6 @@ class Bridge(QObject):
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._endInitialStartUp)
 		
-
 	#def _initialStartUp
 
 	def _endInitialStartUp(self):
@@ -1333,9 +1307,6 @@ class Bridge(QObject):
 		else:
 			self._updateSpacesModelInfo('isRunning')
 			self.checkAccountStatus()
-
-		#self.initStartUp=True
-	
 
 	#def _endInitialStartUp
 	
@@ -1382,7 +1353,6 @@ class Bridge(QObject):
 			self.closeGui=True
 			self.currentStack=1
 
-		
 	#def _loadAccount
 
 	def _endLoading(self):
@@ -1430,7 +1400,6 @@ class Bridge(QObject):
 		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
 		self.syncAll=Bridge.onedriveMan.syncAll
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		#self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
 		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
 		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
@@ -1770,7 +1739,7 @@ class Bridge(QObject):
 		elif action=="Cancel":
 			self.showSynchronizePendingDialog=False
 
-	#def manageSynchronizeDialog
+	#def manageSynchronizePendingDialog
 	
 	def applySyncChanges(self):
 
@@ -2112,7 +2081,6 @@ class Bridge(QObject):
 						self.showSynchronizePendingDialog=True
 				else:
 					if self.closePopUp[0]:
-						#Bridge.onedriveMan.manageFileFilter("restore")
 						Bridge.onedriveMan.removeLockToken()
 						self.closeGui=True
 					else:
