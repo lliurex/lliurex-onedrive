@@ -1,9 +1,10 @@
 
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.6 as Kirigami
+import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 
 
 Rectangle{
@@ -107,14 +108,49 @@ Rectangle{
                 model:onedriveBridge.bandWidthNames
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
+                Layout.preferredWidth:100
                 enabled:getEnabledStatus()
                 onActivated:{
                     onedriveBridge.getRateLimit(bandwidthValues.currentIndex)
                 }
             }
+            Text{
+                id:skipSizeText
+                text:i18nd("lliurex-onedrive","Maximun fize size to sync:")
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.alignment:Qt.AlignRight
+                Layout.bottomMargin:10
+            }
+            RowLayout{
+                CheckBox {
+                    id:skipSizeCB
+                    text:i18nd("lliurex-onedrive","Don't sync files larger than")
+                    font.family: "Quattrocento Sans Bold"
+                    font.pointSize: 10
+                    focusPolicy: Qt.NoFocus
+                    checked:onedriveBridge.skipSize[0]
+                    enabled:getEnabledStatus()
+                    Layout.bottomMargin:10
+                    Layout.rightMargin:5
+                    Layout.alignment:Qt.AlignLeft
+                    onToggled:onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
 
+                }
+                ComboBox{
+                    id:skipSizeValues
+                    currentIndex:onedriveBridge.skipSize[1]
+                    model:onedriveBridge.maxFileSizeNames
+                    enabled:skipSizeCB.checked
+                    Layout.alignment:Qt.AlignVCenter
+                    Layout.bottomMargin:10
+                    Layout.preferredWidth:100
+                    onActivated:{
+                        onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
+                    }
+                }
+            }
         }
-
     }
 
     RowLayout{
@@ -134,14 +170,7 @@ Rectangle{
             Layout.preferredHeight: 40
 
             onClicked:{
-                settingsPopup.open()
-                delay(1, function() {
-                    if (onedriveBridge.closePopUp){
-                        settingsPopup.close(),
-                        timer.stop();
-                    }
-                })
-                onedriveBridge.applySettingsChanges()
+               onedriveBridge.applySettingsChanges()
             }
         }
         Button {
@@ -163,10 +192,36 @@ Rectangle{
 
     CustomPopup{
         id:settingsPopup
-        popupMessage:i18nd("lliurex-onedrive", "Saving changes. Wait a moment...")
     }
 
+    ChangesDialog{
+        id:settingsChangesDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
+        dialogVisible:onedriveBridge.showSettingsDialog
+        dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
+        dialogWidth:400
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Apply")
+        btnDiscardText:i18nd("lliurex-onedrive","Discard")
+        btnDiscardIcon:"delete.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:settingsChangesDialog
+            function onDialogApplyClicked(){
+                onedriveBridge.manageSettingsDialog("Accept")
+            }
+            function onDiscardDialogClicked(){
+                onedriveBridge.manageSettingsDialog("Discard")           
+            }
+            function onRejectDialogClicked(){
+                onedriveBridge.manageSettingsDialog("Cancel")       
+            }
 
+        }
+    }
+  
     function getMessageText(){
 
         switch (onedriveBridge.showSettingsMessage[1]){

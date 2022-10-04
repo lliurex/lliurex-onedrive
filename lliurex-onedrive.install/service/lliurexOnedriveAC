@@ -1,0 +1,471 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import json
+from threading import Thread
+import concurrent.futures
+
+import time
+import psutil
+
+MAX_CHECK_FOLDER_INTERVAL=5
+MAX_CHECK_STATUS_INTERVAL=90
+MAX_CHECK_FREE_SPACE=150
+FREE_SPACE_LIMIT=5368709120
+
+
+class checkSpaceLocalFolder():
+
+	def __init__(self,*args):
+
+		pass
+
+	#def __init__
+
+	def checkFolder(self,spaceInfo):
+
+		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=spaceInfo
+		localFolderEmptyToken=os.path.join(spaceConfigPath,".run/localFolderEmptyToken");
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
+		emptyToken=os.path.join(spaceConfigPath,".run/emptyToken")
+
+		isRunning=self._isOnedriveRunning(spaceConfigPath)
+		if os.path.exists(spaceLocalFolder):
+			content=os.listdir(spaceLocalFolder)
+			
+			if (len(content)>1) or (len(content)>0 and ".directory" not in content):
+				self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
+				if os.path.exists(emptyToken):
+					os.remove(emptyToken)
+			else:
+				if not os.path.exists(emptyToken):
+					if not os.path.exists(localFolderEmptyToken):
+						self._manageFolderToken(False,True,localFolderRemovedToken,localFolderEmptyToken)
+					
+					if isRunning:
+						self._stopClient(spaceConfigPath,spaceService)
+				else:
+					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
+		else:
+			if not os.path.exists(emptyToken):
+				if not os.path.exists(localFolderRemovedToken):
+					self._manageFolderToken(True,False,localFolderRemovedToken,localFolderEmptyToken)
+					if isRunning:
+						self._stopClient(spaceConfigPath,spaceService)
+				else:
+					pass
+		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken)
+
+		return True
+	
+	#def checkFolder
+
+	def _manageFolderToken(self,remove,empty,localFolderRemovedToken,localFolderEmptyToken):
+
+		if remove:
+			if not os.path.exists(localFolderRemovedToken):
+				with open(localFolderRemovedToken,'w') as fd:
+					pass
+		else:
+			if os.path.exists(localFolderRemovedToken):
+				os.remove(localFolderRemovedToken)
+
+		if empty:
+			if not os.path.exists(localFolderEmptyToken):
+				with open(localFolderEmptyToken,'w') as fd:
+					pass
+		else:
+			if os.path.exists(localFolderEmptyToken):
+				os.remove(localFolderEmptyToken)
+
+	#def _manageFolderToken
+
+	def _stopClient(self,spaceConfigPath,spaceService):
+
+		cmd="systemctl --user stop %s"%spaceService
+		try:
+			p=subprocess.run(cmd,shell=True,check=True)
+		except subprocess.CalledProcessError as e:
+			pass
+
+	#def _stopClient
+
+	def _manageAutoStart(self,spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken):
+
+		lockAutoStartToken=os.path.join(spaceConfigPath,".run/lockAutoStartToken")
+
+		if os.path.exists(os.path.join(self.userSystemdAutoStartPath,spaceService)):
+			if os.path.exists(localFolderEmptyToken) or os.path.exists(localFolderRemovedToken):
+				if not os.path.exists(lockAutoStartToken):
+					with open(lockAutoStartToken,'w') as fd:
+						pass
+					cmd="systemctl --user disable %s"%spaceService
+					try:
+						p=subprocess.run(cmd,shell=True,check=True)
+					except subprocess.CalledProcessError as e:
+						pass
+			else:
+				if os.path.exists(lockAutoStartToken):
+					os.remove(lockAutoStartToken)
+		else:
+		    if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+		    	if os.path.exists(lockAutoStartToken):
+		    		os.remove(lockAutoStartToken)
+		    		cmd="systemctl --user enable %s"%spaceService
+		    		try:
+		    			p=subprocess.run(cmd,shell=True,check=True)
+		    		except subprocess.CalledProcessError as e:
+		    			pass
+
+	#def _manageAutoStart
+
+	def _isOnedriveRunning(self,spaceConfigPath=None):
+
+		runToken=os.path.join(spaceConfigPath,".run/runToken")
+
+		if spaceConfigPath!=None:
+			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
+
+			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+				if not os.path.exists(runToken):
+					with open(runToken,'w') as fd:
+						pass
+				return True
+			else:
+				if os.path.exists(runToken):
+					os.remove(runToken)
+				return False
+
+		return False
+
+	#def _isOnedriveRunning
+
+#class checkSpaceLocalFolder
+
+class getSpaceStatusWorker():
+
+	def __init__(self,*args):
+
+		pass
+
+	#def __init__
+
+	def checkStatus(self,spaceInfo):
+
+		spaceConfigPath,spaceType=spaceInfo
+		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
+		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
+
+		MICROSOFT_API_ERROR=-1
+		UNABLE_CONNECT_MICROSOFT_ERROR=-2
+		LOCAL_FILE_SYSTEM_ERROR=-3
+		ZERO_SPACE_AVAILABLE_ERROR=-4
+		QUOTA_RESTRICTED_ERROR=-5
+		DATABASE_ERROR=-6
+		UNAUTHORIZED_ERROR=-7
+		UPLOADING_CANCEL_ERROR=-8
+		SERVICE_UNAVAILABLE=-9
+
+		ALL_SYNCHRONIZE_MSG=0
+		OUT_OF_SYNC_MSG=2
+		WITH_OUT_CONFIG=1
+		INFORMATION_NOT_AVAILABLE=3
+		UPLOADING_PENDING_CHANGES=4
+
+		error=False
+		code=INFORMATION_NOT_AVAILABLE
+		freespace=""
+		pendingChanges="0 KB"
+		lastPendingChanges="0 KB"
+
+		if self._isOnedriveRunning(spaceConfigPath):
+			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+				if os.path.join(spaceConfigPath,'refresh_token'):
+					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
+					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="60" --confdir="%s"'%spaceConfigPath
+					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+					try:
+						poutput,perror=p.communicate(timeout=90)
+
+						if type(poutput) is bytes:
+							poutput=poutput.decode()
+
+						if type(perror) is bytes:
+							perror=perror.decode()
+
+						if len(perror)>0:
+							perror=perror.split('\n')
+							error=True
+							for item in perror:
+								if 'OneDrive API returned an error' in item:
+									code=MICROSOFT_API_ERROR
+								elif 'Cannot connect to' in item:
+									code=UNABLE_CONNECT_MICROSOFT_ERROR
+									break
+								elif 'local file system' in item:
+									code=LOCAL_FILE_SYSTEM_ERROR
+								elif 'zero space available' in item:
+									code=ZERO_SPACE_AVAILABLE_ERROR
+									break
+								elif 'quota information' in item:
+									if spaceType!="sharepoint":
+										code=QUOTA_RESTRICTED_ERROR
+									else:
+										error=False
+								elif 'database' in item:
+									code=DATABASE_ERROR
+								elif 'Unauthorized' in item:
+									code=UNAUTHORIZED_ERROR
+								elif '416' in item:
+									code=UPLOADING_PENDING_CHANGES
+									break
+								elif 'Unable to query OneDrive' in item:
+									code=UNAUTHORIZED_ERROR
+									error=True
+									break
+								elif '503' in item:
+									code=SERVICE_UNAVAILABLE
+								elif 'Free Space' in item:
+									tmp_freespace=item.split(':')[1].strip()
+									if not 'Not Available' in tmp_freespace:
+										freespace=tmp_freespace
+						if not error:
+							if len(poutput)>0:
+								poutput=poutput.split('\n')
+								for item in poutput:
+									if 'Uploading' in item:
+										code=UPLOADING_PENDING_CHANGES
+										break;
+									if 'No pending' in item:
+										code=ALL_SYNCHRONIZE_MSG
+									elif 'out of sync' in item:
+										code=OUT_OF_SYNC_MSG
+									elif 'HTTP 403 - Forbidden' in item:
+										code=UNAUTHORIZED_ERROR
+										error=True
+										break
+									elif 'download from OneDrive:' in item:
+										pendingChanges=item.split(':')[1].strip()
+									elif 'Free Space' in item:
+										tmp_freespace=item.split(':')[1].strip()
+										if not 'Not Available' in tmp_freespace:
+											freespace=tmp_freespace
+					except:
+						p.kil()
+						error=True
+						code=UNABLE_CONNECT_MICROSOFT_ERROR
+				else:
+					error=True
+					code=WITH_OUT_CONFIG
+
+				if code==OUT_OF_SYNC_MSG:
+					if pendingChanges==lastPendingChanges:
+						code=ALL_SYNCHRONIZE_MSG
+						
+				try:
+					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
+						tmpLine=str(error)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(code)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(freespace)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(pendingChanges)
+						fd.write(tmpLine)
+				except Exception as e:
+					pass
+		else:
+			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
+				os.remove(os.path.join(spaceConfigPath,".run/statusToken"))
+		
+		return True
+
+	#def checkStatus
+
+	def _isOnedriveRunning(self,spaceConfigPath=None):
+
+		if spaceConfigPath!=None:
+			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
+			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+				return True
+			else:
+				return False
+
+		return False
+
+	#def _isOnedriveRunning
+
+	def _getLastPendingChanges(self,spaceConfigPath=None):
+
+		lastPendingChanges=""
+		if spaceConfigPath!=None:
+			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
+				with open(os.path.join(spaceConfigPath,".run/statusToken"),'r') as fd:
+					lastPendingChanges=fd.readlines()[-1].strip()
+		
+		return lastPendingChanges
+
+	#def _getLastPendingChanges
+
+#class getSpaceStatusWorker
+
+class LliurexOneDriveAC:
+
+	def __init__(self):
+
+		self.user=os.environ["USER"]
+		self.llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(self.user)
+		self.onedriveConfigFile=os.path.join(self.llxOnedriveConfigDir,"onedriveConfig.json")
+		self.userSystemdPath="/home/%s/.config/systemd/user"%self.user
+		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
+		self.folderWorker=False
+		self.statusWorker=False
+		self.freeSpaceWorker=False
+		self.lastFolderCheck=MAX_CHECK_FOLDER_INTERVAL
+		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
+		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
+		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
+		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
+		
+		self.initWorker()
+
+	#def __init__
+
+	def initWorker(self):
+
+		self.folderWorkerThread=Thread(target=self.checkSpaceFolder)
+		self.folderWorkerThread.setDaemon(True)
+		self.folderWorkerThread.start()
+		
+		self.statusWorkerThread=Thread(target=self.checkSpaceStatus)
+		self.statusWorkerThread.setDaemon(True)
+		self.statusWorkerThread.start()
+
+		self.freeSpaceWorkerThread=Thread(target=self.checkFreeSpace)
+		self.freeSpaceWorkerThread.setDaemon(True)
+		self.freeSpaceWorkerThread.start()
+		
+	#def initWorker
+
+	def checkSpaceFolder(self):
+
+		while True:
+			if not self.folderWorker:
+				time.sleep(1)
+				self.lastFolderCheck+=1
+				if self.lastFolderCheck > MAX_CHECK_FOLDER_INTERVAL:
+					#folderQ=Queue()
+					self.folderWorker=True
+					oneDriveSpaces=self.readOneDriveConfig()
+					checkSpaceFolder=checkSpaceLocalFolder()
+
+					with concurrent.futures.ThreadPoolExecutor() as executor:
+						futures=[]
+						for space in oneDriveSpaces:
+							tmp=[]
+							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
+							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
+
+						for future in concurrent.futures.as_completed(futures):
+							pass	
+
+						self.folderWorker=False
+						self.lastFolderCheck=0
+				
+				else:
+					self.lastFolderCheck+=1
+
+	#def checkSpaceFolder
+	
+	def checkSpaceStatus(self):
+
+		while True:
+			if not self.statusWorker:
+				time.sleep(1)
+				self.lastStatusCheck+=1
+				if self.lastStatusCheck > MAX_CHECK_STATUS_INTERVAL:
+					self.statusWorker=True
+					oneDriveSpaces=self.readOneDriveConfig()
+					checkSpaceStatus=getSpaceStatusWorker()
+					
+					with concurrent.futures.ThreadPoolExecutor() as executor:
+						futures=[]
+						for space in oneDriveSpaces:
+							tmp=[]
+							tmpInfo=[space['configPath'],space['spaceType']]
+							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
+						
+						for future in concurrent.futures.as_completed(futures):
+							pass	
+
+					self.statusWorker=False
+					self.lastStatusCheck=0
+				else:
+					self.lastStatusCheck+=1
+	
+	#def checkSpaceStatus
+
+	def checkFreeSpace(self):
+
+		while True:
+			if not self.freeSpaceWorker:
+				time.sleep(1)
+				self.lastFreeSpaceCheck+=1
+				if self.lastFreeSpaceCheck>MAX_CHECK_FREE_SPACE:
+					self.freeSpaceWorker=True
+					hdd=psutil.disk_usage('/home')
+					if hdd.free<=(2*FREE_SPACE_LIMIT):
+						if hdd.free<=(FREE_SPACE_LIMIT):
+							if os.path.exists(self.freeSpaceErrorToken):
+								os.remove(self.freeSpaceErrorToken)
+							with open(self.freeSpaceErrorToken,'w') as fd:
+								tmpLine=str(hdd.free)+("\n")
+								fd.write(tmpLine)
+							if os.path.exists(self.freeSpaceWarningToken):
+								os.remove(self.freeSpaceWarningToken)
+						else:
+							if os.path.exists(self.freeSpaceWarningToken):
+								os.remove(self.freeSpaceWarningToken)
+							with open(self.freeSpaceWarningToken,'w') as fd:
+								tmpLine=str(hdd.free)+("\n")
+								fd.write(tmpLine)
+							if os.path.exists(self.freeSpaceErrorToken):
+								os.remove(self.freeSpaceErrorToken)
+					else:
+						if os.path.exists(self.freeSpaceWarningToken):
+							os.remove(self.freeSpaceWarningToken)
+						if os.path.exists(self.freeSpaceErrorToken):
+							os.remove(self.freeSpaceErrorToken)
+
+
+					self.freeSpaceWorker=False
+					self.lastFreeSpaceCheck=0
+				else:
+					self.lastFreeSpaceCheck+=1
+
+	#def checkFreeSpace
+	
+	def readOneDriveConfig(self):
+
+		tmpSpacesList=[]
+
+		if os.path.exists(self.onedriveConfigFile):
+			with open(self.onedriveConfigFile,'r') as fd:
+				tmpOneDriveConfig=json.load(fd)
+				try:
+					tmpSpacesList=tmpOneDriveConfig['spacesList']
+				except:
+					pass
+
+		return tmpSpacesList
+	
+	#def readOneDriveConfig
+
+#class LliurexOneDriveAC
+
+if __name__=="__main__":
+	
+	LliurexOneDriveAC()
+	while True:
+		time.sleep(1)
