@@ -1,0 +1,58 @@
+#! /usr/bin/python3
+
+from PySide2.QtWidgets import QApplication
+from PySide2.QtCore import QUrl,QCoreApplication,Qt
+from PySide2.QtGui import QIcon
+from PySide2.QtQml import QQmlApplicationEngine
+
+import os
+import sys
+import psutil
+import gettext
+gettext.textdomain("lliurex-onedrive")
+_ = gettext.gettext
+
+user=os.environ["USER"]
+llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(user)
+isRunning=False
+
+if os.path.exists(os.path.join(llxOnedriveConfigDir,'.run/llxOneDrive.lock')):
+	with open(os.path.join(llxOnedriveConfigDir,'.run/llxOneDrive.lock'),'r') as fd:
+		tmpPID=fd.readline().split('\n')[0]
+	
+	if tmpPID!="":
+		tmpPID=int(tmpPID)
+		if psutil.pid_exists(tmpPID):
+			isRunning=True
+
+if isRunning:
+	msg=_("Lliurex-Onedrive is now running. Wait a moment and try again")
+	cmd="kdialog --title 'LliureX-OneDrive' --icon 'lliurex-onedrive.svg' --sorry '%s'"%msg
+	os.system(cmd)
+	sys.exit(1)
+
+else:
+	import LliurexOnedrive
+
+	QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+	app=QApplication()
+	engine=QQmlApplicationEngine()
+	engine.clearComponentCache()
+	context=engine.rootContext()
+	onedriveBridge=LliurexOnedrive.Bridge()
+	context.setContextProperty("onedriveBridge", onedriveBridge)
+
+	url = QUrl("/usr/share/lliurex-onedrive/rsrc/lliurex-onedrive.qml")
+
+
+	engine.load(url)
+	if not engine.rootObjects():
+		sys.exit(-1)
+
+	engine.quit.connect(QApplication.quit)
+	app.setWindowIcon(QIcon("/usr/share/icons/hicolor/scalable/apps/lliurex-onedrive.svg"));
+	ret=app.exec_()
+	del engine
+	del app
+	sys.exit(ret)
+	
