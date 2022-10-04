@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-26 11:50+0200\n"
+"POT-Creation-Date: 2022-10-04 10:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,39 +26,73 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:10
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:11
 msgid "Synchronized spaces"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:60
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:61
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:79
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:13
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:197
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:224
 msgid "New space"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:79
-msgid "The new space to synchronize has been configured successfully"
-msgstr ""
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:82
-msgid "One or more spaces require your attention"
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:81
+msgid ""
+"The content that is synchronized will reduce available space on the "
+"computer.\n"
+"Do you want to continue with the pairing process?"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:85
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:203
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:176
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:310
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:334
+#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:130
+#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:155
+msgid "Accept"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:87
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:173
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:205
+#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:144
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:181
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:312
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:336
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:182
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:208
+#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:132
+#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:157
+msgid "Cancel"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:107
+msgid "The new space to synchronize has been configured successfully"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:110
+msgid "One or more spaces require your attention"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:113
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:88
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:116
 msgid "The available space in HDD is less than 10 GB"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:91
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:119
 msgid ""
 "The available space in HDD is less than 5 GB. No more content will be synced"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:94
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:122
 msgid "There is not enough space in HDD to sync more spaces"
 msgstr ""
 
@@ -104,21 +138,6 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:173
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:205
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:232
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:144
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:181
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:312
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:336
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:182
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:208
-#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:132
-#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:157
-msgid "Cancel"
-msgstr ""
-
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:199
 msgid ""
 "The local folder (with content) to be used for synchronization has been "
@@ -127,15 +146,6 @@ msgid ""
 "content in that folder\n"
 "will be added to OneDrive/SharePoint.\n"
 "Do you want to continue with the pairing process?"
-msgstr ""
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:203
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:176
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:310
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:334
-#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:130
-#: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:155
-msgid "Accept"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:226
