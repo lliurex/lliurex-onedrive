@@ -1,3 +1,9 @@
+lliurex-onedrive (0.1.13) bionic; urgency=medium
+
+  * New version with multi-space synchronization
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 04 Oct 2022 11:30:41 +0200
+
 lliurex-onedrive (0.1.12.1) bionic-updates; urgency=medium
 
   * Fixed bub when manageSync btn invoke.
