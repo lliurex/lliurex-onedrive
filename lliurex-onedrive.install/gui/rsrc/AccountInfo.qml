@@ -357,6 +357,7 @@ Rectangle{
 
         var additionalText=i18nd("lliurex-onedrive","\nWait a moment and update the status\nIf persist run a LliureX-OneDrive test")
         var helpText=i18nd("lliurex-onedrive","Consult the help to solve the situation")
+        var authText=i18nd("lliurex-onedrive","\nWait a moment and update the status\n.If persist update authorization to sync space")
         switch (errorCode) {
             case 0:
                 var msg=i18nd("lliurex-onedrive","All remote content synchronized");
@@ -389,7 +390,7 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","Problems with database")+additionalText;
                 break;
             case -7:
-                var msg=i18nd("lliurex-onedrive","The authorization to access your account has expired");
+                var msg=i18nd("lliurex-onedrive","The authorization to access your account has expired")+authText;
                 break;
             case 4:
             case -8:
@@ -405,10 +406,13 @@ Rectangle{
                 var msg=i18nd("lliurex-onedrive","Unable to stop synchronization")
                 break;
             case -12:
-                var msg=i18nd("lliurex-onedrive","The local folder of space is empty. ")+helpText
+                var msg=i18nd("lliurex-onedrive","The local folder of space is empty. ")+helpText;
                 break;
             case -13:
-                var msg=i18nd("lliurex-onedrive","The local folder of space not exist. ")+helpText
+                var msg=i18nd("lliurex-onedrive","The local folder of space not exist. ")+helpText;
+                break;
+            case -14:
+                var msg=i18nd("lliurex-onedrive","Access denied. Might not have enough permision")+authText;
                 break;
             case " ":
                 var msg=""

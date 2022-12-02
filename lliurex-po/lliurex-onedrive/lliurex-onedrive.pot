@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-04 10:59+0200\n"
+"POT-Creation-Date: 2022-12-02 11:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -314,8 +314,8 @@ msgid "Free Space:"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:172
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:368
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:417
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:369
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:421
 msgid "Information not available"
 msgstr ""
 
@@ -385,70 +385,81 @@ msgstr ""
 msgid "Consult the help to solve the situation"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:362
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:360
+msgid ""
+"\n"
+"Wait a moment and update the status\n"
+".If persist update authorization to sync space"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:363
 msgid "All remote content synchronized"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:365
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:366
 msgid "Remote content pending syncing"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:371
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:372
 msgid "Configuration migration completed successfully"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:374
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:375
 msgid "Microsoft OneDrive API return an error"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:377
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:378
 msgid "Unable to connect with Microsoft OneDrive"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:380
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:381
 msgid "Problems with local file system"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:383
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:384
 msgid "Your free space is 0"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:386
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:387
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:389
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:390
 msgid "Problems with database"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:392
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:393
 msgid "The authorization to access your account has expired"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:396
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:397
 msgid "Uploading pending changes"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:399
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:400
 msgid "Microsoft OneDrive not available"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:402
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:403
 msgid "Unable to start synchronization"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:405
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:406
 msgid "Unable to stop synchronization"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:408
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:409
 msgid "The local folder of space is empty. "
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:411
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:412
 msgid "The local folder of space not exist. "
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:415
+msgid "Access denied. Might not have enough permision"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:39
