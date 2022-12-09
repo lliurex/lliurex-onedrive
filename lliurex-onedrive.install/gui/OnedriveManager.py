@@ -1468,7 +1468,8 @@ class OnedriveManager:
 			self.readFilterFile()
 			for item in self.folderStruct:
 				tmp="!"+item["path"]+"/*"
-				if tmp in self.excludeFolders:
+				tmp2="!"+item["path"]+"/"
+				if tmp in self.excludeFolders or tmp2 in self.excludeFolders:
 					item["isChecked"]=False
 				else:
 					if (item["path"]+"/*") not in self.includeFolders:
@@ -1476,7 +1477,7 @@ class OnedriveManager:
 						if tmp in self.includeFolders:
 							item["isChecked"]=True
 						else:
-							tmp=item["path"]+"/*"
+							tmp=item["path"]+"/"
 							for element in self.includeFolders:
 								if element.split("/*")[0] in tmp:
 									item["isChecked"]=True
@@ -1609,9 +1610,12 @@ class OnedriveManager:
 		for i in range(len(foldersUnSelected)-1,-1,-1):
 			for element in foldersSelected:
 				if len(self.includeFolders)>0:
-					tmp=foldersUnSelected[i]+"/*"
-					if tmp in self.includeFolders:
-						self.includeFolders.remove(tmp)
+					try:
+						tmp=foldersUnSelected[i]+"/*"
+						if tmp in self.includeFolders:
+							self.includeFolders.remove(tmp)
+					except:
+						pass
 				try:
 					tmpFolder=foldersUnSelected[i]+"/"
 					if tmpFolder in element:
@@ -1624,7 +1628,7 @@ class OnedriveManager:
 			folderSelected.append(element+"/*")
 
 		for element in foldersUnSelected:
-			folderUnSelected.append("!"+element+"/*")
+			folderUnSelected.append("!"+element+"/")
 					
 		
 		if not self.existsFilterFile():
@@ -1655,7 +1659,8 @@ class OnedriveManager:
 				else:
 					for item in self.folderStruct:
 						tmpItem=item["path"]+"/*"
-						if tmpItem==tmpLine:
+						tmpItem2=item["path"]+"/"
+						if tmpItem==tmpLine or tmpItem2==tmpLine:
 							match=0
 							break
 						else:
@@ -1671,7 +1676,8 @@ class OnedriveManager:
 				else:
 					for item in self.folderStruct:
 						tmpItem="!"+item["path"]+"/*"
-						if tmpItem==tmpLine:
+						tmpItem2="!"+item["path"]+"/"
+						if tmpItem==tmpLine or tmpItem2==tmpLine:
 							match=0
 							break
 						else:
@@ -1682,7 +1688,7 @@ class OnedriveManager:
 			for i in range(len(self.excludeFolders)-1,-1,-1):
 				for element in self.includeFolders:
 					try:
-						tmp=self.excludeFolders[i].split("!")[1].split("/*")[0]+"/"
+						tmp=self.excludeFolders[i].split("!")[1].split("/")[0]+"/"
 						if tmp in element:
 							self.excludeFolders.pop(i)
 					except:
