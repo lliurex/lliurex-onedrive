@@ -248,7 +248,7 @@ Rectangle{
                 break
 
             case -4:
-                var msg=i18nd("lliurex-onedrive","An error occurred while applying the changes");
+                var msg=i18nd("lliurex-onedrive","An error occurred while applying the changes. Press Cancel and resync the space");
                 break
                 
             case -5:

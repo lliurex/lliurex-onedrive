@@ -166,6 +166,7 @@ class getSpaceStatusWorker():
 		UNAUTHORIZED_ERROR=-7
 		UPLOADING_CANCEL_ERROR=-8
 		SERVICE_UNAVAILABLE=-9
+		FORBIDDEN_USER=-14
 
 		ALL_SYNCHRONIZE_MSG=0
 		OUT_OF_SYNC_MSG=2
@@ -242,7 +243,7 @@ class getSpaceStatusWorker():
 									elif 'out of sync' in item:
 										code=OUT_OF_SYNC_MSG
 									elif 'HTTP 403 - Forbidden' in item:
-										code=UNAUTHORIZED_ERROR
+										code=FORBIDDEN_USER
 										error=True
 										break
 									elif 'download from OneDrive:' in item:
