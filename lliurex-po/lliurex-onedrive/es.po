@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-04 10:59+0200\n"
-"PO-Revision-Date: 2022-10-04 11:00+0200\n"
+"POT-Creation-Date: 2022-12-07 14:36+0100\n"
+"PO-Revision-Date: 2022-12-07 14:37+0100\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.3\n"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesOptions.qml:25
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:18
@@ -324,8 +324,12 @@ msgid "Changes applied correctly"
 msgstr "Cambios aplicados correctamente"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:251
-msgid "An error occurred while applying the changes"
-msgstr "Ha ocurrido un error al aplicar los cambios"
+msgid ""
+"An error occurred while applying the changes. Press Cancel and resync the "
+"space"
+msgstr ""
+"Ha ocurrido un error al aplicar los cambios. Haga clic en Cancelar y "
+"resincronice el espacio"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:255
 msgid "An error occurred while getting the space folder structure"
@@ -357,8 +361,8 @@ msgid "Free Space:"
 msgstr "Espacio disponible:"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:172
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:368
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:417
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:369
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:421
 msgid "Information not available"
 msgstr "Información no disponible"
 
@@ -438,35 +442,45 @@ msgstr ""
 msgid "Consult the help to solve the situation"
 msgstr "Consulte la ayuda para resolver esta situación"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:362
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:360
+msgid ""
+"\n"
+"Wait a moment and update the status\n"
+".If persist update authorization to sync space"
+msgstr ""
+"\n"
+"Espere un momento y actualice el estado\n"
+"Si persiste actualice la autorización para sincronizar el espacio"
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:363
 msgid "All remote content synchronized"
 msgstr "Todo el contenido remoto esta sincronizado"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:365
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:366
 msgid "Remote content pending syncing"
 msgstr "Cambios remotos pendiente de sincronizar"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:371
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:372
 msgid "Configuration migration completed successfully"
 msgstr "La migración de la configuración se ha completado correctamente"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:374
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:375
 msgid "Microsoft OneDrive API return an error"
 msgstr "Microsoft OneDrive API ha devuelto un error"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:377
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:378
 msgid "Unable to connect with Microsoft OneDrive"
 msgstr "No es posible conectar con Microsoft OneDrive"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:380
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:381
 msgid "Problems with local file system"
 msgstr "Problemas con el sistema local de ficheros"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:383
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:384
 msgid "Your free space is 0"
 msgstr "Su espacio disponible es 0"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:386
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:387
 msgid ""
 "Information about yor quota information is restricted\n"
 "Maybe your free space is 0"
@@ -474,37 +488,41 @@ msgstr ""
 "La información sobre su quota esta restringida\n"
 "Puede que el espacio disponible sea 0"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:389
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:390
 msgid "Problems with database"
 msgstr "Problemas con la base de datos"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:392
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:393
 msgid "The authorization to access your account has expired"
 msgstr "La autorización para acceder a su cuenta ha caducado"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:396
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:397
 msgid "Uploading pending changes"
 msgstr "Subiendo cambios pendientes"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:399
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:400
 msgid "Microsoft OneDrive not available"
 msgstr "Microsoft OneDrive no esta disponible"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:402
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:403
 msgid "Unable to start synchronization"
 msgstr "No es posible iniciar la sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:405
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:406
 msgid "Unable to stop synchronization"
 msgstr "No es posible detener la sincronización"
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:408
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:409
 msgid "The local folder of space is empty. "
 msgstr "La carpeta local del espacio está vacía. "
 
-#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:411
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:412
 msgid "The local folder of space not exist. "
 msgstr "La carpeta local del espacio no existe. "
+
+#: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:415
+msgid "Access denied. Might not have enough permision"
+msgstr "Acceso denegado. Puede que no tenga suficientes permisos"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:39
 msgid "Space"
