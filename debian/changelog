@@ -1,3 +1,10 @@
+lliurex-onedrive (0.2.1) bionic; urgency=medium
+
+  * Fixed sync_list creation for partial sync
+  * Improved mechanism to show notifications about errors
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 12 Dec 2022 10:44:29 +0100
+
 lliurex-onedrive (0.2) bionic; urgency=medium
 
   * New version with multi-space synchronization
