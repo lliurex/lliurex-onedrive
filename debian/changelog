@@ -1,3 +1,9 @@
+lliurex-onedrive (0.2.2) bionic; urgency=medium
+
+  * Fixed getting space structure
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 09 Jan 2023 12:52:10 +0100
+
 lliurex-onedrive (0.2.1) bionic; urgency=medium
 
   * Fixed sync_list creation for partial sync
