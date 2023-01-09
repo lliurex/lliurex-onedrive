@@ -1346,6 +1346,7 @@ class OnedriveManager:
 		folderResyncStruct=[]
 		for item in out:
 			if 'local directory' in item:
+				item=item.replace("./","")
 				countChildren=0
 				tmpList={}
 				tmpEntry=item.split(":")[1].strip()
@@ -1418,6 +1419,7 @@ class OnedriveManager:
 				countChildren=0
 				tmpList={}
 				tmpEntry=syncOut[i].split("Processing")[1].strip()
+				tmpEntry=tmpEntry.replace("./","")
 				tmpList["path"]=tmpEntry
 				parentPath=os.path.dirname(tmpEntry)
 				tmpEntry=tmpEntry.split("/")
@@ -2152,9 +2154,10 @@ class OnedriveManager:
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 			else:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
-				organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
-				if not os.path.exists(os.path.join(organizationFolder,".directory")):
-					shutil.copyfile(self.organizationDirectoryFile,os.path.join(organizationFolder,".directory"))
+				if self.spaceSuffixName!="":
+					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+					if not os.path.exists(os.path.join(organizationFolder,".directory")):
+						shutil.copyfile(self.organizationDirectoryFile,os.path.join(organizationFolder,".directory"))
 	
 	#def _addDirectoryFile
 
