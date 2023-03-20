@@ -75,6 +75,9 @@ class OnedriveManager:
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.limitHDDSpace=5368709120
 		self.lockToken=os.path.join(self.llxOnedriveConfigDir,".run/llxOneDrive.lock")
+		self.oneDriveFolderSyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveSync"
+		self.folderUnsyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryUnsync"
+	
 		self.createEnvironment()
 		self._createLockToken()
 		self.clearCache()
@@ -1553,6 +1556,7 @@ class OnedriveManager:
 		syncAll=initialSyncConfig[0]
 		foldersSelected=initialSyncConfig[1]
 		foldersUnSelected=initialSyncConfig[2]
+		addFolderDirectory=False
 
 		for item in self.folderStruct:
 			if item["isChecked"]:
@@ -1572,6 +1576,9 @@ class OnedriveManager:
 				self._manageEmptyToken()
 				if os.path.exists(self.spaceLocalFolder):
 					shutil.rmtree(self.spaceLocalFolder)
+			else:
+				addFolderDirectory=True
+
 			self.readFilterFile()
 		else:
 			if os.path.exists(self.filterFile):
@@ -1585,7 +1592,8 @@ class OnedriveManager:
 		self.folderStructBack=copy.deepcopy(self.folderStruct)
 
 		ret=self._syncResync()
-		self._addDirectoryFile(self.spaceBasicInfo[2])	
+		self._addDirectoryFile(self.spaceBasicInfo[2])
+		self._manageFoldersDirectory(addFolderDirectory)	
 		return ret
 
 	#def applySyncChanges
@@ -1594,7 +1602,7 @@ class OnedriveManager:
 
 		folderSelected=[]
 		folderUnSelected=[]
-		
+
 		for item in self.folderStruct:
 			count=0
 			if item["isChecked"]:
@@ -1755,7 +1763,6 @@ class OnedriveManager:
 		return self._writeConfigFile('skip_size',newValue)
 
 	#def manageSkipSize
-
 
 	def _writeConfigFile(self,param,value):
 
@@ -2143,6 +2150,71 @@ class OnedriveManager:
 		return [code,lastPendingChanges]
 	
 	#def _getLastPendingChanges
+
+	def _manageFoldersDirectory(self,addFolderDirectory):
+
+		parentsToMark=[]
+		childsWithMark=[]
+		for i in range(len(self.folderStruct)-1,-1,-1):
+			addSyncDirectory=False
+			addUnsyncDirectory=False
+			tmpPath=os.path.join(self.spaceLocalFolder,self.folderStruct[i]["path"])
+			parentChecked=self._isFolderParentSync(self.folderStruct[i]["parentPath"])
+			if os.path.exists(tmpPath):
+				if os.path.exists(os.path.join(tmpPath,".directory")):
+					os.remove(os.path.join(tmpPath,".directory"))
+				if addFolderDirectory:
+					if self.folderStruct[i]["path"] in parentsToMark:
+						addSyncDirectory=True
+					else:
+						if self.folderStruct[i]["isChecked"]:
+							if tmpPath not in childsWithMark:
+								childsWithMark.append(tmpPath)
+							if self.folderStruct[i]["type"]=="OneDrive":
+								addSyncDirectory=True
+							else:
+								if parentChecked:
+									pass
+								else:
+									if self.folderStruct[i]["parentPath"] not in parentsToMark:
+										parentsToMark.append(self.folderStruct[i]["parentPath"])
+									addSyncDirectory=True
+						else:
+							match=False
+							for item in childsWithMark:
+								if tmpPath in item:
+									match=True
+									break
+							if match:
+								addSyncDirectory=True
+							else:
+								if self.folderStruct[i]["type"]=="OneDrive":
+									if tmpPath in parentsToMark:
+										if tmpPath not in childsWithMark:
+											childsWithMark.append(tmpPath)
+										addSyncDirectory=True
+								else:
+									if parentChecked:
+										addUnsyncDirectory=True
+
+					if addSyncDirectory:
+						shutil.copyfile(self.oneDriveFolderSyncDirectoryFile,os.path.join(tmpPath,".directory"))
+					elif addUnsyncDirectory:
+						shutil.copyfile(self.folderUnsyncDirectoryFile,os.path.join(tmpPath,".directory"))
+
+
+	#def _manageFoldersDirectory
+
+	def _isFolderParentSync(self,parentPath):
+
+		for item in self.folderStruct:
+			if item["path"]==parentPath:
+				if item["isChecked"]:
+					return True
+
+		return False		
+
+	#def _isFolderParentSync
 
 	def _createLockToken(self):
 
