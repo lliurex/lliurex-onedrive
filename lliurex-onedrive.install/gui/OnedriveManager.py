@@ -2186,7 +2186,10 @@ class OnedriveManager:
 									match=True
 									break
 							if match:
-								addSyncDirectory=True
+								if parentChecked:
+									pass
+								else:
+									addSyncDirectory=True
 							else:
 								if self.folderStruct[i]["type"]=="OneDrive":
 									if tmpPath in parentsToMark:
