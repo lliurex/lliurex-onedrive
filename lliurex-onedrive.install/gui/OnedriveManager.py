@@ -58,8 +58,6 @@ class OnedriveManager:
 		self.filterFileHashName=".sync_list.hash"
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
-		self.includeFolders=[]
-		self.excludeFolders=[]
 		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",]
@@ -230,8 +228,6 @@ class OnedriveManager:
 		self.folderStruct=[]
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
-		self.includeFolders=[]
-		self.excludeFolders=[]
 		self.syncAll=True
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
 		self.localFolderEmpty=False
@@ -940,9 +936,6 @@ class OnedriveManager:
 
 	def readFilterFile(self):
 
-		self.includeFolders=[]
-		self.excludeFolders=[]
-
 		filterFile=os.path.join(self.spaceConfPath,self.filterFile)
 
 		with open(filterFile,'r') as fd:
@@ -952,13 +945,18 @@ class OnedriveManager:
 			for line in lines:
 				tmpLine=line.split("\n")[0]
 				if tmpLine.startswith("!"):
-					self.excludeFolders.append(tmpLine)
-					tmpLine=tmpLine.split("!")[1].split("/*")[0]
+					if tmpLine.endswith("/*"):
+						tmpLine=tmpLine.split("!")[1].split("/*")[0]
+					elif tmpLine.endswith("/"):
+						tmpLine=tmpLine.split("!")[1][:-1]
 					if tmpLine not in self.foldersUnSelected:
 						self.foldersUnSelected.append(tmpLine)
 				else:
-					self.includeFolders.append(tmpLine)
 					tmpLine=tmpLine.split("/*")[0]
+					if tmpLine.endswith("/*"):
+						tmpLine=tmpLine.split("/*")[0]
+					elif tmpLine.endswith("/"):
+						tmpLine=tmpLine.split("/")[0][:-1]
 					if tmpLine not in self.foldersSelected:
 						self.foldersSelected.append(tmpLine)
 
@@ -1469,23 +1467,13 @@ class OnedriveManager:
 		if self.existsFilterFile():
 			self.readFilterFile()
 			for item in self.folderStruct:
-				tmp="!"+item["path"]+"/*"
-				tmp2="!"+item["path"]+"/"
-				if tmp in self.excludeFolders or tmp2 in self.excludeFolders:
+				if item["path"] in self.foldersUnSelected:
 					item["isChecked"]=False
 				else:
-					if (item["path"]+"/*") not in self.includeFolders:
-						tmp=item["type"]+"/*"
-						if tmp in self.includeFolders:
-							item["isChecked"]=True
-						else:
-							tmp=item["path"]+"/"
-							for element in self.includeFolders:
-								if element.split("/*")[0] in tmp:
-									item["isChecked"]=True
-									break
-								else:	
-									item["isChecked"]=False
+					if item["path"] in self.foldersSelected:
+						item["isChecked"]=True
+					else:
+						item["isChecked"]=False
 
 
 	#def _processingFolderStruct
@@ -1566,6 +1554,18 @@ class OnedriveManager:
 		foldersSelected=initialSyncConfig[1]
 		foldersUnSelected=initialSyncConfig[2]
 
+		for item in self.folderStruct:
+			if item["isChecked"]:
+				if item["path"] not in foldersUnSelected:
+					if item["path"] not in foldersSelected:
+						foldersSelected.append(item["path"])
+
+		for item in self.folderStruct:
+			if not item["isChecked"]:
+				if item["path"] not in foldersSelected:
+					if item["path"] not in foldersUnSelected:
+						foldersUnSelected.append(item["path"])
+
 		if not syncAll:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
 			if not keepFolders:
@@ -1611,15 +1611,8 @@ class OnedriveManager:
 		
 		for i in range(len(foldersUnSelected)-1,-1,-1):
 			for element in foldersSelected:
-				if len(self.includeFolders)>0:
-					try:
-						tmp=foldersUnSelected[i]+"/*"
-						if tmp in self.includeFolders:
-							self.includeFolders.remove(tmp)
-					except:
-						pass
 				try:
-					tmpFolder=foldersUnSelected[i]+"/"
+					tmpFolder=foldersUnSelected[i]
 					if tmpFolder in element:
 						foldersUnSelected.pop(i)
 				except:
@@ -1627,13 +1620,21 @@ class OnedriveManager:
 
 		
 		for element in foldersSelected:
-			folderSelected.append(element+"/*")
+			if element =="OneDrive":
+				pass
+			else:
+				folderSelected.append(element+"/*")
 
 		for element in foldersUnSelected:
-			folderUnSelected.append("!"+element+"/")
+			if element=="OneDrive":
+				pass
+			else:
+				folderUnSelected.append("!"+element+"/")
 					
-		
-		if not self.existsFilterFile():
+		try:
+			if self.existsFilterFile():
+				os.rename(self.filterFile,self.filterFile+".tmp")
+			
 			with open(self.filterFile,'w') as fd:
 				
 				for item in folderUnSelected:
@@ -1644,68 +1645,14 @@ class OnedriveManager:
 					tmpLine=item+"\n"
 					fd.write(tmpLine)
 				fd.close()
-		else:
-			for item in folderUnSelected:
-				if item not in self.excludeFolders:
-					self.excludeFolders.append(item)
-			
-			for item in folderSelected:
-				if item not in self.includeFolders:
-					self.includeFolders.append(item)
-			
-			for i in range(len(self.excludeFolders)-1,-1,-1):
-				tmpLine=self.excludeFolders[i].split("!")[1]
-				match=0
-				if tmpLine in folderSelected:
-					self.excludeFolders.pop(i)
-				else:
-					for item in self.folderStruct:
-						tmpItem=item["path"]+"/*"
-						tmpItem2=item["path"]+"/"
-						if tmpItem==tmpLine or tmpItem2==tmpLine:
-							match=0
-							break
-						else:
-							match+=1
-					if match>0:
-						self.excludeFolders.pop(i)
-			
-			for i in range(len(self.includeFolders)-1,-1,-1):
-				tmpLine="!"+self.includeFolders[i]
-				match=0
-				if tmpLine in folderUnSelected:
-					self.includeFolders.pop(i)
-				else:
-					for item in self.folderStruct:
-						tmpItem="!"+item["path"]+"/*"
-						tmpItem2="!"+item["path"]+"/"
-						if tmpItem==tmpLine or tmpItem2==tmpLine:
-							match=0
-							break
-						else:
-							match+=1
-					if match>0:
-						self.includeFolders.pop(i)
-			
-			for i in range(len(self.excludeFolders)-1,-1,-1):
-				for element in self.includeFolders:
-					try:
-						tmp=self.excludeFolders[i].split("!")[1].split("/")[0]+"/"
-						if tmp in element:
-							self.excludeFolders.pop(i)
-					except:
-						pass
+				
+				if os.path.exists(self.filterFile+".tmp"):
+					os.remove(self.filterFile+".tmp")
+				
+		except:
+			if os.path.exists(self.filterFile+".tmp"):
+				os.rename(self.filterFile+".tmp",self.filterFile)
 
-			with open(self.filterFile,'w') as fd:
-				
-				for element in self.excludeFolders:
-					fd.write(element+"\n")
-				
-				for element in self.includeFolders:
-					fd.write(element+"\n")
-				
-				fd.close()
-	
 	#def createFilterFile
 
 	def manageFileFilter(self,action):
