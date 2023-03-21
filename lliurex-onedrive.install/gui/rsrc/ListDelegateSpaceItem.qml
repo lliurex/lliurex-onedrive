@@ -30,7 +30,7 @@ Components.ListItem{
         Text{
             id: spaceName
             text: nameSpace
-            width:500
+            width:490
             elide:Text.ElideMiddle
             clip: true
             anchors.leftMargin:15

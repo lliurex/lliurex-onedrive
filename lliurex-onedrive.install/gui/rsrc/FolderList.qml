@@ -1,7 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQml.Models 2.6
-import org.kde.plasma.extras 2.0 as PlasmaExtras
+import org.kde.plasma.components 3.0 as Components
 
 
 Rectangle {
@@ -11,14 +11,12 @@ Rectangle {
 
     id:folderTable
     visible: onedriveBridge.showFolderStruct
-    width: 660; height: 240
-    border.color: "#d3d3d3"
-
+    width: 650; height: 240
 
     ListModel{
         id: folderModel
     }
-    PlasmaExtras.ScrollArea{
+    Components.ScrollView{
         implicitWidth:parent.width
         implicitHeight:folderTable.height
         anchors.leftMargin:10
@@ -38,7 +36,7 @@ Rectangle {
         id: listdelegate
         Rectangle{
             id: menuItem
-            width: 660
+            width: 650
             height:visible?30:0
             visible:{
                 if ((type === "parent")||(type==="file")){
@@ -53,7 +51,6 @@ Rectangle {
 
             }
             color:"white"
-            border.width: 0.4
 
             states: State {
                 name: "expanded"

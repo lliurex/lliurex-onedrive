@@ -35,8 +35,8 @@ Rectangle{
                     Kirigami.MessageType.Error;
                 }
             }
-            Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.minimumWidth:640
+            Layout.maximumWidth:640
             Layout.topMargin: 40
         }
 

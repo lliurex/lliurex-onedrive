@@ -26,8 +26,8 @@ Rectangle{
             visible:onedriveBridge.showSpaceSettingsMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
-            Layout.minimumWidth:660
-            Layout.maximumWidth:660
+            Layout.minimumWidth:650
+            Layout.maximumWidth:650
             Layout.topMargin: 40
         }
 
