@@ -1199,6 +1199,7 @@ class OnedriveManager:
 					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
 					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
 						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
+					self._manageFoldersDirectory(False)
 					return True
 				else:
 					return False
@@ -2172,8 +2173,8 @@ class OnedriveManager:
 			addSyncDirectory=False
 			addUnsyncDirectory=False
 			tmpPath=os.path.join(self.spaceLocalFolder,self.folderStruct[i]["path"])
-			parentChecked=self._isParentFolderSync(self.folderStruct[i]["parentPath"])
 			if os.path.exists(tmpPath):
+				parentChecked=self._isParentFolderSync(self.folderStruct[i]["parentPath"])
 				if os.path.exists(os.path.join(tmpPath,".directory")):
 					os.remove(os.path.join(tmpPath,".directory"))
 				if addFolderDirectory:
