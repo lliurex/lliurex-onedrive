@@ -1565,10 +1565,23 @@ class OnedriveManager:
 						foldersSelected.append(item["path"])
 
 		for item in self.folderStruct:
+			match=False
 			if not item["isChecked"]:
-				if item["path"] not in foldersSelected:
-					if item["path"] not in foldersUnSelected:
-						foldersUnSelected.append(item["path"])
+				if item["parentPath"]!="OneDrive":
+					if self._isParentFolderSync(item["parentPath"]):
+						if self._isChildFolderSync(item["path"]):
+							match=True
+
+				if match:
+					if item["path"] in foldersUnSelected:
+						foldersUnSelected.remove(item["path"])
+					item["isChecked"]=True
+					if item["path"] not in foldersSelected:
+						foldersSelected.append(item["path"])
+				else:
+					if item["path"] not in foldersSelected:
+						if item["path"] not in foldersUnSelected:
+							foldersUnSelected.append(item["path"])
 
 		if not syncAll:
 			self.createFilterFile(foldersSelected,foldersUnSelected)
@@ -2159,7 +2172,7 @@ class OnedriveManager:
 			addSyncDirectory=False
 			addUnsyncDirectory=False
 			tmpPath=os.path.join(self.spaceLocalFolder,self.folderStruct[i]["path"])
-			parentChecked=self._isFolderParentSync(self.folderStruct[i]["parentPath"])
+			parentChecked=self._isParentFolderSync(self.folderStruct[i]["parentPath"])
 			if os.path.exists(tmpPath):
 				if os.path.exists(os.path.join(tmpPath,".directory")):
 					os.remove(os.path.join(tmpPath,".directory"))
@@ -2182,7 +2195,7 @@ class OnedriveManager:
 						else:
 							match=False
 							for item in childsWithMark:
-								if tmpPath in item:
+								if tmpPath+"/" in item:
 									match=True
 									break
 							if match:
@@ -2208,7 +2221,7 @@ class OnedriveManager:
 
 	#def _manageFoldersDirectory
 
-	def _isFolderParentSync(self,parentPath):
+	def _isParentFolderSync(self,parentPath):
 
 		for item in self.folderStruct:
 			if item["path"]==parentPath:
@@ -2217,7 +2230,18 @@ class OnedriveManager:
 
 		return False		
 
-	#def _isFolderParentSync
+	#def _isParentFolderSync
+
+	def _isChildFolderSync(self,refPath):
+
+		for item in self.folderStruct:
+			if refPath+'/' in item["path"]:
+				if item["isChecked"]:
+					return True
+
+		return False
+
+	#def _isChildFolderSync
 
 	def _createLockToken(self):
 
