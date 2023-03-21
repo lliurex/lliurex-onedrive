@@ -1477,7 +1477,10 @@ class OnedriveManager:
 					if item["path"] in self.foldersSelected:
 						item["isChecked"]=True
 					else:
-						item["isChecked"]=False
+						if self._isParentFolderSync(item["parentPath"]):
+							item["isChecked"]=True
+						else:
+							item["isChecked"]=False
 
 
 	#def _processingFolderStruct
