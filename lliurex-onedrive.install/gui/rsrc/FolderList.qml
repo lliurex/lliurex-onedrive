@@ -132,7 +132,20 @@ Rectangle {
                                 onedriveBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
                                     sub.push(item["path"])
+                                 }
+                            }
 
+                        }
+                        if (isChecked){
+                            if (!item["isChecked"]){
+                                if (item["parentPath"]!="OneDrive"){
+                                    var refPath=item["path"]+"/"
+                                    if (path.includes(refPath)){
+                                        if (isParentChecked(item["parentPath"])){
+                                            onedriveBridge.updateModel([i,"isChecked",isChecked])
+                                            onedriveBridge.folderChecked([item["path"],isChecked])
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -173,6 +186,19 @@ Rectangle {
                 anchors.verticalCenter:parent.verticalCenter
             }
         }
+    }
+
+    function isParentChecked(parentPath){
+
+        for(var i = 0; i < listFolder.count; ++i) {
+            var item=onedriveBridge.getModelData(i)
+            if (item["path"]==parentPath){
+                if (item["isChecked"]){
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
 
