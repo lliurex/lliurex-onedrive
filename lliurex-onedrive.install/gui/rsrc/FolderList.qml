@@ -16,7 +16,7 @@ Rectangle {
     ListModel{
         id: folderModel
     }
-    PlasmaExtras.ScrollArea{
+    Components.ScrollView{
         implicitWidth:parent.width
         implicitHeight:folderTable.height
         anchors.leftMargin:10
