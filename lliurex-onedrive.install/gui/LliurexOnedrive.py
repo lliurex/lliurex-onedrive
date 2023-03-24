@@ -332,7 +332,9 @@ class Bridge(QObject):
 		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
 		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
 		self._rateLimit=int(Bridge.onedriveMan.rateLimit)
-		self._skipSize=Bridge.onedriveMan.skipSize	
+		self._skipSize=Bridge.onedriveMan.skipSize
+		self._logEnabled=Bridge.onedriveMan.logEnabled
+		self._logSize=""	
 		self._showSettingsDialog=False
 		self._isOnedriveRunning=False
 		self._accountStatus=0
@@ -757,6 +759,34 @@ class Bridge(QObject):
 			self.on_skipSize.emit()
 
 	#def _setSkipSize
+
+	def _getLogEnabled(self):
+
+		return self._logEnabled
+
+	#def _getLogEnabled
+
+	def _setLogEnabled(self,logEnabled):
+
+		if self._logEnabled!=logEnabled:
+			self._logEnabled=logEnabled
+			self.on_logEnabled.emit()
+
+	#def _setLogEnabled
+
+	def _getLogSize(self):
+
+		return self._logSize
+
+	#def _getLogSize
+
+	def _setLogSize(self,logSize):
+
+		if self._logSize!=logSize:
+			self._logSize=logSize
+			self.on_logSize.emit()
+
+	#def _setLogSize
 
 	def _getFreeSpace(self):
 
@@ -1417,6 +1447,8 @@ class Bridge(QObject):
 		self.monitorInterval=int(Bridge.onedriveMan.monitorInterval)
 		self.rateLimit=int(Bridge.onedriveMan.rateLimit)
 		self.skipSize=Bridge.onedriveMan.skipSize
+		self.logEnabled=Bridge.onedriveMan.logEnabled
+		self.logSize=Bridge.onedriveMan.logSize
 		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
 
 	#def _getInitialSettings
@@ -1860,6 +1892,21 @@ class Bridge(QObject):
 
 	#def getSkipSize
 
+	@Slot(bool)
+	def getLogEnabled(self,value):
+
+		if value!=self.initialConfig[3]:
+			if value!=Bridge.onedriveMan.currentConfig[4]:
+				self.settingsChanged=True
+			else:
+				self.settingsChanged=False
+			self.initialConfig[4]=value
+			self.logEnabled=value
+		else:
+			self.settingsChanged=False
+
+	#def getLogEnabled
+
 	@Slot()
 	def applySettingsChanges(self):
 
@@ -1981,6 +2028,25 @@ class Bridge(QObject):
 			self.showToolsMessage=[True,UPDATE_TOKEN_ERROR,"Error"]
 		
 	#def updateSpaceAuthorization
+
+	@Slot()
+	def openSpaceLogFile(self):
+
+		if os.path.exists(Bridge.onedriveMan.logPath):
+			cmd="xdg-open %s"%Bridge.onedriveMan.logPath
+			os.system(cmd)
+
+	#def openSpaceLogFile
+
+	@Slot()
+	def removeLogFile(self):
+
+		if os.path.exists(Bridge.onedriveMan.logPath):
+			os.remove(Bridge.onedriveMan.logPath)
+
+		self.logSize=Bridge.onedriveMan.getLogFileSize()
+
+	#def removeLogFile
 
 	def getGlobalLocalFolderInfo(self):
 
@@ -2156,6 +2222,12 @@ class Bridge(QObject):
 
 	on_skipSize=Signal()
 	skipSize=Property('QVariantList',_getSkipSize,_setSkipSize,notify=on_skipSize)
+	
+	on_logEnabled=Signal()
+	logEnabled=Property(bool,_getLogEnabled,_setLogEnabled,notify=on_logEnabled)
+
+	on_logSize=Signal()
+	logSize=Property(str,_getLogSize,_setLogSize,notify=on_logSize)
 	
 	on_freeSpace=Signal()
 	freeSpace=Property(str,_getFreeSpace,_setFreeSpace, notify=on_freeSpace)

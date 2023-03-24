@@ -150,6 +150,84 @@ Rectangle{
                     }
                 }
             }
+            Text{
+                id:managementLog
+                text:i18nd("lliurex-onedrive","Log management:")
+                Layout.alignment: Qt.AlignRight
+
+            }
+
+            CheckBox {
+                id:enableLogCB
+                text:i18nd("lliurex-onedrive","Activate log")
+                checked:onedriveBridge.logEnabled
+                enabled:true
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                focusPolicy: Qt.NoFocus
+                onToggled:onedriveBridge.getLogEnabled(enableLogCB.checked)
+            }
+            Text{
+
+            }    
+            Row{
+                id:logRow
+                spacing:10
+
+                Text{
+                   id:sizeLog
+                   text:i18nd("lliurex-onedrive","Current log file size:")
+                   anchors.verticalCenter:manageLogBtn.verticalCenter
+                }
+                Text{
+                    id:sizeLogValue
+                    text:onedriveBridge.logSize
+                    anchors.verticalCenter:manageLogBtn.verticalCenter
+                }
+                Button {
+                    id:manageLogBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:"configure.svg"
+                    Layout.preferredHeight: 30
+                    Layout.alignment: Qt.AlignVCenter
+                    hoverEnabled:true
+                    enabled:{
+                        if (onedriveBridge.logSize!=""){
+                            true
+                        }else{
+                            false
+                        }
+                    }
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to manage log file")
+
+                    onClicked:optionsMenu.open()
+
+                    Menu{
+                        id:optionsMenu
+                        y: manageLogBtn.height
+                        x: manageLogBtn.width/2
+                        rightMargin:4*manageLogBtn.width
+                        MenuItem{
+                            icon.name:"document-preview-archive.svg"
+                            text:i18nd("lliurex-onedrive","View log file")
+                            onClicked:{
+                                onedriveBridge.openSpaceLogFile()
+                            }
+                        }
+                        MenuItem{
+                            icon.name:"delete.svg"
+                            text:i18nd("lliurex-onedrive","Delete log file")
+                            onClicked:{
+                                onedriveBridge.removeLogFile()
+                            }
+                        }
+                    }   
+                }
+            }
+
         }
     }
 

@@ -39,7 +39,7 @@ class OnedriveManager:
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
-		self.customizeConfigParam=['monitor_interval','rate_limit',"skip_size"]
+		self.customizeConfigParam=['monitor_interval','rate_limit','skip_size','enable_logging']
 		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
@@ -52,7 +52,10 @@ class OnedriveManager:
 		self.rateLimit=4
 		self.monitorInterval=1
 		self.skipSize=[False,0]
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
+		self.logEnabled=False
+		self.logSize=""
+		self.logPath=""
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled]
 		self.syncAll=True
 		self.filterFileName="sync_list"
 		self.filterFileHashName=".sync_list.hash"
@@ -222,7 +225,11 @@ class OnedriveManager:
 		self.rateLimit=4
 		self.monitorInterval=1
 		self.skipSize=[False,0]
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize]
+		self.logEnabled=False
+		self.logFolder=""
+		self.logPath=""
+		self.logSize=""
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled]
 		self.freeSpace=""
 		self.accountStatus=3
 		self.filterFile=""
@@ -515,6 +522,13 @@ class OnedriveManager:
 							self.skipSize[1]=i
 							self.currentConfig[3]=self.skipSize
 							break
+					if customParam['enable_logging']=="true":
+						self.logEnabled=True
+					else:
+						self.logEnabled=False
+
+					self.currentConfig[4]=self.logEnabled
+				
 				except:
 					pass
 			
@@ -892,6 +906,7 @@ class OnedriveManager:
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
+				self.logFolder="%s/log"%self.spaceConfPath
 				matchSpace=True
 				break
 
@@ -918,6 +933,9 @@ class OnedriveManager:
 			self.accountStatus=int(statusInfo[1])
 			self.freeSpace=statusInfo[2]
 			self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
+			logFile="%s.onedrive.log"%self.user
+			self.logPath=os.path.join(self.logFolder,logFile)
+			self.logSize=self.getLogFileSize()
 			
 			return True
 		return False
@@ -1720,6 +1738,7 @@ class OnedriveManager:
 		errorMI=False
 		errorRL=False
 		errorSS=False
+		errorLE=False
 
 		if value[0]!=self.currentConfig[0]:
 			errorSD=self.manageAutostart(value[0])
@@ -1741,16 +1760,21 @@ class OnedriveManager:
 			if not errorSS:
 				self.currentConfig[3]=value[3]
 
-		if errorSD and not errorMI and not errorRL and not errorSS:
+		if value[4]!=self.currentConfig[4]:
+			errorLE=self.manageLogEnable(value[4])
+			if not errorLE:
+				self.currentConfig[4]=value[4]
+
+		if errorSD and not errorMI and not errorRL and not errorSS and not errorLE:
 			return[True,SYSTEMD_ERROR]
 
-		elif errorSD and (errorMI or errorRL or errorSS):
+		elif errorSD and (errorMI or errorRL or errorSS or errorLE):
 			return [True,MULTIPLE_SETTINGS_ERROR]
 
-		elif not errorSD and (errorMI or errorRL or errorSS):
+		elif not errorSD and (errorMI or errorRL or errorSS or errorLE):
 			return [True,WRITE_CONFIG_ERROR]
 
-		elif not errorSD and errorMI and errorRL and errorSS:
+		elif not errorSD and errorMI and errorRL and errorSS and errorLE:
 			return [True,WRITE_CONFIG_ERROR]
 
 		else:
@@ -1780,6 +1804,17 @@ class OnedriveManager:
 		return self._writeConfigFile('skip_size',newValue)
 
 	#def manageSkipSize
+
+	def manageLogEnable(self,value):
+
+		if value:
+			newValue="true"
+		else:
+			newValue="false"
+
+		return self._writeConfigFile('enable_logging',newValue)
+
+	#def manageLogEnable
 
 	def _writeConfigFile(self,param,value):
 
@@ -2246,6 +2281,18 @@ class OnedriveManager:
 		return False
 
 	#def _isChildFolderSync
+
+	def getLogFileSize(self):
+
+		logSize=""
+
+		if os.path.exists(self.logPath):
+			tmpSize=os.path.getsize(self.logPath)
+			logSize=self._formatFreeSpace(tmpSize)
+		
+		return logSize
+
+	#def getLogFileSize
 
 	def _createLockToken(self):
 
