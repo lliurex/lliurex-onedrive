@@ -1,7 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.6
 import QtQml.Models 2.6
-import org.kde.plasma.extras 2.0 as PlasmaExtras
+import org.kde.plasma.components 3.0 as Components
 
 
 Rectangle {
@@ -11,14 +11,12 @@ Rectangle {
 
     id:folderTable
     visible: onedriveBridge.showFolderStruct
-    width: 660; height: 240
-    border.color: "#d3d3d3"
-
+    width: 650; height: 240
 
     ListModel{
         id: folderModel
     }
-    PlasmaExtras.ScrollArea{
+    Components.ScrollView{
         implicitWidth:parent.width
         implicitHeight:folderTable.height
         anchors.leftMargin:10
@@ -53,7 +51,6 @@ Rectangle {
 
             }
             color:"white"
-            border.width: 0.4
 
             states: State {
                 name: "expanded"
@@ -135,7 +132,20 @@ Rectangle {
                                 onedriveBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
                                     sub.push(item["path"])
+                                 }
+                            }
 
+                        }
+                        if (isChecked){
+                            if (!item["isChecked"]){
+                                if (item["parentPath"]!="OneDrive"){
+                                    var refPath=item["path"]+"/"
+                                    if (path.includes(refPath)){
+                                        if (isParentChecked(item["parentPath"])){
+                                            onedriveBridge.updateModel([i,"isChecked",isChecked])
+                                            onedriveBridge.folderChecked([item["path"],isChecked])
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -176,6 +186,19 @@ Rectangle {
                 anchors.verticalCenter:parent.verticalCenter
             }
         }
+    }
+
+    function isParentChecked(parentPath){
+
+        for(var i = 0; i < listFolder.count; ++i) {
+            var item=onedriveBridge.getModelData(i)
+            if (item["path"]==parentPath){
+                if (item["isChecked"]){
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
 
