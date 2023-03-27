@@ -306,7 +306,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
         dialogWidth:360
-        btnAcceptVisiremoveLogDialogble:false
+        btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
