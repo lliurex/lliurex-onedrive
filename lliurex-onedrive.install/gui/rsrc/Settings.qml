@@ -221,7 +221,7 @@ Rectangle{
                             icon.name:"delete.svg"
                             text:i18nd("lliurex-onedrive","Delete log file")
                             onClicked:{
-                                onedriveBridge.removeLogFile()
+                                removeLogDialog.open()
                             }
                         }
                     }   
@@ -298,6 +298,31 @@ Rectangle{
             }
 
         }
+    }
+
+    ChangesDialog{
+        id:removeLogDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
+        dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
+        dialogWidth:360
+        btnAcceptVisiremoveLogDialogble:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:removeLogDialog
+            function onDiscardDialogClicked(){
+                removeLogDialog.close()
+                onedriveBridge.removeLogFile()
+            }
+            function onRejectDialogClicked(){
+                removeLogDialog.close()
+            }
+        }
+
     }
   
     function getMessageText(){
