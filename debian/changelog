@@ -1,3 +1,9 @@
+lliurex-onedrive (1.3.3) focal; urgency=medium
+
+  * Fixed creation of sync_list file for partial sync
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 27 Mar 2023 10:54:32 +0200
+
 lliurex-onedrive (1.3.2) focal; urgency=medium
 
   * Fixed getting space structure
