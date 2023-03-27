@@ -1606,30 +1606,33 @@ class OnedriveManager:
 							foldersUnSelected.append(item["path"])
 
 		if not syncAll:
-			self.createFilterFile(foldersSelected,foldersUnSelected)
-			if not keepFolders:
-				self._manageEmptyToken()
-				if os.path.exists(self.spaceLocalFolder):
-					shutil.rmtree(self.spaceLocalFolder)
-			else:
-				addFolderDirectory=True
-
-			self.readFilterFile()
+			ret=self.createFilterFile(foldersSelected,foldersUnSelected)
+			addFolderDirectory=True
+			if ret:
+				if not keepFolders:
+					self._manageEmptyToken()
+					if os.path.exists(self.spaceLocalFolder):
+						shutil.rmtree(self.spaceLocalFolder)
+				self.readFilterFile()
 		else:
+			ret=True
 			if os.path.exists(self.filterFile):
 				os.remove(self.filterFile)
 			if os.path.exists(self.filterFileHash):
 				os.remove(self.filterFileHash)
 
-		self.currentSyncConfig[0]=syncAll
-		self.currentSyncConfig[1]=foldersSelected
-		self.currentSyncConfig[2]=foldersUnSelected
-		self.folderStructBack=copy.deepcopy(self.folderStruct)
+		if ret:
+			self.currentSyncConfig[0]=syncAll
+			self.currentSyncConfig[1]=foldersSelected
+			self.currentSyncConfig[2]=foldersUnSelected
+			self.folderStructBack=copy.deepcopy(self.folderStruct)
 
-		ret=self._syncResync()
-		self._addDirectoryFile(self.spaceBasicInfo[2])
-		self._manageFoldersDirectory(addFolderDirectory)	
-		return ret
+			ret=self._syncResync()
+			self._addDirectoryFile(self.spaceBasicInfo[2])
+			self._manageFoldersDirectory(addFolderDirectory)	
+			return ret
+		else:
+			return ret
 
 	#def applySyncChanges
 
@@ -1655,7 +1658,7 @@ class OnedriveManager:
 		for i in range(len(foldersUnSelected)-1,-1,-1):
 			for element in foldersSelected:
 				try:
-					tmpFolder=foldersUnSelected[i]
+					tmpFolder=foldersUnSelected[i]+"/"
 					if tmpFolder in element:
 						foldersUnSelected.pop(i)
 				except:
@@ -1691,10 +1694,14 @@ class OnedriveManager:
 				
 				if os.path.exists(self.filterFile+".tmp"):
 					os.remove(self.filterFile+".tmp")
+
+			return True
 				
 		except:
 			if os.path.exists(self.filterFile+".tmp"):
 				os.rename(self.filterFile+".tmp",self.filterFile)
+
+			return False
 
 	#def createFilterFile
 
