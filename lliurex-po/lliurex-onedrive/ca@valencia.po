@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-07 14:36+0100\n"
-"PO-Revision-Date: 2022-12-07 14:38+0100\n"
+"POT-Creation-Date: 2023-03-28 14:35+0200\n"
+"PO-Revision-Date: 2023-03-28 14:40+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -54,6 +54,7 @@ msgstr ""
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:176
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:310
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:334
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:312
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:130
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:155
 msgid "Accept"
@@ -68,8 +69,9 @@ msgstr "D'acord"
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:207
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:312
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:336
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:182
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:208
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:261
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:287
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:314
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:132
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:157
 msgid "Cancel"
@@ -141,8 +143,8 @@ msgstr "Biblioteca a sincronitzar:"
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:150
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:126
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:204
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:169
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:205
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:248
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:284
 msgid "Apply"
 msgstr "Aplica"
 
@@ -309,7 +311,7 @@ msgstr ""
 "Voleu aplicar els canvis o descartar-los?"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:205
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:206
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:285
 msgid "Discard"
 msgstr "Descarta"
 
@@ -528,7 +530,8 @@ msgstr "Espai"
 
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:61
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:14
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:200
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:279
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:307
 msgid "Settings"
 msgstr "Preferèncias"
 
@@ -539,31 +542,55 @@ msgstr "Preferèncias"
 msgid "Tools"
 msgstr "Eines"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:53
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:54
 msgid "Synchronization start:"
 msgstr "Inici de la sincronització:"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:62
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:63
 msgid "Start when booting the system"
 msgstr "Iniciar quan arranque el sistema"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:75
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:76
 msgid "Synchronize remote changes every (in minutes):"
 msgstr "Sincronitza els canvis remots cada (en minuts):"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:98
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:99
 msgid "Download/Upload network bandwidth:"
 msgstr "Ample de banda de xarxa per a descàrrega/pujada:"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:119
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:120
 msgid "Maximun fize size to sync:"
 msgstr "Grandària màxima dels fitxers a sincronitzar:"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:128
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:129
 msgid "Don't sync files larger than"
 msgstr "Excloure fitxers de més de"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:202
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:156
+msgid "Log management:"
+msgstr "Gestió del log:"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:163
+msgid "Activate log"
+msgstr "Activa el log"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:180
+msgid "Log file size:"
+msgstr "Grandària de l'arxiu del log:"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:205
+msgid "Click to manage log file"
+msgstr "Feu clic per a gestionar l'arxiu del log"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:216
+msgid "View log file"
+msgstr "Vore l'arxiu del log"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:223
+msgid "Delete log file"
+msgstr "Esborrar l'arxiu del log"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:281
 msgid ""
 "The settings of space have changed.\n"
 "Do you want apply the changes or discard them?"
@@ -571,19 +598,23 @@ msgstr ""
 "Les preferències de l'espai han canviat.\n"
 "Voleu aplicar els canvis o descartar-los?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:229
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:308
+msgid "Are you sure you want to delete log file?"
+msgstr "Esteu segur que desitgeu esborrar l'arxiu del log?"
+
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:333
 msgid "Failed to change synchronization boot configuration"
 msgstr "No s'ha pogut canviar la configuració d'inici de la sincronització"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:232
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:336
 msgid "Failed to write configuration file"
 msgstr "No s'ha pogut escriure el fitxer de configuració"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:235
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:339
 msgid "Failed to apply configuration changes"
 msgstr "No s'han pogut aplicar els canvis de configuració"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:238
+#: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:342
 msgid ""
 "The changes will take effect the next time you start session or "
 "synchronization"

@@ -47,6 +47,7 @@ Rectangle{
             columnSpacing:10
             Layout.topMargin: settingsMessageLabel.visible?0:50
             Layout.alignment:Qt.AlignHCenter
+            Layout.rightMargin:15
 
             Text{
                 id:autoStartText
@@ -176,7 +177,7 @@ Rectangle{
 
                 Text{
                    id:sizeLog
-                   text:i18nd("lliurex-onedrive","Current log file size:")
+                   text:i18nd("lliurex-onedrive","Log file size:")
                    anchors.verticalCenter:manageLogBtn.verticalCenter
                 }
                 Text{
@@ -208,8 +209,8 @@ Rectangle{
                     Menu{
                         id:optionsMenu
                         y: manageLogBtn.height
-                        x: manageLogBtn.width/2
-                        rightMargin:4*manageLogBtn.width
+                        x:-(optionsMenu.width-manageLogBtn.width/2)
+
                         MenuItem{
                             icon.name:"document-preview-archive.svg"
                             text:i18nd("lliurex-onedrive","View log file")
