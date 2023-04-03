@@ -392,25 +392,29 @@ class OnedriveManager:
 
 	def createSpace(self,spaceInfo,reuseToken):
 
-		spaceEmail=spaceInfo[0]
-		spaceAccounType=""
-		spaceType=spaceInfo[1]
-		spaceName=spaceInfo[2]
-		spaceLibrary=spaceInfo[3]
-		spaceDriveId=spaceInfo[4]
+		'''
+			SpaceInfo array content:
+			- 0: spaceEmail
+			- 1: spaceTye
+			- 2: spaceName
+			- 3: spaceLibrary
+			- 4: spaceDriveId
+		'''
+		spaceAccountType=""
+		if spaceInfo[1]=="onedrive":
+			spaceInfo[2]=""
+			spaceInfo[3]=""
+			spaceInfo[4]=""
 
-		self.spaceBasicInfo=[spaceEmail,spaceAccounType,spaceType,spaceName,spaceLibrary]
+		self.spaceBasicInfo=[spaceInfo[0],spaceAccountType,spaceInfo[1],spaceInfo[2],spaceInfo[3]]
 		
 		if not os.path.exists(os.path.join(self.userSystemdPath,self.aCServiceFile)):
 			ret=self._stopOldService()
 		
-		self._createSpaceConfFolder(spaceType,spaceDriveId)
+		self._createSpaceConfFolder(spaceInfo[1],spaceInfo[4])
 		
 		if reuseToken:
-			self._copyToken(spaceEmail)
-			if spaceType=="sharepoint":
-				if os.path.exists(self.tempConfigPath) and len(self.tempConfigPath)>0:
-					self.deleteTempConfig()
+			self._copyToken(spaceInfo[0])
 		else:
 			cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
@@ -422,8 +426,11 @@ class OnedriveManager:
 				if not os.path.exists(os.path.join(self.spaceConfPath,'refresh_token')):
 					return False
 
+		if os.path.exists(self.tempConfigPath) and len(self.tempConfigPath)>0:
+			self.deleteTempConfig()
+
 		self._manageEmptyToken()
-		self._createSpaceServiceUnit(spaceType)
+		self._createSpaceServiceUnit(spaceInfo[1])
 		self._createOneDriveACService()
 		self._createAuxVariables()
 		if self.isConfigured():
@@ -433,7 +440,7 @@ class OnedriveManager:
 
 		if ret:
 			self._updateOneDriveConfig(spaceInfo)
-			self._addDirectoryFile(spaceType)
+			self._addDirectoryFile(spaceInfo[1])
 			self.loadOneDriveConfig()
 			return True
 		else:

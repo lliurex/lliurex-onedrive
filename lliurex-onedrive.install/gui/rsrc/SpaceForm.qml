@@ -56,6 +56,9 @@ Rectangle{
                 text:onedriveBridge.formData[0]
                 validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
+                onTextChanged:{
+                    onedriveBridge.resetSharePoints()
+                }
             }
 
             Text{
@@ -79,6 +82,11 @@ Rectangle{
                     id:oneDriveOption
                     checked:onedriveBridge.formData[1]==0?true:false
                     text:"OneDrive"
+                    onToggled:{
+                        if (checked){
+                            onedriveBridge.resetSharePoints()
+                        }
+                    }
                   }
 
                 RadioButton{

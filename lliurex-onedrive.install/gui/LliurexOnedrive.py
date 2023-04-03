@@ -1137,6 +1137,19 @@ class Bridge(QObject):
 
 	#def _gatherLibraries
 
+	@Slot()
+	def resetSharePoints(self):
+
+		if len(Bridge.onedriveMan.sharePointsConfigData)>0:
+			self._sharePointModel.clear()
+			Bridge.onedriveMan.sharePointsConfigData=[]
+
+		if len(Bridge.onedriveMan.librariesConfigData)>0:
+			self._libraryModel.clear()
+			Bridge.onedriveMan.librariesConfigData=[]
+
+	#def resetSharePoints
+
 	@Slot('QVariantList')
 	def checkData(self,spaceInfo):
 
@@ -1202,7 +1215,11 @@ class Bridge(QObject):
 			if not self.tempConfig:
 				self.addSpace()
 			else:
-				self.gatherSharePoints()
+				if self.formData[1]!=0:
+					self.gatherSharePoints()
+				else:
+					self.addSpace()
+
 		else:
 			self.manageCurrentOption=3
 			self.updateSpaceAuthorization()
