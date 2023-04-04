@@ -1,3 +1,9 @@
+lliurex-onedrive (0.2.4) bionic; urgency=medium
+
+  * Fixed function to get libraries from a SharePoint
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 04 Apr 2023 11:16:13 +0200
+
 lliurex-onedrive (0.2.3) bionic; urgency=medium
 
   * Fixed creation of sync_list file for partial sync
