@@ -1,3 +1,9 @@
+lliurex-onedrive (1.3.4) focal; urgency=medium
+
+  * Fixed function to get Libraries from a SharePoint.
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 04 Apr 2023 11:02:18 +0200
+
 lliurex-onedrive (1.3.3) focal; urgency=medium
 
   * Fixed creation of sync_list file for partial sync
