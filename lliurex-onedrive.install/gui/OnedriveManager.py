@@ -297,25 +297,24 @@ class OnedriveManager:
 		try:
 			pout,perror=p.communicate(timeout=90)
 
-			if len(perror)==0:
-				if len(pout)>0:
-					pout=pout.decode().split("\n")
+			if len(pout)>0:
+				pout=pout.decode().split("\n")
 
-				for i in range(len(pout)-1,-1,-1):
-					if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
-						pass
-					else:
-						pout.pop(i)	
+			for i in range(len(pout)-1,-1,-1):
+				if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
+					pass
+				else:
+					pout.pop(i)	
 
-				for i in range(0,len(pout)-1,2):
-					tmp={}
-					tmp['idLibrary']=pout[i+1].split(":")[1].strip()
-					tmp['nameLibrary']=pout[i].split(":")[1].strip()
-					self.librariesConfigData.append(tmp)
+			for i in range(0,len(pout)-1,2):
+				tmp={}
+				tmp['idLibrary']=pout[i+1].split(":")[1].strip()
+				tmp['nameLibrary']=pout[i].split(":")[1].strip()
+				self.librariesConfigData.append(tmp)
 
-				if len(self.librariesConfigData)>0:
-					self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
-		
+			if len(self.librariesConfigData)>0:
+				self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
+	
 		except Exception as e:
 			p.kill()
 
