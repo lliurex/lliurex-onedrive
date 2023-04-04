@@ -149,15 +149,15 @@ Rectangle{
                     x:-(optionsMenu.width-manageDirectoryBtn.width/2)
 
                     MenuItem{
-                        icon.name:"dialog-ok-apply.svg"
-                        text:i18nd("lliurex-onedrive","Activate the identification")
+                        icon.name:"visibility.svg"
+                        text:i18nd("lliurex-onedrive","Show the identification")
                         onClicked:{
                             onedriveBridge.manageFoldersDirectory(true)
                         }
                     }
                     MenuItem{
-                        icon.name:"delete.svg"
-                        text:i18nd("lliurex-onedrive","Disable the identification")
+                        icon.name:"hint.svg"
+                        text:i18nd("lliurex-onedrive","Hide the identification")
                         onClicked:{
                             onedriveBridge.manageFoldersDirectory(false)
                         }

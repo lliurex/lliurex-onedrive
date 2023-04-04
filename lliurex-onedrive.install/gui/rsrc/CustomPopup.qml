@@ -92,10 +92,10 @@ Popup {
                 var msg=i18nd("lliurex-onedrive","Migrating configuration. Wait a moment...")
                 break
             case 21:
-                var msg=i18nd("lliurex-onedrive","Activating folders indentification. Wait a moment...")
+                var msg=i18nd("lliurex-onedrive","Applying folders indentification. Wait a moment...")
                 break
             case 22:
-                var msg=i18nd("lliurex-onedrive","Deactivating folders indentification. Wait a moment...")
+                var msg=i18nd("lliurex-onedrive","Removing folders indentification. Wait a moment...")
                 break
             default:
                 var msg=""

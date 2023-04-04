@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-04 13:08+0200\n"
+"POT-Creation-Date: 2023-04-04 17:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -598,11 +598,11 @@ msgid ""
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:153
-msgid "Activate the identification"
+msgid "Show the identification"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:160
-msgid "Disable the identification"
+msgid "Hide the identification"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:174
@@ -697,11 +697,11 @@ msgid "Migrating configuration. Wait a moment..."
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:95
-msgid "Activating folders indentification. Wait a moment..."
+msgid "Applying folders indentification. Wait a moment..."
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:98
-msgid "Deactivating folders indentification. Wait a moment..."
+msgid "Removing folders indentification. Wait a moment..."
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/lliurex-onedrive:29

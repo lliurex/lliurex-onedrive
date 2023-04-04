@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-04 13:08+0200\n"
-"PO-Revision-Date: 2023-04-04 13:13+0200\n"
+"POT-Creation-Date: 2023-04-04 17:15+0200\n"
+"PO-Revision-Date: 2023-04-04 17:16+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -664,12 +664,12 @@ msgstr ""
 "sincronización"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:153
-msgid "Activate the identification"
-msgstr "Activar la identificación"
+msgid "Show the identification"
+msgstr "Mostrar la identificación"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:160
-msgid "Disable the identification"
-msgstr "Desactivar la identificación"
+msgid "Hide the identification"
+msgstr "Ocultar la identificación"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Tools.qml:174
 msgid ""
@@ -778,12 +778,12 @@ msgid "Migrating configuration. Wait a moment..."
 msgstr "Migrando la configuración. Espere un momento..."
 
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:95
-msgid "Activating folders indentification. Wait a moment..."
-msgstr "Activando la identificación de las carpetas. Espere un momento..."
+msgid "Applying folders indentification. Wait a moment..."
+msgstr "Aplicando la identificación de las carpetas. Espere un momento..."
 
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:98
-msgid "Deactivating folders indentification. Wait a moment..."
-msgstr "Desactivando la identificación de las carpetas. Espere un momento..."
+msgid "Removing folders indentification. Wait a moment..."
+msgstr "Eliminando la identificación de las carpetas. Espere un momento..."
 
 #: ../lliurex-onedrive.install/gui/lliurex-onedrive:29
 msgid "Lliurex-Onedrive is now running. Wait a moment and try again"
