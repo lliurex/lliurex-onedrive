@@ -297,9 +297,8 @@ class OnedriveManager:
 		try:
 			pout,perror=p.communicate(timeout=90)
 
-			if len(perror)==0:
-				if len(pout)>0:
-					pout=pout.decode().split("\n")
+			if len(pout)>0:
+				pout=pout.decode().split("\n")
 
 				for i in range(len(pout)-1,-1,-1):
 					if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
@@ -315,7 +314,7 @@ class OnedriveManager:
 
 				if len(self.librariesConfigData)>0:
 					self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
-		
+	
 		except Exception as e:
 			p.kill()
 
