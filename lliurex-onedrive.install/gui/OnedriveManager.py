@@ -307,9 +307,8 @@ class OnedriveManager:
 		try:
 			pout,perror=p.communicate(timeout=90)
 
-			if len(perror)==0:
-				if len(pout)>0:
-					pout=pout.decode().split("\n")
+			if len(pout)>0:
+				pout=pout.decode().split("\n")
 
 				for i in range(len(pout)-1,-1,-1):
 					if 'Library Name:' in pout[i] or 'drive_id:' in pout[i]:
@@ -325,7 +324,7 @@ class OnedriveManager:
 
 				if len(self.librariesConfigData)>0:
 					self.librariesConfigData=sorted(self.librariesConfigData,key=lambda d:d["nameLibrary"])
-		
+	
 		except Exception as e:
 			p.kill()
 
@@ -1224,7 +1223,7 @@ class OnedriveManager:
 					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
 					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
 						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
-					self._manageFoldersDirectory(False)
+					self.manageFoldersDirectory(False)
 					return True
 				else:
 					return False
@@ -1636,7 +1635,7 @@ class OnedriveManager:
 
 			ret=self._syncResync()
 			self._addDirectoryFile(self.spaceBasicInfo[2])
-			self._manageFoldersDirectory(addFolderDirectory)	
+			self.manageFoldersDirectory(addFolderDirectory)	
 			return ret
 		else:
 			return ret
@@ -2217,7 +2216,7 @@ class OnedriveManager:
 	
 	#def _getLastPendingChanges
 
-	def _manageFoldersDirectory(self,addFolderDirectory):
+	def manageFoldersDirectory(self,addFolderDirectory):
 
 		parentsToMark=[]
 		childsWithMark=[]
@@ -2272,7 +2271,7 @@ class OnedriveManager:
 						shutil.copyfile(self.folderUnsyncDirectoryFile,os.path.join(tmpPath,".directory"))
 
 
-	#def _manageFoldersDirectory
+	#def manageFoldersDirectory
 
 	def _isParentFolderSync(self,parentPath):
 

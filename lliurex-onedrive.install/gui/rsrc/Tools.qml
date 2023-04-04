@@ -116,6 +116,54 @@ Rectangle{
                 }   
             }
 
+            Text{
+                id:manageDirectory
+                text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                visible:!onedriveBridge.syncAll
+            }
+
+            Button {
+                id:manageDirectoryBtn
+                display:AbstractButton.TextBesideIcon
+                icon.name:"state-ok.svg"
+                Layout.preferredHeight: 30
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                hoverEnabled:true
+                enabled:true 
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
+                visible:!onedriveBridge.syncAll
+
+                onClicked:{
+                    onClicked:optionsMenu.open();
+                }
+
+                Menu{
+                    id:optionsMenu
+                    y: manageDirectoryBtn.height
+                    x:-(optionsMenu.width-manageDirectoryBtn.width/2)
+
+                    MenuItem{
+                        icon.name:"dialog-ok-apply.svg"
+                        text:i18nd("lliurex-onedrive","Activate the identification")
+                        onClicked:{
+                            onedriveBridge.manageFoldersDirectory(true)
+                        }
+                    }
+                    MenuItem{
+                        icon.name:"delete.svg"
+                        text:i18nd("lliurex-onedrive","Disable the identification")
+                        onClicked:{
+                            onedriveBridge.manageFoldersDirectory(false)
+                        }
+                    }
+                } 
+            }
        }
     }
 
@@ -165,7 +213,6 @@ Rectangle{
             }
             function onRejectDialogClicked(){
                 updateAuthDialog.close()
-                console.log("NO")
             }
         }
     }        

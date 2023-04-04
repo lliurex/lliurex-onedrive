@@ -35,6 +35,8 @@ SPACE_MIGRATION_MESSAGE=17
 TOOLS_DEFAULT_MESSAGE=18
 UPDATE_TOKEN_MESSAGE=19
 SPACE_MIGRATION_SUCCESS=20
+FOLDERS_DIRECTOY_APPLY_RUNNING=21
+FOLDERS_DIRECTOY_REMOVE_RUNNING=22
 
 SPACE_DUPLICATE_ERROR=-1
 SPACE_LIBRARIES_EMPTY_ERROR=-2
@@ -280,6 +282,24 @@ class RepairOneDrive(QThread):
 	#def run
 
 #class RepairOneDrive
+
+class FoldersDirecty(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.enable=args[0]
+
+	#def __init__
+
+	def run (self):
+
+		time.sleep(1)
+		ret=Bridge.onedriveMan.manageFoldersDirectory(self.enable)
+
+	#def run
+
+#class FoldersDirectory
 
 class MigrateSpace(QThread):
 
@@ -1925,6 +1945,25 @@ class Bridge(QObject):
 	#def getLogEnabled
 
 	@Slot()
+	def openSpaceLogFile(self):
+
+		if os.path.exists(Bridge.onedriveMan.logPath):
+			cmd="xdg-open %s"%Bridge.onedriveMan.logPath
+			os.system(cmd)
+
+	#def openSpaceLogFile
+
+	@Slot()
+	def removeLogFile(self):
+
+		if os.path.exists(Bridge.onedriveMan.logPath):
+			os.remove(Bridge.onedriveMan.logPath)
+
+		self.logSize=Bridge.onedriveMan.getLogFileSize()
+
+	#def removeLogFile
+
+	@Slot()
 	def applySettingsChanges(self):
 
 		self.showSettingsMessage=[False,'']
@@ -2046,24 +2085,25 @@ class Bridge(QObject):
 		
 	#def updateSpaceAuthorization
 
-	@Slot()
-	def openSpaceLogFile(self):
+	@Slot(bool)
+	def manageFoldersDirectory(self,enable):
 
-		if os.path.exists(Bridge.onedriveMan.logPath):
-			cmd="xdg-open %s"%Bridge.onedriveMan.logPath
-			os.system(cmd)
+		if enable:
+			self.closePopUp=[False,FOLDERS_DIRECTOY_APPLY_RUNNING]
+		else:
+			self.closePopUp=[False,FOLDERS_DIRECTOY_REMOVE_RUNNING]
 
-	#def openSpaceLogFile
+		self.foldersDirectoryT=FoldersDirecty(enable)
+		self.foldersDirectoryT.start()
+		self.foldersDirectoryT.finished.connect(self._manageFoldersDirectory)
+	
+	#def manageFoldersDirectory
 
-	@Slot()
-	def removeLogFile(self):
+	def _manageFoldersDirectory(self):
 
-		if os.path.exists(Bridge.onedriveMan.logPath):
-			os.remove(Bridge.onedriveMan.logPath)
+		self.closePopUp=[True,""]
 
-		self.logSize=Bridge.onedriveMan.getLogFileSize()
-
-	#def removeLogFile
+	#def _manageFoldersDirectory
 
 	def getGlobalLocalFolderInfo(self):
 
