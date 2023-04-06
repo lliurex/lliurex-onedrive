@@ -1649,7 +1649,7 @@ class OnedriveManager:
 			if element =="OneDrive":
 				pass
 			else:
-				folderSelected.append(element+"/*")
+				folderSelected.append("/"+element+"/*")
 
 		for element in foldersUnSelected:
 			if element=="OneDrive":
@@ -1668,7 +1668,7 @@ class OnedriveManager:
 					fd.write(tmpLine)
 
 				for item in folderSelected:
-					tmpLine="/"+item+"\n"
+					tmpLine=item+"\n"
 					fd.write(tmpLine)
 				fd.close()
 				
