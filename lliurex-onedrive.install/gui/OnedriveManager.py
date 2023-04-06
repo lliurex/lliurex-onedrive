@@ -976,6 +976,9 @@ class OnedriveManager:
 						tmpLine=tmpLine.split("!")[1].split("/*")[0]
 					elif tmpLine.endswith("/"):
 						tmpLine=tmpLine.split("!")[1][:-1]
+
+					if tmpLine.startswith("/"):
+						tmpLine=tmpLine[1:]
 					if tmpLine not in self.foldersUnSelected:
 						self.foldersUnSelected.append(tmpLine)
 				else:
@@ -984,6 +987,9 @@ class OnedriveManager:
 						tmpLine=tmpLine.split("/*")[0]
 					elif tmpLine.endswith("/"):
 						tmpLine=tmpLine.split("/")[0][:-1]
+
+					if tmpLine.startswith("/"):
+						tmpLine=tmpLine[1:]
 					if tmpLine not in self.foldersSelected:
 						self.foldersSelected.append(tmpLine)
 
@@ -1681,7 +1687,7 @@ class OnedriveManager:
 			if element=="OneDrive":
 				pass
 			else:
-				folderUnSelected.append("!"+element+"/")
+				folderUnSelected.append("!/"+element+"/")
 					
 		try:
 			if self.existsFilterFile():
@@ -1694,7 +1700,7 @@ class OnedriveManager:
 					fd.write(tmpLine)
 
 				for item in folderSelected:
-					tmpLine=item+"\n"
+					tmpLine="/"+item+"\n"
 					fd.write(tmpLine)
 				fd.close()
 				
