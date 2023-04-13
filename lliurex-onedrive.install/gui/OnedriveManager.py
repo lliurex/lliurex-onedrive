@@ -2021,18 +2021,15 @@ class OnedriveManager:
 
 	def getPackageVersion(self):
 
-		command = "LANG=C LANGUAGE=en apt-cache policy lliurex-onedrive"
-		p = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE)
-		installed = None
-		for line in iter(p.stdout.readline,b""):
-			if type(line) is bytes:
-				line=line.decode()
+		packageVersionFile="/var/lib/lliurex-onedrive/version"
+		pkgVersion=""
 
-			stripedline = line.strip()
-			if stripedline.startswith("Installed"):
-				installed = stripedline.replace("Installed: ","")
+		if os.path.exists(packageVersionFile):
+			with open(packageVersionFile,'r') as fd:
+				pkgVersion=fd.readline()
+				fd.close()
 
-		return installed
+		return pkgVersion
 
 	#def getPackageVersion
 
