@@ -215,6 +215,7 @@ Rectangle{
                 onedriveBridge.manageSynchronizePendingDialog("Discard")  
             }
             function onRejectDialogClicked(){
+                closeTimer.stop()
                 onedriveBridge.manageSynchronizePendingDialog("Cancel")
             }
         }    

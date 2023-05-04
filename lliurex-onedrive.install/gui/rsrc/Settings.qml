@@ -295,6 +295,7 @@ Rectangle{
                 onedriveBridge.manageSettingsDialog("Discard")           
             }
             function onRejectDialogClicked(){
+                closeTimer.stop()
                 onedriveBridge.manageSettingsDialog("Cancel")       
             }
 
