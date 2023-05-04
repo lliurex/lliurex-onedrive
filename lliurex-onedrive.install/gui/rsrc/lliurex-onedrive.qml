@@ -19,8 +19,6 @@ ApplicationWindow {
     height: mainLayout.implicitHeight + 2 * margin
     minimumWidth: mainLayout.Layout.minimumWidth + 2 * margin
     minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
-    maximumWidth: mainLayout.Layout.maximumWidth + 2 * margin
-    maximumHeight: mainLayout.Layout.maximumHeight + 2 * margin
     Component.onCompleted: {
         x = Screen.width / 2 - width / 2
         y = Screen.height / 2 - height/0.4
@@ -43,27 +41,33 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.margins: margin
         Layout.minimumWidth:800
-        Layout.maximumWidth:800
         Layout.minimumHeight:635
-        Layout.maximumHeight:635
 
         RowLayout {
             id: bannerBox
             Layout.alignment:Qt.AlignTop
-            Layout.minimumHeight:120
-            Layout.maximumHeight:120
 
-            Image{
-                id:banner
-                source: "/usr/share/lliurex-onedrive/rsrc/lliurex-onedrive.png"
-                asynchronous:true
+            Rectangle{
+                color: "#000000"
+                Layout.minimumWidth:mainLayout.width
+                Layout.preferredWidth:mainLayout.width
+                Layout.fillWidth:true
+                Layout.minimumHeight:120
+                Layout.maximumHeight:120
+                Image{
+                    id:banner
+                    source: "/usr/share/lliurex-onedrive/rsrc/lliurex-onedrive.png"
+                    asynchronous:true
+                    anchors.centerIn:parent
+                }
             }
         }
 
         StackView {
             id: mainView
             property int currentIndex:onedriveBridge.currentStack
-            implicitWidth: 725
+            Layout.minimumWidth: 725
+            Layout.preferredWidth: 725
             Layout.alignment:Qt.AlignHCenter
             Layout.leftMargin:0
             Layout.fillWidth:true

@@ -26,7 +26,8 @@ GridLayout{
         }  
         Rectangle{
             width:130
-            height:475
+            Layout.minimumHeight:475
+            Layout.fillHeight:true
             border.color: "#d3d3d3"
             GridLayout{
                 id: menuGrid
@@ -84,7 +85,6 @@ GridLayout{
     StackView {
         id: manageView
         property int currentOption:onedriveBridge.manageCurrentOption
-        implicitHeight: 450
         Layout.fillWidth:true
         Layout.fillHeight: true
         initialItem:accountView

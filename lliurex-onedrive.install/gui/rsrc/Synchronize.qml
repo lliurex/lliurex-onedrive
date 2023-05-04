@@ -22,18 +22,24 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
+        width:parent.width-20
         anchors.left:parent.left
-
+        height:{
+            if (onedriveBridge.showFolderStruct){
+                parent.height-90
+            }else{
+                0
+            }
+        }
+        
         Kirigami.InlineMessage {
             id: messageLabel
             visible:onedriveBridge.showSynchronizeMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
             Layout.minimumWidth:640
-            Layout.maximumWidth:640
             Layout.topMargin: 40
-            Layout.leftMargin: 10
+            Layout.fillWidth: true
         }
 
         GridLayout{
@@ -41,6 +47,7 @@ Rectangle{
             rows: 3
             flow: GridLayout.TopToBottom
             rowSpacing:10
+            Layout.alignment:Qt.AlignTop
             Layout.topMargin: messageLabel.visible?0:50
 
             CheckBox {
@@ -106,6 +113,9 @@ Rectangle{
                 id:folderList
                 structModel:onedriveBridge.folderModel
                 structEnabled:getEnabledStatus()
+                Layout.fillHeight:true
+                Layout.fillWidth:true
+                Layout.minimumHeight:300
             }
         }
     }

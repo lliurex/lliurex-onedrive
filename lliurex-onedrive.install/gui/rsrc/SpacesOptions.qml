@@ -11,7 +11,8 @@ GridLayout{
 
     Rectangle{
         width:130
-        height:515
+        Layout.minimumHeight:515
+        Layout.fillHeight:true
         border.color: "#d3d3d3"
 
         GridLayout{
@@ -49,7 +50,6 @@ GridLayout{
     StackView {
         id: optionsView
         property int currentIndex:onedriveBridge.spacesCurrentOption
-        implicitHeight: 450
         Layout.fillWidth:true
         Layout.fillHeight:true
         initialItem:spacesInfoView

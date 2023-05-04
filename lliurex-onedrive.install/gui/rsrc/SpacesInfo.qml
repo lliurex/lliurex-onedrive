@@ -18,8 +18,9 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
         anchors.left:parent.left
+        width:parent.width-10
+        height:parent.height-90
         enabled:true
         Kirigami.InlineMessage {
             id: messageLabel
@@ -27,7 +28,7 @@ Rectangle{
             text:getTextMessage()
             type:getTypeMessage()
             Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
@@ -41,6 +42,8 @@ Rectangle{
             SpaceList{
                 id:spacesList
                 structModel:onedriveBridge.spacesModel
+                Layout.fillHeight:true
+                Layout.fillWidth:true
             }
         }
     }

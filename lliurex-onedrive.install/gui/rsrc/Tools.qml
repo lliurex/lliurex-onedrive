@@ -18,8 +18,8 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
         anchors.horizontalCenter:parent.horizontalCenter
+        width:parent.width-20
 
         Kirigami.InlineMessage {
             id: messageToolLabel
@@ -28,7 +28,7 @@ Rectangle{
             type:getTypeMessage()
             Layout.alignment:Qt.AlignLeft
             Layout.minimumWidth:640
-            Layout.maximumWidth:640
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 

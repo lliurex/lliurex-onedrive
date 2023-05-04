@@ -19,16 +19,16 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
-        anchors.horizontalCenter:parent.horizontalCenter
-
+        anchors.left:parent.left
+        width:parent.width-10
+ 
         Kirigami.InlineMessage {
             id: newSpaceMessageLabel
             visible:onedriveBridge.showSpaceFormMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
-            Layout.minimumWidth:640
-            Layout.maximumWidth:640
+            Layout.minimumWidth:650
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
