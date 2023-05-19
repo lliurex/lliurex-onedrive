@@ -1753,6 +1753,7 @@ class Bridge(QObject):
 	
 	@Slot()
 	def applySyncBtn(self):
+		
 		self.showSynchronizeDialog=True
 
 	#def applySyncBtn
@@ -1873,12 +1874,11 @@ class Bridge(QObject):
 	def manageAutoStart(self,value):
 		
 		if value!=self.initialConfig[0]:
-			if value!=Bridge.onedriveMan.currentConfig[0]:
-				self.settingsChanged=True
-			else:
-				self.settingsChanged=False
 			self.initialConfig[0]=value
 			self.autoStartEnabled=value
+
+		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
 
@@ -1888,12 +1888,11 @@ class Bridge(QObject):
 	def getMonitorInterval(self,value):
 
 		if value!=self.initialConfig[1]:
-			if value!=Bridge.onedriveMan.currentConfig[1]:
-				self.settingsChanged=True
-			else:
-				self.settingsChanged=False
 			self.monitorInterval=int(value)
 			self.initialConfig[1]=int(value)
+
+		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
 
@@ -1903,27 +1902,25 @@ class Bridge(QObject):
 	def getRateLimit(self,value):
 
 		if value!=self.initialConfig[2]:
-			if value!=Bridge.onedriveMan.currentConfig[2]:
-				self.settingsChanged=True
-			else:
-				self.settingsChanged=False
 			self.rateLimit=int(value)
 			self.initialConfig[2]=int(value)
+		
+		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
-
+	
 	#def getRateLimit
 
 	@Slot('QVariantList')
 	def getSkipSize(self,value):
 
 		if value!=self.initialConfig[3]:
-			if value!=Bridge.onedriveMan.currentConfig[3]:
-				self.settingsChanged=True
-			else:
-				self.settingsChanged=False
 			self.skipSize=value
 			self.initialConfig[3]=value
+		
+		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
 
@@ -1932,13 +1929,12 @@ class Bridge(QObject):
 	@Slot(bool)
 	def getLogEnabled(self,value):
 
-		if value!=self.initialConfig[3]:
-			if value!=Bridge.onedriveMan.currentConfig[4]:
-				self.settingsChanged=True
-			else:
-				self.settingsChanged=False
+		if value!=self.initialConfig[4]:
 			self.initialConfig[4]=value
 			self.logEnabled=value
+		
+		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
 
@@ -2004,6 +2000,7 @@ class Bridge(QObject):
 		self.monitorInterval=int(self.initialConfig[1])
 		self.rateLimit=self.initialConfig[2]
 		self.skipSize=self.initialConfig[3]
+		self.logEnabled=self.initialConfig[4]
 
 		self._manageGoToStack()
 
