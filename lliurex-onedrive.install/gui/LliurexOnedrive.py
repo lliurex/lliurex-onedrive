@@ -1318,11 +1318,8 @@ class Bridge(QObject):
 			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
 			self.showFolderStruct=False
 
-			if self.initialDownload!="":
-				self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
-				self.showDownloadDialog=True
-			else:
-				self._initialStartUp()
+			self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
+			self.showDownloadDialog=True
 		else:
 			self.closePopUp=[True,""]
 			self.closeGui=True
@@ -1338,7 +1335,7 @@ class Bridge(QObject):
 			self._initialStartUp()
 		elif option=="Custom":
 			self.currentStack=2
-			self.manageCurrentOption=1
+			self.manageCurrentOption=2
 			self.spacesCurrentOption=0
 			self.closePopUp=[True,""]
 			self.closeGui=True

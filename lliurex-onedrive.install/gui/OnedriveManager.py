@@ -236,6 +236,7 @@ class OnedriveManager:
 		self.filerFileHash=""
 		self.errorFolder=False
 		self.folderStruct=[]
+		self.folderStructBack=[]
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
 		self.syncAll=True
@@ -831,8 +832,9 @@ class OnedriveManager:
 
 	def getInitialDownload(self):
 
-		self.initialDownload=""
+		self.initialDownload="0 B"
 		self.spaceAccountType=""
+		self.initialDownloadBytes=0
 		
 		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --operation-timeout="60" --confdir="%s"'%(self.spaceConfPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
@@ -864,7 +866,7 @@ class OnedriveManager:
 
 	def _formatInitialDownload(self,value):
 
-		self.initialDownloadBytes=""
+		self.initialDownloadBytes=0
 
 		if "KB" in value:
 			tmp=value.split(" ")[0]
