@@ -12,6 +12,7 @@ Rectangle {
     id:folderTable
     visible: onedriveBridge.showFolderStruct
     width: 650; height: 240
+    border.color: "#d3d3d3"
 
     ListModel{
         id: folderModel

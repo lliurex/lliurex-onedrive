@@ -9,6 +9,7 @@ import SpacesModel
 import SharePointModel
 import LibraryModel
 import FolderModel
+import FileExtensionsModel
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -222,12 +223,14 @@ class ApplySyncChanges(QThread):
 		self.ret=[]
 		self.initialSyncConfig=args[0]
 		self.keepFolders=args[1]
+		self.syncCustomChanged=args[2]
+		self.skipFileChanged=args[3]
 	
 	#def __init
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders)
+		self.ret=Bridge.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders,self.syncCustomChanged,self.skipFileChanged)
 
 	#def run
 
@@ -396,6 +399,9 @@ class Bridge(QObject):
 		self.updateSpaceAuth=False
 		self._withHDDSpace=True
 		self.waitForUpdateGlobalMessage=10
+		self._fileExtensionsModel=FileExtensionsModel.FileExtensionsModel()
+		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig[3])
+		self._skipFileChanged=False
 
 		if len(sys.argv)>1:
 			self.spaceToManage=sys.argv[1]
@@ -948,6 +954,40 @@ class Bridge(QObject):
 
 	#def _setSyncCustomChanged
 
+	def _getSkipFileExtensions(self):
+
+		return self._skipFileExtensions
+
+	#def _getSkipFileExtensions
+
+	def _setSkipFileExtensions(self,skipFileExtensions):
+
+		if self._skipFileExtensions!=skipFileExtensions:
+			self._skipFileExtensions=skipFileExtensions
+			self.on_skipFileExtensions.emit()
+
+	#def _setSkipFileExtensions
+
+	def _getFileExtensionsModel(self):
+
+		return self._fileExtensionsModel
+
+	#def _getFileExtensionsModel
+
+	def _getSkipFileChanged(self):
+
+		return self._skipFileChanged
+
+	#def _getSkipFileChanged
+
+	def _setSkipFileChanged(self,skipFileChanged):
+
+		if self._skipFileChanged!=skipFileChanged:
+			self._skipFileChanged=skipFileChanged
+			self.on_skipFileChanged.emit()
+
+	#def _setSkipFileChanged
+
 	def _getLocalFolderEmpty(self):
 
 		return self._localFolderEmpty
@@ -1066,6 +1106,17 @@ class Bridge(QObject):
 			self.showSpaceFormMessage=[True,SPACE_LIBRARIES_EMPTY_ERROR,"Error"]
 	
 	#def _updateLibraryModel
+
+	def _updateFileExtensionsModel(self):
+
+		ret=self._fileExtensionsModel.clear()
+		Bridge.onedriveMan.updateFileExtensionsModel()
+		fileExtensionsEntries=Bridge.onedriveMan.fileExtensionsData
+		if len(fileExtensionsEntries)>0:
+			for item in fileExtensionsEntries:
+				self._fileExtensionsModel.appendRow(item["name"],item["isChecked"])
+		
+	#def _updateFileExtensionsModel
 
 	@Slot(int)
 	def moveToSpaceOption(self,option):
@@ -1270,6 +1321,8 @@ class Bridge(QObject):
 				self.showSettingsDialog=True
 			elif self.syncCustomChanged:
 				self.showSynchronizePendingDialog=True
+			elif self.skipFileChanged:
+				self.showSynchronizePendingDialog=True
 			else:
 				self.manageCurrentOption=option
 				self.moveToOption=""
@@ -1305,6 +1358,7 @@ class Bridge(QObject):
 	def _addSpace(self):
 
 		self._updateSpacesModel()
+		self._updateFileExtensionsModel()
 		self.reuseToken=False
 		self.tempConfig=False
 		self._libraryModel.clear()
@@ -1427,6 +1481,8 @@ class Bridge(QObject):
 			self._folderModel.resetModel()
 			self.showFolderStruct=False
 			
+		self._updateFileExtensionsModel()
+		
 		if self.isOnedriveRunning:
 			self.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 		else:
@@ -1472,6 +1528,7 @@ class Bridge(QObject):
 		self.freeSpace=Bridge.onedriveMan.freeSpace
 		self._folderModel.resetModel()
 		self.updateSpaceAuth=False
+		self.skipFileExtensions=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig[3])
 
 	#def _initializeVars
 
@@ -1491,7 +1548,7 @@ class Bridge(QObject):
 	def goHome(self):
 
 		self.updateSpaceAuth=False
-		if not self.settingsChanged and not self.syncCustomChanged:
+		if not self.settingsChanged and not self.syncCustomChanged and not self.skipFileChanged:
 			self.currentStack=1
 			self.spacesCurrentOption=0
 			self.manageCurrentOption=0
@@ -1747,7 +1804,83 @@ class Bridge(QObject):
 			self.showFolderStruct=False
 
 	#def getSyncModel 
-	
+
+	@Slot(bool)
+	def getSkipFileExtensionsEnable(self,value):
+
+		'''
+			value[0]: enable/disable skipFileExtensions
+		'''
+		self.hideSynchronizeMessage()
+
+		tmpValue=[value,self.skipFileExtensions[1]]
+
+		if tmpValue[0]!=self.skipFileExtensions[0]:
+			self.skipFileExtensions=tmpValue
+			self.initialSyncConfig[3]=self.skipFileExtensions
+
+		if self.skipFileExtensions!=Bridge.onedriveMan.currentSyncConfig[3]:
+			if not self.skipFileExtensions[0]:
+				self.skipFileChanged=True
+			else:
+				if self.skipFileExtensions[0] and len(self.skipFileExtensions[1])>0:
+					self.skipFileChanged=True
+				else:
+					self.skipFileChanged=False
+		else:
+			self.skipFileChanged=False
+
+	#def getSkipFileExtensionsStatus
+
+	@Slot('QVariantList')
+	def getFileExtensionChecked(self,value):
+
+		'''
+			value[0]: file extension
+			value[1]: checked/unchecked
+		'''
+		self.hideSynchronizeMessage()
+		Bridge.onedriveMan.updateFileExtensionData(value)
+
+		tmpValue=[self.skipFileExtensions[0],sorted(self.skipFileExtensions[1])]
+		tmpExtension="*%s"%value[0]
+		
+		if value[1]:
+			if tmpExtension not in tmpValue[1]:
+				tmpValue[1].append(tmpExtension)
+		else:
+			if tmpExtension in tmpValue[1]:
+				tmpValue[1].remove(tmpExtension)
+
+		tmpValue[1]=sorted(tmpValue[1])
+
+		if len(tmpValue[1])>0:
+			self.skipFileExtensions=tmpValue
+			self.initialSyncConfig[3]=self.skipFileExtensions
+		else:
+			tmpValue=[False,[]]
+			self.skipFileExtensions=tmpValue
+			self.initialSyncConfig[3]=self.skipFileExtensions
+
+		if self.skipFileExtensions!=Bridge.onedriveMan.currentSyncConfig[3]:
+			self.skipFileChanged=True
+		else:
+			self.skipFileChanged=False
+
+		self._updateFileExtensionsModelInfo()
+
+	#def getFileExtensionChecked
+
+	def _updateFileExtensionsModelInfo(self):
+
+		fileExtensionsEntries=Bridge.onedriveMan.fileExtensionsData
+		if len(fileExtensionsEntries)>0:
+			for i in range(len(fileExtensionsEntries)):
+				index=self._fileExtensionsModel.index(i)
+				self._fileExtensionsModel.setData(index,"isChecked",fileExtensionsEntries[i]["isChecked"])
+
+	#def _updateFileExtensionsModelInfo
+
 	@Slot()
 	def applySyncBtn(self):
 		
@@ -1761,6 +1894,7 @@ class Bridge(QObject):
 		self.closePopUp=[False,SPACE_FOLDER_RESTORE_MESSAGE]
 		
 		self.syncCustomChanged=False
+		self.skipFileChanged=False
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
 		Bridge.onedriveMan.cancelSyncChanges()
 		self.syncAll=self.initialSyncConfig[0]
@@ -1769,6 +1903,8 @@ class Bridge(QObject):
 		else:
 			self.showFolderStruct=True
 
+		self.skipFileExtensions=self.initialSyncConfig[3]
+		self._updateFileExtensionsModel()
 		self._insertModelEntries()
 
 		index = self._folderModel.index(0)
@@ -1814,7 +1950,7 @@ class Bridge(QObject):
 		self.closePopUp=[False,APPLY_SPACE_CHANGES_MESSAGE]
 		self.closeGui=False
 		self.changedSyncWorked=True
-		self.applySynChangesT=ApplySyncChanges(self.initialSyncConfig,self.keepFolders)
+		self.applySynChangesT=ApplySyncChanges(self.initialSyncConfig,self.keepFolders,self.syncCustomChanged,self.skipFileChanged)
 		self.applySynChangesT.start()
 		self.applySynChangesT.finished.connect(self._applySyncChanges)
 
@@ -1826,11 +1962,14 @@ class Bridge(QObject):
 		self.syncAll=self.initialSyncConfig[0]
 		self.closePopUp=[True,""]
 		self.showFolderStruct!=self.syncAll
+		self.skipFileExtensions=self.initialSyncConfig[3]
+		self._updateFileExtensionsModel()
 
 		if self.applySynChangesT.ret:
 			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_OK,"Ok"]
 			self.closeGui=True
 			self.syncCustomChanged=False
+			self.skipFileChanged=False
 		else:
 			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_ERROR,"Error"]
 			self.moveToOption=""
@@ -2192,7 +2331,7 @@ class Bridge(QObject):
 				self.closeGui=False
 				self.showSettingsDialog=True
 			else:
-				if self.syncCustomChanged:
+				if self.syncCustomChanged or self.skipFileChanged:
 					self.closeGui=False
 					if self.closePopUp[0]:
 						self.showSynchronizePendingDialog=True
@@ -2310,6 +2449,12 @@ class Bridge(QObject):
 	on_syncCustomChanged=Signal()
 	syncCustomChanged=Property(bool,_getSyncCustomChanged,_setSyncCustomChanged,notify=on_syncCustomChanged)
 
+	on_skipFileExtensions=Signal()
+	skipFileExtensions=Property('QVariantList',_getSkipFileExtensions,_setSkipFileExtensions,notify=on_skipFileExtensions)
+
+	on_skipFileChanged=Signal()
+	skipFileChanged=Property(bool,_getSkipFileChanged,_setSkipFileChanged,notify=on_skipFileChanged)
+
 	on_localFolderEmpty=Signal()
 	localFolderEmpty=Property(bool,_getLocalFolderEmpty,_setLocalFolderEmpty,notify=on_localFolderEmpty)
 
@@ -2334,6 +2479,7 @@ class Bridge(QObject):
 	bandWidthNames=Property('QVariant',_getBandWidthNames,constant=True)
 	maxFileSizeNames=Property('QVariant',_getMaxFileSizeNames,constant=True)
 	folderModel=Property(QObject,_getFolderModel,constant=True)
+	fileExtensionsModel=Property(QObject,_getFileExtensionsModel,constant=True)
 
 #class Bridge
 

@@ -1,4 +1,5 @@
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 3.0 as PC3
 import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
@@ -44,7 +45,7 @@ Rectangle{
 
         GridLayout{
             id: optionsGrid
-            rows: 3
+            rows: 4
             flow: GridLayout.TopToBottom
             rowSpacing:10
             Layout.alignment:Qt.AlignTop
@@ -52,7 +53,7 @@ Rectangle{
 
             CheckBox {
                 id:syncAll
-                text:i18nd("lliurex-onedrive","Synchronize all content of space")
+                text:i18nd("lliurex-onedrive","Synchronize all folders of space")
                 checked:onedriveBridge.syncAll
                 enabled:getEnabledStatus()
                 font.pointSize: 10
@@ -74,7 +75,7 @@ Rectangle{
             
                 CheckBox {
                     id:syncCustom
-                    text:i18nd("lliurex-onedrive","Synchronize only those content")
+                    text:i18nd("lliurex-onedrive","Synchronize only those folders")
                     checked:!onedriveBridge.syncAll
                     enabled:getEnabledStatus()
                     font.pointSize: 10
@@ -109,13 +110,45 @@ Rectangle{
                     onClicked:onedriveBridge.updateFolderStruct(false)
                 }
             }
+
             FolderList{
                 id:folderList
                 structModel:onedriveBridge.folderModel
                 structEnabled:getEnabledStatus()
                 Layout.fillHeight:true
                 Layout.fillWidth:true
-                Layout.minimumHeight:300
+                Layout.minimumHeight:messageLabel.visible?180:210
+            }
+
+            Row{
+                id:extensionsRow
+                spacing:10
+                Layout.alignment:Qt.AlignLeft
+                Layout.topMargin:10
+                Layout.bottomMargin:10
+                CheckBox {
+                    id:filterExtensions
+                    text:i18nd("lliurex-onedrive","Don't sync files with this extensions:")
+                    checked:onedriveBridge.skipFileExtensions[0]
+                    enabled:getEnabledStatus()
+                    font.pointSize: 10
+                    focusPolicy: Qt.NoFocus
+                    onToggled:onedriveBridge.getSkipFileExtensionsEnable(checked)
+                }
+                FileExtensionsSelector{
+                    id:fileExtensionsSelector
+                    selectorEnabled:{
+                        if (filterExtensions.enabled){
+                            if (filterExtensions.checked){
+                                true
+                            }else{
+                                false
+                            }
+                        }else{
+                            false
+                        }
+                    }
+                }
             }
         }
     }
@@ -136,7 +169,7 @@ Rectangle{
             text:i18nd("lliurex-onedrive","Apply")
             Layout.preferredHeight: 40
             enabled:{
-                if ((onedriveBridge.syncCustomChanged)&&(!onedriveBridge.isOnedriveRunning)){
+                if (((onedriveBridge.syncCustomChanged)||(onedriveBridge.skipFileChanged))&&(!onedriveBridge.isOnedriveRunning)){
                     true
                 }else{
                     false
@@ -154,7 +187,7 @@ Rectangle{
             text:i18nd("lliurex-onedrive","Cancel")
             Layout.preferredHeight: 40
             enabled:{
-                if ((onedriveBridge.syncCustomChanged)&&(!onedriveBridge.isOnedriveRunning)){
+                if (((onedriveBridge.syncCustomChanged)||(onedriveBridge.skipFileChanged))&&(!onedriveBridge.isOnedriveRunning)){
                     true
                 }else{
                     false
@@ -171,9 +204,9 @@ Rectangle{
         dialogVisible:onedriveBridge.showSynchronizeDialog
         dialogMsg:{
             if (!syncAll.checked){
-                i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders\nDo you want to delete the rest of the folders from this computer?")
+                i18nd("lliurex-onedrive","Applying the changes will only sync the content of the selected folders and have\nthe extensions allowed\nDo you want to delete the rest of the folders from this computer?")
             }else{
-                i18nd("lliurex-onedrive","Applying the changes will sync all the content of your space")
+                i18nd("lliurex-onedrive","Applying the changes will sync all the content of your space that have\nthe extensions allowed")
             }
         }
         dialogWidth:700

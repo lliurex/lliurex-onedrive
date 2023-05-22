@@ -39,7 +39,7 @@ class OnedriveManager:
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
-		self.customizeConfigParam=['monitor_interval','rate_limit','skip_size','enable_logging']
+		self.customizeConfigParam=['monitor_interval','rate_limit','skip_size','enable_logging',"skip_file"]
 		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
@@ -61,8 +61,10 @@ class OnedriveManager:
 		self.filterFileHashName=".sync_list.hash"
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
+		self.fileExtensionsData=[]
+		self.skipFileExtensions=[False,[]]
 		self.showFolderStruct=False
-		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
+		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected,self.skipFileExtensions]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",]
 		self.envRunFiles=["emptyToken","statusToken","localFolderEmptyToken","localFolderRemovedToken","runToken"]
 		self.globalOneDriveFolderWarning=False
@@ -80,7 +82,8 @@ class OnedriveManager:
 		self.lockToken=os.path.join(self.llxOnedriveConfigDir,".run/llxOneDrive.lock")
 		self.oneDriveFolderSyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveSync"
 		self.folderUnsyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryUnsync"
-	
+		self.skipFileExtensionsList="/usr/share/lliurex-onedrive/llx-data/skip_file_extension_list"
+		self.defaultSkipFile="~*|.~*|*.tmp|*.part|*.kate-swp|.directory"
 		self.createEnvironment()
 		self._createLockToken()
 		self.clearCache()
@@ -239,8 +242,10 @@ class OnedriveManager:
 		self.folderStructBack=[]
 		self.foldersSelected=[]
 		self.foldersUnSelected=[]
+		self.fileExtensionsData=[]
+		self.skipFileExtensions=[False,[]]
 		self.syncAll=True
-		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected]
+		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected,self.skipFileExtensions]
 		self.localFolderEmpty=False
 		self.localFolderRemoved=False
 		self.showFolderStruct=False
@@ -440,6 +445,7 @@ class OnedriveManager:
 
 		if ret:
 			self._updateOneDriveConfig(spaceInfo)
+			self._getSkipFileExtensions()
 			self._addDirectoryFile(spaceInfo[1])
 			self.loadOneDriveConfig()
 			return True
@@ -473,6 +479,7 @@ class OnedriveManager:
 		if not createConfig:
 			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
 			customParam=self.readSpaceConfigFile(spaceConfigFilePath)
+			self.skipFileExtensions=[False,[]]
 		else:
 			os.mkdir(self.spaceConfPath)
 			runFolder=os.path.join(self.spaceConfPath,'.run')
@@ -535,7 +542,8 @@ class OnedriveManager:
 						self.logEnabled=False
 
 					self.currentConfig[4]=self.logEnabled
-				
+					self.skipFileExtensions=customParam["skip_file"]
+					
 				except:
 					pass
 			
@@ -552,6 +560,7 @@ class OnedriveManager:
 				lines=fd.readlines()
 				if len(lines)>0:
 					customParam["skip_size"]=[False,50]
+					customParam["skip_file"]=[False,[]]
 					for line in lines:
 						for param in self.customizeConfigParam:
 							tmpLine=line.split("=")
@@ -564,6 +573,28 @@ class OnedriveManager:
 										tmpValue.append(True)
 									tmpValue.append(tmpLine[1].split("\n")[0].strip().split('"')[1])
 									customParam[param]=tmpValue
+							elif param=="skip_file":
+								if "skip_file" in tmpLine[0]:
+									tmpValue=[]
+									tmp=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									if tmp!=self.defaultSkipFile:
+										tmpValue.append(True)
+										tmpLine=tmp.split(self.defaultSkipFile)
+										tmpExtensions=tmpLine[1].strip().split("|")
+										tmpExtensions.pop(0)
+										tmpExtensions=list(map(lambda s:s.replace('"',''),tmpExtensions))
+										tmpExtensions=list(map(lambda s:s.strip(),tmpExtensions))
+										if len(tmpExtensions)>1 or tmpExtensions[0]!='':
+											tmpValue.append(tmpExtensions)
+											tmpValue[1]=sorted(tmpValue[1])
+										else:
+											tmpValue.append([])
+										customParam[param]=tmpValue
+									else:
+										tmpValue.append(False)
+										tmpValue.append([])
+										customParam[param]=tmpValue
+										pass
 							else:
 								if param==tmpLine[0].strip():
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -594,6 +625,10 @@ class OnedriveManager:
 								else:
 									if "#" not in tmpLine[1]:
 										line='# '+param+' = '+'"'+str(customParam[param][1])+'"\n'
+
+						elif param=="skip_file":
+							if "skip_file" in tmpLine[0]:
+								line=line
 						else:
 							if param==tmpLine[0].strip():
 								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -932,10 +967,12 @@ class OnedriveManager:
 			else:
 				self.syncAll=True
 
+			self._getSkipFileExtensions()
 			self.showFolderStruct!=self.syncAll
 			self.currentSyncConfig[0]=self.syncAll
 			self.currentSyncConfig[1]=self.foldersSelected
 			self.currentSyncConfig[2]=self.foldersUnSelected
+			self.currentSyncConfig[3]=self.skipFileExtensions
 
 			statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
 			self.accountStatus=int(statusInfo[1])
@@ -1587,12 +1624,32 @@ class OnedriveManager:
 
 	#def _processingLocalFolder		
 
-	def applySyncChanges(self,initialSyncConfig,keepFolders):
+	def applySyncChanges(self,initialSyncConfig,keepFolders,syncCustomChanged,skipFileChanged):
 
-		syncAll=initialSyncConfig[0]
-		foldersSelected=initialSyncConfig[1]
-		foldersUnSelected=initialSyncConfig[2]
+		ret=True
 		addFolderDirectory=False
+
+		if syncCustomChanged:
+			ret=self._applySyncFoldersChanges(initialSyncConfig[0],initialSyncConfig[1],initialSyncConfig[2],keepFolders)
+
+		if ret:
+			if skipFileChanged:
+				ret=self._applySkipFilesChanges(initialSyncConfig[3])
+
+		if ret:
+			ret=self._syncResync()
+			self._addDirectoryFile(self.spaceBasicInfo[2])
+			if not initialSyncConfig[0]:
+				addFolderDirectory=True
+
+			self.manageFoldersDirectory(addFolderDirectory)	
+			return ret
+		else:
+			return ret
+
+	#def applySyncChanges
+
+	def _applySyncFoldersChanges(self,syncAll,foldersSelected,foldersUnSelected,keepFolders):
 
 		for item in self.folderStruct:
 			if item["isChecked"]:
@@ -1621,7 +1678,6 @@ class OnedriveManager:
 
 		if not syncAll:
 			ret=self.createFilterFile(foldersSelected,foldersUnSelected)
-			addFolderDirectory=True
 			if ret:
 				if not keepFolders:
 					self._manageEmptyToken()
@@ -1641,14 +1697,35 @@ class OnedriveManager:
 			self.currentSyncConfig[2]=foldersUnSelected
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 
-			ret=self._syncResync()
-			self._addDirectoryFile(self.spaceBasicInfo[2])
-			self.manageFoldersDirectory(addFolderDirectory)	
-			return ret
-		else:
-			return ret
+		return ret
 
-	#def applySyncChanges
+	#def _applySyncFoldersChanges
+
+	def _applySkipFilesChanges(self,skipFileInfo):
+
+		param="skip_file"
+		value=self.defaultSkipFile
+		
+		if skipFileInfo[0] and len(skipFileInfo[1])>0:
+			try:
+				if '' in skipFileInfo[1]:
+					skipFileInfo[1].remove('')
+			except:
+				pass
+			skippedExtensions="%s|%s"%(self.defaultSkipFile,("|").join(skipFileInfo[1]))
+			value=skippedExtensions
+
+		ret=self._writeConfigFile(param,value)
+
+		if not ret:
+			self.skipFileExtensions=skipFileInfo
+			self.currentSyncConfig[3]=self.skipFileExtensions
+			self.updateFileExtensionsModel()
+			return True
+		else:
+			return False
+
+	#def _applySkipFilesChanges
 
 	def createFilterFile(self,foldersSelected,foldersUnSelected):
 
@@ -1840,10 +1917,14 @@ class OnedriveManager:
 	def _writeConfigFile(self,param,value):
 
 		configFile=os.path.join(self.spaceConfPath,'config')
+		configFileBack=os.path.join(self.spaceConfPath,'config_back')
+
 		self.matchParam=True
 		if param=="skip_size":
 			self.matchParam=False
+
 		if os.path.exists(configFile):
+			shutil.copyfile(configFile,configFileBack)
 			try:
 				with open(configFile,'r') as fd:
 					lines=fd.readlines()
@@ -1874,8 +1955,13 @@ class OnedriveManager:
 						fd.write(line)
 
 					fd.close()
+					if os.path.exists(configFileBack):
+						os.remove(configFileBack)
 					return False
-			except:
+			except Exception as e:
+				if os.path.exists(configFileBack):
+					shutil.copyfile(configFileBack,configFile)
+					os.remove(configFileBack)
 				return True
 		else:
 			return True
@@ -2311,6 +2397,50 @@ class OnedriveManager:
 		return logSize
 
 	#def getLogFileSize
+
+	def _getSkipFileExtensions(self):
+
+		self.fileExtensionsData=[]
+
+		if os.path.exists(self.skipFileExtensionsList):
+			with open(self.skipFileExtensionsList,'r') as fd:
+				lines=fd.readlines()
+			fd.close()
+
+			for line in lines:
+				tmp={}
+				tmpName="*%s"%line.strip()
+				if tmpName in self.skipFileExtensions[1]:
+					tmp["isChecked"]=True
+				else:
+					tmp["isChecked"]=False
+
+				tmp["name"]=tmpName.split("*")[1]
+				self.fileExtensionsData.append(tmp)
+
+	#def _getSkipFileExtensions
+
+	def updateFileExtensionsModel(self):
+
+		for item in self.fileExtensionsData:
+			tmpExtension="*%s"%item["name"]
+			if tmpExtension in self.skipFileExtensions[1]:
+				if not item["isChecked"]:
+					item["isChecked"]=True
+			else:
+				if item["isChecked"]:
+					item["isChecked"]=False
+
+	#def updateFileExtensionsModel
+
+	def updateFileExtensionData(self,value):
+
+		for item in self.fileExtensionsData:
+			if item["name"]==value[0]:
+				item["isChecked"]=value[1]
+				break
+
+	#def updateFileExtensioData
 
 	def _createLockToken(self):
 
