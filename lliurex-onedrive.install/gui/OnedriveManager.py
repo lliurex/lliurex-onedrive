@@ -2408,15 +2408,16 @@ class OnedriveManager:
 			fd.close()
 
 			for line in lines:
-				tmp={}
-				tmpName="*%s"%line.strip()
-				if tmpName in self.skipFileExtensions[1]:
-					tmp["isChecked"]=True
-				else:
-					tmp["isChecked"]=False
+				if line!="":
+					tmp={}
+					tmpName="*%s"%line.strip()
+					if tmpName in self.skipFileExtensions[1]:
+						tmp["isChecked"]=True
+					else:
+						tmp["isChecked"]=False
 
-				tmp["name"]=tmpName.split("*")[1]
-				self.fileExtensionsData.append(tmp)
+					tmp["name"]=tmpName.split("*")[1]
+					self.fileExtensionsData.append(tmp)
 
 	#def _getSkipFileExtensions
 
