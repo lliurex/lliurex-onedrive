@@ -2,6 +2,7 @@
 .deb
 .exe
 .gif
+.img
 .iso
 .jpeg
 .jpg
@@ -15,5 +16,7 @@
 .pdf
 .png
 .pdf
+.tar.gz
 .wav
 .zip
+.7z
