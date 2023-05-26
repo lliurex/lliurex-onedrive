@@ -478,8 +478,7 @@ class OnedriveManager:
 
 		if not createConfig:
 			spaceConfigFilePath=os.path.join(self.spaceConfPath,'config')
-			customParam=self.readSpaceConfigFile(spaceConfigFilePath)
-			self.skipFileExtensions=[False,[]]
+			customParam=self.readSpaceConfigFile(spaceConfigFilePath,False)
 		else:
 			os.mkdir(self.spaceConfPath)
 			runFolder=os.path.join(self.spaceConfPath,'.run')
@@ -510,14 +509,25 @@ class OnedriveManager:
 		if not createConfig:
 			if len(customParam)>0:
 				self.updateConfigFile(customParam)
+			self.skipFileExtensions=[False,[]]
 
 	#def _createSpaceConfFolder
 
-	def readSpaceConfigFile(self,spaceConfigFilePath):
+	def readSpaceConfigFile(self,spaceConfigFilePath,updateCustomParam=True):
 
 		customParam={}
 		if os.path.exists(spaceConfigFilePath):
 			customParam=self._readCustomParams(spaceConfigFilePath)
+
+		if updateCustomParam:
+			self._updateCustomParam(customParam)
+
+		return customParam
+
+	#def readSpaceConfigFile
+
+	def _updateCustomParam(self,customParam,newSpace=False):
+
 			if len(customParam)>0:
 				try:
 					self.monitorInterval="{:.0f}".format(int(customParam['monitor_interval'])/60)
@@ -536,8 +546,12 @@ class OnedriveManager:
 							self.skipSize[1]=i
 							self.currentConfig[3]=self.skipSize
 							break
-					if customParam['enable_logging']=="true":
-						self.logEnabled=True
+					
+					if not newSpace:
+						if customParam['enable_logging']=="true":
+							self.logEnabled=True
+						else:
+							self.logEnabled=False
 					else:
 						self.logEnabled=False
 
@@ -547,9 +561,7 @@ class OnedriveManager:
 				except:
 					pass
 			
-		return customParam
-
-	#def readConfigFile
+	#def updateCustomParam
 
 	def _readCustomParams(self,spaceConfigFilePath):
 
@@ -629,6 +641,9 @@ class OnedriveManager:
 						elif param=="skip_file":
 							if "skip_file" in tmpLine[0]:
 								line=line
+						elif param=="enable_logging":
+							if "enable_logging" in tmpLine[0]:
+								line=line
 						else:
 							if param==tmpLine[0].strip():
 								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -637,6 +652,8 @@ class OnedriveManager:
 								break
 					
 					fd.write(line)
+
+		self._updateCustomParam(customParam,True)
 
 	#def updateConfigFile
 
