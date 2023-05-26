@@ -1911,6 +1911,8 @@ class Bridge(QObject):
 		self._folderModel.setData(index,"isChecked",True)
 
 		self.closePopUp=[True,""]
+		self.closeGui=True
+		self._manageGoToStack()
 	
 	#def cancelSyncChanges
 
@@ -2137,7 +2139,7 @@ class Bridge(QObject):
 		self.rateLimit=self.initialConfig[2]
 		self.skipSize=self.initialConfig[3]
 		self.logEnabled=self.initialConfig[4]
-
+		self.closeGui=True
 		self._manageGoToStack()
 
 	#def cancelSettingsChanges
