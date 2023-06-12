@@ -8,6 +8,7 @@ import concurrent.futures
 
 import time
 import psutil
+import shutil
 
 MAX_CHECK_FOLDER_INTERVAL=5
 MAX_CHECK_STATUS_INTERVAL=90
@@ -329,9 +330,62 @@ class LliurexOneDriveAC:
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		
+		self.fixSpacesConfigFile()
 		self.initWorker()
 
 	#def __init__
+
+	def fixSpacesConfigFile(self):
+
+		oneDriveSpaces=self.readOneDriveConfig()
+		paramsToCheck=["space_reservation"]
+
+		for space in oneDriveSpaces:
+			tmpConfigPath=space["configPath"]
+			tmpConfigFile=os.path.join(tmpConfigPath,"config")
+	
+			if os.path.exists(tmpConfigFile):
+				changeParam=False
+				try:
+					with open(tmpConfigFile,'r') as fd:
+						lines=fd.readlines()
+					fd.close()
+					
+					for line in lines:
+						for param in paramsToCheck:
+							if param in line:
+								if param=="space_reservation":
+									if line.startswith("#"):
+										changeParam=True
+								break
+
+					if changeParam:
+						backupConfigFile=os.path.join(tmpConfigPath,"config_back")
+						shutil.copyfile(tmpConfigFile,backupConfigFile)
+
+						with open(tmpConfigFile,'w') as fd:
+							for line in lines:
+								for param in paramsToCheck:
+									if param in line:
+										if param=="space_reservation":
+											if line.startswith("#"):
+												newLine='%s = "5120"\n'%param
+												line=newLine
+										break
+								fd.write(line)
+
+						fd.close()
+
+						if os.path.exists(backupConfigFile):
+						 	os.remove(backupConfigFile)
+				
+				except Exception as e:
+					if os.path.exists(backupConfigFile):
+						shutil.copyfile(backupConfigFile,tmpConfigFile)
+						os.remove(backupConfigFile)
+					pass
+
+	#def fixSpacesConfigFile
 
 	def initWorker(self):
 
