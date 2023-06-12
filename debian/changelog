@@ -1,3 +1,10 @@
+lliurex-onedrive (0.2.6) bionic; urgency=medium
+
+  * Fixed space config template to enable space_reservation param
+  * Changed AC service to add function to fix spaces config file
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 12 Jun 2023 15:36:34 +0200
+
 lliurex-onedrive (0.2.5) bionic; urgency=medium
 
   * Fixed sync_list format
