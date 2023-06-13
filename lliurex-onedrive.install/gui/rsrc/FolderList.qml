@@ -12,6 +12,7 @@ Rectangle {
     id:folderTable
     visible: onedriveBridge.showFolderStruct
     width: 650; height: 240
+    border.color: "#d3d3d3"
 
     ListModel{
         id: folderModel
@@ -36,7 +37,7 @@ Rectangle {
         id: listdelegate
         Rectangle{
             id: menuItem
-            width: 660
+            width: 650
             height:visible?30:0
             visible:{
                 if ((type === "parent")||(type==="file")){

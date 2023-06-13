@@ -27,10 +27,17 @@ Components.ListItem{
     Item{
         id: menuItem
         height:visible?40:0
+        width:parent.width-manageSpaceBtn.width
         Text{
             id: spaceName
             text: nameSpace
-            width:500
+            width:{
+                if (listSpaceItem.ListView.isCurrentItem){
+                    parent.width-(spaceStatusIcon.width+spaceRunningIcon.width+manageSpaceBtn.width+20)
+                }else{
+                    parent.width-(spaceStatusIcon.width+spaceRunningIcon.width+20)
+                }
+            }
             elide:Text.ElideMiddle
             clip: true
             anchors.leftMargin:15

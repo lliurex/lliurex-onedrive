@@ -18,8 +18,8 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
         anchors.horizontalCenter:parent.horizontalCenter
+        width:parent.width-20
 
         Kirigami.InlineMessage {
             id: messageToolLabel
@@ -27,8 +27,8 @@ Rectangle{
             text:getMessageText()
             type:getTypeMessage()
             Layout.alignment:Qt.AlignLeft
-            Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.minimumWidth:640
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
@@ -116,6 +116,54 @@ Rectangle{
                 }   
             }
 
+            Text{
+                id:manageDirectory
+                text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                visible:!onedriveBridge.syncAll
+            }
+
+            Button {
+                id:manageDirectoryBtn
+                display:AbstractButton.TextBesideIcon
+                icon.name:"state-ok.svg"
+                Layout.preferredHeight: 30
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                hoverEnabled:true
+                enabled:true 
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
+                visible:!onedriveBridge.syncAll
+
+                onClicked:{
+                    onClicked:optionsMenu.open();
+                }
+
+                Menu{
+                    id:optionsMenu
+                    y: manageDirectoryBtn.height
+                    x:-(optionsMenu.width-manageDirectoryBtn.width/2)
+
+                    MenuItem{
+                        icon.name:"visibility.svg"
+                        text:i18nd("lliurex-onedrive","Show the identification")
+                        onClicked:{
+                            onedriveBridge.manageFoldersDirectory(true)
+                        }
+                    }
+                    MenuItem{
+                        icon.name:"hint.svg"
+                        text:i18nd("lliurex-onedrive","Hide the identification")
+                        onClicked:{
+                            onedriveBridge.manageFoldersDirectory(false)
+                        }
+                    }
+                } 
+            }
        }
     }
 
@@ -165,7 +213,6 @@ Rectangle{
             }
             function onRejectDialogClicked(){
                 updateAuthDialog.close()
-                console.log("NO")
             }
         }
     }        
