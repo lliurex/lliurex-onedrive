@@ -27,8 +27,8 @@ Rectangle{
             visible:onedriveBridge.showAccountMessage[0]
             text:getTextOption(onedriveBridge.showAccountMessage[1])
             type:onedriveBridge.showAccountMessage[2]=="OK"?Kirigami.MessageType.Positive:Kirigami.MessageType.Error;
-            Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.minimumWidth:640
+            Layout.maximumWidth:640
             Layout.topMargin: 40
         }
 
@@ -89,7 +89,7 @@ Rectangle{
            Text{
                 id:sharePointValue
                 text:onedriveBridge.spaceBasicInfo[3]
-                Layout.maximumWidth:400
+                Layout.maximumWidth:390
                 elide:Text.ElideMiddle
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
@@ -135,7 +135,7 @@ Rectangle{
                 Text{
                     id:syncFolderPath
                     text:onedriveBridge.spaceLocalFolder
-                    Layout.maximumWidth:400
+                    Layout.maximumWidth:390
                     elide:Text.ElideMiddle
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
@@ -246,7 +246,7 @@ Rectangle{
                     text:getTextOption(onedriveBridge.accountStatus)
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
-                    Layout.maximumWidth:300
+                    Layout.maximumWidth:290
                     anchors.verticalCenter:parent.verticalCenter
                 }
 

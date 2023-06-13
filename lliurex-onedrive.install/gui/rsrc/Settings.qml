@@ -1,4 +1,3 @@
-
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
@@ -21,8 +20,8 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
         anchors.horizontalCenter:parent.horizontalCenter
+        width:parent.width-20
 
         Kirigami.InlineMessage {
             id: settingsMessageLabel
@@ -35,8 +34,8 @@ Rectangle{
                     Kirigami.MessageType.Error;
                 }
             }
-            Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.minimumWidth:640
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
@@ -47,6 +46,7 @@ Rectangle{
             columnSpacing:10
             Layout.topMargin: settingsMessageLabel.visible?0:50
             Layout.alignment:Qt.AlignHCenter
+            Layout.rightMargin:15
 
             Text{
                 id:autoStartText
@@ -150,6 +150,84 @@ Rectangle{
                     }
                 }
             }
+            Text{
+                id:managementLog
+                text:i18nd("lliurex-onedrive","Log management:")
+                Layout.alignment: Qt.AlignRight
+
+            }
+
+            CheckBox {
+                id:enableLogCB
+                text:i18nd("lliurex-onedrive","Activate log")
+                checked:onedriveBridge.logEnabled
+                enabled:true
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                focusPolicy: Qt.NoFocus
+                onToggled:onedriveBridge.getLogEnabled(enableLogCB.checked)
+            }
+            Text{
+
+            }    
+            Row{
+                id:logRow
+                spacing:10
+
+                Text{
+                   id:sizeLog
+                   text:i18nd("lliurex-onedrive","Log file size:")
+                   anchors.verticalCenter:manageLogBtn.verticalCenter
+                }
+                Text{
+                    id:sizeLogValue
+                    text:onedriveBridge.logSize
+                    anchors.verticalCenter:manageLogBtn.verticalCenter
+                }
+                Button {
+                    id:manageLogBtn
+                    display:AbstractButton.IconOnly
+                    icon.name:"configure.svg"
+                    Layout.preferredHeight: 30
+                    Layout.alignment: Qt.AlignVCenter
+                    hoverEnabled:true
+                    enabled:{
+                        if (onedriveBridge.logSize!=""){
+                            true
+                        }else{
+                            false
+                        }
+                    }
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 3000
+                    ToolTip.visible: hovered
+                    ToolTip.text:i18nd("lliurex-onedrive","Click to manage log file")
+
+                    onClicked:optionsMenu.open()
+
+                    Menu{
+                        id:optionsMenu
+                        y: manageLogBtn.height
+                        x:-(optionsMenu.width-manageLogBtn.width/2)
+
+                        MenuItem{
+                            icon.name:"document-preview-archive.svg"
+                            text:i18nd("lliurex-onedrive","View log file")
+                            onClicked:{
+                                onedriveBridge.openSpaceLogFile()
+                            }
+                        }
+                        MenuItem{
+                            icon.name:"delete.svg"
+                            text:i18nd("lliurex-onedrive","Delete log file")
+                            onClicked:{
+                                removeLogDialog.open()
+                            }
+                        }
+                    }   
+                }
+            }
+
         }
     }
 
@@ -216,10 +294,36 @@ Rectangle{
                 onedriveBridge.manageSettingsDialog("Discard")           
             }
             function onRejectDialogClicked(){
+                closeTimer.stop()
                 onedriveBridge.manageSettingsDialog("Cancel")       
             }
 
         }
+    }
+
+    ChangesDialog{
+        id:removeLogDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
+        dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
+        dialogWidth:360
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:removeLogDialog
+            function onDiscardDialogClicked(){
+                removeLogDialog.close()
+                onedriveBridge.removeLogFile()
+            }
+            function onRejectDialogClicked(){
+                removeLogDialog.close()
+            }
+        }
+
     }
   
     function getMessageText(){

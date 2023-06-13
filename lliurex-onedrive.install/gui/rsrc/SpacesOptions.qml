@@ -10,8 +10,9 @@ GridLayout{
     columnSpacing:10
 
     Rectangle{
-        width:120
-        height:515
+        width:130
+        Layout.minimumHeight:515
+        Layout.fillHeight:true
         border.color: "#d3d3d3"
 
         GridLayout{
@@ -23,7 +24,7 @@ GridLayout{
             MenuOptionBtn {
                 id:spaceItem
                 optionText:i18nd("lliurex-onedrive","Spaces")
-                optionIcon:"/usr/share/icons/breeze/places/16/folder-cloud.svg"
+                optionIcon:"/usr/share/icons/breeze/places/22/folder-cloud.svg"
                 Connections{
                     function onMenuOptionClicked(){
                         if (!onedriveBridge.requiredMigration){
@@ -36,7 +37,7 @@ GridLayout{
             MenuOptionBtn {
                 id:helpItem
                 optionText:i18nd("lliurex-onedrive","Help")
-                optionIcon:"/usr/share/icons/breeze/actions/16/help-contents.svg"
+                optionIcon:"/usr/share/icons/breeze/actions/22/help-contents.svg"
                 Connections{
                     function onMenuOptionClicked(){
                         onedriveBridge.openHelp();
@@ -49,7 +50,6 @@ GridLayout{
     StackView {
         id: optionsView
         property int currentIndex:onedriveBridge.spacesCurrentOption
-        implicitHeight: 450
         Layout.fillWidth:true
         Layout.fillHeight:true
         initialItem:spacesInfoView

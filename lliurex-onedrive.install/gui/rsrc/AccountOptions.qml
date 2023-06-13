@@ -25,8 +25,9 @@ GridLayout{
             }
         }  
         Rectangle{
-            width:120
-            height:475
+            width:130
+            Layout.minimumHeight:475
+            Layout.fillHeight:true
             border.color: "#d3d3d3"
             GridLayout{
                 id: menuGrid
@@ -37,7 +38,7 @@ GridLayout{
                 MenuOptionBtn {
                     id:infoItem
                     optionText:i18nd("lliurex-onedrive","Space")
-                    optionIcon:"/usr/share/icons/breeze/places/16/folder.svg"
+                    optionIcon:"/usr/share/icons/breeze/places/22/folder.svg"
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(0)
@@ -48,7 +49,7 @@ GridLayout{
                 MenuOptionBtn {
                     id:synchronizeItem
                     optionText:i18nd("lliurex-onedrive","Synchronize")
-                    optionIcon:"/usr/share/icons/breeze/actions/16/view-refresh.svg"
+                    optionIcon:"/usr/share/icons/breeze/actions/22/view-refresh.svg"
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(1)
@@ -59,7 +60,7 @@ GridLayout{
                 MenuOptionBtn {
                     id:settingsItem
                     optionText:i18nd("lliurex-onedrive","Settings")
-                    optionIcon:"/usr/share/icons/breeze/actions/16/configure.svg"
+                    optionIcon:"/usr/share/icons/breeze/actions/22/configure.svg"
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(2)
@@ -69,7 +70,7 @@ GridLayout{
                 MenuOptionBtn {
                     id:toolsItem
                     optionText:i18nd("lliurex-onedrive","Tools")
-                    optionIcon:"/usr/share/icons/breeze/actions/16/tools.svg"
+                    optionIcon:"/usr/share/icons/breeze/actions/22/tools.svg"
                     Connections{
                         function onMenuOptionClicked(){
                             onedriveBridge.moveToManageOption(3)
@@ -84,7 +85,6 @@ GridLayout{
     StackView {
         id: manageView
         property int currentOption:onedriveBridge.manageCurrentOption
-        implicitHeight: 450
         Layout.fillWidth:true
         Layout.fillHeight: true
         initialItem:accountView
