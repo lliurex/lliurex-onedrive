@@ -1,3 +1,9 @@
+lliurex-onedrive (1.4.1) focal; urgency=medium
+
+  * Changed some functions to support onedrive-client v2.4.25
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 22 Jun 2023 13:57:24 +0200
+
 lliurex-onedrive (1.4) focal; urgency=medium
 
   * Added new option to manage log
