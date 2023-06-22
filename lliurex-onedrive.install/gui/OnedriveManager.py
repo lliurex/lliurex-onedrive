@@ -888,7 +888,7 @@ class OnedriveManager:
 		self.spaceAccountType=""
 		self.initialDownloadBytes=0
 		
-		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --operation-timeout="60" --confdir="%s"'%(self.spaceConfPath)
+		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%(self.spaceConfPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		
 		try:
@@ -1167,7 +1167,7 @@ class OnedriveManager:
 
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
-			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="60" --confdir="%s"'%self.spaceConfPath
+			cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%self.spaceConfPath
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			try:
 				poutput,perror=p.communicate(timeout=90)
@@ -1997,7 +1997,7 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="120" --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
 		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath

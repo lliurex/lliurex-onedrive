@@ -185,7 +185,7 @@ class getSpaceStatusWorker():
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
-					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --operation-timeout="60" --confdir="%s"'%spaceConfigPath
+					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
 						poutput,perror=p.communicate(timeout=90)
