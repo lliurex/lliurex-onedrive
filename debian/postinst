@@ -20,6 +20,11 @@ set -e
 
 case "$1" in
     configure)
+        newVersion=$(dpkg-query --showformat='${Version}' --show lliurex-onedrive)
+        tokenDir=/var/lib/lliurex-onedrive/version
+
+        echo "$newVersion" > "$tokenDir" || true
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
