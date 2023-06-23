@@ -16,7 +16,7 @@ Item {
 
 	Rectangle{
 		id:menuOption
-		width:120
+		width:130
 		height:35
 		color:"transparent"
 		border.color:"transparent"

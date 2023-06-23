@@ -1,4 +1,4 @@
-import org.kde.plasma.core 2.1 as PlasmaCore
+import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.12 as Kirigami
 import QtQuick 2.6
 import QtQuick.Controls 2.6
@@ -18,16 +18,17 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
         anchors.left:parent.left
+        width:parent.width-10
+        height:parent.height-90
         enabled:true
         Kirigami.InlineMessage {
             id: messageLabel
             visible:onedriveBridge.showSpaceSettingsMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
-            Layout.minimumWidth:660
-            Layout.maximumWidth:660
+            Layout.minimumWidth:650
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
@@ -41,6 +42,8 @@ Rectangle{
             SpaceList{
                 id:spacesList
                 structModel:onedriveBridge.spacesModel
+                Layout.fillHeight:true
+                Layout.fillWidth:true
             }
         }
     }

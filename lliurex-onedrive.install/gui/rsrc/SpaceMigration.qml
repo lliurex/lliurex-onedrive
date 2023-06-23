@@ -25,7 +25,7 @@ Rectangle{
             id:informationText
             text:i18nd("lliurex-onedrive","In order to continue using LliureX-OneDrive it is necessary to migrate the current configurarion.\nBefore starting the process it is recommended to consult the help.\nDuring the migration process the synchronization will be stopped.Once finished,you can start the synchronization again.\nTo start the migration clik Continue")
             horizontalAlignment:Text.AlignJustify
-            width:650
+            width:640
             wrapMode:Text.WordWrap
             font.family: "Quattrocento Sans Bold"
             font.pointSize: 10

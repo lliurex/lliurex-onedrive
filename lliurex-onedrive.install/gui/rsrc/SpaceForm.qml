@@ -19,16 +19,16 @@ Rectangle{
         rows:2
         flow: GridLayout.TopToBottom
         rowSpacing:10
-        Layout.fillWidth: true
-        anchors.horizontalCenter:parent.horizontalCenter
-
+        anchors.left:parent.left
+        width:parent.width-10
+ 
         Kirigami.InlineMessage {
             id: newSpaceMessageLabel
             visible:onedriveBridge.showSpaceFormMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
             Layout.minimumWidth:650
-            Layout.maximumWidth:650
+            Layout.fillWidth:true
             Layout.topMargin: 40
         }
 
@@ -56,6 +56,9 @@ Rectangle{
                 text:onedriveBridge.formData[0]
                 validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
+                onTextChanged:{
+                    onedriveBridge.resetSharePoints()
+                }
             }
 
             Text{
@@ -79,6 +82,11 @@ Rectangle{
                     id:oneDriveOption
                     checked:onedriveBridge.formData[1]==0?true:false
                     text:"OneDrive"
+                    onToggled:{
+                        if (checked){
+                            onedriveBridge.resetSharePoints()
+                        }
+                    }
                   }
 
                 RadioButton{
