@@ -1,3 +1,12 @@
+lliurex-onedrive (0.3) bionic; urgency=medium
+
+  * Changed some funtions to support onedrive-client v2.4.25
+  * Added new option to manage log
+  * Added new option to skip synchronization of file for extension
+  * Added new option to add specific icon to folders includes in synchronization
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.comm>  Fri, 23 Jun 2023 08:20:41 +0200
+
 lliurex-onedrive (0.2.6) bionic; urgency=medium
 
   * Fixed space config template to enable space_reservation param
