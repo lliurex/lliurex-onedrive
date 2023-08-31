@@ -1,3 +1,9 @@
+lliurex-onedrive (2.14.1) jammy; urgency=medium
+
+  * Initial release for Jammy
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 31 Aug 2023 10:35:25 +0200
+
 lliurex-onedrive (1.4.1) focal; urgency=medium
 
   * Changed some functions to support onedrive-client v2.4.25
