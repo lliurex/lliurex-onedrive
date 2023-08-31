@@ -1,0 +1,3 @@
+lliurex-onedrive.install/gui/* /usr/share/lliurex-onedrive/
+lliurex-onedrive.install/llx-data/* /usr/share/lliurex-onedrive/llx-data/
+lliurex-onedrive.install/service/* /usr/bin/

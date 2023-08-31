@@ -1,0 +1,155 @@
+lliurex-onedrive (1.4.1) focal; urgency=medium
+
+  * Changed some functions to support onedrive-client v2.4.25
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 22 Jun 2023 13:57:24 +0200
+
+lliurex-onedrive (1.4) focal; urgency=medium
+
+  * Added new option to manage log
+  * Added new option to skip synchronization of file for extension
+  * Added new option to add specific icon to folders includes in synchronization
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 14 Jun 2023 17:34:12 +0200
+
+lliurex-onedrive (1.3.6) focal; urgency=medium
+
+  * Fixed space config template to enable space_reservation param
+  * Changed AC service to add function to fix spaces config file
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 09 May 2023 10:10:05 +0200
+
+lliurex-onedrive (1.3.5) focal; urgency=medium
+
+  * Fixed format of sync_list file
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 06 Apr 2023 10:07:04 +0200
+
+lliurex-onedrive (1.3.4) focal; urgency=medium
+
+  * Fixed function to get Libraries from a SharePoint.
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 04 Apr 2023 11:02:18 +0200
+
+lliurex-onedrive (1.3.3) focal; urgency=medium
+
+  * Fixed creation of sync_list file for partial sync
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 27 Mar 2023 10:54:32 +0200
+
+lliurex-onedrive (1.3.2) focal; urgency=medium
+
+  * Fixed getting space structure
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 09 Jan 2023 11:50:49 +0100
+
+lliurex-onedrive (1.3.1) focal; urgency=medium
+
+  * Fixed sync_list creation for partial sync
+  * Improved the mechanism to show error notifications
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 12 Dec 2022 10:02:12 +0100
+
+lliurex-onedrive (1.3) focal; urgency=medium
+
+  * New version with multi-spaces synchronization
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 04 Oct 2022 11:50:48 +0200
+
+lliurex-onedrive (1.2.11.2) focal-updates; urgency=medium
+
+  * Added teachers in group list to run zomando
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 13 Jul 2022 10:28:03 +0200
+
+lliurex-onedrive (1.2.11.1) focal-updates; urgency=medium
+
+  * Fixed bug in manageSync btn invoke
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 23 Jun 2022 09:44:07 +0200
+
+lliurex-onedrive (1.2.11) focal-updates; urgency=medium
+
+  * Improved speed when gather info about space struct folde
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 22 Jun 2022 12:28:06 +0200
+
+lliurex-onedrive (1.2.10) focal-updates; urgency=medium
+
+  * Fixed bug in filter file creation
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 17 Jun 2022 09:04:19 +0200
+
+lliurex-onedrive (1.2.9) focal-updates; urgency=medium
+
+  * Updated to support onedrive v2.4.18
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 06 Jun 2022 09:56:15 +0200
+
+lliurex-onedrive (1.2.8) focal-updates; urgency=medium
+
+  * Updated to support onedrive v2.4.16 
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 20 Apr 2022 10:17:11 +0200
+
+lliurex-onedrive (1.2.7) focal-updates; urgency=medium
+
+  * Fixed bug in folder struct search function
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 09 Mar 2022 13:15:59 +0100
+
+lliurex-onedrive (1.2.6) focal-updates; urgency=medium
+
+  * Updated config file to v2.4.15
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 02 Mar 2022 10:52:20 +0100
+
+lliurex-onedrive (1.2.5) focal-updates; urgency=medium
+
+  * Improved general performance
+  * Improved management of folder list
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 21 Feb 2022 08:21:21 +0100
+
+lliurex-onedrive (1.2.4) focal-updates; urgency=medium
+
+  * Checked if local folder exists or is empty
+  * Improved general performance
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 31 Jan 2022 13:12:47 +0100
+
+lliurex-onedrive (1.2.3) focal-updates; urgency=medium
+
+  * Mapped a new error to show specific message
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 12 Jan 2022 16:49:54 +0100
+
+lliurex-onedrive (1.2.2) focal; urgency=medium
+
+  * Fixed a litle bug
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 09 Dec 2021 13:07:00 +0100
+
+lliurex-onedrive (1.2.1) focal; urgency=medium
+
+  * Fixed show/hide change sync process message
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 23 Nov 2021 16:19:35 +0100
+
+lliurex-onedrive (1.2) focal; urgency=medium
+
+  * Fixed zero app file
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 22 Nov 2021 12:16:00 +0100
+
+lliurex-onedrive (1.1) focal; urgency=medium
+
+  * Changed libray version
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 22 Nov 2021 11:00:45 +0100
+
+lliurex-onedrive (1.0) focal; urgency=medium
+
+  * Initial release
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 18 Nov 2021 14:30:19 +0100
