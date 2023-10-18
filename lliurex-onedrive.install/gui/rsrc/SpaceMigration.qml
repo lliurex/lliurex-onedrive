@@ -50,7 +50,7 @@ Rectangle{
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
-                onedriveBridge.moveToSpaceOption(1)
+                mainStackBridge.moveToSpaceOption(1)
             }
        }
     } 

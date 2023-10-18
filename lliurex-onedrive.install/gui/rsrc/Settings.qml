@@ -25,10 +25,10 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: settingsMessageLabel
-            visible:onedriveBridge.showSettingsMessage[0]
+            visible:settingsStackBridge.showSettingsMessage[0]
             text:getMessageText()
             type: {
-                if (onedriveBridge.showSettingsMessage[1]==""){
+                if (settingsStackBridge.showSettingsMessage[1]==""){
                     Kirigami.MessageType.Positive;
                 }else{
                     Kirigami.MessageType.Error;
@@ -60,12 +60,12 @@ Rectangle{
             CheckBox {
                 id:autoStartValue
                 text:i18nd("lliurex-onedrive","Start when booting the system")
-                checked:onedriveBridge.autoStartEnabled
+                checked:settingsStackBridge.autoStartEnabled
                 enabled:getEnabledStatus()
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
-                onToggled:onedriveBridge.manageAutoStart(autoStartValue.checked);
+                onToggled:settingsStackBridge.manageAutoStart(autoStartValue.checked);
                 Layout.bottomMargin:10
                 Layout.alignment:Qt.AlignLeft
             }
@@ -84,12 +84,12 @@ Rectangle{
                 from:1
                 to:60
                 stepSize:1
-                value:onedriveBridge.monitorInterval
+                value:settingsStackBridge.monitorInterval
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
                 enabled:getEnabledStatus()
                 onValueModified:{
-                    onedriveBridge.getMonitorInterval(value)
+                    settingsStackBridge.getMonitorInterval(value)
                 }
             }
 
@@ -104,14 +104,14 @@ Rectangle{
 
             ComboBox{
                 id:bandwidthValues
-                currentIndex:onedriveBridge.rateLimit
-                model:onedriveBridge.bandWidthNames
+                currentIndex:settingsStackBridge.rateLimit
+                model:settingsStackBridge.bandWidthNames
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
                 Layout.preferredWidth:100
                 enabled:getEnabledStatus()
                 onActivated:{
-                    onedriveBridge.getRateLimit(bandwidthValues.currentIndex)
+                    settingsStackBridge.getRateLimit(bandwidthValues.currentIndex)
                 }
             }
             Text{
@@ -129,24 +129,24 @@ Rectangle{
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
                     focusPolicy: Qt.NoFocus
-                    checked:onedriveBridge.skipSize[0]
+                    checked:settingsStackBridge.skipSize[0]
                     enabled:getEnabledStatus()
                     Layout.bottomMargin:10
                     Layout.rightMargin:5
                     Layout.alignment:Qt.AlignLeft
-                    onToggled:onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
+                    onToggled:settingsStackBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
 
                 }
                 ComboBox{
                     id:skipSizeValues
-                    currentIndex:onedriveBridge.skipSize[1]
-                    model:onedriveBridge.maxFileSizeNames
+                    currentIndex:settingsStackBridge.skipSize[1]
+                    model:settingsStackBridge.maxFileSizeNames
                     enabled:skipSizeCB.checked
                     Layout.alignment:Qt.AlignVCenter
                     Layout.bottomMargin:10
                     Layout.preferredWidth:100
                     onActivated:{
-                        onedriveBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
+                        settingsStackBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
                     }
                 }
             }
@@ -160,12 +160,12 @@ Rectangle{
             CheckBox {
                 id:enableLogCB
                 text:i18nd("lliurex-onedrive","Activate log")
-                checked:onedriveBridge.logEnabled
+                checked:settingsStackBridge.logEnabled
                 enabled:true
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
-                onToggled:onedriveBridge.getLogEnabled(enableLogCB.checked)
+                onToggled:settingsStackBridge.getLogEnabled(enableLogCB.checked)
             }
             Text{
 
@@ -181,7 +181,7 @@ Rectangle{
                 }
                 Text{
                     id:sizeLogValue
-                    text:onedriveBridge.logSize
+                    text:settingsStackBridge.logSize
                     anchors.verticalCenter:manageLogBtn.verticalCenter
                 }
                 Button {
@@ -192,7 +192,7 @@ Rectangle{
                     Layout.alignment: Qt.AlignVCenter
                     hoverEnabled:true
                     enabled:{
-                        if (onedriveBridge.logSize!=""){
+                        if (settingsStackBridge.logSize!=""){
                             true
                         }else{
                             false
@@ -214,7 +214,7 @@ Rectangle{
                             icon.name:"document-preview-archive.svg"
                             text:i18nd("lliurex-onedrive","View log file")
                             onClicked:{
-                                onedriveBridge.openSpaceLogFile()
+                                settingsStackBridge.openSpaceLogFile()
                             }
                         }
                         MenuItem{
@@ -241,27 +241,27 @@ Rectangle{
         Button {
             id:applyBtn
             visible:true
-            enabled:onedriveBridge.settingsChanged
+            enabled:settingsStackBridge.settingsChanged
             display:AbstractButton.TextBesideIcon
             icon.name:"dialog-ok.svg"
             text:i18nd("lliurex-onedrive","Apply")
             Layout.preferredHeight: 40
 
             onClicked:{
-               onedriveBridge.applySettingsChanges()
+              settingsStackBridge.applySettingsChanges()
             }
         }
         Button {
             id:cancelBtn
             visible:true
-            enabled:onedriveBridge.settingsChanged
+            enabled:settingsStackBridge.settingsChanged
             display:AbstractButton.TextBesideIcon
             icon.name:"dialog-cancel.svg"
             text:i18nd("lliurex-onedrive","Cancel")
             Layout.preferredHeight: 40
 
             onClicked:{
-               onedriveBridge.cancelSettingsChanges()
+                settingsStackBridge.cancelSettingsChanges()
             }
         }
     
@@ -276,7 +276,7 @@ Rectangle{
         id:settingsChangesDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
-        dialogVisible:onedriveBridge.showSettingsDialog
+        dialogVisible:settingsStackBridge.showSettingsDialog
         dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
         dialogWidth:400
         btnAcceptVisible:true
@@ -288,14 +288,14 @@ Rectangle{
         Connections{
             target:settingsChangesDialog
             function onDialogApplyClicked(){
-                onedriveBridge.manageSettingsDialog("Accept")
+                settingsStackBridge.manageSettingsDialog("Accept")
             }
             function onDiscardDialogClicked(){
-                onedriveBridge.manageSettingsDialog("Discard")           
+                settingsStackBridge.manageSettingsDialog("Discard")           
             }
             function onRejectDialogClicked(){
                 closeTimer.stop()
-                onedriveBridge.manageSettingsDialog("Cancel")       
+                settingsStackBridge.manageSettingsDialog("Cancel")       
             }
 
         }
@@ -306,7 +306,7 @@ Rectangle{
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
-        dialogWidth:360
+        dialogWidth:400
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -317,7 +317,7 @@ Rectangle{
             target:removeLogDialog
             function onDiscardDialogClicked(){
                 removeLogDialog.close()
-                onedriveBridge.removeLogFile()
+                settingsStackBridge.removeLogFile()
             }
             function onRejectDialogClicked(){
                 removeLogDialog.close()
@@ -328,7 +328,7 @@ Rectangle{
   
     function getMessageText(){
 
-        switch (onedriveBridge.showSettingsMessage[1]){
+        switch (settingsStackBridge.showSettingsMessage[1]){
             case -10:
                 var msg=i18nd("lliurex-onedrive","Failed to change synchronization boot configuration");
                 break;
@@ -357,7 +357,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((onedriveBridge.localFolderRemoved)||(onedriveBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
             return false
         }else{
             return true

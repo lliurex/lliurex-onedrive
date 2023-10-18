@@ -21,7 +21,7 @@ Rectangle {
         onLoadingChanged:{
             var ret=loadRequest.url.toString()
             if (ret.indexOf("nativeclient?code=")===48){
-                onedriveBridge.getToken(ret);
+                addSpaceStackBridge.getToken(ret);
                 profile.clearHttpCache();
                 webEngine.action(webEngine.Stop);
             }

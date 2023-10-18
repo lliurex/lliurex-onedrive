@@ -26,9 +26,9 @@ ApplicationWindow {
 
     onClosing: {
         close.accepted=closing;
-        onedriveBridge.closeOnedrive()
+        mainStackBridge.closeOnedrive()
         delay(100, function() {
-            if (onedriveBridge.closeGui){
+            if (mainStackBridge.closeGui){
                 closing=true,
                 closeTimer.stop(),           
                 mainWindow.close();
@@ -65,7 +65,7 @@ ApplicationWindow {
 
         StackView {
             id: mainView
-            property int currentIndex:onedriveBridge.currentStack
+            property int currentIndex:mainStackBridge.currentStack
             Layout.minimumWidth: 725
             Layout.preferredWidth: 725
             Layout.alignment:Qt.AlignHCenter

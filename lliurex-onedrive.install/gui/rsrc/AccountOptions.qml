@@ -20,7 +20,7 @@ GridLayout{
             optionIcon:"/usr/share/icons/breeze/actions/24/arrow-left.svg"
             Connections{
                 function onMenuOptionClicked(){
-                    onedriveBridge.goHome();
+                    spaceStackBridge.goHome();
                 }
             }
         }  
@@ -41,7 +41,7 @@ GridLayout{
                     optionIcon:"/usr/share/icons/breeze/places/22/folder.svg"
                     Connections{
                         function onMenuOptionClicked(){
-                            onedriveBridge.moveToManageOption(0)
+                           spaceStackBridge.moveToManageOption(0)
                         }
                     }
                 }
@@ -52,7 +52,7 @@ GridLayout{
                     optionIcon:"/usr/share/icons/breeze/actions/22/view-refresh.svg"
                     Connections{
                         function onMenuOptionClicked(){
-                            onedriveBridge.moveToManageOption(1)
+                            spaceStackBridge.moveToManageOption(1)
                         }
                     }
                 }
@@ -63,7 +63,7 @@ GridLayout{
                     optionIcon:"/usr/share/icons/breeze/actions/22/configure.svg"
                     Connections{
                         function onMenuOptionClicked(){
-                            onedriveBridge.moveToManageOption(2)
+                            spaceStackBridge.moveToManageOption(2)
                         }
                     }
                 }
@@ -73,7 +73,7 @@ GridLayout{
                     optionIcon:"/usr/share/icons/breeze/actions/22/tools.svg"
                     Connections{
                         function onMenuOptionClicked(){
-                            onedriveBridge.moveToManageOption(3)
+                            spaceStackBridge.moveToManageOption(3)
                         }
                     }
                 }
@@ -84,7 +84,7 @@ GridLayout{
 
     StackView {
         id: manageView
-        property int currentOption:onedriveBridge.manageCurrentOption
+        property int currentOption:spaceStackBridge.manageCurrentOption
         Layout.fillWidth:true
         Layout.fillHeight: true
         initialItem:accountView
@@ -154,7 +154,7 @@ GridLayout{
             id:updateAuthView
             OnedriveAuth{
                 id:oneDriveUpdateAuth
-                authUrl:onedriveBridge.authUrl
+                authUrl:addSpaceStackBridge.authUrl
             }
         }
     }
