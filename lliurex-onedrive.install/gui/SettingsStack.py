@@ -9,8 +9,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-APPLY_SPACE_CHANGES_MESSAGE=12
-
 class ApplySettingsChanges(QThread):
 
 	def __init__(self,*args):
@@ -30,6 +28,8 @@ class ApplySettingsChanges(QThread):
 #class ApplySettingsChanges
 
 class Bridge(QObject):
+
+	APPLY_SPACE_CHANGES_MESSAGE=12
 
 	def __init__(self,ticket=None):
 
@@ -310,7 +310,7 @@ class Bridge(QObject):
 	def applySettingsChanges(self):
 
 		self.showSettingsMessage=[False,'']
-		self.core.mainStack.closePopUp=[False,APPLY_SPACE_CHANGES_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.APPLY_SPACE_CHANGES_MESSAGE]
 		self.core.mainStack.closeGui=False
 		self.applySettingsChangesT=ApplySettingsChanges(self.initialConfig)
 		self.applySettingsChangesT.start()

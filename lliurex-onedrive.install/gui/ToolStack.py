@@ -9,15 +9,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-SPACE_RUNNING_TEST_MESSAGE=13
-SPACE_RUNNING_REPAIR_MESSAGE=14
-TOOLS_DEFAULT_MESSAGE=18
-UPDATE_TOKEN_MESSAGE=19
-FOLDERS_DIRECTOY_APPLY_RUNNING=21
-FOLDERS_DIRECTOY_REMOVE_RUNNING=22
-
-UPDATE_TOKEN_ERROR=-16
-
 class TestOneDrive(QThread):
 
 	def __init__(self,*args):
@@ -70,6 +61,15 @@ class FoldersDirectory(QThread):
 
 class Bridge(QObject):
 
+	SPACE_RUNNING_TEST_MESSAGE=13
+	SPACE_RUNNING_REPAIR_MESSAGE=14
+	TOOLS_DEFAULT_MESSAGE=18
+	UPDATE_TOKEN_MESSAGE=19
+	FOLDERS_DIRECTOY_APPLY_RUNNING=21
+	FOLDERS_DIRECTOY_REMOVE_RUNNING=22
+
+	UPDATE_TOKEN_ERROR=-16
+
 	def __init__(self,ticket=None):
 
 		QObject.__init__(self)
@@ -77,7 +77,7 @@ class Bridge(QObject):
 		self.core=Core.Core.get_core()
 		Bridge.onedriveMan=self.core.onedrivemanager
 
-		self._showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
+		self._showToolsMessage=[False,Bridge.TOOLS_DEFAULT_MESSAGE,"Information"]
 		self.updateSpaceAuth=False
 
 	#def __init__
@@ -99,7 +99,7 @@ class Bridge(QObject):
 	@Slot()
 	def testOnedrive(self):
 
-		self.core.mainStack.closePopUp=[False,SPACE_RUNNING_TEST_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_RUNNING_TEST_MESSAGE]
 		self.testOnedriveT=TestOneDrive()
 		self.testOnedriveT.start()
 		self.testOnedriveT.finished.connect(self._testOnedrive)
@@ -118,7 +118,7 @@ class Bridge(QObject):
 	@Slot()
 	def repairOnedrive(self):
 
-		self.core.mainStack.closePopUp=[False,SPACE_RUNNING_REPAIR_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_RUNNING_REPAIR_MESSAGE]
 		self.repairOneDriveT=RepairOneDrive()
 		self.repairOneDriveT.start()
 		self.repairOneDriveT.finished.connect(self._repairOnedrive)
@@ -145,9 +145,9 @@ class Bridge(QObject):
 		ret=Bridge.onedriveMan.updateSpaceAuth()
 		
 		if ret:
-			self.showToolsMessage=[True,UPDATE_TOKEN_MESSAGE,"Ok"]
+			self.showToolsMessage=[True,Bridge.UPDATE_TOKEN_MESSAGE,"Ok"]
 		else:
-			self.showToolsMessage=[True,UPDATE_TOKEN_ERROR,"Error"]
+			self.showToolsMessage=[True,Bridge.UPDATE_TOKEN_ERROR,"Error"]
 		
 	#def updateSpaceAuthorization
 
@@ -155,9 +155,9 @@ class Bridge(QObject):
 	def manageFoldersDirectory(self,enable):
 
 		if enable:
-			self.core.mainStack.closePopUp=[False,FOLDERS_DIRECTOY_APPLY_RUNNING]
+			self.core.mainStack.closePopUp=[False,Bridge.FOLDERS_DIRECTOY_APPLY_RUNNING]
 		else:
-			self.core.mainStack.closePopUp=[False,FOLDERS_DIRECTOY_REMOVE_RUNNING]
+			self.core.mainStack.closePopUp=[False,Bridge.FOLDERS_DIRECTOY_REMOVE_RUNNING]
 
 		self.foldersDirectoryT=FoldersDirectory(enable)
 		self.foldersDirectoryT.start()

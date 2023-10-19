@@ -9,21 +9,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-SPACE_LOADING_SETTINGS=3
-DISABLE_SYNC_OPTIONS=4
-START_SYNC_MESSAGE=6
-STOP_SYNC_MESSAGE=7
-CHECKING_STATUS_MESSAGE=8
-REMOVE_SPACE_MESSAGE=9
-TOOLS_DEFAULT_MESSAGE=18
-SPACE_MIGRATION_SUCCESS=20
-
-START_SYNCHRONIZATION_ERROR=-10
-STOP_SYNCHRONIZATION_ERROR=-11
-LOCAL_FOLDER_EMPTY=-12
-LOCAL_FOLDER_REMOVED=-13
-
-
 class GatherSpaceSettings(QThread):
 
 	def __init__(self,*args):
@@ -98,6 +83,18 @@ class RemoveAccount(QThread):
 #class RemoveAccount
 
 class Bridge(QObject):
+
+	SPACE_LOADING_SETTINGS=3
+	START_SYNC_MESSAGE=6
+	STOP_SYNC_MESSAGE=7
+	CHECKING_STATUS_MESSAGE=8
+	REMOVE_SPACE_MESSAGE=9
+	SPACE_MIGRATION_SUCCESS=20
+
+	START_SYNCHRONIZATION_ERROR=-10
+	STOP_SYNCHRONIZATION_ERROR=-11
+	LOCAL_FOLDER_EMPTY=-12
+	LOCAL_FOLDER_REMOVED=-13
 
 	def __init__(self,ticket=None):
 
@@ -284,7 +281,7 @@ class Bridge(QObject):
 
 		self.initStartUp=True
 		
-		self.core.mainStack.closePopUp=[False,START_SYNC_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.START_SYNC_MESSAGE]
 		self.manageSyncT=ManageSync(True)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._endInitialStartUp)
@@ -296,7 +293,7 @@ class Bridge(QObject):
 		self.isOnedriveRunning=self.manageSyncT.ret[1]
 
 		if not self.isOnedriveRunning:
-			self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR,"Error"]
+			self.showAccountMessage=[True,Bridge.START_SYNCHRONIZATION_ERROR,"Error"]
 			self.core.mainStack.currentStack=2
 			self.manageCurrentOption=0
 			self.core.mainStack.spacesCurrentOption=0
@@ -312,7 +309,7 @@ class Bridge(QObject):
 	@Slot(str)
 	def loadSpace(self,idSpace):
 
-		self.core.mainStack.closePopUp=[False,SPACE_LOADING_SETTINGS]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_LOADING_SETTINGS]
 		self.core.mainStack.closeGui=False
 		self.getSpaceSettings=GatherSpaceSettings(idSpace)
 		self.getSpaceSettings.start()
@@ -336,15 +333,10 @@ class Bridge(QObject):
 					self._endLoading()
 			else:
 				if self.localFolderRemoved:
-					self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED,"Error"]
+					self.showAccountMessage=[True,Bridge.LOCAL_FOLDER_REMOVED,"Error"]
 				elif self.localFolderEmpty:
-					self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY,"Error"]
+					self.showAccountMessage=[True,Bridge.LOCAL_FOLDER_EMPTY,"Error"]
 				self._endLoading()
-			
-			if self.isOnedriveRunning:
-				self.core.toolStack.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
-			else:
-				self.core.toolStack.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
 		else:
 			self.core.mainStack.closePopUp=[True,""]
 			self.core.mainStack.closeGui=True
@@ -361,12 +353,7 @@ class Bridge(QObject):
 			self.core.syncStack.showFolderStruct=False
 			
 		self.core.syncStack._updateFileExtensionsModel()
-		
-		if self.isOnedriveRunning:
-			self.core.syncStack.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
-		else:
-			self.core.syncStack.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
-		
+		self._manageRunningMessage()		
 		self.checkSpaceLocalFolderTimer=QTimer(None)
 		self.checkSpaceLocalFolderTimer.timeout.connect(self.checkSpaceLocalFolder)
 		self.checkSpaceLocalFolderTimer.start(5000)
@@ -375,7 +362,7 @@ class Bridge(QObject):
 		self.core.mainStack.closeGui=True
 
 		if self.core.mainStack.requiredMigration:
-			self.showAccountMessage=[True,SPACE_MIGRATION_SUCCESS,"OK"]
+			self.showAccountMessage=[True,Bridge.SPACE_MIGRATION_SUCCESS,"OK"]
 			self.core.mainStack.requiredMigration=False
 			self.core.mainStack.spacesCurrentOption=0
 
@@ -444,9 +431,9 @@ class Bridge(QObject):
 
 		self.startSync=startSync
 		if self.startSync:
-			msg=START_SYNC_MESSAGE
+			msg=Bridge.START_SYNC_MESSAGE
 		else:
-			msg=STOP_SYNC_MESSAGE
+			msg=Bridge.STOP_SYNC_MESSAGE
 
 		self.core.mainStack.closePopup=[False,msg]
 		self.manageSyncT=ManageSync(self.startSync)
@@ -459,19 +446,15 @@ class Bridge(QObject):
 
 		if not self.manageSyncT.ret[0]:
 			if self.startSync:
-				self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR,"Error"]
+				self.showAccountMessage=[True,Bridge.STOP_SYNCHRONIZATION_ERROR,"Error"]
 			else:
-				self.showAccountMessage=[True,START_SYNCHRONIZATION_ERROR,"Error"]
+				self.showAccountMessage=[True,Bridge.START_SYNCHRONIZATION_ERROR,"Error"]
 		else:
 			self.showAccountMessage=[False,"","Error"]
 			self.core.mainStack._updateSpacesModelInfo('isRunning')
 		
 		self.isOnedriveRunning=self.manageSyncT.ret[1]
-		if self.isOnedriveRunning:
-			self.core.syncStack.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
-		else:
-			self.core.syncStack.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
-
+		self._manageRunningMessage()
 		self.core.mainStack.closePopUp=[True,""]
 	
 	#def _manageSync
@@ -480,7 +463,7 @@ class Bridge(QObject):
 	def checkAccountStatus(self):
 
 		if not self.initStartUp:
-			self.core.mainStack.closePopUp=[False,CHECKING_STATUS_MESSAGE]
+			self.core.mainStack.closePopUp=[False,Bridge.CHECKING_STATUS_MESSAGE]
 		self.getAccountStatus=AccountStatus()
 		self.getAccountStatus.start()
 		self.getAccountStatus.finished.connect(self._checkAccountStatus)
@@ -490,13 +473,11 @@ class Bridge(QObject):
 	def _checkAccountStatus(self):
 
 		if self.initStartUp:
-			self.core.syncStack.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
 			self.core.mainStack.currentStack=2
 			self.manageCurrentOption=0
 			self.core.mainStack.spacesCurrentOption=0
 			self.initStartUp=False
-			if self.isOnedriveRunning:
-				self.core.toolStack.showToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
+			self._manageRunningMessage()
 
 		self.core.mainStack.closePopUp=[True,""]
 		self.core.mainStack.closeGui=True
@@ -509,7 +490,7 @@ class Bridge(QObject):
 	@Slot()
 	def removeAccount(self):
 
-		self.core.mainStack.closePopUp=[False,REMOVE_SPACE_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.REMOVE_SPACE_MESSAGE]
 		self.core.mainStack.closeGui=False
 		self.removeAccountT=RemoveAccount()
 		self.removeAccountT.start()
@@ -527,7 +508,7 @@ class Bridge(QObject):
 			self.manageCurrentOption=0
 			self.removeAction=True
 		else:
-			self.showAccountMessage=[True,STOP_SYNCHRONIZATION_ERROR,"Error"]	
+			self.showAccountMessage=[True,Bridge.STOP_SYNCHRONIZATION_ERROR,"Error"]	
 	
 		self.core.mainStack.closePopUp=[True,""]
 		self.core.mainStack.closeGui=True
@@ -555,28 +536,33 @@ class Bridge(QObject):
 	def checkSpaceLocalFolder(self):
 
 		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-		
-		if self.isOnedriveRunning:
-			self.core.syncStack.showSynchronizeMessage=[True,DISABLE_SYNC_OPTIONS,"Information"]
-			if not self.core.toolStack.updateSpaceAuth:
-				self.core.toolStackshowToolsMessage=[True,TOOLS_DEFAULT_MESSAGE,"Information"]
-		else:
-			if not self.core.toolStack.updateSpaceAuth:
-				self.core.toolStack.showToolsMessage=[False,TOOLS_DEFAULT_MESSAGE,"Information"]
-			if not self.core.syncStack.changedSyncWorked:
-				self.core.syncStack.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+		self._manageRunningMessage()
 
 		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder(Bridge.onedriveMan.spaceConfPath)
 	
 		if self.localFolderEmpty:
-			self.showAccountMessage=[True,LOCAL_FOLDER_EMPTY,"Error"]
+			self.showAccountMessage=[True,Bridge.LOCAL_FOLDER_EMPTY,"Error"]
 		else:
 			if self.localFolderRemoved:
-				self.showAccountMessage=[True,LOCAL_FOLDER_REMOVED,"Error"]
+				self.showAccountMessage=[True,Bridge.LOCAL_FOLDER_REMOVED,"Error"]
 			else:
 				self.showAccountMessage=[False,"","Error"]
 
 	#def checkSpaceLocalFolder
+
+	def _manageRunningMessage(self):
+
+		if self.isOnedriveRunning:
+			self.core.syncStack.showSynchronizeMessage=[True,self.core.syncStack.DISABLE_SYNC_OPTIONS,"Information"]
+			if not self.core.toolStack.updateSpaceAuth:
+				self.core.toolStack.showToolsMessage=[True,self.core.toolStack.TOOLS_DEFAULT_MESSAGE,"Information"]
+		else:
+			if not self.core.toolStack.updateSpaceAuth:
+				self.core.toolStack.showToolsMessage=[False,self.core.toolStack.TOOLS_DEFAULT_MESSAGE,"Information"]
+			if not self.core.syncStack.changedSyncWorked:
+				self.core.syncStack.showSynchronizeMessage=[False,self.core.syncStack.DISABLE_SYNC_OPTIONS,"Information"]
+
+	#def _manageRunningMessage
 
 	on_accountStatus=Signal()
 	accountStatus=Property(int,_getAccountStatus,_setAccountStatus, notify=on_accountStatus)

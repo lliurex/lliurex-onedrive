@@ -11,15 +11,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-DISABLE_SYNC_OPTIONS=4
-CHANGE_SYNC_OPTIONS_OK=5
-SPACE_GET_FOLDER_MESSAGE=10
-SPACE_FOLDER_RESTORE_MESSAGE=11
-APPLY_SPACE_CHANGES_MESSAGE=12
-
-CHANGE_SYNC_OPTIONS_ERROR=-4
-CHANGE_SYNC_FOLDERS_ERROR=-5
-
 class GetFolderStruct(QThread):
 
 	def __init__(self,*args):
@@ -60,13 +51,22 @@ class ApplySyncChanges(QThread):
 
 class Bridge(QObject):
 
+	DISABLE_SYNC_OPTIONS=4
+	CHANGE_SYNC_OPTIONS_OK=5
+	SPACE_GET_FOLDER_MESSAGE=10
+	SPACE_FOLDER_RESTORE_MESSAGE=11
+	APPLY_SPACE_CHANGES_MESSAGE=12
+
+	CHANGE_SYNC_OPTIONS_ERROR=-4
+	CHANGE_SYNC_FOLDERS_ERROR=-5
+
 	def __init__(self,ticket=None):
 
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
 		Bridge.onedriveMan=self.core.onedrivemanager
-		self._showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+		self._showSynchronizeMessage=[False,Bridge.DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
 		self._showSynchronizePendingDialog=False
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
@@ -230,8 +230,8 @@ class Bridge(QObject):
 	@Slot(bool)
 	def updateFolderStruct(self,localFolder):
 		
-		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
-		self.core.mainStack.closePopUp=[False,SPACE_GET_FOLDER_MESSAGE]
+		self.showSynchronizeMessage=[False,Bridge.CHANGE_SYNC_OPTIONS_OK,"Information"]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_GET_FOLDER_MESSAGE]
 		self.showFolderStruct=False
 		self.getFolderStruct=GetFolderStruct(localFolder)
 		self.getFolderStruct.start()
@@ -246,7 +246,7 @@ class Bridge(QObject):
 		self.core.mainStack.closePopUp=[True,""]
 		self.showFolderStruct=True
 		if self.errorGetFolder:
-			self.showSynchronizeMessage=[True,CHANGE_SYNC_FOLDERS_ERROR,"Error"]
+			self.showSynchronizeMessage=[True,Bridge.CHANGE_SYNC_FOLDERS_ERROR,"Error"]
 
 	#def _updateFolderStruct
 
@@ -431,7 +431,7 @@ class Bridge(QObject):
 	@Slot()
 	def cancelSyncChanges(self):
 		
-		self.core.mainStack.closePopUp=[False,SPACE_FOLDER_RESTORE_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_FOLDER_RESTORE_MESSAGE]
 		
 		self.syncCustomChanged=False
 		self.skipFileChanged=False
@@ -487,8 +487,8 @@ class Bridge(QObject):
 	
 	def applySyncChanges(self):
 
-		self.showSynchronizeMessage=[False,CHANGE_SYNC_OPTIONS_OK,"Information"]
-		self.core.mainStack.closePopUp=[False,APPLY_SPACE_CHANGES_MESSAGE]
+		self.showSynchronizeMessage=[False,Bridge.CHANGE_SYNC_OPTIONS_OK,"Information"]
+		self.core.mainStack.closePopUp=[False,Bridge.APPLY_SPACE_CHANGES_MESSAGE]
 		self.core.mainStack.closeGui=False
 		self.changedSyncWorked=True
 		self.applySynChangesT=ApplySyncChanges(self.initialSyncConfig,self.keepFolders,self.syncCustomChanged,self.skipFileChanged)
@@ -507,12 +507,12 @@ class Bridge(QObject):
 		self._updateFileExtensionsModel()
 
 		if self.applySynChangesT.ret:
-			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_OK,"Ok"]
+			self.showSynchronizeMessage=[True,Bridge.CHANGE_SYNC_OPTIONS_OK,"Ok"]
 			self.core.mainStack.closeGui=True
 			self.syncCustomChanged=False
 			self.skipFileChanged=False
 		else:
-			self.showSynchronizeMessage=[True,CHANGE_SYNC_OPTIONS_ERROR,"Error"]
+			self.showSynchronizeMessage=[True,Bridge.CHANGE_SYNC_OPTIONS_ERROR,"Error"]
 			self.core.spaceStack.moveToOption=""
 			self.core.spaceStack.moveToStack=""
 
@@ -524,7 +524,7 @@ class Bridge(QObject):
 	def hideSynchronizeMessage(self):
 
 		if not self.core.spaceStack.isOnedriveRunning and not self.errorGetFolder:
-			self.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+			self.showSynchronizeMessage=[False,Bridge.DISABLE_SYNC_OPTIONS,"Information"]
 			self.changedSyncWorked=False
 
 	#def hideSynchronizeMessage		

@@ -10,10 +10,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-SPACE_GLOBAL_WARNING=15
-
-HDD_SPACE_AVAILABLE_ERROR=-20
-
 class GatherInfo(QThread):
 
 	def __init__(self,*args):
@@ -33,6 +29,9 @@ class GatherInfo(QThread):
 
 class Bridge(QObject):
 
+	SPACE_GLOBAL_WARNING=15
+
+	HDD_SPACE_AVAILABLE_ERROR=-20
 
 	def __init__(self,ticket=None):
 
@@ -75,7 +74,7 @@ class Bridge(QObject):
 			self.checkGlobalStatusTimer.start(30000)
 			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
 				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
-					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+					self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
 				
 				self._updateSpacesModel()
 			if self.spaceToManage!="":
@@ -217,7 +216,7 @@ class Bridge(QObject):
 			self.spacesCurrentOption=option
 		else:
 			self.waitForUpdateGlobalMessage=0
-			self.showSpaceSettingsMessage=[True,HDD_SPACE_AVAILABLE_ERROR,"Error"]
+			self.showSpaceSettingsMessage=[True,Bridge.HDD_SPACE_AVAILABLE_ERROR,"Error"]
 
 	#def moveToSpaceOption
 
@@ -243,7 +242,7 @@ class Bridge(QObject):
 		if self.waitForUpdateGlobalMessage==10:
 			if len(Bridge.onedriveMan.onedriveConfig)>0:
 				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
-					self.showSpaceSettingsMessage=[True,SPACE_GLOBAL_WARNING,"Warning"]
+					self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
 				else:
 					hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
 					if hddAlert[0]:

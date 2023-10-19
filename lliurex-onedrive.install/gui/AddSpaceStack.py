@@ -11,18 +11,6 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-SPACE_CREATION_MESSAGE=1
-SEARCH_LIBRARY_MESSAGE=2
-DISABLE_SYNC_OPTIONS=4
-SEARCH_SPACE_SHAREPOINT=16
-SPACE_MIGRATION_MESSAGE=17
-
-SPACE_DUPLICATE_ERROR=-1
-SPACE_LIBRARIES_EMPTY_ERROR=-2
-SPACE_SHAREPOINT_EMPTY_ERROR=-14
-SPACE_MIGRATION_ERROR=-15
-GET_TOKEN_ERROR=-19
-
 class CreateSpace(QThread):
 
 	def __init__(self,*args):
@@ -97,6 +85,18 @@ class MigrateSpace(QThread):
 
 class Bridge(QObject):
 
+	SPACE_CREATION_MESSAGE=1
+	SEARCH_LIBRARY_MESSAGE=2
+	DISABLE_SYNC_OPTIONS=4
+	SEARCH_SPACE_SHAREPOINT=16
+	SPACE_MIGRATION_MESSAGE=17
+
+	SPACE_DUPLICATE_ERROR=-1
+	SPACE_LIBRARIES_EMPTY_ERROR=-2
+	SPACE_SHAREPOINT_EMPTY_ERROR=-14
+	SPACE_MIGRATION_ERROR=-15
+	GET_TOKEN_ERROR=-19	
+
 	def __init__(self,ticket=None):
 
 		QObject.__init__(self)
@@ -116,7 +116,6 @@ class Bridge(QObject):
 		self._showDownloadDialog=False
 		self._initialDownload=""
 		self._showDownloadDialog=False
-		self._showPreviousDialog=False
 		self.core.toolStack.updateSpaceAuth=False
 		self._withHDDSpace=True
 
@@ -254,7 +253,7 @@ class Bridge(QObject):
 			for item in sharePointsEntries:
 				self._sharePointModel.appendRow(item)
 		else:
-			self.showSpaceFormMessage=[True,SPACE_SHAREPOINT_EMPTY_ERROR,"Error"]
+			self.showSpaceFormMessage=[True,Bridge.SPACE_SHAREPOINT_EMPTY_ERROR,"Error"]
 	
 	#def _updateSharePointModel
 
@@ -267,7 +266,7 @@ class Bridge(QObject):
 				if item["idLibrary"]!="":
 					self._libraryModel.appendRow(item["idLibrary"],item["nameLibrary"])
 		else:
-			self.showSpaceFormMessage=[True,SPACE_LIBRARIES_EMPTY_ERROR,"Error"]
+			self.showSpaceFormMessage=[True,Bridge.SPACE_LIBRARIES_EMPTY_ERROR,"Error"]
 	
 	#def _updateLibraryModel
 
@@ -291,7 +290,7 @@ class Bridge(QObject):
 
 	def gatherSharePoints(self):
 
-		self.core.mainStack.closePopUp=[False,SEARCH_SPACE_SHAREPOINT]
+		self.core.mainStack.closePopUp=[False,Bridge.SEARCH_SPACE_SHAREPOINT]
 		self.core.mainStack.closeGui=False
 		self.gatherSharePointsT=GatherSharePoints(self.tmpSpaceEmail)
 		self.gatherSharePointsT.start()
@@ -304,7 +303,7 @@ class Bridge(QObject):
 		if self.gatherSharePointsT.ret:
 			self._updateSharePointModel()
 		else:
-			self.showSpaceFormMessage=[True,GET_TOKEN_ERROR,"Error"]
+			self.showSpaceFormMessage=[True,Bridge.GET_TOKEN_ERROR,"Error"]
 
 		self.core.mainStack.closePopUp=[True,""]
 		self.core.mainStack.closeGui=True
@@ -323,7 +322,7 @@ class Bridge(QObject):
 
 	def gatherLibraries(self):
 
-		self.core.mainStack.closePopUp=[False,SEARCH_LIBRARY_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SEARCH_LIBRARY_MESSAGE]
 		self.core.mainStack.closeGui=False
 		self.gatherLibrariesT=GatherLibraries(self.data)
 		self.gatherLibrariesT.start()
@@ -375,7 +374,7 @@ class Bridge(QObject):
 				else:
 					self.createSpace()
 			else:
-				self.showSpaceFormMessage=[True,SPACE_DUPLICATE_ERROR,"Error"]
+				self.showSpaceFormMessage=[True,Bridge.SPACE_DUPLICATE_ERROR,"Error"]
 		else:
 			self.migrateSpace()
 
@@ -383,7 +382,7 @@ class Bridge(QObject):
 
 	def migrateSpace(self):
 
-		self.core.mainStack.closePopUp=[False,SPACE_MIGRATION_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_MIGRATION_MESSAGE]
 		self.coee.mainStack.closeGui=False
 		self.migrateSpaceT=MigrateSpace(self.spaceInfo)
 		self.migrateSpaceT.start()
@@ -404,7 +403,7 @@ class Bridge(QObject):
 		else:
 			self.core.mainStack.closePopUp=[True,""]
 			self.core.mainStack.closeGui=True
-			self.showSpaceFormMessage=[True,SPACE_MIGRATION_ERROR,"Error"]		
+			self.showSpaceFormMessage=[True,Bridge.SPACE_MIGRATION_ERROR,"Error"]		
 
 	#def _migrateSpace
 
@@ -459,7 +458,7 @@ class Bridge(QObject):
 
 	def addSpace(self):
 
-		self.core.mainStack.closePopUp=[False,SPACE_CREATION_MESSAGE]
+		self.core.mainStack.closePopUp=[False,Bridge.SPACE_CREATION_MESSAGE]
 		self.core.mainStack.closeGui=False
 		self.createSpaceT=CreateSpace(self.spaceInfo,self.reuseToken)
 		self.createSpaceT.start()
@@ -481,7 +480,7 @@ class Bridge(QObject):
 			self.core.settingsStack._getInitialSettings()
 			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
 			self.initialDownload=Bridge.onedriveMan.initialDownload
-			self.core.syncStack.showSynchronizeMessage=[False,DISABLE_SYNC_OPTIONS,"Information"]
+			self.core.syncStack.showSynchronizeMessage=[False,self.core.syncStack.DISABLE_SYNC_OPTIONS,"Information"]
 			self.core.syncStack.showFolderStruct=False
 
 			self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
@@ -489,7 +488,7 @@ class Bridge(QObject):
 		else:
 			self.core.mainStack.closePopUp=[True,""]
 			self.core.mainStack.closeGui=True
-			self.showSpaceFormMessage=[True,GET_TOKEN_ERROR,"Error"]
+			self.showSpaceFormMessage=[True,Bridge.GET_TOKEN_ERROR,"Error"]
 
 	#def _createSpace
 
