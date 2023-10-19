@@ -103,7 +103,7 @@ GridLayout{
             id:oneDriveAuthView
             OnedriveAuth{
                 id:oneDriveAuth
-                authUrl:onedriveBridge.authUrl
+                authUrl:addSpaceStackBridge.authUrl
             }
         }
         Component{
