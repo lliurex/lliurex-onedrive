@@ -22,7 +22,7 @@ class GetFolderStruct(QThread):
 
 	def run(self,*args):
 
-		Bridge.onedriveMan.getFolderStruct(self.localFolder)
+		Bridge.onedriveManager.getFolderStruct(self.localFolder)
 	
 	#def run
 
@@ -43,7 +43,7 @@ class ApplySyncChanges(QThread):
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.applySyncChanges(self.initialSyncConfig,self.keepFolders,self.syncCustomChanged,self.skipFileChanged)
+		self.ret=Bridge.onedriveManager.applySyncChanges(self.initialSyncConfig,self.keepFolders,self.syncCustomChanged,self.skipFileChanged)
 
 	#def run
 
@@ -65,21 +65,21 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 		self._showSynchronizeMessage=[False,Bridge.DISABLE_SYNC_OPTIONS,"Information"]
 		self._showSynchronizeDialog=False
 		self._showSynchronizePendingDialog=False
-		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		self._syncAll=Bridge.onedriveMan.syncAll
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self._syncAll=Bridge.onedriveManager.syncAll
 		self._syncCustomChanged=False
-		self._showFolderStruct=Bridge.onedriveMan.showFolderStruct
+		self._showFolderStruct=Bridge.onedriveManager.showFolderStruct
 		self.keepFolders=True
 		self.errorGetFolder=False
 		self.changedSyncWorked=False
 		self.folderEntries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True,"parentPath":""}]
 		self._folderModel=FolderModel.FolderModel(self.folderEntries)
 		self._fileExtensionsModel=FileExtensionsModel.FileExtensionsModel()
-		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig[3])
+		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
 		self._skipFileChanged=False
 
 	#def __init__
@@ -211,8 +211,8 @@ class Bridge(QObject):
 	def _updateFileExtensionsModel(self):
 
 		ret=self._fileExtensionsModel.clear()
-		Bridge.onedriveMan.updateFileExtensionsModel()
-		fileExtensionsEntries=Bridge.onedriveMan.fileExtensionsData
+		Bridge.onedriveManager.updateFileExtensionsModel()
+		fileExtensionsEntries=Bridge.onedriveManager.fileExtensionsData
 		if len(fileExtensionsEntries)>0:
 			for item in fileExtensionsEntries:
 				self._fileExtensionsModel.appendRow(item["name"],item["isChecked"])
@@ -241,7 +241,7 @@ class Bridge(QObject):
 
 	def _updateFolderStruct(self):
 
-		self.errorGetFolder=Bridge.onedriveMan.errorFolder
+		self.errorGetFolder=Bridge.onedriveManager.errorFolder
 		self._insertModelEntries()
 		self.core.mainStack.closePopUp=[True,""]
 		self.showFolderStruct=True
@@ -253,7 +253,7 @@ class Bridge(QObject):
 	@Slot('QVariantList')
 	def folderChecked(self,info):
 
-		Bridge.onedriveMan.updateCheckFolder(info[0],info[1])
+		Bridge.onedriveManager.updateCheckFolder(info[0],info[1])
 		path=info[0]
 		if info[1]:
 			if path not in self.initialSyncConfig[1]:
@@ -272,17 +272,17 @@ class Bridge(QObject):
 		if None in self.initialSyncConfig[2]:
 			self.initialSyncConfig[2].remove(None)
 		self.initialSyncConfig[2].sort()
-		if None in Bridge.onedriveMan.currentSyncConfig[1]:
-			Bridge.onedriveMan.currentSyncConfig[1].remove(None)
-		Bridge.onedriveMan.currentSyncConfig[1].sort()
-		if None in Bridge.onedriveMan.currentSyncConfig[2]:
-			Bridge.onedriveMan.currentSyncConfig[2].remove(None)
-		Bridge.onedriveMan.currentSyncConfig[2].sort()
+		if None in Bridge.onedriveManager.currentSyncConfig[1]:
+			Bridge.onedriveManager.currentSyncConfig[1].remove(None)
+		Bridge.onedriveManager.currentSyncConfig[1].sort()
+		if None in Bridge.onedriveManager.currentSyncConfig[2]:
+			Bridge.onedriveManager.currentSyncConfig[2].remove(None)
+		Bridge.onedriveManager.currentSyncConfig[2].sort()
 
-		if self.initialSyncConfig[1]!=Bridge.onedriveMan.currentSyncConfig[1]:
+		if self.initialSyncConfig[1]!=Bridge.onedriveManager.currentSyncConfig[1]:
 			self.syncCustomChanged=True
 		else:
-			if self.initialSyncConfig[2]!=Bridge.onedriveMan.currentSyncConfig[2]:
+			if self.initialSyncConfig[2]!=Bridge.onedriveManager.currentSyncConfig[2]:
 				self.syncCustomChanged=True
 			else:
 				self.syncCustomChanged=False
@@ -307,7 +307,7 @@ class Bridge(QObject):
 	def _insertModelEntries(self):
 
 		ret=self._folderModel.resetModel()
-		entries=Bridge.onedriveMan.folderStruct
+		entries=Bridge.onedriveManager.folderStruct
 		for item in entries:
 			self._folderModel.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"],item["parentPath"])
 
@@ -319,7 +319,7 @@ class Bridge(QObject):
 		self.hideSynchronizeMessage()
 
 		if value!=self.initialSyncConfig[0]:
-			if value!=Bridge.onedriveMan.currentSyncConfig[0]:
+			if value!=Bridge.onedriveManager.currentSyncConfig[0]:
 				if not value and (len(self.initialSyncConfig[1])>0 or len(self.initialSyncConfig[2])>0):
 					self.syncCustomChanged=True
 				else:
@@ -359,7 +359,7 @@ class Bridge(QObject):
 			self.skipFileExtensions=tmpValue
 			self.initialSyncConfig[3]=self.skipFileExtensions
 
-		if self.skipFileExtensions!=Bridge.onedriveMan.currentSyncConfig[3]:
+		if self.skipFileExtensions!=Bridge.onedriveManager.currentSyncConfig[3]:
 			if not self.skipFileExtensions[0]:
 				self.skipFileChanged=True
 			else:
@@ -380,7 +380,7 @@ class Bridge(QObject):
 			value[1]: checked/unchecked
 		'''
 		self.hideSynchronizeMessage()
-		Bridge.onedriveMan.updateFileExtensionData(value)
+		Bridge.onedriveManager.updateFileExtensionData(value)
 
 		tmpValue=[self.skipFileExtensions[0],sorted(self.skipFileExtensions[1])]
 		tmpExtension="*%s"%value[0]
@@ -402,7 +402,7 @@ class Bridge(QObject):
 			self.skipFileExtensions=tmpValue
 			self.initialSyncConfig[3]=self.skipFileExtensions
 
-		if self.skipFileExtensions!=Bridge.onedriveMan.currentSyncConfig[3]:
+		if self.skipFileExtensions!=Bridge.onedriveManager.currentSyncConfig[3]:
 			self.skipFileChanged=True
 		else:
 			self.skipFileChanged=False
@@ -413,7 +413,7 @@ class Bridge(QObject):
 
 	def _updateFileExtensionsModelInfo(self):
 
-		fileExtensionsEntries=Bridge.onedriveMan.fileExtensionsData
+		fileExtensionsEntries=Bridge.onedriveManager.fileExtensionsData
 		if len(fileExtensionsEntries)>0:
 			for i in range(len(fileExtensionsEntries)):
 				index=self._fileExtensionsModel.index(i)
@@ -435,8 +435,8 @@ class Bridge(QObject):
 		
 		self.syncCustomChanged=False
 		self.skipFileChanged=False
-		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		Bridge.onedriveMan.cancelSyncChanges()
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		Bridge.onedriveManager.cancelSyncChanges()
 		self.syncAll=self.initialSyncConfig[0]
 		if self.syncAll:
 			self.showFolderStruct=False
@@ -499,7 +499,7 @@ class Bridge(QObject):
 
 	def _applySyncChanges(self):
 
-		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
 		self.syncAll=self.initialSyncConfig[0]
 		self.core.mainStack.closePopUp=[True,""]
 		self.showFolderStruct!=self.syncAll

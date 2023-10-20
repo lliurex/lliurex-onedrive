@@ -19,7 +19,7 @@ class TestOneDrive(QThread):
 
 	def run(self,*args):
 
-		Bridge.onedriveMan.testOnedrive()
+		Bridge.onedriveManager.testOnedrive()
 
 	#def run
 
@@ -35,7 +35,7 @@ class RepairOneDrive(QThread):
 
 	def run(self,*args):
 
-		Bridge.onedriveMan.repairOnedrive()
+		Bridge.onedriveManager.repairOnedrive()
 
 	#def run
 
@@ -53,7 +53,7 @@ class FoldersDirectory(QThread):
 	def run (self):
 
 		time.sleep(1)
-		ret=Bridge.onedriveMan.manageFoldersDirectory(self.enable)
+		ret=Bridge.onedriveManager.manageFoldersDirectory(self.enable)
 
 	#def run
 
@@ -75,7 +75,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 
 		self._showToolsMessage=[False,Bridge.TOOLS_DEFAULT_MESSAGE,"Information"]
 		self.updateSpaceAuth=False
@@ -108,8 +108,8 @@ class Bridge(QObject):
 	
 	def _testOnedrive(self):
 
-		if os.path.exists(Bridge.onedriveMan.testPath):
-			cmd="xdg-open %s"%Bridge.onedriveMan.testPath
+		if os.path.exists(Bridge.onedriveManager.testPath):
+			cmd="xdg-open %s"%Bridge.onedriveManager.testPath
 			os.system(cmd)
 		self.core.mainStack.closePopUp=[True,""]
 
@@ -142,7 +142,7 @@ class Bridge(QObject):
 
 	def updateSpaceAuthorization(self):
 
-		ret=Bridge.onedriveMan.updateSpaceAuth()
+		ret=Bridge.onedriveManager.updateSpaceAuth()
 		
 		if ret:
 			self.showToolsMessage=[True,Bridge.UPDATE_TOKEN_MESSAGE,"Ok"]

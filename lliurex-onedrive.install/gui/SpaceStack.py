@@ -21,7 +21,7 @@ class GatherSpaceSettings(QThread):
 	def run(self,*args):
 		
 		time.sleep(1)
-		self.matchSpace=Bridge.onedriveMan.loadSpaceSettings(self.spaceToLoad)
+		self.matchSpace=Bridge.onedriveManager.loadSpaceSettings(self.spaceToLoad)
 
 	#def run
 
@@ -39,7 +39,7 @@ class ManageSync(QThread):
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.manageSync(self.startAction)
+		self.ret=Bridge.onedriveManager.manageSync(self.startAction)
 
 	#def run
 
@@ -56,7 +56,7 @@ class AccountStatus(QThread):
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.getAccountStatus()
+		self.ret=Bridge.onedriveManager.getAccountStatus()
 
 	#def run
 
@@ -73,10 +73,10 @@ class RemoveAccount(QThread):
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.removeAccount()
+		self.ret=Bridge.onedriveManager.removeAccount()
 		if self.ret:
-			Bridge.onedriveMan.loadOneDriveConfig()
-			Bridge.onedriveMan.removeACService()
+			Bridge.onedriveManager.loadOneDriveConfig()
+			Bridge.onedriveManager.removeACService()
 
 	#def run
 
@@ -101,7 +101,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 		self._showAccountMessage=[False,"","Error"]
 		self._manageCurrentOption=0
 		self._spaceBasicInfo=["","","","",""]
@@ -373,18 +373,18 @@ class Bridge(QObject):
 
 	def _initializeVars(self):
 
-		self.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
-		self.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-		self.core.syncStack.syncAll=Bridge.onedriveMan.syncAll
-		self.core.syncStack.initialSyncConfig=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig)
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
-		self.localFolderEmpty=Bridge.onedriveMan.localFolderEmpty
-		self.localFolderRemoved=Bridge.onedriveMan.localFolderRemoved
+		self.spaceBasicInfo=Bridge.onedriveManager.spaceBasicInfo
+		self.spaceLocalFolder=os.path.basename(Bridge.onedriveManager.spaceLocalFolder)
+		self.core.syncStack.syncAll=Bridge.onedriveManager.syncAll
+		self.core.syncStack.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self.isOnedriveRunning=Bridge.onedriveManager.isOnedriveRunning()
+		self.localFolderEmpty=Bridge.onedriveManager.localFolderEmpty
+		self.localFolderRemoved=Bridge.onedriveManager.localFolderRemoved
 		self.showAccountMessage=[False,"","Error"]
-		self.accountStatus=Bridge.onedriveMan.accountStatus
-		self.freeSpace=Bridge.onedriveMan.freeSpace
+		self.accountStatus=Bridge.onedriveManager.accountStatus
+		self.freeSpace=Bridge.onedriveManager.freeSpace
 		self.core.syncStack._folderModel.resetModel()
-		self.core.syncStack.skipFileExtensions=copy.deepcopy(Bridge.onedriveMan.currentSyncConfig[3])
+		self.core.syncStack.skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
 
 	#def _initializeVars
 
@@ -421,7 +421,7 @@ class Bridge(QObject):
 
 	def _openFolder(self):
 
-		cmd="xdg-open "+os.path.join(Bridge.onedriveMan.spaceLocalFolder)
+		cmd="xdg-open "+os.path.join(Bridge.onedriveManager.spaceLocalFolder)
 		os.system(cmd)
 
 	#def _openFolder
@@ -502,7 +502,7 @@ class Bridge(QObject):
 
 		if self.removeAccountT.ret:
 			self.core.mainStack._updateSpacesModel()
-			Bridge.onedriveMan.removeOrganizationDirectoryFile()
+			Bridge.onedriveManager.removeOrganizationDirectoryFile()
 			self.core.mainStack.currentStack=1
 			self.core.mainStack.spacesCurrentOption=0
 			self.manageCurrentOption=0
@@ -535,10 +535,10 @@ class Bridge(QObject):
 
 	def checkSpaceLocalFolder(self):
 
-		self.isOnedriveRunning=Bridge.onedriveMan.isOnedriveRunning()
+		self.isOnedriveRunning=Bridge.onedriveManager.isOnedriveRunning()
 		self._manageRunningMessage()
 
-		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveMan.checkLocalFolder(Bridge.onedriveMan.spaceConfPath)
+		self.localFolderEmpty,self.localFolderRemoved=Bridge.onedriveManager.checkLocalFolder(Bridge.onedriveManager.spaceConfPath)
 	
 		if self.localFolderEmpty:
 			self.showAccountMessage=[True,Bridge.LOCAL_FOLDER_EMPTY,"Error"]

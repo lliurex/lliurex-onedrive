@@ -36,7 +36,7 @@ class Core:
 	def init(self):
 
 	
-		self.onedrivemanager=OnedriveManager.OnedriveManager()
+		self.onedriveManager=OnedriveManager.OnedriveManager()
 		self.toolStack=ToolStack.Bridge()
 		self.settingsStack=SettingsStack.Bridge()
 		self.syncStack=SyncStack.Bridge()

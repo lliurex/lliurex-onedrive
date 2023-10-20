@@ -24,7 +24,7 @@ class CreateSpace(QThread):
 
 	def run (self,*args):
 		
-		self.ret=Bridge.onedriveMan.createSpace(self.spaceInfo,self.reuseToken)
+		self.ret=Bridge.onedriveManager.createSpace(self.spaceInfo,self.reuseToken)
 
 	#def run
 
@@ -42,7 +42,7 @@ class GatherSharePoints(QThread):
 
 	def run (self,*args):
 		
-		self.ret=Bridge.onedriveMan.getSpaceSharePoints(self.dataSP)
+		self.ret=Bridge.onedriveManager.getSpaceSharePoints(self.dataSP)
 
 	#def run
 
@@ -59,7 +59,7 @@ class GatherLibraries(QThread):
 
 	def run (self,*args):
 		
-		Bridge.onedriveMan.getSharePointLibraries(self.dataSP)
+		Bridge.onedriveManager.getSharePointLibraries(self.dataSP)
 
 	#def run 
 
@@ -76,7 +76,7 @@ class MigrateSpace(QThread):
 
 	def run (self,*args):
 		
-		self.ret=Bridge.onedriveMan.migrateSpace(self.spaceInfo)
+		self.ret=Bridge.onedriveManager.migrateSpace(self.spaceInfo)
 	
 	#def run
 
@@ -102,7 +102,7 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 		self._sharePointModel=SharePointModel.SharePointModel()
 		self._libraryModel=LibraryModel.LibraryModel()
 		self.loginUrl="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=d50ca740-c83f-4d1b-b616-12c519384f0c&scope=Files.ReadWrite%20Files.ReadWrite.all%20Sites.Read.All%20Sites.ReadWrite.All%20offline_access&response_type=code&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient&login_hint="
@@ -248,7 +248,7 @@ class Bridge(QObject):
 	def _updateSharePointModel(self):
 
 		ret=self._sharePointModel.clear()
-		sharePointsEntries=Bridge.onedriveMan.sharePointsConfigData
+		sharePointsEntries=Bridge.onedriveManager.sharePointsConfigData
 		if len(sharePointsEntries)>0:
 			for item in sharePointsEntries:
 				self._sharePointModel.appendRow(item)
@@ -260,7 +260,7 @@ class Bridge(QObject):
 	def _updateLibraryModel(self):
 
 		ret=self._libraryModel.clear()
-		libraryEntries=Bridge.onedriveMan.librariesConfigData
+		libraryEntries=Bridge.onedriveManager.librariesConfigData
 		if len(libraryEntries)>0:
 			for item in libraryEntries:
 				if item["idLibrary"]!="":
@@ -278,7 +278,7 @@ class Bridge(QObject):
 		self.tempConfig=False
 		self.tmpSpaceEmail=data[0]
 		
-		if Bridge.onedriveMan.checkIfEmailExists(data[0]):
+		if Bridge.onedriveManager.checkIfEmailExists(data[0]):
 			self.gatherSharePoints()
 		else:
 			self.authUrl=self.loginUrl+self.tmpSpaceEmail
@@ -341,13 +341,13 @@ class Bridge(QObject):
 	@Slot()
 	def resetSharePoints(self):
 
-		if len(Bridge.onedriveMan.sharePointsConfigData)>0:
+		if len(Bridge.onedriveManager.sharePointsConfigData)>0:
 			self._sharePointModel.clear()
-			Bridge.onedriveMan.sharePointsConfigData=[]
+			Bridge.onedriveManager.sharePointsConfigData=[]
 
-		if len(Bridge.onedriveMan.librariesConfigData)>0:
+		if len(Bridge.onedriveManager.librariesConfigData)>0:
 			self._libraryModel.clear()
-			Bridge.onedriveMan.librariesConfigData=[]
+			Bridge.onedriveManager.librariesConfigData=[]
 
 	#def resetSharePoints
 
@@ -365,10 +365,10 @@ class Bridge(QObject):
 			self.formData[1]=2
 
 		if not self.core.mainStack.requiredMigration:
-			self.checkDuplicate=Bridge.onedriveMan.checkDuplicate(spaceInfo)
+			self.checkDuplicate=Bridge.onedriveManager.checkDuplicate(spaceInfo)
 			
 			if not self.checkDuplicate[0]:
-				ret=Bridge.onedriveMan.checkPreviousLocalFolder(spaceInfo)
+				ret=Bridge.onedriveManager.checkPreviousLocalFolder(spaceInfo)
 				if ret:
 					self.showPreviousFolderDialog=True
 				else:
@@ -396,9 +396,9 @@ class Bridge(QObject):
 		self.tempConfig=False
 
 		if self.migrateSpaceT.ret:
-			self.core.spaceStack.spaceBasicInfo=Bridge.onedriveMan.spaceBasicInfo
-			self.core.spaceStack.spaceLocalFolder=os.path.basename(Bridge.onedriveMan.spaceLocalFolder)
-			spaceId=Bridge.onedriveMan.spaceId
+			self.core.spaceStack.spaceBasicInfo=Bridge.onedriveManager.spaceBasicInfo
+			self.core.spaceStack.spaceLocalFolder=os.path.basename(Bridge.onedriveManager.spaceLocalFolder)
+			spaceId=Bridge.onedriveManager.spaceId
 			self.core.spaceStack.loadSpace(spaceId)
 		else:
 			self.core.mainStack.closePopUp=[True,""]
@@ -410,7 +410,7 @@ class Bridge(QObject):
 	@Slot(str)
 	def getToken(self,token):
 
-		Bridge.onedriveMan.createToken(token,self.authUrl)
+		Bridge.onedriveManager.createToken(token,self.authUrl)
 		if not self.core.toolStack.updateSpaceAuth:
 			self.core.mainStack.spacesCurrentOption=1
 			if not self.tempConfig:
@@ -478,12 +478,12 @@ class Bridge(QObject):
 		if self.createSpaceT.ret:
 			self.core.spaceStack._initializeVars()
 			self.core.settingsStack._getInitialSettings()
-			self.hddFreeSpace=Bridge.onedriveMan.getHddFreeSpace()
-			self.initialDownload=Bridge.onedriveMan.initialDownload
+			self.hddFreeSpace=Bridge.onedriveManager.getHddFreeSpace()
+			self.initialDownload=Bridge.onedriveManager.initialDownload
 			self.core.syncStack.showSynchronizeMessage=[False,self.core.syncStack.DISABLE_SYNC_OPTIONS,"Information"]
 			self.core.syncStack.showFolderStruct=False
 
-			self.withHDDSpace=Bridge.onedriveMan.thereAreHDDAvailableSpace(True)
+			self.withHDDSpace=Bridge.onedriveManager.thereAreHDDAvailableSpace(True)
 			self.showDownloadDialog=True
 		else:
 			self.core.mainStack.closePopUp=[True,""]

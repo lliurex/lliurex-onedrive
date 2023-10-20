@@ -21,7 +21,7 @@ class GatherInfo(QThread):
 	def run(self,*args):
 		
 		time.sleep(1)
-		Bridge.onedriveMan.loadOneDriveConfig()
+		Bridge.onedriveManager.loadOneDriveConfig()
 
 	#def run
 
@@ -37,7 +37,7 @@ class Bridge(QObject):
 
 		QObject.__init__(self)
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 		self._spacesModel=SpacesModel.SpacesModel()
 		self._currentStack=0
 		self._spacesCurrentOption=0
@@ -69,11 +69,11 @@ class Bridge(QObject):
 	
 	def _loadConfig(self):
 
-		if not os.path.exists(Bridge.onedriveMan.oldConfigPath):
+		if not os.path.exists(Bridge.onedriveManager.oldConfigPath):
 			self.checkGlobalLocalFolderTimer.start(1000)
 			self.checkGlobalStatusTimer.start(30000)
-			if len(Bridge.onedriveMan.onedriveConfig['spacesList'])>0:
-				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+			if len(Bridge.onedriveManager.onedriveConfig['spacesList'])>0:
+				if Bridge.onedriveManager.globalOneDriveFolderWarning or Bridge.onedriveManager.globalOneDriveStatusWarning:
 					self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
 				
 				self._updateSpacesModel()
@@ -181,7 +181,7 @@ class Bridge(QObject):
 	def _updateSpacesModel(self):
 
 		ret=self._spacesModel.clear()
-		spacesEntries=Bridge.onedriveMan.spacesConfigData
+		spacesEntries=Bridge.onedriveManager.spacesConfigData
 		for item in spacesEntries:
 			if item["id"]!="":
 				self._spacesModel.appendRow(item["id"],item["name"],item["status"],item["isRunning"],item["localFolderWarning"])
@@ -190,7 +190,7 @@ class Bridge(QObject):
 
 	def _updateSpacesModelInfo(self,param):
 
-		updatedInfo=Bridge.onedriveMan.spacesConfigData
+		updatedInfo=Bridge.onedriveManager.spacesConfigData
 		if len(updatedInfo)>0:
 			for i in range(len(updatedInfo)):
 				index=self._spacesModel.index(i)
@@ -201,11 +201,11 @@ class Bridge(QObject):
 	@Slot(int)
 	def moveToSpaceOption(self,option):
 		
-		Bridge.onedriveMan.initSpacesSettings()
-		Bridge.onedriveMan.deleteTempConfig()
+		Bridge.onedriveManager.initSpacesSettings()
+		Bridge.onedriveManager.deleteTempConfig()
 		moveTo=True
 		if option==1:
-			if not (Bridge.onedriveMan.thereAreHDDAvailableSpace()):
+			if not (Bridge.onedriveManager.thereAreHDDAvailableSpace()):
 				moveTo=False
 
 		if moveTo:
@@ -222,7 +222,7 @@ class Bridge(QObject):
 
 	def getGlobalLocalFolderInfo(self):
 
-		Bridge.onedriveMan.updateGlobalLocalFolderInfo()
+		Bridge.onedriveManager.updateGlobalLocalFolderInfo()
 		self._updateSpacesModelInfo('localFolderWarning')	
 		self._updateSpacesModelInfo('isRunning')	
 		self._manageSpaceSettinsMessage()
@@ -231,7 +231,7 @@ class Bridge(QObject):
 
 	def getGlobalStatusInfo(self):
 
-		localStatusWarning=Bridge.onedriveMan.updateGlobalStatusInfo()
+		localStatusWarning=Bridge.onedriveManager.updateGlobalStatusInfo()
 		self._updateSpacesModelInfo('status')	
 		self._manageSpaceSettinsMessage()
 
@@ -240,11 +240,11 @@ class Bridge(QObject):
 	def _manageSpaceSettinsMessage(self):
 
 		if self.waitForUpdateGlobalMessage==10:
-			if len(Bridge.onedriveMan.onedriveConfig)>0:
-				if Bridge.onedriveMan.globalOneDriveFolderWarning or Bridge.onedriveMan.globalOneDriveStatusWarning:
+			if len(Bridge.onedriveManager.onedriveConfig)>0:
+				if Bridge.onedriveManager.globalOneDriveFolderWarning or Bridge.onedriveManager.globalOneDriveStatusWarning:
 					self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
 				else:
-					hddAlert=Bridge.onedriveMan.checkHddFreeSpace()
+					hddAlert=Bridge.onedriveManager.checkHddFreeSpace()
 					if hddAlert[0]:
 						self.showSpaceSettingsMessage=[True,hddAlert[1],hddAlert[2]]
 					else:
@@ -280,7 +280,7 @@ class Bridge(QObject):
 	@Slot()
 	def closeOnedrive(self):
 
-		Bridge.onedriveMan.deleteTempConfig()
+		Bridge.onedriveManager.deleteTempConfig()
 
 		if not self.core.spaceStack.removeAction:
 			if self.core.settingsStack.settingsChanged:
@@ -293,12 +293,12 @@ class Bridge(QObject):
 						self.core.syncStack.showSynchronizePendingDialog=True
 				else:
 					if self.closePopUp[0]:
-						Bridge.onedriveMan.removeLockToken()
+						Bridge.onedriveManager.removeLockToken()
 						self.closeGui=True
 					else:
 						self.closeGui=False
 		else:
-			Bridge.onedriveMan.removeLockToken()
+			Bridge.onedriveManager.removeLockToken()
 			self.closeGui=True
 
 	#def closeOnedrive

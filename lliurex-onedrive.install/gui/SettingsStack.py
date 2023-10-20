@@ -21,7 +21,7 @@ class ApplySettingsChanges(QThread):
 
 	def run(self,*args):
 
-		self.ret=Bridge.onedriveMan.applySettingsChanges(self.initialConfig)
+		self.ret=Bridge.onedriveManager.applySettingsChanges(self.initialConfig)
 
 	#def run
 
@@ -36,20 +36,20 @@ class Bridge(QObject):
 		QObject.__init__(self)
 
 		self.core=Core.Core.get_core()
-		Bridge.onedriveMan=self.core.onedrivemanager
+		Bridge.onedriveManager=self.core.onedriveManager
 		self._showSpaceSettingsMessage=[False,"","Information"]
-		self._autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
-		self._monitorInterval=int(Bridge.onedriveMan.monitorInterval)
-		self._rateLimit=int(Bridge.onedriveMan.rateLimit)
-		self._skipSize=Bridge.onedriveMan.skipSize
-		self._logEnabled=Bridge.onedriveMan.logEnabled
+		self._autoStartEnabled=Bridge.onedriveManager.autoStartEnabled
+		self._monitorInterval=int(Bridge.onedriveManager.monitorInterval)
+		self._rateLimit=int(Bridge.onedriveManager.rateLimit)
+		self._skipSize=Bridge.onedriveManager.skipSize
+		self._logEnabled=Bridge.onedriveManager.logEnabled
 		self._logSize=""	
 		self._showSettingsDialog=False
-		self._bandWidthNames=Bridge.onedriveMan.bandWidthNames
-		self._maxFileSizeNames=Bridge.onedriveMan.maxFileSizeNames
+		self._bandWidthNames=Bridge.onedriveManager.bandWidthNames
+		self._maxFileSizeNames=Bridge.onedriveManager.maxFileSizeNames
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
 
 	#def __init__
 	
@@ -207,13 +207,13 @@ class Bridge(QObject):
 
 	def _getInitialSettings(self):
 
-		self.autoStartEnabled=Bridge.onedriveMan.autoStartEnabled
-		self.monitorInterval=int(Bridge.onedriveMan.monitorInterval)
-		self.rateLimit=int(Bridge.onedriveMan.rateLimit)
-		self.skipSize=Bridge.onedriveMan.skipSize
-		self.logEnabled=Bridge.onedriveMan.logEnabled
-		self.logSize=Bridge.onedriveMan.logSize
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.autoStartEnabled=Bridge.onedriveManager.autoStartEnabled
+		self.monitorInterval=int(Bridge.onedriveManager.monitorInterval)
+		self.rateLimit=int(Bridge.onedriveManager.rateLimit)
+		self.skipSize=Bridge.onedriveManager.skipSize
+		self.logEnabled=Bridge.onedriveManager.logEnabled
+		self.logSize=Bridge.onedriveManager.logSize
+		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
 
 	#def _getInitialSettings
 
@@ -224,7 +224,7 @@ class Bridge(QObject):
 			self.initialConfig[0]=value
 			self.autoStartEnabled=value
 
-		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
 			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
@@ -238,7 +238,7 @@ class Bridge(QObject):
 			self.monitorInterval=int(value)
 			self.initialConfig[1]=int(value)
 
-		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
 			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
@@ -252,7 +252,7 @@ class Bridge(QObject):
 			self.rateLimit=int(value)
 			self.initialConfig[2]=int(value)
 		
-		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
 			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
@@ -266,7 +266,7 @@ class Bridge(QObject):
 			self.skipSize=value
 			self.initialConfig[3]=value
 		
-		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
 			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
@@ -280,7 +280,7 @@ class Bridge(QObject):
 			self.initialConfig[4]=value
 			self.logEnabled=value
 		
-		if self.initialConfig!=Bridge.onedriveMan.currentConfig:
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
 			self.settingsChanged=True
 		else:
 			self.settingsChanged=False
@@ -290,8 +290,8 @@ class Bridge(QObject):
 	@Slot()
 	def openSpaceLogFile(self):
 
-		if os.path.exists(Bridge.onedriveMan.logPath):
-			cmd="xdg-open %s"%Bridge.onedriveMan.logPath
+		if os.path.exists(Bridge.onedriveManager.logPath):
+			cmd="xdg-open %s"%Bridge.onedriveManager.logPath
 			os.system(cmd)
 
 	#def openSpaceLogFile
@@ -299,10 +299,10 @@ class Bridge(QObject):
 	@Slot()
 	def removeLogFile(self):
 
-		if os.path.exists(Bridge.onedriveMan.logPath):
-			os.remove(Bridge.onedriveMan.logPath)
+		if os.path.exists(Bridge.onedriveManager.logPath):
+			os.remove(Bridge.onedriveManager.logPath)
 
-		self.logSize=Bridge.onedriveMan.getLogFileSize()
+		self.logSize=Bridge.onedriveManager.getLogFileSize()
 
 	#def removeLogFile
 
@@ -320,7 +320,7 @@ class Bridge(QObject):
 
 	def _applySettingsChanges(self):
 
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
 		self.core.mainStack.closePopUp=[True,""]
 		self.showSettingsMessage=[True,self.applySettingsChangesT.ret[1]]
 		self.showSettingsDialog=False
@@ -342,7 +342,7 @@ class Bridge(QObject):
 		self.hideSettingsMessage()
 		self.settingsChanged=False
 		self.showSettingsDialog=False
-		self.initialConfig=copy.deepcopy(Bridge.onedriveMan.currentConfig)
+		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
 		self.autoStartEnabled=self.initialConfig[0]
 		self.monitorInterval=int(self.initialConfig[1])
 		self.rateLimit=self.initialConfig[2]
