@@ -27,8 +27,8 @@ GridLayout{
                 optionIcon:"/usr/share/icons/breeze/places/22/folder-cloud.svg"
                 Connections{
                     function onMenuOptionClicked(){
-                        if (!onedriveBridge.requiredMigration){
-                            onedriveBridge.moveToSpaceOption(0);
+                        if (!mainStackBridge.requiredMigration){
+                            mainStackBridge.moveToSpaceOption(0);
                         }
                     }
                 }
@@ -40,7 +40,7 @@ GridLayout{
                 optionIcon:"/usr/share/icons/breeze/actions/22/help-contents.svg"
                 Connections{
                     function onMenuOptionClicked(){
-                        onedriveBridge.openHelp();
+                        mainStackBridge.openHelp();
                     }
                 }
             }
@@ -49,7 +49,7 @@ GridLayout{
 
     StackView {
         id: optionsView
-        property int currentIndex:onedriveBridge.spacesCurrentOption
+        property int currentIndex:mainStackBridge.spacesCurrentOption
         Layout.fillWidth:true
         Layout.fillHeight:true
         initialItem:spacesInfoView
@@ -103,7 +103,7 @@ GridLayout{
             id:oneDriveAuthView
             OnedriveAuth{
                 id:oneDriveAuth
-                authUrl:onedriveBridge.authUrl
+                authUrl:addSpaceStackBridge.authUrl
             }
         }
         Component{

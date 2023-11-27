@@ -10,7 +10,7 @@ Rectangle{
     color:"transparent"
 
     Text{ 
-        text:onedriveBridge.requiredMigration?i18nd("lliurex-onedrive","Configuration Migration"):i18nd("lliurex-onedrive","New space")
+        text:mainStackBridge.requiredMigration?i18nd("lliurex-onedrive","Configuration Migration"):i18nd("lliurex-onedrive","New space")
         font.family: "Quattrocento Sans Bold"
         font.pointSize: 16
     }
@@ -24,7 +24,7 @@ Rectangle{
  
         Kirigami.InlineMessage {
             id: newSpaceMessageLabel
-            visible:onedriveBridge.showSpaceFormMessage[0]
+            visible:addSpaceStackBridge.showSpaceFormMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
             Layout.minimumWidth:650
@@ -53,11 +53,11 @@ Rectangle{
                 font.pointSize:10
                 horizontalAlignment:TextInput.AlignLeft
                 focus:true
-                text:onedriveBridge.formData[0]
+                text:addSpaceStackBridge.formData[0]
                 validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
                 onTextChanged:{
-                    onedriveBridge.resetSharePoints()
+                    addSpaceStackBridge.resetSharePoints()
                 }
             }
 
@@ -80,23 +80,23 @@ Rectangle{
 
                 RadioButton{
                     id:oneDriveOption
-                    checked:onedriveBridge.formData[1]==0?true:false
+                    checked:addSpaceStackBridge.formData[1]==0?true:false
                     text:"OneDrive"
                     onToggled:{
                         if (checked){
-                            onedriveBridge.resetSharePoints()
+                            addSpaceStackBridge.resetSharePoints()
                         }
                     }
                   }
 
                 RadioButton{
                     id:sharePointOption
-                    checked:onedriveBridge.formData[1]==1?true:false
+                    checked:addSpaceStackBridge.formData[1]==1?true:false
                     text:i18nd("lliurex-onedrive","SharePoint")
-                    enabled:!onedriveBridge.requiredMigration
+                    enabled:!addSpaceStackBridge.requiredMigration
                     onToggled:{
                         if (spaceMailEntry.acceptableInput){
-                            onedriveBridge.getSpaceSharePoints([spaceMailEntry.text,1])
+                            addSpaceStackBridge.getSpaceSharePoints([spaceMailEntry.text,1])
                         }else{
                             sharePointOption.checked=false
                             oneDriveOption.checked=true
@@ -117,10 +117,10 @@ Rectangle{
                 id:spaceSharePointEntry
                 font.pointSize:10
                 textRole:"nameSharePoint"
-                model:onedriveBridge.sharePointModel
+                model:addSpaceStackBridge.sharePointModel
                 implicitWidth:400
                 visible:sharePointVisible()
-                onActivated:onedriveBridge.getSharePointLibraries(spaceSharePointEntry.currentText)
+                onActivated:addSpaceStackBridge.getSharePointLibraries(spaceSharePointEntry.currentText)
             }
             Text{
                 id:spaceLibrary
@@ -135,7 +135,7 @@ Rectangle{
                 font.pointSize:10
                 textRole:"nameLibrary"
                 valueRole:"idLibrary"
-                model:onedriveBridge.libraryModel
+                model:addSpaceStackBridge.libraryModel
                 implicitWidth:400
                 visible:libraryVisible()
             }
@@ -169,7 +169,7 @@ Rectangle{
                         type="sharepoint"
                     }
                 }
-                onedriveBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.currentText,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
+                addSpaceStackBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.currentText,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
             }
         }
         Button {
@@ -184,10 +184,10 @@ Rectangle{
             Keys.onReturnPressed: cancelBtn.clicked()
             Keys.onEnterPressed: cancelBtn.clicked()
             onClicked:{
-                if (!onedriveBridge.requiredMigration){
-                    onedriveBridge.moveToSpaceOption(0);
+                if (!addSpaceStackBridge.requiredMigration){
+                    mainStackBridge.moveToSpaceOption(0);
                 }else{
-                     onedriveBridge.moveToSpaceOption(3);
+                     mainStackBridge.moveToSpaceOption(3);
                    
                 }
             }
@@ -203,7 +203,7 @@ Rectangle{
         id:previousFolderDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
-        dialogVisible:onedriveBridge.showPreviousFolderDialog
+        dialogVisible:addSpaceStackBridge.showPreviousFolderDialog
         dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
         btnAcceptVisible:false
@@ -217,11 +217,11 @@ Rectangle{
             target:previousFolderDialog
             function onDiscardDialogClicked(){
                 previousFolderDialog.close()
-                onedriveBridge.managePreviousFolderDialog(0)                 
+                addSpaceStackBridge.managePreviousFolderDialog(0)                 
             }
             function onRejectDialogClicked(){
                 previousFolderDialog.close()
-                onedriveBridge.managePreviousFolderDialog(1)                 
+                addSpaceStackBridge.managePreviousFolderDialog(1)                 
             }
         }
     }
@@ -230,29 +230,29 @@ Rectangle{
         id:downloadDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
-        dialogVisible:onedriveBridge.showDownloadDialog
-        dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+onedriveBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+onedriveBridge.hddFreeSpace+getLastMessage()
+        dialogVisible:addSpaceStackBridge.showDownloadDialog
+        dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+addSpaceStackBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+addSpaceStackBridge.hddFreeSpace+getLastMessage()
         dialogWidth:710
         btnAcceptVisible:false
         btnAcceptText:""
-        btnDiscardText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")
-        btnDiscardIcon:onedriveBridge.withHDDSpace?"dialog-ok.svg":"configure.svg"
-        btnCancelText:onedriveBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize and/or review settings"):i18nd("lliurex-onedrive","Cancel")
-        btnCancelIcon:onedriveBridge.withHDDSpace?"configure.svg":"dialog-cancel.svg"
+        btnDiscardText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")
+        btnDiscardIcon:addSpaceStackBridge.withHDDSpace?"dialog-ok.svg":"configure.svg"
+        btnCancelText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize and/or review settings"):i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:addSpaceStackBridge.withHDDSpace?"configure.svg":"dialog-cancel.svg"
         Connections{
             target:downloadDialog
             function onDiscardDialogClicked(){
-                if (onedriveBridge.withHDDSpace){
-                    onedriveBridge.manageDownloadDialog("All")
+                if (addSpaceStackBridge.withHDDSpace){
+                    addSpaceStackBridge.manageDownloadDialog("All")
                 }else{
-                    onedriveBridge.manageDownloadDialog("Custom")
+                    addSpaceStackBridge.manageDownloadDialog("Custom")
                 }
             }
             function onRejectDialogClicked(){
-                if (onedriveBridge.withHDDSpace){
-                    onedriveBridge.manageDownloadDialog("Custom")
+                if (addSpaceStackBridge.withHDDSpace){
+                    addSpaceStackBridge.manageDownloadDialog("Custom")
                 }else{
-                    onedriveBridge.manageDownloadDialog("Cancel")
+                    addSpaceStackBridge.manageDownloadDialog("Cancel")
                 }
             }
         }               
@@ -260,7 +260,7 @@ Rectangle{
     }
 
     function getTextMessage(){
-        switch (onedriveBridge.showSpaceFormMessage[1]){
+        switch (addSpaceStackBridge.showSpaceFormMessage[1]){
             case -1:
                 var msg=i18nd("lliurex-onedrive","A OneDrive/SharePoint space associated with the indicated email is already being synced");
                 break
@@ -285,7 +285,7 @@ Rectangle{
 
     function getTypeMessage(){
 
-        switch (onedriveBridge.showSpaceFormMessage[2]){
+        switch (addSpaceStackBridge.showSpaceFormMessage[2]){
             case "Information":
                 return Kirigami.MessageType.Information
             case "Ok":
@@ -332,7 +332,7 @@ Rectangle{
 
     function getLastMessage(){
 
-        if (onedriveBridge.withHDDSpace){
+        if (addSpaceStackBridge.withHDDSpace){
             var msg=i18nd("lliurex-onedrive","\nThe content that is synchronized will reduce available space on the computer.\nDo you want to start syncing or select the content and/or review settings?")
         }else{
             var msg=i18nd("lliurex-onedrive","\nThere is no space available on the HDD to sync all the content.\nDo you want to select the content and/or review settings or cancel the space settings?")

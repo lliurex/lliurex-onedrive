@@ -85,7 +85,7 @@ Components.ListItem{
             ToolTip.timeout: 3000
             ToolTip.visible: hovered
             ToolTip.text:i18nd("lliurex-onedrive","Click to manage this space")
-            onClicked:onedriveBridge.loadSpace(idSpace)
+            onClicked:spaceStackBridge.loadSpace(idSpace)
         }
 
     }
