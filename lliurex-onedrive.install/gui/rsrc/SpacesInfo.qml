@@ -24,7 +24,7 @@ Rectangle{
         enabled:true
         Kirigami.InlineMessage {
             id: messageLabel
-            visible:onedriveBridge.showSpaceSettingsMessage[0]
+            visible:mainStackBridge.showSpaceSettingsMessage[0]
             text:getTextMessage()
             type:getTypeMessage()
             Layout.minimumWidth:650
@@ -41,7 +41,7 @@ Rectangle{
 
             SpaceList{
                 id:spacesList
-                structModel:onedriveBridge.spacesModel
+                structModel:mainStackBridge.spacesModel
                 Layout.fillHeight:true
                 Layout.fillWidth:true
             }
@@ -94,7 +94,7 @@ Rectangle{
             target:informationDialog
             function onDiscardDialogClicked(){
                 informationDialog.close()
-                onedriveBridge.moveToSpaceOption(1)                 
+                mainStackBridge.moveToSpaceOption(1)                 
             }
             function onRejectDialogClicked(){
                 informationDialog.close()
@@ -105,7 +105,7 @@ Rectangle{
 
 
     function getTextMessage(){
-        switch (onedriveBridge.showSpaceSettingsMessage[1]){
+        switch (mainStackBridge.showSpaceSettingsMessage[1]){
             case 0:
                 var msg=i18nd("lliurex-onedrive","The new space to synchronize has been configured successfully")
                 break;
@@ -133,7 +133,7 @@ Rectangle{
 
     function getTypeMessage(){
 
-        switch (onedriveBridge.showSpaceSettingsMessage[2]){
+        switch (mainStackBridge.showSpaceSettingsMessage[2]){
             case "Information":
                 return Kirigami.MessageType.Information
             case "Ok":

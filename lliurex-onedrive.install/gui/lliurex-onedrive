@@ -12,6 +12,7 @@ import gettext
 gettext.textdomain("lliurex-onedrive")
 _ = gettext.gettext
 
+
 user=os.environ["USER"]
 llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(user)
 isRunning=False
@@ -32,15 +33,26 @@ if isRunning:
 	sys.exit(1)
 
 else:
-	import LliurexOnedrive
-
+	import Core
+	c=Core.Core.get_core()
+	mainStackBridge=c.mainStack
+	addSpaceStackBridge=c.addSpaceStack
+	spaceStackBridge=c.spaceStack
+	syncStackBridge=c.syncStack
+	settingsStackBridge=c.settingsStack
+	toolStackBridge=c.toolStack
 	QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
 	app=QApplication()
 	engine=QQmlApplicationEngine()
 	engine.clearComponentCache()
 	context=engine.rootContext()
-	onedriveBridge=LliurexOnedrive.Bridge()
-	context.setContextProperty("onedriveBridge", onedriveBridge)
+	context.setContextProperty("mainStackBridge", mainStackBridge)
+	context.setContextProperty("addSpaceStackBridge", addSpaceStackBridge)
+	context.setContextProperty("spaceStackBridge", spaceStackBridge)
+	context.setContextProperty("syncStackBridge",syncStackBridge)
+	context.setContextProperty("settingsStackBridge",settingsStackBridge)
+	context.setContextProperty("toolStackBridge", toolStackBridge)
+
 
 	url = QUrl("/usr/share/lliurex-onedrive/rsrc/lliurex-onedrive.qml")
 

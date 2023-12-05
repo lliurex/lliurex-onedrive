@@ -10,7 +10,7 @@ Rectangle {
     property alias structEnabled:listFolder.enabled
 
     id:folderTable
-    visible: onedriveBridge.showFolderStruct
+    visible: syncStackBridge.showFolderStruct
     width: 650; height: 240
     border.color: "#d3d3d3"
 
@@ -26,7 +26,7 @@ Rectangle {
             id: listFolder
             anchors.fill:parent
             height: parent.height
-            model:onedriveBridge.model
+            model:syncStackBridge.model
             enabled:structEnabled
             delegate: listdelegate
             clip: true
@@ -90,15 +90,15 @@ Rectangle {
                     function expand(isExpanded,path,name) {
                         var sub=[]
                         for(var i = 0; i < listFolder.count; ++i) {
-                            var item=onedriveBridge.getModelData(i)
+                            var item=syncStackBridge.getModelData(i)
                             if (item["path"]===path){
-                                onedriveBridge.updateModel([i,"isExpanded",isExpanded])
+                                syncStackBridge.updateModel([i,"isExpanded",isExpanded])
                             }else{
                                 if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
-                                    onedriveBridge.updateModel([i,"isExpanded",isExpanded])
+                                    syncStackBridge.updateModel([i,"isExpanded",isExpanded])
                                     if (item["subtype"]==="parent"){
                                         sub.push(item["path"])
-                                        onedriveBridge.updateModel([i,"hide",!isExpanded])
+                                        syncStackBridge.updateModel([i,"hide",!isExpanded])
                                     }
                                 }
                             }
@@ -124,13 +124,13 @@ Rectangle {
                 function check(isChecked) {
                     var sub=[]
                     for(var i = 0; i < listFolder.count; ++i) {
-                        var item=onedriveBridge.getModelData(i)
+                        var item=syncStackBridge.getModelData(i)
                         if (item["path"]===path){
-                            onedriveBridge.updateModel([i,"isChecked",isChecked])
+                            syncStackBridge.updateModel([i,"isChecked",isChecked])
                         }else{
                             if((item["parentPath"] === path) || (sub.includes(item["parentPath"]))){
-                                onedriveBridge.updateModel([i,"isChecked",isChecked])
-                                onedriveBridge.folderChecked([item["path"],isChecked])
+                                syncStackBridge.updateModel([i,"isChecked",isChecked])
+                                syncStackBridge.folderChecked([item["path"],isChecked])
                                 if (item["subtype"]==="parent"){
                                     sub.push(item["path"])
                                  }
@@ -143,8 +143,8 @@ Rectangle {
                                     var refPath=item["path"]+"/"
                                     if (path.includes(refPath)){
                                         if (isParentChecked(item["parentPath"])){
-                                            onedriveBridge.updateModel([i,"isChecked",isChecked])
-                                            onedriveBridge.folderChecked([item["path"],isChecked])
+                                            syncStackBridge.updateModel([i,"isChecked",isChecked])
+                                            syncStackBridge.folderChecked([item["path"],isChecked])
                                         }
                                     }
                                 }
@@ -156,7 +156,7 @@ Rectangle {
                     if ((type==="parent")||(subtype==="parent")){
                         check(folderCheck.checked)
                     }
-                    onedriveBridge.folderChecked([path,folderCheck.checked])
+                    syncStackBridge.folderChecked([path,folderCheck.checked])
                 }
 
                 anchors.left:menuOptionIcon.right
@@ -192,7 +192,7 @@ Rectangle {
     function isParentChecked(parentPath){
 
         for(var i = 0; i < listFolder.count; ++i) {
-            var item=onedriveBridge.getModelData(i)
+            var item=syncStackBridge.getModelData(i)
             if (item["path"]==parentPath){
                 if (item["isChecked"]){
                     return true

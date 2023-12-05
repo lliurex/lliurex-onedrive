@@ -24,9 +24,9 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: accountMessageLabel
-            visible:onedriveBridge.showAccountMessage[0]
-            text:getTextOption(onedriveBridge.showAccountMessage[1])
-            type:onedriveBridge.showAccountMessage[2]=="OK"?Kirigami.MessageType.Positive:Kirigami.MessageType.Error;
+            visible:spaceStackBridge.showAccountMessage[0]
+            text:getTextOption(spaceStackBridge.showAccountMessage[1])
+            type:spaceStackBridge.showAccountMessage[2]=="OK"?Kirigami.MessageType.Positive:Kirigami.MessageType.Error;
             Layout.minimumWidth:640
             Layout.maximumWidth:640
             Layout.topMargin: 40
@@ -51,7 +51,7 @@ Rectangle{
 
             Text{
                 id:spaceMailValue
-                text:onedriveBridge.spaceBasicInfo[0]
+                text:spaceStackBridge.spaceBasicInfo[0]
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -69,7 +69,7 @@ Rectangle{
 
            Text{
                 id:spaceTypeValue
-                text:onedriveBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
+                text:spaceStackBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -83,19 +83,19 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","SharePoint:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
+                visible:spaceStackBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
            Text{
                 id:sharePointValue
-                text:onedriveBridge.spaceBasicInfo[3]
+                text:spaceStackBridge.spaceBasicInfo[3]
                 Layout.maximumWidth:390
                 elide:Text.ElideMiddle
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
+                visible:spaceStackBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
@@ -105,17 +105,17 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Library:")
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
+                visible:spaceStackBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
                 id:libraryValue
-                text:onedriveBridge.spaceBasicInfo[4]
+                text:spaceStackBridge.spaceBasicInfo[4]
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
                 Layout.bottomMargin:10
-                visible:onedriveBridge.spaceBasicInfo[2]=="sharepoint"?true:false
+                visible:spaceStackBridge.spaceBasicInfo[2]=="sharepoint"?true:false
             }
 
             Text{
@@ -134,7 +134,7 @@ Rectangle{
 
                 Text{
                     id:syncFolderPath
-                    text:onedriveBridge.spaceLocalFolder
+                    text:spaceStackBridge.spaceLocalFolder
                     Layout.maximumWidth:390
                     elide:Text.ElideMiddle
                     font.family: "Quattrocento Sans Bold"
@@ -154,7 +154,7 @@ Rectangle{
 
                     hoverEnabled:true
                     onClicked:{
-                        onedriveBridge.openFolder()
+                        spaceStackBridge.openFolder()
                     }
                 }
             }
@@ -169,7 +169,7 @@ Rectangle{
 
             Text{
                 id:freeSpaceValue
-                text:onedriveBridge.freeSpace==""?i18nd("lliurex-onedrive","Information not available"):onedriveBridge.freeSpace
+                text:spaceStackBridge.freeSpace==""?i18nd("lliurex-onedrive","Information not available"):spaceStackBridge.freeSpace
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -193,7 +193,7 @@ Rectangle{
 
                 Text{
                     id:clientStatusValue
-                    text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Running"):i18nd("lliurex-onedrive","Stopped")
+                    text:spaceStackBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Running"):i18nd("lliurex-onedrive","Stopped")
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
                     anchors.verticalCenter:startMonitorBtn.verticalCenter
@@ -202,16 +202,16 @@ Rectangle{
                 Button {
                     id:startMonitorBtn
                     display:AbstractButton.IconOnly
-                    icon.name:!onedriveBridge.isOnedriveRunning?"kt-start.svg":"kt-stop.svg"
+                    icon.name:!spaceStackBridge.isOnedriveRunning?"kt-start.svg":"kt-stop.svg"
                     Layout.preferredHeight: 35
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
-                    ToolTip.text:onedriveBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with space"):i18nd("lliurex-onedrive","Click to start syncing with space")
+                    ToolTip.text:spaceStackBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with space"):i18nd("lliurex-onedrive","Click to start syncing with space")
                     hoverEnabled:true
-                    enabled:!onedriveBridge.localFolderRemoved
+                    enabled:!spaceStackBridge.localFolderRemoved
                     onClicked:{
-                        if (!onedriveBridge.localFolderEmpty){
+                        if (!spaceStackBridge.localFolderEmpty){
                             changeSyncStatus()
                         }else{
                             startEmptyDialog.open()
@@ -243,7 +243,7 @@ Rectangle{
 
                 Text{
                     id:syncStatusValue
-                    text:getTextOption(onedriveBridge.accountStatus)
+                    text:getTextOption(spaceStackBridge.accountStatus)
                     font.family: "Quattrocento Sans Bold"
                     font.pointSize: 10
                     Layout.maximumWidth:290
@@ -259,7 +259,7 @@ Rectangle{
                     Layout.bottomMargin:10
                     anchors.verticalCenter:parent.verticalCenter
                     hoverEnabled:true
-                    enabled:!onedriveBridge.localFolderRemoved
+                    enabled:!spaceStackBridge.localFolderRemoved
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
@@ -267,7 +267,7 @@ Rectangle{
                         i18nd("lliurex-onedrive","Click to update status information")
                   } 
                     onClicked:{
-                        onedriveBridge.checkAccountStatus()
+                        spaceStackBridge.checkAccountStatus()
                         
                     }
                 }
@@ -315,7 +315,7 @@ Rectangle{
             target:unlinkDialog
             function onDiscardDialogClicked(){
                 unlinkDialog.close()
-                onedriveBridge.removeAccount()
+                spaceStackBridge.removeAccount()
             }
             function onRejectDialogClicked(){
                 unlinkDialog.close()
@@ -425,7 +425,7 @@ Rectangle{
     }
 
     function changeSyncStatus(){
-        onedriveBridge.manageSync(!onedriveBridge.isOnedriveRunning);
+        spaceStackBridge.manageSync(!spaceStackBridge.isOnedriveRunning);
     }
 }
 

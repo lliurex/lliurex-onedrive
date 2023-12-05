@@ -23,7 +23,7 @@ Rectangle{
 
         Kirigami.InlineMessage {
             id: messageToolLabel
-            visible:onedriveBridge.showToolsMessage[0]
+            visible:toolStackBridge.showToolsMessage[0]
             text:getMessageText()
             type:getTypeMessage()
             Layout.alignment:Qt.AlignLeft
@@ -56,14 +56,14 @@ Rectangle{
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 hoverEnabled:true
-                enabled:!onedriveBridge.localFolderRemoved 
+                enabled:!spaceStackBridge.localFolderRemoved 
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
                 ToolTip.text:i18nd("lliurex-onedrive","Click to run an LliureX-OneDrive test command")
 
                 onClicked:{
-                    onedriveBridge.testOnedrive();
+                    toolStackBridge.testOnedrive();
                 }
             }
 
@@ -82,7 +82,7 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!onedriveBridge.isOnedriveRunning && !onedriveBridge.localFolderEmpty
+                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -106,7 +106,7 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!onedriveBridge.isOnedriveRunning && !onedriveBridge.localFolderEmpty
+                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -121,7 +121,7 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible:!onedriveBridge.syncAll
+                visible:!spaceStackBridge.syncAll
             }
 
             Button {
@@ -137,7 +137,7 @@ Rectangle{
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
                 ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
-                visible:!onedriveBridge.syncAll
+                visible:!spaceStackBridge.syncAll
 
                 onClicked:{
                     onClicked:optionsMenu.open();
@@ -152,14 +152,14 @@ Rectangle{
                         icon.name:"visibility.svg"
                         text:i18nd("lliurex-onedrive","Show the identification")
                         onClicked:{
-                            onedriveBridge.manageFoldersDirectory(true)
+                            toolStackBridge.manageFoldersDirectory(true)
                         }
                     }
                     MenuItem{
                         icon.name:"hint.svg"
                         text:i18nd("lliurex-onedrive","Hide the identification")
                         onClicked:{
-                            onedriveBridge.manageFoldersDirectory(false)
+                            toolStackBridge.manageFoldersDirectory(false)
                         }
                     }
                 } 
@@ -171,7 +171,7 @@ Rectangle{
         id:repairRemoveDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
-        dialogMsg:onedriveBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to resynchronize the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to resynchronize the space?")
+        dialogMsg:spaceStackBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to resynchronize the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to resynchronize the space?")
         dialogWidth:560
         btnAcceptVisible:false
         btnAcceptText:""
@@ -209,7 +209,7 @@ Rectangle{
             target:updateAuthDialog
             function onDiscardDialogClicked(){
                 updateAuthDialog.close()
-                onedriveBridge.updateAuth()  
+                toolStackBridge.updateAuth()  
             }
             function onRejectDialogClicked(){
                 updateAuthDialog.close()
@@ -221,12 +221,12 @@ Rectangle{
     }
   
     function repair(){
-        onedriveBridge.repairOnedrive();
+        toolStackBridge.repairOnedrive();
     }
 
     function getMessageText(){
 
-        switch (onedriveBridge.showToolsMessage[1]){
+        switch (toolStackBridge.showToolsMessage[1]){
             case 18:
                 var msg=i18nd("lliurex-onedrive","Some options can only be executed if the synchronization is stopped")
                 break;
@@ -242,7 +242,7 @@ Rectangle{
 
     function getTypeMessage(){
 
-        switch (onedriveBridge.showToolsMessage[2]){
+        switch (toolStackBridge.showToolsMessage[2]){
             case "Information":
                 return Kirigami.MessageType.Information
             case "Ok":

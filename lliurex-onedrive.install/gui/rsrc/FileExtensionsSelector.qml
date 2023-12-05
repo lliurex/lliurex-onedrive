@@ -24,7 +24,7 @@ Rectangle{
             clip: true
             focus:true
                   
-            model:onedriveBridge.fileExtensionsModel
+            model:syncStackBridge.fileExtensionsModel
                
             delegate:Item{
                 width:40
@@ -40,7 +40,7 @@ Rectangle{
                         anchors.leftMargin:10
                         checked:isChecked
                         onToggled:{
-                            onedriveBridge.getFileExtensionChecked([name,checked])
+                            syncStackBridge.getFileExtensionChecked([name,checked])
                         }
                     }
 
