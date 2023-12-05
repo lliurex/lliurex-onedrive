@@ -1,3 +1,9 @@
+lliurex-onedrive (2.14.2) jammy; urgency=medium
+
+  * Refactorized code
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 05 Dec 2023 15:33:51 +0100
+
 lliurex-onedrive (2.14.1) jammy; urgency=medium
 
   * Initial release for Jammy
