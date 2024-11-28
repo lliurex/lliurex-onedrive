@@ -185,7 +185,7 @@ class getSpaceStatusWorker():
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
-					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
+					cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
 						poutput,perror=p.communicate(timeout=90)
@@ -231,7 +231,8 @@ class getSpaceStatusWorker():
 								elif 'Free Space' in item:
 									tmp_freespace=item.split(':')[1].strip()
 									if not 'Not Available' in tmp_freespace:
-										freespace=tmp_freespace
+										tmp_freespace=tmp_freespace.split(" ")
+										freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 						if not error:
 							if len(poutput)>0:
 								poutput=poutput.split('\n')
@@ -239,20 +240,21 @@ class getSpaceStatusWorker():
 									if 'Uploading' in item:
 										code=UPLOADING_PENDING_CHANGES
 										break;
-									if 'No pending' in item:
+									if 'no pending' in item:
 										code=ALL_SYNCHRONIZE_MSG
 									elif 'out of sync' in item:
 										code=OUT_OF_SYNC_MSG
-									elif 'HTTP 403 - Forbidden' in item:
+									elif 'Authentication scope needs' in item:
 										code=FORBIDDEN_USER
 										error=True
 										break
-									elif 'download from OneDrive:' in item:
+									elif 'download from Microsoft OneDrive:' in item:
 										pendingChanges=item.split(':')[1].strip()
 									elif 'Free Space' in item:
 										tmp_freespace=item.split(':')[1].strip()
 										if not 'Not Available' in tmp_freespace:
-											freespace=tmp_freespace
+											tmp_freespace=tmp_freespace.split(" ")
+											freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 					except:
 						p.kil()
 						error=True
@@ -260,11 +262,11 @@ class getSpaceStatusWorker():
 				else:
 					error=True
 					code=WITH_OUT_CONFIG
-
+				'''
 				if code==OUT_OF_SYNC_MSG:
 					if pendingChanges==lastPendingChanges:
 						code=ALL_SYNCHRONIZE_MSG
-						
+				'''
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
