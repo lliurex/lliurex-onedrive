@@ -81,7 +81,7 @@ Rectangle{
 
             SpinBox{
                 id:monitorIntervalValues
-                from:1
+                from:5
                 to:60
                 stepSize:1
                 value:settingsStackBridge.monitorInterval

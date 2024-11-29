@@ -57,3 +57,5 @@ rate_limit = "10485760"
 # read_only_auth_scope = "false"
 # cleanup_local_files = "false"
 ip_protocol_version = "1"
+notify_file_actions = "false"
+

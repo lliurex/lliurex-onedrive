@@ -87,6 +87,7 @@ class OnedriveManager:
 		self.createEnvironment()
 		self._createLockToken()
 		self.clearCache()
+		self.forceMonitorIntervalUpdated=False
 
 
 	#def __init__
@@ -608,6 +609,14 @@ class OnedriveManager:
 										tmpValue.append([])
 										customParam[param]=tmpValue
 										pass
+							elif param=="monitor_interval":
+								if "monitor_interval" in tmpLine[0]:
+									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									if int(value)<300:
+										customParam[param]="300"
+										self.forceMonitorIntervalUpdated=True
+									else:
+										customParam[param]=value
 							else:
 								if param==tmpLine[0].strip():
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -653,8 +662,9 @@ class OnedriveManager:
 								break
 					
 					fd.write(line)
-
-		self._updateCustomParam(customParam,True)
+			
+			self._removeBackupConfigFiles()
+			self._updateCustomParam(customParam,True)
 
 	#def updateConfigFile
 
@@ -1862,6 +1872,7 @@ class OnedriveManager:
 		errorRL=False
 		errorSS=False
 		errorLE=False
+		configUpdated=False
 
 		if value[0]!=self.currentConfig[0]:
 			errorSD=self.manageAutostart(value[0])
@@ -1872,22 +1883,29 @@ class OnedriveManager:
 			errorMI=self.manageMonitorInterval(value[1])
 			if not errorMI:
 				self.currentConfig[1]=value[1]
-			
+				configUpdated=True
+	
 		if value[2]!=self.currentConfig[2]:
 			errorRL=self.manageRateLimit(value[2])
 			if not errorRL:
 				self.currentConfig[2]=value[2]
+				configUpdated=True
 			
 		if value[3]!=self.currentConfig[3]:
 			errorSS=self.manageSkipSize(value[3])
 			if not errorSS:
 				self.currentConfig[3]=value[3]
+				configUpdated=True
 
 		if value[4]!=self.currentConfig[4]:
 			errorLE=self.manageLogEnable(value[4])
 			if not errorLE:
 				self.currentConfig[4]=value[4]
+				configUpdated=True
 
+		if configUpdated:
+			self._removeBackupConfigFiles()
+		
 		if errorSD and not errorMI and not errorRL and not errorSS and not errorLE:
 			return[True,SYSTEMD_ERROR]
 
@@ -2487,5 +2505,14 @@ class OnedriveManager:
 
 	#def removeLockToken
 
+	def _removeBackupConfigFiles(self):
+
+		for item in self.envConfFiles:
+			if '.config' in item:
+				if os.path.exists(os.path.join(self.spaceConfPath,item)):
+					print(os.path.join(self.spaceConfPath,item))
+					os.remove(os.path.join(self.spaceConfPath,item))
+
+	#def _removeBackupConfigFile
 
 #class OnedriveManager
