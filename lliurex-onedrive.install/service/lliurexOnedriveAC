@@ -30,6 +30,9 @@ class checkSpaceLocalFolder():
 		localFolderEmptyToken=os.path.join(spaceConfigPath,".run/localFolderEmptyToken");
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".run/emptyToken")
+		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
+		updatedToken=os.path.join(spaceConfigPath,".run/updateToken")
+		onedriveVersionToken="/var/lib/lliurex-onedrive/version"
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
@@ -56,7 +59,10 @@ class checkSpaceLocalFolder():
 						self._stopClient(spaceConfigPath,spaceService)
 				else:
 					pass
-		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken)
+		
+		
+		self._manageUpdateRequiredToken(updateRequiredToken,onedriveVersionToken,updatedToken)
+		self._manageAutoStart(spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken,updateRequiredToken)
 
 		return True
 	
@@ -92,12 +98,28 @@ class checkSpaceLocalFolder():
 
 	#def _stopClient
 
-	def _manageAutoStart(self,spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken):
+	def _manageUpdateRequiredToken(self,updateRequiredToken,onedriveVersionToken,updatedToken):
+
+		if os.path.exists(onedriveVersionToken):
+			with open(onedriveVersionToken,'r') as fd:
+				currentVersion=fd.readline().strip()
+
+			if "2.15." in currentVersion or "1.5." in currentVersion:
+				if not os.path.exists(updatedToken):
+					if not os.path.exists(updateRequiredToken):
+						with open(updateRequiredToken,'w') as fd:
+							pass
+				else:
+					os.remove(updateRequiredToken)
+
+	#def _manageUpdateRequiredToken
+
+	def _manageAutoStart(self,spaceConfigPath,spaceService,localFolderRemovedToken,localFolderEmptyToken,updateRequiredToken):
 
 		lockAutoStartToken=os.path.join(spaceConfigPath,".run/lockAutoStartToken")
 
 		if os.path.exists(os.path.join(self.userSystemdAutoStartPath,spaceService)):
-			if os.path.exists(localFolderEmptyToken) or os.path.exists(localFolderRemovedToken):
+			if os.path.exists(localFolderEmptyToken) or os.path.exists(localFolderRemovedToken) or os.path.exists(updateRequiredToken):
 				if not os.path.exists(lockAutoStartToken):
 					with open(lockAutoStartToken,'w') as fd:
 						pass
@@ -110,7 +132,7 @@ class checkSpaceLocalFolder():
 				if os.path.exists(lockAutoStartToken):
 					os.remove(lockAutoStartToken)
 		else:
-		    if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+		    if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
 		    	if os.path.exists(lockAutoStartToken):
 		    		os.remove(lockAutoStartToken)
 		    		cmd="systemctl --user enable %s"%spaceService
@@ -157,6 +179,7 @@ class getSpaceStatusWorker():
 		spaceConfigPath,spaceType=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
+		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
 
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
@@ -182,7 +205,7 @@ class getSpaceStatusWorker():
 		lastPendingChanges="0 KB"
 
 		if self._isOnedriveRunning(spaceConfigPath):
-			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
@@ -239,15 +262,15 @@ class getSpaceStatusWorker():
 									if 'Uploading' in item:
 										code=UPLOADING_PENDING_CHANGES
 										break;
-									if 'No pending' in item:
+									if 'No pending' in item or 'no pending' in item:
 										code=ALL_SYNCHRONIZE_MSG
 									elif 'out of sync' in item:
 										code=OUT_OF_SYNC_MSG
-									elif 'HTTP 403 - Forbidden' in item:
+									elif 'HTTP 403 - Forbidden' in item or 'Authentication scope needs' in item:
 										code=FORBIDDEN_USER
 										error=True
 										break
-									elif 'download from OneDrive:' in item:
+									elif 'download from OneDrive:' in item or 'download from Microsoft OneDrive' in item:
 										pendingChanges=item.split(':')[1].strip()
 									elif 'Free Space' in item:
 										tmp_freespace=item.split(':')[1].strip()
@@ -390,15 +413,15 @@ class LliurexOneDriveAC:
 	def initWorker(self):
 
 		self.folderWorkerThread=Thread(target=self.checkSpaceFolder)
-		self.folderWorkerThread.setDaemon(True)
+		self.folderWorkerThread.daemon=True
 		self.folderWorkerThread.start()
 		
 		self.statusWorkerThread=Thread(target=self.checkSpaceStatus)
-		self.statusWorkerThread.setDaemon(True)
+		self.statusWorkerThread.daemon=True
 		self.statusWorkerThread.start()
 
 		self.freeSpaceWorkerThread=Thread(target=self.checkFreeSpace)
-		self.freeSpaceWorkerThread.setDaemon(True)
+		self.freeSpaceWorkerThread.daemon=True
 		self.freeSpaceWorkerThread.start()
 		
 	#def initWorker
