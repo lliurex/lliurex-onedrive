@@ -1,3 +1,9 @@
+lliurex-onedrive (1.4.3) focal; urgency=medium
+
+  * Changed to detect new client version
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 03 Dec 2024 14:35:33 +0100
+
 lliurex-onedrive (1.4.2) focal; urgency=medium
 
   * Refactorized code
