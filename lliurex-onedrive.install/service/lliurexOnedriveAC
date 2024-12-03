@@ -179,6 +179,7 @@ class getSpaceStatusWorker():
 		spaceConfigPath,spaceType=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
+		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
 
 		MICROSOFT_API_ERROR=-1
 		UNABLE_CONNECT_MICROSOFT_ERROR=-2
@@ -204,7 +205,7 @@ class getSpaceStatusWorker():
 		lastPendingChanges="0 KB"
 
 		if self._isOnedriveRunning(spaceConfigPath):
-			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken):
+			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
