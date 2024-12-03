@@ -104,7 +104,7 @@ class checkSpaceLocalFolder():
 			with open(onedriveVersionToken,'r') as fd:
 				currentVersion=fd.readline().strip()
 
-			if "2.15" in currentVersion:
+			if "2.15." in currentVersion or "1.5." in currentVersion:
 				if not os.path.exists(updatedToken):
 					if not os.path.exists(updateRequiredToken):
 						with open(updateRequiredToken,'w') as fd:
