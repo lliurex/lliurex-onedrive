@@ -209,7 +209,21 @@ Rectangle{
                     ToolTip.visible: hovered
                     ToolTip.text:spaceStackBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with space"):i18nd("lliurex-onedrive","Click to start syncing with space")
                     hoverEnabled:true
-                    enabled:!spaceStackBridge.localFolderRemoved
+                    enabled:{
+                        if (spaceStackBridge.localFolderRemoved){
+                            return false
+                        }else{
+                            if (spaceStackBridge.isOnedriveRunning){
+                                return true
+                            }else{
+                                if (spaceStackBridge.isUpdateRequired){
+                                    return false
+                                }else{
+                                    return true
+                                }
+                            }
+                        }
+                    }
                     onClicked:{
                         if (!spaceStackBridge.localFolderEmpty){
                             changeSyncStatus()
@@ -259,7 +273,13 @@ Rectangle{
                     Layout.bottomMargin:10
                     anchors.verticalCenter:parent.verticalCenter
                     hoverEnabled:true
-                    enabled:!spaceStackBridge.localFolderRemoved
+                    enabled:{
+                        if (spaceStackBridge.localFolderRemoved || spaceStackBridge.isUpdateRequired){
+                            return false
+                        }else{
+                            return true
+                        }
+                    }
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
@@ -344,6 +364,32 @@ Rectangle{
             }
             function onRejectDialogClicked(){
                 startEmptyDialog.close()
+            }
+        }        
+
+    }
+    ChangesDialog{
+        id:updateRequiredDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogMsg:i18nd("lliurex-onedrive","The OneDrive client has been updated.\nThe new version requires a data consolidation process to be run, which can take a long time.\nIf the synchronization is running, it will be necessary to stop it in order to launch the consolidation process and be able to start the synchronization again.")
+        dialogVisible:spaceStackBridge.showUpdateRequiredDialog
+        dialogWidth:700
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Launch consolidation")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:updateRequiredDialog
+            function onDiscardDialogClicked(){
+                spaceStackBridge.moveToManageOption(3)
+                spaceStackBridge.updateRequiredDialogResponse()
+            }
+            function onRejectDialogClicked(){
+                spaceStackBridge.updateRequiredDialogResponse()
             }
         }        
 

@@ -88,7 +88,8 @@ class OnedriveManager:
 		self._createLockToken()
 		self.clearCache()
 		self.forceMonitorIntervalUpdated=False
-
+		self.updateRequiredToken=".run/updateRequiredToken"
+		self.updatedToken=".run/updatedToken"
 
 	#def __init__
 
@@ -251,6 +252,7 @@ class OnedriveManager:
 		self.localFolderEmpty=False
 		self.localFolderRemoved=False
 		self.showFolderStruct=False
+		self.isUpdateRequired=False
 	
 	#def initSpacesSettings
 
@@ -1009,7 +1011,7 @@ class OnedriveManager:
 			logFile="%s.onedrive.log"%self.user
 			self.logPath=os.path.join(self.logFolder,logFile)
 			self.logSize=self.getLogFileSize()
-			
+			self.isUpdateRequired=self.checkIfUpdateIsRequired()
 			return True
 		return False
 		
@@ -1399,7 +1401,8 @@ class OnedriveManager:
 		self.errorFolder=False
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
-		cmd='onedrive --synchronize --resync --resync-auth --dry-run --verbose --skip-file="*.*" --disable-notifications --confdir="%s"'%self.spaceConfPath
+
+		cmd='onedrive --sync --resync --resync-auth --dry-run --disable-notifications --verbose --skip-file="*.*" --confdir="%s"'%self.spaceConfPath
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		out=p.communicate()[0]
 		out=out.decode().split("\n")
@@ -2028,7 +2031,7 @@ class OnedriveManager:
 
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --synchronize --dry-run --verbose --disable-notifications --disable-notifications --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		cmd='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
 		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		return
@@ -2060,7 +2063,7 @@ class OnedriveManager:
 
 	def _syncResync(self):
 
-		cmd='/usr/bin/onedrive --synchronize --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
+		cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
@@ -2510,9 +2513,53 @@ class OnedriveManager:
 		for item in self.envConfFiles:
 			if '.config' in item:
 				if os.path.exists(os.path.join(self.spaceConfPath,item)):
-					print(os.path.join(self.spaceConfPath,item))
 					os.remove(os.path.join(self.spaceConfPath,item))
 
 	#def _removeBackupConfigFile
+
+	def checkIfUpdateIsRequired(self):
+
+		isUpdateRequired=False;
+
+		updateRequiredToken=os.path.join(self.spaceConfPath,self.updateRequiredToken)
+		
+		if os.path.exists(updateRequiredToken):
+			isUpdateRequired=True;
+
+		return isUpdateRequired
+
+	#def checkIfUpdateIsRequired
+
+	def updateOneDrive(self):
+
+		cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s"'%self.spaceConfPath
+
+		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+		ret=p.communicate()
+		rc=p.returncode
+		print(ret)
+		if rc!=0:
+			return False
+		else:
+			self._createUpdatedToken()
+			updateRequiredToken=os.path.join(self.spaceConfPath,self.updateRequiredToken)
+			
+			if os.path.exists(updateRequiredToken):
+				os.remove(updateRequiredToken)
+
+			self.isUpdateRequired=self.checkIfUpdateIsRequired()
+			return True	
+
+	#def updateOneDrive
+
+	def _createUpdatedToken(self):
+
+		updatedToken=os.path.join(self.spaceConfPath,self.updatedToken)
+		
+		if not os.path.exists(updatedToken):
+			with open(updatedToken,'w') as fd:
+				pass
+
+	#def _createUpdatedToken
 
 #class OnedriveManager

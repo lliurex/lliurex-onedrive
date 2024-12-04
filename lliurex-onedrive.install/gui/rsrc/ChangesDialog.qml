@@ -47,6 +47,9 @@ Dialog {
             anchors.left:dialogIcon.right
             anchors.verticalCenter:dialogIcon.verticalCenter
             anchors.leftMargin:10
+            width:600
+            height:60
+            wrapMode:Text.WordWrap
         
         }
       

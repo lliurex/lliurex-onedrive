@@ -115,6 +115,8 @@ class Bridge(QObject):
 		self._localFolderEmpty=False
 		self._localFolderRemoved=False
 		self.removeAction=False
+		self._isUpdateRequired=False
+		self._showUpdateRequiredDialog=False
 
 	#def __init__
 	
@@ -258,6 +260,34 @@ class Bridge(QObject):
 
 	#def _setIsOnedriveRunning
 
+	def _getIsUpdateRequired(self):
+
+		return self._isUpdateRequired
+
+	#def _getIsUpdateRequired
+
+	def _setIsUpdateRequired(self,isUpdateRequired):
+
+		if self._isUpdateRequired!=isUpdateRequired:
+			self._isUpdateRequired=isUpdateRequired
+			self.on_isUpdateRequired.emit()
+
+	#def _setIsUpdateRequired
+
+	def _getShowUpdateRequiredDialog(self):
+
+		return self._showUpdateRequiredDialog
+
+	#def _getShowUpdateRequiredDialog
+
+	def _setShowUpdateRequiredDialog(self,showUpdateRequiredDialog):
+
+		if self._setShowUpdateRequiredDialog!=showUpdateRequiredDialog:
+			self._showUpdateRequiredDialog=showUpdateRequiredDialog
+			self.on_showUpdateRequiredDialog.emit()
+
+	#def _setShowUpdateRequiredDialog
+
 	@Slot(int)
 	def moveToManageOption(self,option):
 		
@@ -368,6 +398,7 @@ class Bridge(QObject):
 
 		self.core.mainStack.currentStack=2
 		self.manageCurrentOption=0
+		self.showUpdateRequiredDialog=self.isUpdateRequired
 	
 	#def _endLoading
 
@@ -380,6 +411,7 @@ class Bridge(QObject):
 		self.isOnedriveRunning=Bridge.onedriveManager.isOnedriveRunning()
 		self.localFolderEmpty=Bridge.onedriveManager.localFolderEmpty
 		self.localFolderRemoved=Bridge.onedriveManager.localFolderRemoved
+		self.isUpdateRequired=Bridge.onedriveManager.isUpdateRequired
 		self.showAccountMessage=[False,"","Error"]
 		self.accountStatus=Bridge.onedriveManager.accountStatus
 		self.freeSpace=Bridge.onedriveManager.freeSpace
@@ -515,6 +547,13 @@ class Bridge(QObject):
 
 	#def _removeAccount
 
+	@Slot()
+	def updateRequiredDialogResponse(self):
+
+		self.showUpdateRequiredDialog=False
+
+	#def updateRequiredDialogResponse
+
 	def _manageGoToStack(self):
 
 		if self.moveToOption!="":
@@ -593,6 +632,12 @@ class Bridge(QObject):
 
 	on_isOnedriveRunning=Signal()
 	isOnedriveRunning=Property(bool,_getIsOnedriveRunning,_setIsOnedriveRunning, notify=on_isOnedriveRunning)
+
+	on_isUpdateRequired=Signal()
+	isUpdateRequired=Property(bool,_getIsUpdateRequired,_setIsUpdateRequired,notify=on_isUpdateRequired)
+
+	on_showUpdateRequiredDialog=Signal()
+	showUpdateRequiredDialog=Property(bool,_getShowUpdateRequiredDialog,_setShowUpdateRequiredDialog,notify=on_showUpdateRequiredDialog)
 
 #class Bridge
 

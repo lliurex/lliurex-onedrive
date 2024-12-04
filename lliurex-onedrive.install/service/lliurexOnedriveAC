@@ -31,7 +31,7 @@ class checkSpaceLocalFolder():
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".run/emptyToken")
 		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
-		updatedToken=os.path.join(spaceConfigPath,".run/updateToken")
+		updatedToken=os.path.join(spaceConfigPath,".run/updatedToken")
 		onedriveVersionToken="/var/lib/lliurex-onedrive/version"
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
@@ -110,7 +110,8 @@ class checkSpaceLocalFolder():
 						with open(updateRequiredToken,'w') as fd:
 							pass
 				else:
-					os.remove(updateRequiredToken)
+					if os.path.exists(updateRequiredToken):
+						os.remove(updatedToken)
 
 	#def _manageUpdateRequiredToken
 

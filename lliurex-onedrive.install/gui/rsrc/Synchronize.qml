@@ -326,7 +326,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty) || (spaceStackBridge.isUpdateRequired)){
             return false
         }else{
             if (spaceStackBridge.isOnedriveRunning){

@@ -42,6 +42,34 @@ Rectangle{
             Layout.topMargin: messageToolLabel.visible?0:50
 
             Text{
+                id:updateText
+                text:i18nd("lliurex-onedrive","Run the consolidation process for the new client version:")
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCente
+                visible:spaceStackBridge.isUpdateRequired
+            }
+
+            Button {
+                id:updateBtn
+                display:AbstractButton.TextBesideIcon
+                icon.name:"dblatex.svg"
+                Layout.preferredHeight: 30
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                hoverEnabled:true
+                enabled:!spaceStackBridge.isOnedriveRunning
+                visible:spaceStackBridge.isUpdateRequired
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to run the consolidation process for the new version of client")
+
+                onClicked:{
+                    updateProcessDialog.open();
+                }
+            }
+
+            Text{
                 id:testText
                 text:i18nd("lliurex-onedrive","Run a LliureX-OneDrive test:")
                 Layout.bottomMargin:20
@@ -56,7 +84,13 @@ Rectangle{
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 hoverEnabled:true
-                enabled:!spaceStackBridge.localFolderRemoved 
+                enabled:{
+                    if (spaceStackBridge.localFolderRemoved || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -82,7 +116,14 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
+                enabled:{
+                    if (spaceStackBridge.isOnedriveRunning || spaceStackBridge.localFolderEmpty || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
+
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -106,7 +147,13 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
+                enabled:{
+                    if (spaceStackBridge.isOnedriveRunning || spaceStackBridge.localFolderEmpty || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -132,7 +179,7 @@ Rectangle{
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 hoverEnabled:true
-                enabled:true 
+                enabled:!spaceStackBridge.isUpdateRequired
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -215,7 +262,32 @@ Rectangle{
                 updateAuthDialog.close()
             }
         }
-    }        
+    }
+
+    ChangesDialog{
+        id:updateProcessDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+        dialogMsg:i18nd("lliurex-onedrive","Running this action may take a long time.\nAre you sure you want to launch the consolidation process?")
+        dialogWidth:560
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:updateProcessDialog
+            function onDiscardDialogClicked(){
+                updateProcessDialog.close()
+                toolStackBridge.updateOneDrive()  
+            }
+            function onRejectDialogClicked(){
+                updateProcessDialog.close()
+            }
+        }
+    }         
     CustomPopup{
         id:toolsPopup
     }
@@ -233,8 +305,14 @@ Rectangle{
             case 19:
                 var msg=i18nd("lliurex-onedrive","The authorization to sync the space has been updated")
                 break;
+            case 24:
+                var msg=i18nd("lliurex-onedrive","The consolidation process has ended successfully")
+                break;
             case -16:
                 var msg=i18nd("lliurex-onedrive","It is not possible to update the authorization to syn the space.\nWait a moment and try again")
+                break
+            case -17:
+                var msg=i18nd("lliurex-onedrive","The consolidation process has ended with errors")
                 break
         }
         return msg
