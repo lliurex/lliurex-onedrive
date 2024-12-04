@@ -111,7 +111,7 @@ class checkSpaceLocalFolder():
 							pass
 				else:
 					if os.path.exists(updateRequiredToken):
-						os.remove(updatedToken)
+						os.remove(updateRequiredToken)
 
 	#def _manageUpdateRequiredToken
 
