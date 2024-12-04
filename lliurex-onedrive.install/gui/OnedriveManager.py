@@ -50,7 +50,7 @@ class OnedriveManager:
 			self.maxFileSizeNames.append(item["name"])
 		self.autoStartEnabled=True
 		self.rateLimit=4
-		self.monitorInterval=1
+		self.monitorInterval=5
 		self.skipSize=[False,0]
 		self.logEnabled=False
 		self.logSize=""
@@ -66,7 +66,7 @@ class OnedriveManager:
 		self.showFolderStruct=False
 		self.currentSyncConfig=[self.syncAll,self.foldersSelected,self.foldersUnSelected,self.skipFileExtensions]
 		self.envConfFiles=[".config.backup",".config.hash","items.sqlite3","items-dryrun.sqlite3","items.sqlite3-shm","items.sqlite3-wal",]
-		self.envRunFiles=["emptyToken","statusToken","localFolderEmptyToken","localFolderRemovedToken","runToken"]
+		self.envRunFiles=["emptyToken","statusToken","localFolderEmptyToken","localFolderRemovedToken","runToken","updatedToken","updateRequiredToken"]
 		self.globalOneDriveFolderWarning=False
 		self.globalOneDriveStatusWarning=False
 		self.correctStatusCode=[0,1,2,3,4]
@@ -229,7 +229,7 @@ class OnedriveManager:
 		self.spaceAccountType=""
 		self.initialDownload=""
 		self.rateLimit=4
-		self.monitorInterval=1
+		self.monitorInterval=5
 		self.skipSize=[False,0]
 		self.logEnabled=False
 		self.logFolder=""
@@ -488,6 +488,8 @@ class OnedriveManager:
 			runFolder=os.path.join(self.spaceConfPath,'.run')
 			os.mkdir(runFolder)
 			os.mkdir(logFolder)
+		
+		self._createUpdatedToken()
 		
 		shutil.copy(self.configTemplatePath,self.spaceConfPath)
 		
@@ -1881,8 +1883,8 @@ class OnedriveManager:
 			errorSD=self.manageAutostart(value[0])
 			if not errorSD:
 				self.currentConfig[0]=value[0]
-			
-		if value[1]!=self.currentConfig[1]:
+
+		if value[1]!=self.currentConfig[1] or self.forceMonitorIntervalUpdated:
 			errorMI=self.manageMonitorInterval(value[1])
 			if not errorMI:
 				self.currentConfig[1]=value[1]
