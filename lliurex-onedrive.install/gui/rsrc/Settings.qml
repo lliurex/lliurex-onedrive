@@ -61,7 +61,7 @@ Rectangle{
                 id:autoStartValue
                 text:i18nd("lliurex-onedrive","Start when booting the system")
                 checked:settingsStackBridge.autoStartEnabled
-                enabled:getEnabledStatus()
+                enabled:{getEnabledStatus()
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 focusPolicy: Qt.NoFocus
@@ -357,7 +357,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)||(spaceStackBridge.isUpdateRequired)){
             return false
         }else{
             return true
