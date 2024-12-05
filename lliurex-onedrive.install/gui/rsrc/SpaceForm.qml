@@ -206,6 +206,7 @@ Rectangle{
         dialogVisible:addSpaceStackBridge.showPreviousFolderDialog
         dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -233,6 +234,7 @@ Rectangle{
         dialogVisible:addSpaceStackBridge.showDownloadDialog
         dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+addSpaceStackBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+addSpaceStackBridge.hddFreeSpace+getLastMessage()
         dialogWidth:710
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")

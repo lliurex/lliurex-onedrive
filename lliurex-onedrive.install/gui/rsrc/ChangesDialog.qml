@@ -11,6 +11,7 @@ Dialog {
     property alias dialogVisible:customDialog.visible
     property alias dialogMsg:dialogText.text
     property alias dialogWidth:container.implicitWidth
+    property alias dialogHeight:container.implicitHeight
     property alias btnAcceptVisible:dialogApplyBtn.visible
     property alias btnAcceptText:dialogApplyBtn.text
     property alias btnDiscardText:dialogDiscardBtn.text
@@ -29,7 +30,7 @@ Dialog {
         id:container
         color: "#ebeced"
         implicitWidth: dialogWidth
-        implicitHeight: 120
+        implicitHeight: dialogHeight
         anchors.topMargin:5
         anchors.leftMargin:5
 

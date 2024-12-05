@@ -220,6 +220,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
         dialogMsg:spaceStackBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to resynchronize the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to resynchronize the space?")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -245,6 +246,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
         dialogMsg:i18nd("lliurex-onedrive","This action will update the authorization to sync this space.\nAre you sure you want to continue?")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -270,6 +272,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
         dialogMsg:i18nd("lliurex-onedrive","Running this action may take a long time.\nAre you sure you want to launch the consolidation process?")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")

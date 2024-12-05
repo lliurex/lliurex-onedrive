@@ -325,6 +325,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from this space?.\nThe files will stop syncing, but the contents of the space\nwill not be erased")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -349,6 +350,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
         dialogMsg:i18nd("lliurex-onedrive","The local folder of space is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive/SharePoint")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -375,6 +377,7 @@ Rectangle{
         dialogMsg:i18nd("lliurex-onedrive","The OneDrive client has been updated.\nThe new version requires a data consolidation process to be run, which can take a long time.\nIf the synchronization is running, it will be necessary to stop it in order to launch the consolidation process and be able to start the synchronization again.")
         dialogVisible:spaceStackBridge.showUpdateRequiredDialog
         dialogWidth:700
+        dialogHeight:140
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Launch consolidation")

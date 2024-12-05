@@ -279,6 +279,7 @@ Rectangle{
         dialogVisible:settingsStackBridge.showSettingsDialog
         dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
         dialogWidth:400
+        dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
@@ -307,6 +308,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
         dialogWidth:400
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
