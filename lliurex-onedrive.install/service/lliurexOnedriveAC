@@ -355,7 +355,7 @@ class LliurexOneDriveAC:
 		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
-		
+		self.envConfFiles=[".config.backup",".config.hash"]
 		self.fixSpacesConfigFile()
 		self.initWorker()
 
@@ -364,7 +364,7 @@ class LliurexOneDriveAC:
 	def fixSpacesConfigFile(self):
 
 		oneDriveSpaces=self.readOneDriveConfig()
-		paramsToCheck=["space_reservation"]
+		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version"]
 
 		for space in oneDriveSpaces:
 			tmpConfigPath=space["configPath"]
@@ -380,10 +380,9 @@ class LliurexOneDriveAC:
 					for line in lines:
 						for param in paramsToCheck:
 							if param in line:
-								if param=="space_reservation":
-									if line.startswith("#"):
-										changeParam=True
-								break
+								if line.startswith("#"):
+									changeParam=True
+									break
 
 					if changeParam:
 						backupConfigFile=os.path.join(tmpConfigPath,"config_back")
@@ -393,18 +392,23 @@ class LliurexOneDriveAC:
 							for line in lines:
 								for param in paramsToCheck:
 									if param in line:
-										if param=="space_reservation":
-											if line.startswith("#"):
+										if line.startswith("#"):
+											if param=="space_reservation":
 												newLine='%s = "5120"\n'%param
-												line=newLine
-										break
+											elif param=="force_http_11":
+												newLine='%s = "true"\n'%param
+											elif param=="ip_protocol_version":
+												newLine='%s = "1"\n'%param
+											line=newLine
 								fd.write(line)
 
 						fd.close()
 
 						if os.path.exists(backupConfigFile):
 						 	os.remove(backupConfigFile)
-				
+
+						self._cleanEnvFiles(tmpConfigPath)
+					
 				except Exception as e:
 					if os.path.exists(backupConfigFile):
 						shutil.copyfile(backupConfigFile,tmpConfigFile)
@@ -412,6 +416,15 @@ class LliurexOneDriveAC:
 					pass
 
 	#def fixSpacesConfigFile
+
+	def _cleanEnvFiles(self,configPath):
+
+		for item in self.envConfFiles:
+			tmpFile=os.path.join(configPath,item)
+			if os.path.exists(tmpFile):
+				os.remove(tmpFile)
+
+	#def _cleanEnvFiles
 
 	def initWorker(self):
 
