@@ -39,7 +39,7 @@ class OnedriveManager:
 		self.folderSuffixName=""
 		self.spaceConfPath=""
 		self.tempConfigPath=""
-		self.customizeConfigParam=['monitor_interval','rate_limit','skip_size','enable_logging',"skip_file"]
+		self.customizeConfigParam=['monitor_interval','rate_limit','skip_size','enable_logging',"skip_file","notify_file_actions"]
 		self.bandWidth=[{"name":"128 KB/s","value":"131072"},{"name":"256 KB/s","value":"262144"},{"name":"512 KB/s","value":"524288"},{"name":"1 MB/s","value":"1048576"},{"name":"10 MB/s","value":"10485760"},{"name":"20 MB/s","value":"20971520"},{"name":"30 MB/s","value":"31457280"},{"name":"50 MB/s","value":"52428800"},{"name":"100 MB/s","value":"104857600"}]
 		self.bandWidthNames=[]
 		for item in self.bandWidth:
@@ -55,7 +55,8 @@ class OnedriveManager:
 		self.logEnabled=False
 		self.logSize=""
 		self.logPath=""
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled]
+		self.fileNotificationsEnabled=False
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled,self.fileNotificationsEnabled]
 		self.syncAll=True
 		self.filterFileName="sync_list"
 		self.filterFileHashName=".sync_list.hash"
@@ -235,7 +236,8 @@ class OnedriveManager:
 		self.logFolder=""
 		self.logPath=""
 		self.logSize=""
-		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled]
+		self.fileNotificationsEnabled=False
+		self.currentConfig=[self.autoStartEnabled,self.monitorInterval,self.rateLimit,self.skipSize,self.logEnabled,self.fileNotificationsEnabled]
 		self.freeSpace=""
 		self.accountStatus=3
 		self.filterFile=""
@@ -558,10 +560,16 @@ class OnedriveManager:
 							self.logEnabled=True
 						else:
 							self.logEnabled=False
+						if customParam["notify_file_actions"]=="true":
+							self.fileNotificationsEnabled=True
+						else:
+							self.fileNotificationsEnabled=False
 					else:
 						self.logEnabled=False
+						self.fileNotificationsEnabled=False
 
 					self.currentConfig[4]=self.logEnabled
+					self.currentConfig[5]=self.fileNotificationsEnabled
 					self.skipFileExtensions=customParam["skip_file"]
 					
 				except:
@@ -579,6 +587,7 @@ class OnedriveManager:
 				if len(lines)>0:
 					customParam["skip_size"]=[False,50]
 					customParam["skip_file"]=[False,[]]
+					customParam["notify_file_actions"]="false"
 					for line in lines:
 						for param in self.customizeConfigParam:
 							tmpLine=line.split("=")
@@ -621,6 +630,13 @@ class OnedriveManager:
 										self.forceMonitorIntervalUpdated=True
 									else:
 										customParam[param]=value
+							elif param=="notify_file_actions":
+								tmpValue=[]
+								if "#" in tmpLine[0].strip():
+									customParam[param]="false"
+								else:
+									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									customParam[param]=value
 							else:
 								if param==tmpLine[0].strip():
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -639,6 +655,7 @@ class OnedriveManager:
 				lines=fd.readlines()
 
 			with open(configFile,'w') as fd:
+				addedNotifyFileActionsParam=True
 				for line in lines:
 					for param in customParam:
 						tmpLine=line.split("=")
@@ -658,6 +675,10 @@ class OnedriveManager:
 						elif param=="enable_logging":
 							if "enable_logging" in tmpLine[0]:
 								line=line
+						elif param=="notify_file_actions":
+							if 'notify_file_actions' in tmpLine[0]:
+								line=line
+								addedNotifyFileActionsParam=False
 						else:
 							if param==tmpLine[0].strip():
 								value=tmpLine[1].split("\n")[0].strip().split('"')[1]
@@ -666,7 +687,11 @@ class OnedriveManager:
 								break
 					
 					fd.write(line)
-			
+				
+				if addedNotifyFileActionsParam:
+					line='notify_file_actions = "false"\n'
+					fd.write(line)
+
 			self._removeBackupConfigFiles()
 			self._updateCustomParam(customParam,True)
 
@@ -1877,6 +1902,7 @@ class OnedriveManager:
 		errorRL=False
 		errorSS=False
 		errorLE=False
+		errorFN=False
 		configUpdated=False
 
 		if value[0]!=self.currentConfig[0]:
@@ -1908,19 +1934,25 @@ class OnedriveManager:
 				self.currentConfig[4]=value[4]
 				configUpdated=True
 
+		if value[5]!=self.currentConfig[5]:
+			errorFN=self.manageFileNotifications(value[5])
+			if not errorFN:
+				self.currentConfig[5]=value[5]
+				configUpdated=True
+
 		if configUpdated:
 			self._removeBackupConfigFiles()
 		
-		if errorSD and not errorMI and not errorRL and not errorSS and not errorLE:
+		if errorSD and not errorMI and not errorRL and not errorSS and not errorLE and not errorFN:
 			return[True,SYSTEMD_ERROR]
 
-		elif errorSD and (errorMI or errorRL or errorSS or errorLE):
+		elif errorSD and (errorMI or errorRL or errorSS or errorLE or errorFN):
 			return [True,MULTIPLE_SETTINGS_ERROR]
 
-		elif not errorSD and (errorMI or errorRL or errorSS or errorLE):
+		elif not errorSD and (errorMI or errorRL or errorSS or errorLE or errorFN):
 			return [True,WRITE_CONFIG_ERROR]
 
-		elif not errorSD and errorMI and errorRL and errorSS and errorLE:
+		elif not errorSD and errorMI and errorRL and errorSS and errorLE and errorFN:
 			return [True,WRITE_CONFIG_ERROR]
 
 		else:
@@ -1962,13 +1994,24 @@ class OnedriveManager:
 
 	#def manageLogEnable
 
+	def manageFileNotifications(self,value):
+
+		if value:
+			newValue="true"
+		else:
+			newValue="false"
+
+		return self._writeConfigFile('notify_file_actions',newValue)
+
+	#def manageFileNotifications
+
 	def _writeConfigFile(self,param,value):
 
 		configFile=os.path.join(self.spaceConfPath,'config')
 		configFileBack=os.path.join(self.spaceConfPath,'config_back')
 
 		self.matchParam=True
-		if param=="skip_size":
+		if param=="skip_size" or param=="notify_file_actions":
 			self.matchParam=False
 
 		if os.path.exists(configFile):
@@ -1988,6 +2031,9 @@ class OnedriveManager:
 									tmpLine=param+' = '+'"'+value[1]+'"\n'
 								else:
 									tmpLine='# '+param+' = '+'"'+value[1]+'"\n'
+							elif param=="notify_file_actions":
+								self.matchParam=True
+								tmpLine=param+' = '+'"'+value+'"\n'
 							else:
 								tmpLine=param+' = '+'"'+value+'"\n'
 							
@@ -1996,16 +2042,22 @@ class OnedriveManager:
 							fd.write(line)
 
 					if not self.matchParam:
-						if value[0]: 
-							line=param+' = '+'"'+value[1]+'"\n'
-						else:
-							line='# '+param+' = '+'"'+value[1]+'"\n'
+						if param=="skip_size":
+							if value[0]: 
+								line=param+' = '+'"'+value[1]+'"\n'
+							else:
+								line='# '+param+' = '+'"'+value[1]+'"\n'
+						elif param=="notify_file_actions":
+							line=param+' = '+'"'+value+'"\n'
+						
 						fd.write(line)
 
 					fd.close()
+
 					if os.path.exists(configFileBack):
 						os.remove(configFileBack)
 					return False
+			
 			except Exception as e:
 				if os.path.exists(configFileBack):
 					shutil.copyfile(configFileBack,configFile)
@@ -2539,7 +2591,6 @@ class OnedriveManager:
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
 		rc=p.returncode
-		print(ret)
 		if rc!=0:
 			return False
 		else:

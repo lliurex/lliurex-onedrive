@@ -151,6 +151,25 @@ Rectangle{
                 }
             }
             Text{
+                id:fileNotifications
+                text:i18nd("lliurex-onedrive","Show notifications:")
+                Layout.alignment: Qt.AlignRight
+                Layout.bottomMargin:10
+
+            }
+            CheckBox {
+                id:fileNotificationsValue
+                text:i18nd("lliurex-onedrive","Notifications of actions on files/folders")
+                checked:settingsStackBridge.fileNotificationsEnabled
+                enabled:getEnabledStatus()
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                focusPolicy: Qt.NoFocus
+                onToggled:settingsStackBridge.manageFileNotifications(fileNotificationsValue.checked)
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignLeft
+            }
+            Text{
                 id:managementLog
                 text:i18nd("lliurex-onedrive","Log management:")
                 Layout.alignment: Qt.AlignRight
