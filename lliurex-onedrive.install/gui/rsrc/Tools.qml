@@ -1,9 +1,9 @@
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.12 as Kirigami
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
+import org.kde.plasma.core as PlasmaCore
+import org.kde.kirigami as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 Rectangle{
     color:"transparent"
@@ -168,7 +168,7 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible:!spaceStackBridge.syncAll
+                /*visible:!syncStackBridge.syncAll*/
             }
 
             Button {
@@ -184,7 +184,7 @@ Rectangle{
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
                 ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
-                visible:!spaceStackBridge.syncAll
+                /*visible:!syncStackBridge.syncAll*/
 
                 onClicked:{
                     onClicked:optionsMenu.open();
@@ -205,6 +205,7 @@ Rectangle{
                     MenuItem{
                         icon.name:"hint.svg"
                         text:i18nd("lliurex-onedrive","Hide the identification")
+                        visible:!syncStackBridge.syncAll
                         onClicked:{
                             toolStackBridge.manageFoldersDirectory(false)
                         }

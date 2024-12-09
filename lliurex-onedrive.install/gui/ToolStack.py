@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
+from PySide6.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
 import os 
 import sys
 import threading
@@ -210,7 +210,6 @@ class Bridge(QObject):
 		if self.updateOneDriveT.ret:
 			self.showToolsMessage=[True,Bridge.UPDATE_PROCESS_SUCCESS,"Ok"]
 			self.core.spaceStack.isUpdateRequired=Bridge.onedriveManager.isUpdateRequired
-			print(self.core.spaceStack.isUpdateRequired)
 		else:
 			self.showToolsMessage=[True,Bridge.UPDATE_PROCESS_ERROR,"Error"]
 

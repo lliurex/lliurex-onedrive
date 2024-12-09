@@ -1,10 +1,10 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQml.Models 2.8
-import org.kde.plasma.components 2.0 as Components
+import QtQuick
+import QtQuick.Controls
+import QtQml.Models
+import org.kde.plasma.components as Components
 
 
-Components.ListItem{
+Components.ItemDelegate{
 
     id: listSpaceItem
     property string idSpace
@@ -14,32 +14,35 @@ Components.ListItem{
     property bool localFolderWarning
 
     enabled:true
-
-    onContainsMouseChanged: {
-        if (containsMouse) {
-            listSpace.currentIndex = index
-        } else {
-            listSpace.currentIndex = -1
-        }
-
-    }
+    height:65
 
     Item{
         id: menuItem
-        height:visible?40:0
+        height:visible?60:0
         width:parent.width-manageSpaceBtn.width
+        MouseArea {
+           id: mouseAreaOption
+           anchors.fill: parent
+           hoverEnabled:true
+           propagateComposedEvents:true
+
+           onEntered: {
+               listSpace.currentIndex=index
+           }
+        }
         Text{
             id: spaceName
             text: nameSpace
             width:{
                 if (listSpaceItem.ListView.isCurrentItem){
-                    parent.width-(spaceStatusIcon.width+spaceRunningIcon.width+manageSpaceBtn.width+20)
+                    parent.width-(spaceStatusIcon.width+spaceRunningIcon.width+manageSpaceBtn.width+40)
                 }else{
                     parent.width-(spaceStatusIcon.width+spaceRunningIcon.width+20)
                 }
             }
             elide:Text.ElideMiddle
             clip: true
+            anchors.left:parent.left
             anchors.leftMargin:15
             anchors.verticalCenter:parent.verticalCenter
         }

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 import sys
-from PySide2 import QtCore, QtGui, QtQml
+from PySide6 import QtCore, QtGui, QtQml
 
 class FileExtensionsModel(QtCore.QAbstractListModel):
 

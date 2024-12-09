@@ -1,9 +1,9 @@
-import org.kde.plasma.components 2.0 as Components
-import org.kde.plasma.components 3.0 as PC3
-import org.kde.kirigami 2.12 as Kirigami
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQml.Models 2.8
+import org.kde.plasma.components as Components
+import org.kde.plasma.components as PC3
+import org.kde.kirigami as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQml.Models
 
 
 Rectangle {
@@ -46,7 +46,7 @@ Rectangle {
             Kirigami.PlaceholderMessage { 
                 id: emptyHint
                 anchors.centerIn: parent
-                width: parent.width - (units.largeSpacing * 4)
+                width: parent.width - (Kirigami.Units.largeSpacing * 4)
                 visible: listSpace.count==0?true:false
                 text: i18nd("lliurex-onedrive","No space is being sinced")
             }

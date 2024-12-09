@@ -1,7 +1,7 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQml.Models 2.6
-import org.kde.plasma.components 3.0 as Components
+import QtQuick
+import QtQuick.Controls
+import QtQml.Models
+import org.kde.plasma.components as Components
 
 
 Rectangle {
