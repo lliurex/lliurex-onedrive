@@ -168,6 +168,10 @@ Rectangle{
                 onToggled:settingsStackBridge.manageFileNotifications(fileNotificationsValue.checked)
                 Layout.bottomMargin:10
                 Layout.alignment:Qt.AlignLeft
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to receive notifications about file uploads/downloads and file and folders deletions")
             }
             Text{
                 id:managementLog

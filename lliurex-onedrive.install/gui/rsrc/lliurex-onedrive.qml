@@ -40,7 +40,7 @@ ApplicationWindow {
         id: mainLayout
         anchors.fill: parent
         anchors.margins: margin
-        Layout.minimumWidth:800
+        Layout.minimumWidth:820
         Layout.minimumHeight:635
 
         RowLayout {

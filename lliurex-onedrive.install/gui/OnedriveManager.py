@@ -632,11 +632,12 @@ class OnedriveManager:
 										customParam[param]=value
 							elif param=="notify_file_actions":
 								tmpValue=[]
-								if "#" in tmpLine[0].strip():
-									customParam[param]="false"
-								else:
-									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
-									customParam[param]=value
+								if 'notify_file_actions' in tmpLine[0]:
+									if "#" in tmpLine[0].strip():
+										customParam[param]="false"
+									else:
+										value=tmpLine[1].split("\n")[0].strip().split('"')[1]
+										customParam[param]=value
 							else:
 								if param==tmpLine[0].strip():
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
