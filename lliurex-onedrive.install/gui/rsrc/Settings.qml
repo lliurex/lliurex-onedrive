@@ -81,7 +81,7 @@ Rectangle{
 
             SpinBox{
                 id:monitorIntervalValues
-                from:1
+                from:5
                 to:60
                 stepSize:1
                 value:settingsStackBridge.monitorInterval
@@ -149,6 +149,29 @@ Rectangle{
                         settingsStackBridge.getSkipSize([skipSizeCB.checked,skipSizeValues.currentIndex])
                     }
                 }
+            }
+            Text{
+                id:fileNotifications
+                text:i18nd("lliurex-onedrive","Show notifications:")
+                Layout.alignment: Qt.AlignRight
+                Layout.bottomMargin:10
+
+            }
+            CheckBox {
+                id:fileNotificationsValue
+                text:i18nd("lliurex-onedrive","Notifications of actions on files/folders")
+                checked:settingsStackBridge.fileNotificationsEnabled
+                enabled:getEnabledStatus()
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                focusPolicy: Qt.NoFocus
+                onToggled:settingsStackBridge.manageFileNotifications(fileNotificationsValue.checked)
+                Layout.bottomMargin:10
+                Layout.alignment:Qt.AlignLeft
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to receive notifications about file uploads/downloads and file and folders deletions")
             }
             Text{
                 id:managementLog
@@ -279,6 +302,7 @@ Rectangle{
         dialogVisible:settingsStackBridge.showSettingsDialog
         dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
         dialogWidth:400
+        dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
@@ -307,6 +331,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
         dialogWidth:400
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -357,7 +382,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)||(spaceStackBridge.isUpdateRequired)){
             return false
         }else{
             return true

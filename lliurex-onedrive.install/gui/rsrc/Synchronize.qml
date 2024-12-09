@@ -210,6 +210,7 @@ Rectangle{
             }
         }
         dialogWidth:700
+        dialogHeight:120
         btnAcceptVisible:!syncAll.checked
         btnAcceptText:i18nd("lliurex-onedrive","Yes, delete unselected folders")
         btnDiscardText:{
@@ -243,6 +244,7 @@ Rectangle{
         dialogVisible:syncStackBridge.showSynchronizePendingDialog
         dialogMsg:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
         dialogWidth:450
+        dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
@@ -326,7 +328,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty) || (spaceStackBridge.isUpdateRequired)){
             return false
         }else{
             if (spaceStackBridge.isOnedriveRunning){
