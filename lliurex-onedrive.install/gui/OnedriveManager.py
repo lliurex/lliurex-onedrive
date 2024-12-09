@@ -2412,55 +2412,60 @@ class OnedriveManager:
 
 		parentsToMark=[]
 		childsWithMark=[]
-		for i in range(len(self.folderStruct)-1,-1,-1):
-			addSyncDirectory=False
-			addUnsyncDirectory=False
-			tmpPath=os.path.join(self.spaceLocalFolder,self.folderStruct[i]["path"])
-			if os.path.exists(tmpPath):
-				parentChecked=self._isParentFolderSync(self.folderStruct[i]["parentPath"])
-				if os.path.exists(os.path.join(tmpPath,".directory")):
-					os.remove(os.path.join(tmpPath,".directory"))
-				if addFolderDirectory:
-					if self.folderStruct[i]["path"] in parentsToMark:
-						addSyncDirectory=True
-					else:
-						if self.folderStruct[i]["isChecked"]:
-							if tmpPath not in childsWithMark:
-								childsWithMark.append(tmpPath)
-							if self.folderStruct[i]["type"]=="OneDrive":
-								addSyncDirectory=True
-							else:
-								if parentChecked:
-									pass
-								else:
-									if self.folderStruct[i]["parentPath"] not in parentsToMark:
-										parentsToMark.append(self.folderStruct[i]["parentPath"])
-									addSyncDirectory=True
+
+		if addFolderDirectory:
+			self._addDirectoryFile(self.spaceBasicInfo[2])
+
+		if not self.syncAll:
+			for i in range(len(self.folderStruct)-1,-1,-1):
+				addSyncDirectory=False
+				addUnsyncDirectory=False
+				tmpPath=os.path.join(self.spaceLocalFolder,self.folderStruct[i]["path"])
+				if os.path.exists(tmpPath):
+					parentChecked=self._isParentFolderSync(self.folderStruct[i]["parentPath"])
+					if os.path.exists(os.path.join(tmpPath,".directory")):
+						os.remove(os.path.join(tmpPath,".directory"))
+					if addFolderDirectory:
+						if self.folderStruct[i]["path"] in parentsToMark:
+							addSyncDirectory=True
 						else:
-							match=False
-							for item in childsWithMark:
-								if tmpPath+"/" in item:
-									match=True
-									break
-							if match:
-								if parentChecked:
-									pass
-								else:
-									addSyncDirectory=True
-							else:
+							if self.folderStruct[i]["isChecked"]:
+								if tmpPath not in childsWithMark:
+									childsWithMark.append(tmpPath)
 								if self.folderStruct[i]["type"]=="OneDrive":
-									if tmpPath in parentsToMark:
-										if tmpPath not in childsWithMark:
-											childsWithMark.append(tmpPath)
-										addSyncDirectory=True
+									addSyncDirectory=True
 								else:
 									if parentChecked:
-										addUnsyncDirectory=True
+										pass
+									else:
+										if self.folderStruct[i]["parentPath"] not in parentsToMark:
+											parentsToMark.append(self.folderStruct[i]["parentPath"])
+										addSyncDirectory=True
+							else:
+								match=False
+								for item in childsWithMark:
+									if tmpPath+"/" in item:
+										match=True
+										break
+								if match:
+									if parentChecked:
+										pass
+									else:
+										addSyncDirectory=True
+								else:
+									if self.folderStruct[i]["type"]=="OneDrive":
+										if tmpPath in parentsToMark:
+											if tmpPath not in childsWithMark:
+												childsWithMark.append(tmpPath)
+											addSyncDirectory=True
+									else:
+										if parentChecked:
+											addUnsyncDirectory=True
 
-					if addSyncDirectory:
-						shutil.copyfile(self.oneDriveFolderSyncDirectoryFile,os.path.join(tmpPath,".directory"))
-					elif addUnsyncDirectory:
-						shutil.copyfile(self.folderUnsyncDirectoryFile,os.path.join(tmpPath,".directory"))
+						if addSyncDirectory:
+							shutil.copyfile(self.oneDriveFolderSyncDirectoryFile,os.path.join(tmpPath,".directory"))
+						elif addUnsyncDirectory:
+							shutil.copyfile(self.folderUnsyncDirectoryFile,os.path.join(tmpPath,".directory"))
 
 
 	#def manageFoldersDirectory

@@ -168,7 +168,6 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible:!spaceStackBridge.syncAll
             }
 
             Button {
@@ -184,7 +183,6 @@ Rectangle{
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
                 ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
-                visible:!spaceStackBridge.syncAll
 
                 onClicked:{
                     onClicked:optionsMenu.open();
@@ -205,6 +203,7 @@ Rectangle{
                     MenuItem{
                         icon.name:"hint.svg"
                         text:i18nd("lliurex-onedrive","Hide the identification")
+                        visible:!syncStackBridge.syncAll
                         onClicked:{
                             toolStackBridge.manageFoldersDirectory(false)
                         }
