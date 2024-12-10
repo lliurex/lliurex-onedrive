@@ -261,24 +261,60 @@ class getSpaceStatusWorker():
 							if len(poutput)>0:
 								poutput=poutput.split('\n')
 								for item in poutput:
-									if 'Uploading' in item:
-										code=UPLOADING_PENDING_CHANGES
-										break;
-									if 'no pending' in item:
-										code=ALL_SYNCHRONIZE_MSG
-									elif 'out of sync' in item:
-										code=OUT_OF_SYNC_MSG
-									elif 'Authentication scope needs' in item:
-										code=FORBIDDEN_USER
+									if 'OneDrive API returned an error' in item:
+										code=MICROSOFT_API_ERROR
+										error=True
+									elif 'Cannot connect to' in item:
+										code=UNABLE_CONNECT_MICROSOFT_ERROR
 										error=True
 										break
-									elif 'download from Microsoft OneDrive:' in item:
-										pendingChanges=item.split(':')[1].strip()
-									elif 'Free Space' in item:
-										tmp_freespace=item.split(':')[1].strip()
-										if not 'Not Available' in tmp_freespace:
-											tmp_freespace=tmp_freespace.split(" ")
-											freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
+									elif 'local file system' in item:
+										code=LOCAL_FILE_SYSTEM_ERROR
+										error=True
+									elif 'zero space available' in item:
+										code=ZERO_SPACE_AVAILABLE_ERROR
+										error=True
+										break
+									elif 'quota information' in item:
+										if spaceType!="sharepoint":
+											code=QUOTA_RESTRICTED_ERROR
+											error=True
+									elif 'database access error' in item or 'database cannot be opened' in item:
+										code=DATABASE_ERROR
+										error=True
+									elif 'Unauthorized' in item:
+										code=UNAUTHORIZED_ERROR
+										error=True
+									elif '416' in item:
+										code=UPLOADING_PENDING_CHANGES
+										error=True
+										break
+									elif 'Unable to query OneDrive' in item:
+										code=UNAUTHORIZED_ERROR
+										error=True
+										break
+									elif '503' in item:
+										code=SERVICE_UNAVAILABLE
+										error=True
+									if not error:
+										if 'Uploading' in item:
+											code=UPLOADING_PENDING_CHANGES
+											break;
+										if 'no pending' in item:
+											code=ALL_SYNCHRONIZE_MSG
+										elif 'out of sync' in item:
+											code=OUT_OF_SYNC_MSG
+										elif 'Authentication scope needs' in item:
+											code=FORBIDDEN_USER
+											error=True
+											break
+										elif 'download from Microsoft OneDrive:' in item:
+											pendingChanges=item.split(':')[1].strip()
+										elif 'Free Space' in item:
+											tmp_freespace=item.split(':')[1].strip()
+											if not 'Not Available' in tmp_freespace:
+												tmp_freespace=tmp_freespace.split(" ")
+												freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 					except:
 						p.kil()
 						error=True
