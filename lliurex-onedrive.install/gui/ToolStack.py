@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
+from PySide6.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
 import os 
 import sys
 import threading
@@ -59,6 +59,25 @@ class FoldersDirectory(QThread):
 
 #class FoldersDirectory
 
+class UpdateOneDrive(QThread):
+
+	def __init__(self,*args):
+
+		QThread.__init__(self)
+		self.ret=False
+
+	#def __init__
+
+	def run (self):
+
+		time.sleep(1)
+		self.ret=Bridge.onedriveManager.updateOneDrive()
+
+	#def run
+
+
+#class UpdateOneDrive
+
 class Bridge(QObject):
 
 	SPACE_RUNNING_TEST_MESSAGE=13
@@ -67,8 +86,11 @@ class Bridge(QObject):
 	UPDATE_TOKEN_MESSAGE=19
 	FOLDERS_DIRECTOY_APPLY_RUNNING=21
 	FOLDERS_DIRECTOY_REMOVE_RUNNING=22
+	UPDATE_RUNNING_MESSAGE=23
+	UPDATE_PROCESS_SUCCESS=24
 
 	UPDATE_TOKEN_ERROR=-16
+	UPDATE_PROCESS_ERROR=-17
 
 	def __init__(self,ticket=None):
 
@@ -170,6 +192,28 @@ class Bridge(QObject):
 		self.core.mainStack.closePopUp=[True,""]
 
 	#def _manageFoldersDirectory
+
+	@Slot()
+	def updateOneDrive(self):
+
+		self.core.mainStack.closePopUp=[False,Bridge.UPDATE_RUNNING_MESSAGE]
+		self.updateOneDriveT=UpdateOneDrive()
+		self.updateOneDriveT.start()
+		self.updateOneDriveT.finished.connect(self._updateOneDriveRet)
+
+	#def updateOneDrive
+
+	def _updateOneDriveRet(self):
+
+		self.core.mainStack.closePopUp=[True,""]
+
+		if self.updateOneDriveT.ret:
+			self.showToolsMessage=[True,Bridge.UPDATE_PROCESS_SUCCESS,"Ok"]
+			self.core.spaceStack.isUpdateRequired=Bridge.onedriveManager.isUpdateRequired
+		else:
+			self.showToolsMessage=[True,Bridge.UPDATE_PROCESS_ERROR,"Error"]
+
+	#def _updateOneDriveRet
 
 	on_showToolsMessage=Signal()
 	showToolsMessage=Property('QVariantList',_getShowToolsMessage,_setShowToolsMessage,notify=on_showToolsMessage)

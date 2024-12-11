@@ -1,7 +1,7 @@
-import QtQuick 2.6
-import QtWebEngine 1.10
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
+import QtQuick
+import QtWebEngine
+import QtQuick.Controls
+import QtQuick.Layouts
 
 
 Rectangle {
@@ -19,7 +19,7 @@ Rectangle {
         url: authUrl
         profile.persistentCookiesPolicy:WebEngineProfile.NoPersistentCookies
         onLoadingChanged:{
-            var ret=loadRequest.url.toString()
+            var ret=loadingInfo.url.toString()
             if (ret.indexOf("nativeclient?code=")===48){
                 addSpaceStackBridge.getToken(ret);
                 profile.clearHttpCache();

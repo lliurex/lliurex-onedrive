@@ -1,6 +1,6 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 
 GridLayout{
@@ -17,7 +17,7 @@ GridLayout{
             id:goBackBtn
             optionText:i18nd("lliurex-onedrive","Spaces")
             optionFontSize:14
-            optionIcon:"/usr/share/icons/breeze/actions/24/arrow-left.svg"
+            optionIcon:"/usr/share/icons/breeze/actions/24/go-previous.svg"
             Connections{
                 function onMenuOptionClicked(){
                     spaceStackBridge.goHome();

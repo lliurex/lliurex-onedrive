@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
+from PySide6.QtCore import QObject,Signal,Slot,QThread,Property,QTimer,Qt,QModelIndex
 import os 
 import sys
 import threading
@@ -47,6 +47,7 @@ class Bridge(QObject):
 		self._showSettingsDialog=False
 		self._bandWidthNames=Bridge.onedriveManager.bandWidthNames
 		self._maxFileSizeNames=Bridge.onedriveManager.maxFileSizeNames
+		self._fileNotificationsEnabled=Bridge.onedriveManager.fileNotificationsEnabled
 		self._settingsChanged=False
 		self._showSettingsMessage=[False,""]
 		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
@@ -163,6 +164,20 @@ class Bridge(QObject):
 
 	#def _setLogSize
 
+	def _getFileNotificationsEnabled(self):
+
+		return self._fileNotificationsEnabled
+
+	#def _getFileNotificationsEnabled
+
+	def _setFileNotificationsEnabled(self,fileNotificationsEnabled):
+
+		if self._fileNotificationsEnabled!=fileNotificationsEnabled:
+			self._fileNotificationsEnabled=fileNotificationsEnabled
+			self.on_fileNotificationsEnabled.emit()
+
+	#def _setFileNotificationsEnabled
+
 	def _getSettingsChanged(self):
 
 		return self._settingsChanged
@@ -213,6 +228,7 @@ class Bridge(QObject):
 		self.skipSize=Bridge.onedriveManager.skipSize
 		self.logEnabled=Bridge.onedriveManager.logEnabled
 		self.logSize=Bridge.onedriveManager.logSize
+		self.fileNotificationsEnabled=Bridge.onedriveManager.fileNotificationsEnabled
 		self.initialConfig=copy.deepcopy(Bridge.onedriveManager.currentConfig)
 
 	#def _getInitialSettings
@@ -306,6 +322,20 @@ class Bridge(QObject):
 
 	#def removeLogFile
 
+	@Slot(bool)
+	def manageFileNotifications(self,value):
+
+		if value!=self.initialConfig[5]:
+			self.initialConfig[5]=value
+			self.fileNotificationsEnabled=value
+
+		if self.initialConfig!=Bridge.onedriveManager.currentConfig:
+			self.settingsChanged=True
+		else:
+			self.settingsChanged=False
+
+	#def manageFileNotifications
+
 	@Slot()
 	def applySettingsChanges(self):
 
@@ -348,6 +378,7 @@ class Bridge(QObject):
 		self.rateLimit=self.initialConfig[2]
 		self.skipSize=self.initialConfig[3]
 		self.logEnabled=self.initialConfig[4]
+		self.fileNotificationsEnabled=self.initialConfig[5]
 		self.core.mainStack.closeGui=True
 		self.core.spaceStack._manageGoToStack()
 
@@ -393,6 +424,9 @@ class Bridge(QObject):
 	on_logSize=Signal()
 	logSize=Property(str,_getLogSize,_setLogSize,notify=on_logSize)
 	
+	on_fileNotificationsEnabled=Signal()
+	fileNotificationsEnabled=Property(bool,_getFileNotificationsEnabled,_setFileNotificationsEnabled,notify=on_fileNotificationsEnabled)
+
 	on_settingsChanged=Signal()
 	settingsChanged=Property(bool,_getSettingsChanged,_setSettingsChanged, notify=on_settingsChanged)
 

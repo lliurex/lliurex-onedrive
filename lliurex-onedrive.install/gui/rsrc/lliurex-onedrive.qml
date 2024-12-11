@@ -1,11 +1,9 @@
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.12 as Kirigami
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
-import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.3
-
+import org.kde.plasma.core as PlasmaCore
+import org.kde.kirigami as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
 
 
 ApplicationWindow {
@@ -21,10 +19,10 @@ ApplicationWindow {
     minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
     Component.onCompleted: {
         x = Screen.width / 2 - width / 2
-        y = Screen.height / 2 - height/0.4
+        y = Screen.height / 2 - height/2
     }
 
-    onClosing: {
+    onClosing:(close)=>{
         close.accepted=closing;
         mainStackBridge.closeOnedrive()
         delay(100, function() {
@@ -40,7 +38,7 @@ ApplicationWindow {
         id: mainLayout
         anchors.fill: parent
         anchors.margins: margin
-        Layout.minimumWidth:800
+        Layout.minimumWidth:860
         Layout.minimumHeight:635
 
         RowLayout {
@@ -66,8 +64,10 @@ ApplicationWindow {
         StackView {
             id: mainView
             property int currentIndex:mainStackBridge.currentStack
-            Layout.minimumWidth: 725
-            Layout.preferredWidth: 725
+            Layout.minimumWidth: 820
+            Layout.preferredWidth: 820
+            Layout.minimumHeight: 515
+            Layout.preferredHeight: 515
             Layout.alignment:Qt.AlignHCenter
             Layout.leftMargin:0
             Layout.fillWidth:true

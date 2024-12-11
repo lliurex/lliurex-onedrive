@@ -1,10 +1,9 @@
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 3.0 as PC3
-import org.kde.kirigami 2.12 as Kirigami
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
+import org.kde.plasma.core as PlasmaCore
+import org.kde.kirigami as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 
 Rectangle{
@@ -210,6 +209,7 @@ Rectangle{
             }
         }
         dialogWidth:700
+        dialogHeight:120
         btnAcceptVisible:!syncAll.checked
         btnAcceptText:i18nd("lliurex-onedrive","Yes, delete unselected folders")
         btnDiscardText:{
@@ -243,6 +243,7 @@ Rectangle{
         dialogVisible:syncStackBridge.showSynchronizePendingDialog
         dialogMsg:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
         dialogWidth:450
+        dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
@@ -326,7 +327,7 @@ Rectangle{
     }
 
     function getEnabledStatus(){
-        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty)){
+        if ((spaceStackBridge.localFolderRemoved)||(spaceStackBridge.localFolderEmpty) || (spaceStackBridge.isUpdateRequired)){
             return false
         }else{
             if (spaceStackBridge.isOnedriveRunning){

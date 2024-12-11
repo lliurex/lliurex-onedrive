@@ -1,8 +1,7 @@
-import QtQuick 2.6      
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
-
+import QtQuick      
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 Dialog {
     id: customDialog
@@ -11,6 +10,7 @@ Dialog {
     property alias dialogVisible:customDialog.visible
     property alias dialogMsg:dialogText.text
     property alias dialogWidth:container.implicitWidth
+    property alias dialogHeight:container.implicitHeight
     property alias btnAcceptVisible:dialogApplyBtn.visible
     property alias btnAcceptText:dialogApplyBtn.text
     property alias btnDiscardText:dialogDiscardBtn.text
@@ -23,13 +23,20 @@ Dialog {
 
     visible:dialogVisible
     title:dialogTitle
-    modality:Qt.WindowModal
-
+    modal:true
+    anchors.centerIn:Overlay.overlay
+    background:Rectangle{
+        color:"#ebeced"
+        border.color:"#b8b9ba"
+        border.width:1
+        radius:5.0
+    }
+    
     contentItem: Rectangle {
         id:container
         color: "#ebeced"
         implicitWidth: dialogWidth
-        implicitHeight: 120
+        implicitHeight: dialogHeight
         anchors.topMargin:5
         anchors.leftMargin:5
 
@@ -47,6 +54,9 @@ Dialog {
             anchors.left:dialogIcon.right
             anchors.verticalCenter:dialogIcon.verticalCenter
             anchors.leftMargin:10
+            width:600
+            height:60
+            wrapMode:Text.WordWrap
         
         }
       

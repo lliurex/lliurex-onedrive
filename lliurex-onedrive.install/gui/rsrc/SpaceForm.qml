@@ -1,9 +1,9 @@
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.12 as Kirigami
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
+import org.kde.plasma.core as PlasmaCore
+import org.kde.kirigami as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 
 Rectangle{
@@ -54,7 +54,7 @@ Rectangle{
                 horizontalAlignment:TextInput.AlignLeft
                 focus:true
                 text:addSpaceStackBridge.formData[0]
-                validator:RegExpValidator { regExp:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
+                validator:RegularExpressionValidator { regularExpression:/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/ }
                 implicitWidth:400
                 onTextChanged:{
                     addSpaceStackBridge.resetSharePoints()
@@ -206,6 +206,7 @@ Rectangle{
         dialogVisible:addSpaceStackBridge.showPreviousFolderDialog
         dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -233,6 +234,7 @@ Rectangle{
         dialogVisible:addSpaceStackBridge.showDownloadDialog
         dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+addSpaceStackBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+addSpaceStackBridge.hddFreeSpace+getLastMessage()
         dialogWidth:710
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")

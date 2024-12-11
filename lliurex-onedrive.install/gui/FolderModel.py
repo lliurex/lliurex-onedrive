@@ -1,6 +1,6 @@
 import os
 import sys
-from PySide2 import QtCore, QtGui, QtQml
+from PySide6 import QtCore, QtGui, QtQml
 
 class FolderModel(QtCore.QAbstractListModel):
 
