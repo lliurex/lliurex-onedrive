@@ -1,3 +1,9 @@
+lliurex-onedrive (2.25.5) noble; urgency=medium
+
+  * Initial release for noble
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 11 Dec 2024 15:35:38 +0100
+
 lliurex-onedrive (2.14.5) jammy; urgency=medium
 
   * Fixed service again
