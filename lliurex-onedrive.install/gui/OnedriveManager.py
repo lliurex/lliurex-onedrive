@@ -1617,7 +1617,7 @@ class OnedriveManager:
 					for j in range(0,len(syncOut)-1,2):
 						tmpItem2=syncOut[j]+": "+syncOut[j+1]
 						if 'The directory' in tmpItem2:
-							tmpEntry2=syncOut[j].split("Processing")[1].strip()
+							tmpEntry2=syncOut[j].split("Processing:")[1].strip()
 							tmpPath=tmpList["path"]+"/"
 							if tmpPath in tmpEntry2:
 								countChildren+=1
@@ -1745,6 +1745,7 @@ class OnedriveManager:
 			if not initialSyncConfig[0]:
 				addFolderDirectory=True
 
+			time.sleep(0.5)
 			self.manageFoldersDirectory(addFolderDirectory)	
 			return ret
 		else:
