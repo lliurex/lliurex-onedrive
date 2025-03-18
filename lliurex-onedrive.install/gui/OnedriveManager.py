@@ -1168,10 +1168,14 @@ class OnedriveManager:
 		
 		if (startSync and isOnedriveRunning) or (not startSync and not isOnedriveRunning):
 			self._updateSpaceConfigData("isRunning",isOnedriveRunning)
-			return[ok,isOnedriveRunning]
-		else:
-			return[ok,isOnedriveRunning]
 
+		if startSync:
+			if not os.path.exists(self.spaceLocalFolder):
+				time.sleep(3)
+			self._addDirectoryFile(self.spaceBasicInfo[2])
+
+		return[ok,isOnedriveRunning]
+	
 	#def manageSync
 
 	def getAccountStatus(self,spaceConfPath=None,spaceType=None):
@@ -1745,7 +1749,6 @@ class OnedriveManager:
 			if not initialSyncConfig[0]:
 				addFolderDirectory=True
 
-			time.sleep(0.5)
 			self.manageFoldersDirectory(addFolderDirectory)	
 			return ret
 		else:
@@ -2403,8 +2406,15 @@ class OnedriveManager:
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 			else:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
-				if self.spaceSuffixName!="":
-					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+				addOrganizationDirectory=True
+		
+		else:
+			addOrganizationDirectory=True
+
+		if addOrganizationDirectory:
+			if self.spaceSuffixName!="":
+				organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+				if os.path.exists(organizationFolder):
 					if not os.path.exists(os.path.join(organizationFolder,".directory")):
 						shutil.copyfile(self.organizationDirectoryFile,os.path.join(organizationFolder,".directory"))
 	

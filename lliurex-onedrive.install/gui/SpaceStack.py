@@ -467,7 +467,7 @@ class Bridge(QObject):
 		else:
 			msg=Bridge.STOP_SYNC_MESSAGE
 
-		self.core.mainStack.closePopup=[False,msg]
+		self.core.mainStack.closePopUp=[False,msg]
 		self.manageSyncT=ManageSync(self.startSync)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._manageSync)
