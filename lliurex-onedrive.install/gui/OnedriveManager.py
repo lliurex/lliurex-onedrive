@@ -1799,8 +1799,11 @@ class OnedriveManager:
 				os.remove(self.filterFileHash)
 
 		if ret:
+			self.syncAll=syncAll
 			self.currentSyncConfig[0]=syncAll
+			self.foldersSelected=foldersSelected
 			self.currentSyncConfig[1]=foldersSelected
+			self.foldersUnSelected=foldersUnSelected
 			self.currentSyncConfig[2]=foldersUnSelected
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 
