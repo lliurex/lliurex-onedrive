@@ -1159,6 +1159,8 @@ class OnedriveManager:
 		try:
 			if os.path.exists(self.localFolderEmptyToken):
 				self._manageEmptyToken()
+			if startSync:
+				self._createLocalFolder()
 			p=subprocess.run(cmd,shell=True,check=True)
 		except subprocess.CalledProcessError as e:
 			ok=False
@@ -1171,12 +1173,30 @@ class OnedriveManager:
 
 		if startSync:
 			if not os.path.exists(self.spaceLocalFolder):
-				time.sleep(3)
+				time.sleep(5)
 			self._addDirectoryFile(self.spaceBasicInfo[2])
 
 		return[ok,isOnedriveRunning]
 	
 	#def manageSync
+	
+	def _createLocalFolder(self):
+		
+		try:
+			if self.spaceBasicInfo[2]=="onedrive":
+				if not os.path.exists(self.spaceLocalFolder):
+					os.mkdir(self.spaceLocalFolder)
+			else:
+				if self.spaceSuffixName!="":
+					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+					if os.path.exists(organizationFolder):
+						os.mkdir(organizationFolder)
+					if not os.path.exists(self.spaceLocalFolder):
+						os.mkdir(self.spaceLocalFolder)
+		except:
+			pass
+		
+	#def _createLocalFolder
 
 	def getAccountStatus(self,spaceConfPath=None,spaceType=None):
 
@@ -2404,6 +2424,8 @@ class OnedriveManager:
 
 	def _addDirectoryFile(self,spaceType):
 
+		addOrganizationDirectory=False
+		
 		if os.path.exists(self.spaceLocalFolder):
 			if spaceType=="onedrive":
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
@@ -2411,8 +2433,6 @@ class OnedriveManager:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 				addOrganizationDirectory=True
 		
-		else:
-			addOrganizationDirectory=True
 
 		if addOrganizationDirectory:
 			if self.spaceSuffixName!="":
