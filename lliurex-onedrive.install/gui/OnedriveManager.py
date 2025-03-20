@@ -1189,7 +1189,7 @@ class OnedriveManager:
 			else:
 				if self.spaceSuffixName!="":
 					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
-					if os.path.exists(organizationFolder):
+					if not os.path.exists(organizationFolder):
 						os.mkdir(organizationFolder)
 					if not os.path.exists(self.spaceLocalFolder):
 						os.mkdir(self.spaceLocalFolder)
