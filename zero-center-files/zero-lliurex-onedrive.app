@@ -15,5 +15,6 @@ ScriptPath=zero-lliurex-onedrive.zmd
 Groups=admins;admin;sudo;teachers
 Service=True
 Modal=True
+Show=False
 
 
