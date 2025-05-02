@@ -1,3 +1,9 @@
+lliurex-onedrive (3.15.6) noble; urgency=medium
+
+  * Added key to hide zomando
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 02 May 2025 10:49:33 +0200
+
 lliurex-onedrive (3.15.5) noble; urgency=medium
 
   * Initial release for noble
