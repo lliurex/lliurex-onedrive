@@ -1159,6 +1159,8 @@ class OnedriveManager:
 		try:
 			if os.path.exists(self.localFolderEmptyToken):
 				self._manageEmptyToken()
+			if startSync:
+				self._createLocalFolder()
 			p=subprocess.run(cmd,shell=True,check=True)
 		except subprocess.CalledProcessError as e:
 			ok=False
@@ -1168,11 +1170,33 @@ class OnedriveManager:
 		
 		if (startSync and isOnedriveRunning) or (not startSync and not isOnedriveRunning):
 			self._updateSpaceConfigData("isRunning",isOnedriveRunning)
-			return[ok,isOnedriveRunning]
-		else:
-			return[ok,isOnedriveRunning]
 
+		if startSync:
+			if not os.path.exists(self.spaceLocalFolder):
+				time.sleep(5)
+			self._addDirectoryFile(self.spaceBasicInfo[2])
+
+		return[ok,isOnedriveRunning]
+	
 	#def manageSync
+	
+	def _createLocalFolder(self):
+		
+		try:
+			if self.spaceBasicInfo[2]=="onedrive":
+				if not os.path.exists(self.spaceLocalFolder):
+					os.mkdir(self.spaceLocalFolder)
+			else:
+				if self.spaceSuffixName!="":
+					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+					if not os.path.exists(organizationFolder):
+						os.mkdir(organizationFolder)
+					if not os.path.exists(self.spaceLocalFolder):
+						os.mkdir(self.spaceLocalFolder)
+		except:
+			pass
+		
+	#def _createLocalFolder
 
 	def getAccountStatus(self,spaceConfPath=None,spaceType=None):
 
@@ -1617,7 +1641,7 @@ class OnedriveManager:
 					for j in range(0,len(syncOut)-1,2):
 						tmpItem2=syncOut[j]+": "+syncOut[j+1]
 						if 'The directory' in tmpItem2:
-							tmpEntry2=syncOut[j].split("Processing")[1].strip()
+							tmpEntry2=syncOut[j].split("Processing:")[1].strip()
 							tmpPath=tmpList["path"]+"/"
 							if tmpPath in tmpEntry2:
 								countChildren+=1
@@ -1795,8 +1819,11 @@ class OnedriveManager:
 				os.remove(self.filterFileHash)
 
 		if ret:
+			self.syncAll=syncAll
 			self.currentSyncConfig[0]=syncAll
+			self.foldersSelected=foldersSelected
 			self.currentSyncConfig[1]=foldersSelected
+			self.foldersUnSelected=foldersUnSelected
 			self.currentSyncConfig[2]=foldersUnSelected
 			self.folderStructBack=copy.deepcopy(self.folderStruct)
 
@@ -2397,13 +2424,20 @@ class OnedriveManager:
 
 	def _addDirectoryFile(self,spaceType):
 
+		addOrganizationDirectory=False
+		
 		if os.path.exists(self.spaceLocalFolder):
 			if spaceType=="onedrive":
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 			else:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
-				if self.spaceSuffixName!="":
-					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+				addOrganizationDirectory=True
+		
+
+		if addOrganizationDirectory:
+			if self.spaceSuffixName!="":
+				organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
+				if os.path.exists(organizationFolder):
 					if not os.path.exists(os.path.join(organizationFolder,".directory")):
 						shutil.copyfile(self.organizationDirectoryFile,os.path.join(organizationFolder,".directory"))
 	
