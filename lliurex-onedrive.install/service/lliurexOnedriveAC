@@ -400,7 +400,7 @@ class LliurexOneDriveAC:
 	def fixSpacesConfigFile(self):
 
 		oneDriveSpaces=self.readOneDriveConfig()
-		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version"]
+		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version","skip_file"]
 
 		for space in oneDriveSpaces:
 			tmpConfigPath=space["configPath"]
@@ -416,9 +416,13 @@ class LliurexOneDriveAC:
 					for line in lines:
 						for param in paramsToCheck:
 							if param in line:
-								if line.startswith("#"):
-									changeParam=True
-									break
+								if 'skip_file' in line:
+									if '*.partial' not in line:
+										changeParam=True
+								else:
+									if line.startswith("#"):
+										changeParam=True
+										break
 
 					if changeParam:
 						backupConfigFile=os.path.join(tmpConfigPath,"config_back")
@@ -436,6 +440,11 @@ class LliurexOneDriveAC:
 											elif param=="ip_protocol_version":
 												newLine='%s = "1"\n'%param
 											line=newLine
+										else:
+											if 'skip_file' in line:
+												if "*.param" not in line:
+													newLine='%s = "~*|.~*|*.tmp|*.part|*.kate-swp|*.swp|*.partial|.directory"\n'%param
+													line=newLine
 								fd.write(line)
 
 						fd.close()

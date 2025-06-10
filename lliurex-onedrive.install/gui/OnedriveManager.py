@@ -84,7 +84,7 @@ class OnedriveManager:
 		self.oneDriveFolderSyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveSync"
 		self.folderUnsyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryUnsync"
 		self.skipFileExtensionsList="/usr/share/lliurex-onedrive/llx-data/skip_file_extension_list"
-		self.defaultSkipFile="~*|.~*|*.tmp|*.part|*.kate-swp|.directory"
+		self.defaultSkipFile="~*|.~*|*.tmp|*.part|*.kate-swp|*.swp|*.partial|.directory"
 		self.createEnvironment()
 		self._createLockToken()
 		self.clearCache()
@@ -606,8 +606,9 @@ class OnedriveManager:
 									tmp=tmpLine[1].split("\n")[0].strip().split('"')[1]
 									if tmp!=self.defaultSkipFile:
 										tmpValue.append(True)
-										tmpLine=tmp.split(self.defaultSkipFile)
-										tmpExtensions=tmpLine[1].strip().split("|")
+										#tmpLine=tmp.split(self.defaultSkipFile)
+										#tmpExtensions=tmpLine[0].strip().split("|")
+										tmpExtensions=self.defaultSkipFile.strip().split("|")
 										tmpExtensions.pop(0)
 										tmpExtensions=list(map(lambda s:s.replace('"',''),tmpExtensions))
 										tmpExtensions=list(map(lambda s:s.strip(),tmpExtensions))
