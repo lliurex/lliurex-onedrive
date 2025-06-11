@@ -417,7 +417,7 @@ class LliurexOneDriveAC:
 						for param in paramsToCheck:
 							if param in line:
 								if 'skip_file' in line:
-									if '*.partial' not in line:
+									if '*.partial' not in line or '*.swp' not in line:
 										changeParam=True
 								else:
 									if line.startswith("#"):
@@ -442,9 +442,14 @@ class LliurexOneDriveAC:
 											line=newLine
 										else:
 											if 'skip_file' in line:
-												if "*.param" not in line:
-													newLine='%s = "~*|.~*|*.tmp|*.part|*.kate-swp|*.swp|*.partial|.directory"\n'%param
-													line=newLine
+												newLine=line.split("=")[1]
+												newLine=newLine.strip().replace('"',"")
+												if "*.partial" not in line:
+													newLine='%s|*.partial'%newLine
+												if "*.swp" not in line:
+													newLine='%s|*.swp'%newLine
+												
+												line='%s = "%s"\n'%(param,newLine)
 								fd.write(line)
 
 						fd.close()
