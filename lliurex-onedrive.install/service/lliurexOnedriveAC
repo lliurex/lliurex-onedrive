@@ -104,7 +104,7 @@ class checkSpaceLocalFolder():
 			with open(onedriveVersionToken,'r') as fd:
 				currentVersion=fd.readline().strip()
 
-			if "3.15." in currentVersion or "2.15." in currentVersion or "1.5." in currentVersion:
+			if "2.15." in currentVersion or "1.5." in currentVersion:
 				if not os.path.exists(updatedToken):
 					if not os.path.exists(updateRequiredToken):
 						with open(updateRequiredToken,'w') as fd:
@@ -400,7 +400,7 @@ class LliurexOneDriveAC:
 	def fixSpacesConfigFile(self):
 
 		oneDriveSpaces=self.readOneDriveConfig()
-		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version"]
+		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version","skip_file"]
 
 		for space in oneDriveSpaces:
 			tmpConfigPath=space["configPath"]
@@ -416,9 +416,13 @@ class LliurexOneDriveAC:
 					for line in lines:
 						for param in paramsToCheck:
 							if param in line:
-								if line.startswith("#"):
-									changeParam=True
-									break
+								if 'skip_file' in line:
+									if '*.partial' not in line or '*.swp' not in line:
+										changeParam=True
+								else:
+									if line.startswith("#"):
+										changeParam=True
+										break
 
 					if changeParam:
 						backupConfigFile=os.path.join(tmpConfigPath,"config_back")
@@ -436,6 +440,16 @@ class LliurexOneDriveAC:
 											elif param=="ip_protocol_version":
 												newLine='%s = "1"\n'%param
 											line=newLine
+										else:
+											if 'skip_file' in line:
+												newLine=line.split("=")[1]
+												newLine=newLine.strip().replace('"',"")
+												if "*.partial" not in line:
+													newLine='%s|*.partial'%newLine
+												if "*.swp" not in line:
+													newLine='%s|*.swp'%newLine
+												
+												line='%s = "%s"\n'%(param,newLine)
 								fd.write(line)
 
 						fd.close()

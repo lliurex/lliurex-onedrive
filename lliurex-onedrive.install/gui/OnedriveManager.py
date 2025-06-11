@@ -84,7 +84,7 @@ class OnedriveManager:
 		self.oneDriveFolderSyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveSync"
 		self.folderUnsyncDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryUnsync"
 		self.skipFileExtensionsList="/usr/share/lliurex-onedrive/llx-data/skip_file_extension_list"
-		self.defaultSkipFile="~*|.~*|*.tmp|*.part|*.kate-swp|.directory"
+		self.defaultSkipFile="~*|.~*|*.tmp|*.part|*.kate-swp|*.swp|*.partial|.directory"
 		self.createEnvironment()
 		self._createLockToken()
 		self.clearCache()
@@ -603,16 +603,20 @@ class OnedriveManager:
 							elif param=="skip_file":
 								if "skip_file" in tmpLine[0]:
 									tmpValue=[]
-									tmp=tmpLine[1].split("\n")[0].strip().split('"')[1]
-									if tmp!=self.defaultSkipFile:
+									tmpSkip=tmpLine[1].split("\n")[0].strip().split('"')[1]
+									if tmpSkip!=self.defaultSkipFile:
 										tmpValue.append(True)
-										tmpLine=tmp.split(self.defaultSkipFile)
-										tmpExtensions=tmpLine[1].strip().split("|")
-										tmpExtensions.pop(0)
-										tmpExtensions=list(map(lambda s:s.replace('"',''),tmpExtensions))
-										tmpExtensions=list(map(lambda s:s.strip(),tmpExtensions))
-										if len(tmpExtensions)>1 or tmpExtensions[0]!='':
-											tmpValue.append(tmpExtensions)
+										#tmpLine=tmp.split(self.defaultSkipFile)
+										#tmpExtensions=tmpLine[0].strip().split("|")
+										tmpSkip=tmpSkip.strip().split("|")
+										tmpExtensions=self.defaultSkipFile.strip().split("|")
+										for item in tmpExtensions:
+											if item not in tmpSkip:
+												tmpSkip.append(item)
+										tmpSkip=list(map(lambda s:s.replace('"',''),tmpSkip))
+										tmpSkip=list(map(lambda s:s.strip(),tmpSkip))
+										if len(tmpSkip)>1 or tmpSkip[0]!='':
+											tmpValue.append(tmpSkip)
 											tmpValue[1]=sorted(tmpValue[1])
 										else:
 											tmpValue.append([])
