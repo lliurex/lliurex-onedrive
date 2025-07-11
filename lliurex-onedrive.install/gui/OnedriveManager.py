@@ -27,6 +27,8 @@ class OnedriveManager:
 		self.librariesConfigData=[]
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
 		self.configTemplatePath="/usr/share/lliurex-onedrive/llx-data/config"
+		self.configBackupTemplatePath="/usr/share/lliurex-onedrive/llx-data/config_backup"
+		self.syncListBackup="/usr/share/lliurex-onedrive/llx-data/sync_list_backup"
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
 		self.userSystemdPath="/home/%s/.config/systemd/user"%self.user
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
@@ -77,6 +79,7 @@ class OnedriveManager:
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		self.oneDriveDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDrive"
+		self.oneDriveBackupDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveBackup"
 		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.limitHDDSpace=5368709120
@@ -91,6 +94,7 @@ class OnedriveManager:
 		self.forceMonitorIntervalUpdated=False
 		self.updateRequiredToken=".run/updateRequiredToken"
 		self.updatedToken=".run/updatedToken"
+		self.backupFolder="LLIUREX_BACKUP"
 
 	#def __init__
 
@@ -353,9 +357,9 @@ class OnedriveManager:
 
 		if self.checkIfEmailExists(spaceEmail):
 			existsMail=True
-			if spaceType=="onedrive":
+			if spaceType in ["onedrive","onedriveBackup"]:
 				for item in self.onedriveConfig["spacesList"]:
-					if item["email"]==spaceEmail and item["spaceType"]=="onedrive":
+					if item["email"]==spaceEmail and item["spaceType"] in ["onedrive","onedriveBackup"]:
 						duplicateSpace=True
 						break
 			elif spaceType=="sharepoint":
@@ -374,7 +378,9 @@ class OnedriveManager:
 
 		self._getSpaceSuffixName(spaceInfo)
 
-		if spaceInfo[1]=="onedrive":
+		if spaceInfo[1]=="onedriveBackup":
+			self.spaceLocalFolder="/home/%s/OneDriveBackup-%s"%(self.user,self.spaceSuffixName)
+		elif spaceInfo[1]=="onedrive":
 			self.spaceLocalFolder="/home/%s/OneDrive-%s"%(self.user,self.spaceSuffixName)
 		else:
 			self.spaceLocalFolder="/home/%s/%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
@@ -412,7 +418,7 @@ class OnedriveManager:
 			- 4: spaceDriveId
 		'''
 		spaceAccountType=""
-		if spaceInfo[1]=="onedrive":
+		if spaceInfo[1] in ["onedrive","onedriveBackup"]:
 			spaceInfo[2]=""
 			spaceInfo[3]=""
 			spaceInfo[4]=""
@@ -445,7 +451,12 @@ class OnedriveManager:
 		self._createOneDriveACService()
 		self._createAuxVariables()
 		if self.isConfigured():
-			ret=self.getInitialDownload()
+			if spaceInfo[1] in ["onedrive","sharepoint"]:
+				ret=self.getInitialDownload()
+			else:
+				self._createLocalFolder()
+				ret=self._syncResync()
+				
 		else:
 			ret=False
 
@@ -473,6 +484,11 @@ class OnedriveManager:
 			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
 			if not os.path.exists(self.spaceConfPath):
 				createConfig=True
+		elif spaceType=="onedriveBackup":
+			tmpFolder="onedriveBackup_%s"%self.spaceSuffixName.lower()
+			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
+			if not os.path.exists(self.spaceConfPath):
+				createConfig=True
 		else:
 			tmpSuffixName=re.sub('[^0-9a-zA-Z]+', '_',self.folderSuffixName).lower()
 			tmpFolder="sharepoint_%s"%tmpSuffixName
@@ -493,7 +509,11 @@ class OnedriveManager:
 		
 		self._createUpdatedToken()
 		
-		shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		if spaceType in ["onedrive","sharepoint"]:
+			shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		elif spaceType=="onedriveBackup":
+			shutil.copy(self.configBackupTemplatePath,os.path.join(self.spaceConfPath,"config"))
+			shutil.copy(self.syncListBackup,os.path.join(self.spaceConfPath,"sync_list"))
 		
 		with open(os.path.join(self.spaceConfPath,"config"),'r') as fd:
 			lines=fd.readlines()
@@ -725,6 +745,8 @@ class OnedriveManager:
 
 		if spaceType=="onedrive":
 			self.spaceServiceFile="onedrive_%s.service"%self.spaceSuffixName.lower()
+		elif spaceType=="onedriveBackup":
+			self.spaceServiceFile="onedriveBackup_%s.service"%self.spaceSuffixName.lower()
 		else:
 			tmpSuffixName=re.sub('[^0-9a-zA-Z]+', '_',self.folderSuffixName).lower()
 			self.spaceServiceFile="sharepoint_%s.service"%tmpSuffixName
@@ -1190,6 +1212,11 @@ class OnedriveManager:
 			if self.spaceBasicInfo[2]=="onedrive":
 				if not os.path.exists(self.spaceLocalFolder):
 					os.mkdir(self.spaceLocalFolder)
+			elif self.spaceBasicInfo[2]=="onedriveBackup":
+				if not os.path.exists(self.spaceLocalFolder):
+					os.mkdir(self.spaceLocalFolder)
+				if not os.path.exists(os.path.join(self.spaceLocalFolder,self.backupFolder)):
+					os.mkdir(os.path.join(self.spaceLocalFolder,self.backupFolder))
 			else:
 				if self.spaceSuffixName!="":
 					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
@@ -1397,7 +1424,13 @@ class OnedriveManager:
 					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
 					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
 						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
-					self.manageFoldersDirectory(False)
+					
+					if self.spaceBasicInfo[2]=="onedriveBackup":
+						tmpPath=os.path.join(self.spaceLocalFolder,self.backupFolder)
+						if os.path.exists(os.path.join(tmpPath,".directory")):
+							os.remove(os.path.join(tmpPath,".directory"))
+					else:
+						self.manageFoldersDirectory(False)
 					return True
 				else:
 					return False
@@ -2433,6 +2466,10 @@ class OnedriveManager:
 		if os.path.exists(self.spaceLocalFolder):
 			if spaceType=="onedrive":
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+			elif spaceType=="onedriveBackup":
+				shutil.copyfile(self.oneDriveBackupDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+				tmpFolder=os.path.join(self.spaceLocalFolder,self.backupFolder)
+				shutil.copyfile(self.oneDriveFolderSyncDirectoryFile,os.path.join(tmpFolder,".directory"))
 			else:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 				addOrganizationDirectory=True

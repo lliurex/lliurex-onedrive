@@ -79,15 +79,26 @@ Rectangle{
                 Layout.alignment:Qt.AlignTop
 
                 RadioButton{
-                    id:oneDriveOption
-                    checked:addSpaceStackBridge.formData[1]==0?true:false
-                    text:"OneDrive"
+                    id:oneDriveBackupOption
+                    checked:addSpaceStackBridge.formData[1]==3?true:false
+                    text:i18nd("lliurex-onedrive","OneDrive-Backup")
                     onToggled:{
                         if (checked){
                             addSpaceStackBridge.resetSharePoints()
                         }
                     }
-                  }
+                }
+                
+                RadioButton{
+                    id:oneDriveOption
+                    checked:addSpaceStackBridge.formData[1]==0?true:false
+                    text:i18nd("lliurex-onedrive","OneDrive-Sync")
+                    onToggled:{
+                        if (checked){
+                            addSpaceStackBridge.resetSharePoints()
+                        }
+                    }
+                }
 
                 RadioButton{
                     id:sharePointOption
@@ -100,6 +111,7 @@ Rectangle{
                         }else{
                             sharePointOption.checked=false
                             oneDriveOption.checked=true
+                            oneDriveBackupOption.checked=false
                         }
                     }
                 }
@@ -165,8 +177,12 @@ Rectangle{
                 if (oneDriveOption.checked){
                     type="onedrive"
                 }else{
-                    if (sharePointOption.checked){
-                        type="sharepoint"
+                    if (oneDriveBackupOption.checked){
+                        type="onedriveBackup"
+                    }else{
+                        if (sharePointOption.checked){
+                            type="sharepoint"
+                        }
                     }
                 }
                 addSpaceStackBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.currentText,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
@@ -204,7 +220,7 @@ Rectangle{
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:addSpaceStackBridge.showPreviousFolderDialog
-        dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
+        dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder will be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
         dialogHeight:120
         btnAcceptVisible:false
@@ -226,7 +242,7 @@ Rectangle{
             }
         }
     }
-
+   
     ChangesDialog{
         id:downloadDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
@@ -256,6 +272,35 @@ Rectangle{
                 }else{
                     addSpaceStackBridge.manageDownloadDialog("Cancel")
                 }
+            }
+        }               
+    
+    }
+
+    ChangesDialog{
+        id:backupDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
+        dialogVisible:addSpaceStackBridge.showBackupDialog
+        dialogMsg:i18nd("lliurex-onedrive","You're going to set up a space that will only send files to the LLIUREX_BACKUP folder in your OneDrive account.\nDon't delete o rename this folder")
+        dialogWidth:700
+        dialogHeight:120
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Start now")
+        btnDiscardText:i18nd("lliurex-onedrive","Review settings")
+        btnDiscardIcon:"configure.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:backupDialog
+            function onDialogApplyClicked(){
+                addSpaceStackBridge.manageBackupDialog("Start")
+            }
+            function onDiscardDialogClicked(){
+                addSpaceStackBridge.manageBackupDialog("Custom")
+            }
+            function onRejectDialogClicked(){
+                addSpaceStackBridge.manageBackupDialog("Cancel")
             }
         }               
     
@@ -301,7 +346,7 @@ Rectangle{
 
         var correctMail=spaceMailEntry.acceptableInput
         if (correctMail){
-            if (oneDriveOption.checked){
+            if (oneDriveOption.checked || oneDriveBackupOption.checked){
                 return true
             }else{
                 if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.currentText!="")){
