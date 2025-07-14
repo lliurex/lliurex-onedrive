@@ -538,6 +538,10 @@ class OnedriveManager:
 			if len(customParam)>0:
 				self.updateConfigFile(customParam)
 			self.skipFileExtensions=[False,[]]
+		else:
+			if spaceType=="onedriveBackup":
+				self.fileNotificationsEnabled=True
+				self.currentConfig[5]=self.fileNotificationsEnabled
 
 	#def _createSpaceConfFolder
 
@@ -586,13 +590,18 @@ class OnedriveManager:
 							self.fileNotificationsEnabled=False
 					else:
 						self.logEnabled=False
-						self.fileNotificationsEnabled=False
+						
+						if customParam["notify_file_actions"]=="true":
+							self.fileNotificationsEnabled=True
+						else:
+							self.fileNotificationsEnabled=False
 
 					self.currentConfig[4]=self.logEnabled
 					self.currentConfig[5]=self.fileNotificationsEnabled
 					self.skipFileExtensions=customParam["skip_file"]
 					
-				except:
+				except Exception as e:
+					print("Error: %s"%str(e))
 					pass
 			
 	#def updateCustomParam
@@ -702,7 +711,10 @@ class OnedriveManager:
 								line=line
 						elif param=="notify_file_actions":
 							if 'notify_file_actions' in tmpLine[0]:
-								line=line
+								if customParam[param]=="false":
+									line=param+' = '+'"'+str(customParam[param])+'"\n'
+								else:
+									line=line
 								addedNotifyFileActionsParam=False
 						else:
 							if param==tmpLine[0].strip():
