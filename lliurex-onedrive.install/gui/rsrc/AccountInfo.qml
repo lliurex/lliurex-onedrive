@@ -69,7 +69,20 @@ Rectangle{
 
            Text{
                 id:spaceTypeValue
-                text:spaceStackBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
+                text:{
+                    switch(spaceStackBridge.spaceBasicInfo[2]){
+                        case "onedrive":
+                            var msg=i18nd("lliurex-onedrive","OneDrive-Sync")
+                            break;
+                        case "onedriveBackup":
+                            var msg=i18nd("lliurex-onedrive","OneDrive-Backup")
+                            break;
+                        case "sharepoint":
+                            var msg="SharePoint"
+                            break
+                    }
+                    return msg
+                }
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft

@@ -1058,8 +1058,11 @@ class OnedriveManager:
 				self.currentConfig[0]=False
 
 			if self.existsFilterFile():
-				self.syncAll=False
-				self.readFilterFile()
+				if self.spaceBasicInfo[2]!="onedriveBackup":
+					self.syncAll=False
+					self.readFilterFile()
+				else:
+					self.syncAll=True
 			else:
 				self.syncAll=True
 
@@ -1309,13 +1312,13 @@ class OnedriveManager:
 							code=DATABASE_ERROR
 						elif 'Unauthorized' in item:
 							code=UNAUTHORIZED_ERROR
-						elif '416' in item:
+						elif '416' in item and 'included by' not in item:
 							code=UPLOADING_PENDING_CHANGES
 							break
 						elif 'Unable to query OneDrive' in item:
 							code=UNAUTHORIZED_ERROR
 							break
-						elif '503' in item:
+						elif '503' in item and 'included by' not in item:
 							code=SERVICE_UNAVAILABLE
 						elif 'Free Space' in item:
 							tmp_freespace=item.split(':')[1].strip()
@@ -1350,7 +1353,7 @@ class OnedriveManager:
 						elif 'Unauthorized' in item:
 							code=UNAUTHORIZED_ERROR
 							error=True
-						elif '416' in item:
+						elif '416' in item and 'included by' not in item:
 							code=UPLOADING_PENDING_CHANGES
 							error=True
 							break
@@ -1358,7 +1361,7 @@ class OnedriveManager:
 							code=UNAUTHORIZED_ERROR
 							error=True
 							break
-						elif '503' in item:
+						elif '503' in item and 'included by' not in item:
 							code=SERVICE_UNAVAILABLE
 							error=True
 						
@@ -1369,7 +1372,10 @@ class OnedriveManager:
 							if 'no pending' in item:
 								code=ALL_SYNCHRONIZE_MSG
 							elif 'out of sync' in item:
-								code=OUT_OF_SYNC_MSG
+								if self.spaceBasicInfo[2]!="onedriveBackup":
+									code=OUT_OF_SYNC_MSG
+								else:
+									code=ALL_SYNCHRONIZE_MSG
 							elif 'Authentication scope needs' in item:
 								code=UNAUTHORIZED_ERROR
 								error=True
