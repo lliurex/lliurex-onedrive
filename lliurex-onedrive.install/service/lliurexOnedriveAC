@@ -205,7 +205,7 @@ class getSpaceStatusWorker():
 
 	def checkStatus(self,spaceInfo):
 
-		spaceConfigPath,spaceType=spaceInfo
+		spaceConfigPath,spaceType,spaceLocalFolder=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
@@ -232,6 +232,7 @@ class getSpaceStatusWorker():
 		freespace=""
 		pendingChanges="0 KB"
 		lastPendingChanges="0 KB"
+		filesPendingUpload=0
 
 		if self._isOnedriveRunning(spaceConfigPath):
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
@@ -358,6 +359,9 @@ class getSpaceStatusWorker():
 					if pendingChanges==lastPendingChanges:
 						code=ALL_SYNCHRONIZE_MSG
 				'''
+				if spaceType=="onedriveBackup":
+					filesPendingUpload=self._getFilesPendigUpload(spaceLocalFolder)
+
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
@@ -366,7 +370,9 @@ class getSpaceStatusWorker():
 						fd.write(tmpLine)
 						tmpLine=str(freespace)+("\n")
 						fd.write(tmpLine)
-						tmpLine=str(pendingChanges)
+						tmpLine=str(pendingChanges)+("\n")
+						fd.write(tmpLine)
+						tmpLine=str(filesPendingUpload)
 						fd.write(tmpLine)
 				except Exception as e:
 					pass
@@ -402,6 +408,24 @@ class getSpaceStatusWorker():
 		return lastPendingChanges
 
 	#def _getLastPendingChanges
+
+	def _getFilesPendigUpload(self,spaceLocalFolder):
+
+		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_BACKUP")
+		pendingFiles=0
+
+		try:
+			if os.path.exists(folderToCheck):
+				for base,_,files in os.walk(folderToCheck):
+					for item in files:
+						if item != ".directory":
+							pendingFiles+=1
+		except:
+			pass
+
+		return pendingFiles
+
+	#def _getFilesPendigUpload
 
 #class getSpaceStatusWorker
 
@@ -568,7 +592,7 @@ class LliurexOneDriveAC:
 						futures=[]
 						for space in oneDriveSpaces:
 							tmp=[]
-							tmpInfo=[space['configPath'],space['spaceType']]
+							tmpInfo=[space['configPath'],space['spaceType'],space["localFolder"]]
 							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):

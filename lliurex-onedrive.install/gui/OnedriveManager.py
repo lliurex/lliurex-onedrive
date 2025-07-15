@@ -259,6 +259,7 @@ class OnedriveManager:
 		self.localFolderRemoved=False
 		self.showFolderStruct=False
 		self.isUpdateRequired=False
+		self.filesPendingUpload=0
 	
 	#def initSpacesSettings
 
@@ -1274,6 +1275,7 @@ class OnedriveManager:
 		freespace=""
 		pendingChanges="0 KB"
 		lastPendingChanges=[0,pendingChanges]
+		filesPendingUpload=0
 
 
 		if self.isConfigured():
@@ -1406,8 +1408,11 @@ class OnedriveManager:
 		else:
 			paramValue=0
 
+		if spaceType=="onedriveBackup":
+				filesPendingUpload=self._getFilesPendigUpload()
+		
 		self._updateSpaceConfigData('status',paramValue)
-		return [error,code,freespace]
+		return [error,code,freespace,filesPendingUpload]
 
 	#def getAccountStatus
 	
@@ -2750,5 +2755,23 @@ class OnedriveManager:
 				pass
 
 	#def _createUpdatedToken
+
+	def _getFilesPendigUpload(self):
+
+		folderToCheck=os.path.join(self.spaceLocalFolder,self.backupFolder)
+		pendingFiles=0
+
+		try:
+			if os.path.exists(folderToCheck):
+				for base,_,files in os.walk(folderToCheck):
+					for item in files:
+						if item != ".directory":
+							pendingFiles+=1
+		except:
+			pass
+
+		return pendingFiles
+
+	#def _getFilesPendigUpload
 
 #class OnedriveManager
