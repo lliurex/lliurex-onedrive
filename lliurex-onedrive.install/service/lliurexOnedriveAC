@@ -226,6 +226,7 @@ class getSpaceStatusWorker():
 		WITH_OUT_CONFIG=1
 		INFORMATION_NOT_AVAILABLE=3
 		UPLOADING_PENDING_CHANGES=4
+		UPLOADING_PENDING_CHANGES_BACKUP=5
 
 		error=False
 		code=INFORMATION_NOT_AVAILABLE
@@ -332,10 +333,7 @@ class getSpaceStatusWorker():
 										if 'no pending' in item:
 											code=ALL_SYNCHRONIZE_MSG
 										elif 'out of sync' in item:
-											if spaceType!="onedriveBackup":
-												code=OUT_OF_SYNC_MSG
-											else:
-												code=ALL_SYNCHRONIZE_MSG
+											code=OUT_OF_SYNC_MSG
 										elif 'Authentication scope needs' in item:
 											code=FORBIDDEN_USER
 											error=True
@@ -361,6 +359,8 @@ class getSpaceStatusWorker():
 				'''
 				if spaceType=="onedriveBackup":
 					filesPendingUpload=self._getFilesPendigUpload(spaceLocalFolder)
+					if not error:
+						code=UPLOADING_PENDING_CHANGES_BACKUP
 
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
@@ -374,7 +374,7 @@ class getSpaceStatusWorker():
 						fd.write(tmpLine)
 						tmpLine=str(filesPendingUpload)
 						fd.write(tmpLine)
-				except Exception as e:
+				except:
 					pass
 		else:
 			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):

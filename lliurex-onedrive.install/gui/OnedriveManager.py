@@ -198,6 +198,7 @@ class OnedriveManager:
 		error=False
 		code=3
 		freeSpace=''
+		filesPendingUpload=0
 
 		spaceStatusToken=os.path.join(spaceConfPath,".run/statusToken")
 
@@ -205,15 +206,19 @@ class OnedriveManager:
 			with open(spaceStatusToken,'r') as fd:
 				lines=fd.readlines()
 
-			if len(lines)==4:
+			if len(lines)>=4:
 				error=lines[0].strip()
 				code=lines[1].strip()
 				freeSpace=lines[2].strip()
+				try:
+					filesPendingUpload=lines[4].strip()
+				except:
+					pass
 				'''
 				if freeSpace!="":
 					freeSpace=self._formatFreeSpace(freeSpace)
 				'''
-		return [error,code,freeSpace]
+		return [error,code,freeSpace,filesPendingUpload]
 
 	#def readSpaceStatusToken
 
@@ -1077,6 +1082,7 @@ class OnedriveManager:
 			statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
 			self.accountStatus=int(statusInfo[1])
 			self.freeSpace=statusInfo[2]
+			self.filesPendingUpload=int(statusInfo[3])
 			self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
 			logFile="%s.onedrive.log"%self.user
 			self.logPath=os.path.join(self.logFolder,logFile)
@@ -1268,6 +1274,7 @@ class OnedriveManager:
 		WITH_OUT_CONFIG=1
 		INFORMATION_NOT_AVAILABLE=3
 		UPLOADING_PENDING_CHANGES=4
+		UPLOADING_PENDING_CHANGES_BACKUP=5
 
 		error=False
 		code=INFORMATION_NOT_AVAILABLE
@@ -1374,10 +1381,7 @@ class OnedriveManager:
 							if 'no pending' in item:
 								code=ALL_SYNCHRONIZE_MSG
 							elif 'out of sync' in item:
-								if self.spaceBasicInfo[2]!="onedriveBackup":
-									code=OUT_OF_SYNC_MSG
-								else:
-									code=ALL_SYNCHRONIZE_MSG
+								code=OUT_OF_SYNC_MSG
 							elif 'Authentication scope needs' in item:
 								code=UNAUTHORIZED_ERROR
 								error=True
@@ -1409,7 +1413,9 @@ class OnedriveManager:
 			paramValue=0
 
 		if spaceType=="onedriveBackup":
-				filesPendingUpload=self._getFilesPendigUpload()
+			filesPendingUpload=self._getFilesPendigUpload()
+			if not error:
+				code=UPLOADING_PENDING_CHANGES_BACKUP
 		
 		self._updateSpaceConfigData('status',paramValue)
 		return [error,code,freespace,filesPendingUpload]

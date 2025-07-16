@@ -430,6 +430,9 @@ Rectangle{
             case 3:
                 var msg=i18nd("lliurex-onedrive","Information not available");
                 break;
+            case 5:
+                var msg=spaceStackBridge.filesPendingUpload+ " "+i18nd("lliurex-onedrive","files pending to upload")
+                break;
             case 20:
                 var msg=i18nd("lliurex-onedrive","Configuration migration completed successfully");
                 break;
