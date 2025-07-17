@@ -327,7 +327,7 @@ class getSpaceStatusWorker():
 										code=SERVICE_UNAVAILABLE
 										error=True
 									if not error:
-										if 'Uploading' in item:
+										if 'Uploading' in item and '...done' not in item:
 											code=UPLOADING_PENDING_CHANGES
 											break;
 										if 'no pending' in item:
@@ -360,7 +360,11 @@ class getSpaceStatusWorker():
 				if spaceType=="onedriveBackup":
 					filesPendingUpload=self._getFilesPendigUpload(spaceLocalFolder)
 					if not error:
-						code=UPLOADING_PENDING_CHANGES_BACKUP
+						if filesPendingUpload>0:
+							code=UPLOADING_PENDING_CHANGES_BACKUP
+						else:
+							if code==OUT_OF_SYNC_MSG:
+								code=ALL_SYNCHRONIZE_MSG
 
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:

@@ -1375,7 +1375,7 @@ class OnedriveManager:
 							error=True
 						
 						if not error:
-							if 'Uploading' in item:
+							if 'Uploading' in item and '...done' not in item:
 								code=UPLOADING_PENDING_CHANGES
 								break;
 							if 'no pending' in item:
@@ -1415,9 +1415,14 @@ class OnedriveManager:
 		if spaceType=="onedriveBackup":
 			filesPendingUpload=self._getFilesPendigUpload()
 			if not error:
-				code=UPLOADING_PENDING_CHANGES_BACKUP
+				if filesPendingUpload>0:
+					code=UPLOADING_PENDING_CHANGES_BACKUP
+				else:
+					if code==OUT_OF_SYNC_MSG:
+						code=ALL_SYNCHRONIZE_MSG		
 		
 		self._updateSpaceConfigData('status',paramValue)
+		
 		return [error,code,freespace,filesPendingUpload]
 
 	#def getAccountStatus
