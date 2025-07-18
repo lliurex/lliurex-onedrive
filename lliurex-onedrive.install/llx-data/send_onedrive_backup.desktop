@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=all/all
+MimeType=application/octet-stream;inode/directory;
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+Actions=SendToBackup
+
+[Desktop Action SendToBackup]
+Name=Send to LLIUREX_BACKUP
+Icon=lliurex-onedrive-backup
+Exec=/usr/bin/sendToOneDriveBackup.py "%U" {{LOCAL_FOLDER}}
