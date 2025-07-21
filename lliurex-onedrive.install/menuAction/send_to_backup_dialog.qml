@@ -36,8 +36,8 @@ ApplicationWindow {
     	
     	Layout.minimumWidth:450
     	Layout.maximumWidth:450
-    	Layout.minimumHeight:150
-    	Layout.maximumHeight:150
+    	Layout.minimumHeight:155
+    	Layout.maximumHeight:155
     	
 	   	GridLayout {
 	   		id: grid
@@ -69,7 +69,6 @@ ApplicationWindow {
 	   			Text{
 	   				id:warningText
 	   				text:getMsg(bridge.dialogMsgCode)
-	   				font.family: "Quattrocento Sans Bold"
 	   				font.pointSize: 11
 	   				anchors.left: parent.left
 	   				anchors.verticalCenter:parent.verticalCenter
@@ -83,12 +82,10 @@ ApplicationWindow {
 	   			height:25
 	   			ProgressBar{
 	   				id:progressBar
-	   				from:0.0
-	   				to:1.0
+	   				indeterminate:true
 	   				visible:bridge.showProgressBar
-	   				value:bridge.progressBarValue
 	   				anchors.centerIn:parent
-	   				implicitWidth:300
+	   				implicitWidth:250
 	   				height:25
 	   			}
    			}
@@ -103,11 +100,12 @@ ApplicationWindow {
 	   			visible:bridge.showProgressBar
 	   			Text{
 	   				id:progressText
-	   				text:bridge.filesProgress+" "+i18nd("lliurex-onedrive","of")+" "+bridge.filesToCopy
-	   				font.family: "Quattrocento Sans Bold"
-	   				font.pointSize: 11
-	   				anchors.horizontalCenter: parent.horizontalCenter
+	   				text:bridge.fileProcessed
+	   				font.italic:true 
+	   				font.pointSize: 10
 	   				anchors.verticalCenter:parent.verticalCenter
+	   				width:400
+	   				elide:Text.ElideMiddle
 	   			}
 	   		}
 
@@ -115,22 +113,37 @@ ApplicationWindow {
 	   		Rectangle {
 	   			id:btnBox
 	   			color:"transparent"
-	   			visible:!bridge.showProgressBar
+	   			visible:true
 	   			Layout.rowSpan: 1
 	   			Layout.columnSpan: 2
 	   			Layout.fillWidth: true
 	   			Layout.rightMargin:10
+	   			Layout.leftMargin:10
 	   			height:40
 	   			
-	   			 Button {
+	   			Button {
+		            id:reportBtn
+		            visible:bridge.showErrorBtn
+		            focus:true
+		            anchors.left:parent.left
+		            display:AbstractButton.TextBesideIcon
+		            icon.name:"document-preview-archive.svg"
+		            text:i18nd("lliurex-onedrive","View errors report")
+		            Layout.preferredHeight:35
+		            onClicked:{
+		            	bridge.openErrorsReport()
+		            }   			
+				}
+
+	   			Button {
 		            id:closeBtn
-		            visible:true
+		            visible:!bridge.showProgressBar
 		            focus:true
 		            anchors.right:parent.right
 		            display:AbstractButton.TextBesideIcon
 		            icon.name:"dialog-close.svg"
 		            text:i18nd("lliurex-onedrive","Close")
-		            Layout.preferredHeight:40
+		            Layout.preferredHeight:35
 		            onClicked:{
 		            	bridge.cancelClicked()
 		            }   			
@@ -162,11 +175,11 @@ ApplicationWindow {
 	 		case -2:
 	 			return i18nd("lliurex-onedrive","Folder to copy files not exist")
 	 		case -3:
-	 			return i18nd("lliurex-onedrive","Copying files/folders has finished with errors")
+	 			return i18nd("lliurex-onedrive","Copying has finished with errors.\nErrors detected:")+" "+bridge.errorsDetected
 	 		case 0:
-	 			return i18nd("lliurex-onedrive","Copying files/folders...Wait a moment")
+	 			return i18nd("lliurex-onedrive","Copying. Wait a moment...")
 	 		case 1:
-	 			return i18nd("lliurex-onedrive","Copying files/folders has finished successfully")
+	 			return i18nd("lliurex-onedrive","Copying completed successfully")
 	 	}
 	}
 }  		

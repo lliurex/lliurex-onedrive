@@ -8,45 +8,53 @@ import os
 import sys
 import subprocess
 import time
+import tempfile
+import threading
 
 class Worker(QObject):
 
 	_finished=Signal(int)
-	_progress=Signal(int)
+	_progress=Signal('QVariantList')
 
 	def __init__(self,*args):
 
 		QObject.__init__(self)
 		self.filesToCopy=args[0]
-		self.pathToCopy=args[1]
+		self.destPath=args[1]
+		self.errorsReportPath=args[2]
 		self.ret=0
 
 	#def __init__
 
 	def run (self):
 
-		errorCount=0
+		errorCount=[]
 		filesProgress=0
 
-		try:
-			for item in self.filesToCopy:
-				filesProgress+=1
-				self._progress.emit(filesProgress)
-				try:
-					cmd="cp -r %s %s"%(item,self.pathToCopy)
-					ret=subprocess.run(cmd,shell=True,check=True)
-				except subprocess.CalledProcessError as e:
-					errorCount+=1
+		for item in self.filesToCopy:
+			filesProgress+=1
+			self._progress.emit([filesProgress,item])
+			try:
+				cmd="cp -r %s %s"%(item,self.destPath)
+				ret=subprocess.run(cmd,shell=True,check=True)
+			except subprocess.CalledProcessError as e:
+				errorCount.append("- %s - Error: %s"%(item,str(e)))
 
-			self._finished.emit(errorCount)
-		except Exception as e:
-			print(str(e))
-			self._finished.emit(0)
+		if len(errorCount)>0:
+			try:
+				with open(self.errorsReportPath,'w') as fd:
+					fd.write("Errors detected during copying\n")
+					fd.write("-------------------------------\n")
+					for item in errorCount:
+						fd.write(item+"\n")
+			except Exception as e:
+				print(e)
 
+		self._finished.emit(len(errorCount))
+	
 	#def run
 
-
-#class CopyFiles
+#class Worker
 
 class SendToOnedriveBackup(QObject):
 
@@ -63,9 +71,12 @@ class SendToOnedriveBackup(QObject):
 		self._dialogMsgCode=SendToOnedriveBackup.COPY_FILES
 		self._filesToCopy=0
 		self._filesProgress=0
+		self._fileProcessed=""
 		self._showProgressBar=False
-		self._progressBarValue=0.0
+		self._showErrorBtn=False
+		self._errorsDetected=0
 		self.canClose=False
+		self.errorsReportPath=tempfile.mkstemp('_oneDriveBackupError.txt')[1]
 		self.copyFiles()
 
 	#def __init
@@ -112,6 +123,20 @@ class SendToOnedriveBackup(QObject):
 
 	#def _setFilesProgress
 
+	def _getFileProcessed(self):
+
+		return self._fileProcessed
+
+	#def _getFileProcessed
+
+	def _setFileProcessed(self,fileProcessed):
+
+		if self._fileProcessed!=fileProcessed:
+			self._fileProcessed=fileProcessed
+			self.on_fileProcessed.emit()
+
+	#def _setFileProcessed
+
 	def _getShowProgressBar(self):
 
 		return self._showProgressBar
@@ -126,19 +151,33 @@ class SendToOnedriveBackup(QObject):
 
 	#def _setShowProgressBar
 
-	def _getProgressBarValue(self):
+	def _getShowErrorBtn(self):
 
-		return self._progressBarValue
+		return self._showErrorBtn
 
-	#def _getProgressBarValue
+	#def _getShowErrorBtn
 
-	def _setProgressBarValue(self,progressBarValue):
+	def _setShowErrorBtn(self,showErrorBtn):
 
-		if self._progressBarValue!=progressBarValue:
-			self._progressBarValue=progressBarValue
-			self.on_progressBarValue.emit()
+		if self._showErrorBtn!=showErrorBtn:
+			self._showErrorBtn=showErrorBtn
+			self.on_showErrorBtn.emit()
 
-	#def _setProgressBarValue
+	#def _setShowErrorBtn
+
+	def _getErrorsDetected(self):
+
+		return self._errorsDetected
+
+	#def _getErrorsDetected
+
+	def _setErrorsDetected(self,errorsDetected):
+
+		if self._errorsDetected!=errorsDetected:
+			self._errorsDetected=errorsDetected
+			self.on_errorsDetected.emit()
+
+	#def _setErrorsDetected
 
 	def copyFiles(self):
 
@@ -146,19 +185,20 @@ class SendToOnedriveBackup(QObject):
 
 		self.filesToCopy=len(filesToCopy)
 		self.filesProgress=0
-		pathToCopy="/tmp/Prueba/"
+		destPath=sys.argv[2]
 		errorCount=0
+		
 		if self.filesToCopy>0:
-			if os.path.exists(pathToCopy):
+			if os.path.exists(destPath):
 				self.showProgressBar=True
 				self.copyFilesT=QThread()
-				self.worker=Worker(filesToCopy,pathToCopy)
+				self.worker=Worker(filesToCopy,destPath,self.errorsReportPath)
 				self.worker.moveToThread(self.copyFilesT)
 				self.copyFilesT.started.connect(self.worker.run)
 				self.worker._finished.connect(self._copyFilesRet)
 				self.worker._progress.connect(self._updateProgress)
 				self.copyFilesT.start()
-
+				
 			else:
 				self.dialogMsgCode=SendToOnedriveBackup.NO_DEST_PATH
 				self.canClose=True
@@ -172,21 +212,40 @@ class SendToOnedriveBackup(QObject):
 
 		self.copyFilesT.quit
 		self.showProgressBar=False
-		self.canClose=True
-
+		
 		if ret==0:
 			self.dialogMsgCode=SendToOnedriveBackup.COPY_FILES_SUCCESS
 		else:
 			self.dialogMsgCode=SendToOnedriveBackup.ERROR_COPY_FILES
+			self.showErrorBtn=True
+			self.errorsDetected=ret
+
+		self.canClose=True
 
 	#def _copyFilesRet
 
 	def _updateProgress(self,fileProgress):
 
-		self.filesProgress=fileProgress
-		self.progressBarValue=round((self.filesProgress-1)/self.filesToCopy,2)
+		self.filesProgress=fileProgress[0]
+		self.fileProcessed=fileProgress[1]
 
 	#def _updateProgress
+
+	@Slot()
+	def openErrorsReport(self):
+
+		self.reportCmd="xdg-open %s"%self.errorsReportPath
+		self.openReport=threading.Thread(target=self._openReport)
+		self.openReport.daemon=True
+		self.openReport.start()
+
+	#def openErrorsReport
+
+	def _openReport(self):
+
+		os.system(self.reportCmd)
+
+	#def _openReport
 
 	@Slot()
 	def cancelClicked(self):
@@ -211,11 +270,17 @@ class SendToOnedriveBackup(QObject):
 	on_filesProgress=Signal()
 	filesProgress=Property(int,_getFilesProgress,_setFilesProgress,notify=on_filesProgress)	
 
+	on_fileProcessed=Signal()
+	fileProcessed=Property(str,_getFileProcessed,_setFileProcessed,notify=on_fileProcessed)
+
 	on_showProgressBar=Signal()
 	showProgressBar=Property(bool,_getShowProgressBar,_setShowProgressBar,notify=on_showProgressBar)
 
-	on_progressBarValue=Signal()
-	progressBarValue=Property(float,_getProgressBarValue,_setProgressBarValue,notify=on_progressBarValue)
+	on_showErrorBtn=Signal()
+	showErrorBtn=Property(bool,_getShowErrorBtn,_setShowErrorBtn,notify=on_showErrorBtn)
+	
+	on_errorsDetected=Signal()
+	errorsDetected=Property(int,_getErrorsDetected,_setErrorsDetected,notify=on_errorsDetected)
 
 #class SendToOnedriveBackup
 
@@ -234,8 +299,8 @@ if __name__=="__main__":
 	if not engine.rootObjects():
 		sys.exit(-1)
 
-	engine.quit.connect(QApplication.quit)
-	app.setWindowIcon(QIcon("/usr/share/icons/hicolor/scalable/apps/lliurex-onedrive-backup.svg"));
+	engine.quit.connect(app.quit)
+	app.setWindowIcon(QIcon("/usr/share/icons/hicolor/32x32/apps/lliurex-onedrive-backup"));
 	ret=app.exec_()
 	del engine
 	del app
