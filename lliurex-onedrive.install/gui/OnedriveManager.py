@@ -95,6 +95,8 @@ class OnedriveManager:
 		self.updateRequiredToken=".run/updateRequiredToken"
 		self.updatedToken=".run/updatedToken"
 		self.backupFolder="LLIUREX_BACKUP"
+		self.menuActionPath="/home/%s/.local/share/kio/servicemenus"%(self.user)
+		self.menuActionDesktopTemplate="/usr/share/lliurex-onedrive/llx-data/send_onedrive_backup.desktop"
 
 	#def __init__
 
@@ -229,6 +231,7 @@ class OnedriveManager:
 		self.spaceLocalFolder=""
 		self.spaceConfPath=""
 		self.spaceServiceFile=""
+		self.spaceMenuAction=""
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.tempConfigPath=""	
@@ -460,6 +463,7 @@ class OnedriveManager:
 			if spaceInfo[1] in ["onedrive","sharepoint"]:
 				ret=self.getInitialDownload()
 			else:
+				self._createMenuAction()
 				self._createLocalFolder()
 				ret=self._syncResync()
 				
@@ -810,6 +814,7 @@ class OnedriveManager:
 		tmp["localFolder"]=self.spaceLocalFolder
 		tmp["configPath"]=self.spaceConfPath
 		tmp["systemd"]=self.spaceServiceFile
+		tmp["menuAction"]=self.spaceMenuAction
 		if spaceInfo[4]!=None:
 			tmp["driveId"]=spaceInfo[4]
 		else:
@@ -1051,6 +1056,11 @@ class OnedriveManager:
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
+				try:
+					self.spaceMenuAction=item["menuAction"]
+				except:
+					self.spaceMenuAction=""
+
 				self.logFolder="%s/log"%self.spaceConfPath
 				matchSpace=True
 				break
@@ -2784,5 +2794,44 @@ class OnedriveManager:
 		return pendingFiles
 
 	#def _getFilesPendigUpload
+
+	def _createMenuAction(self):
+
+		menuActionFile="send_onedriveBackup_%s.desktop"%self.spaceSuffixName
+		
+		if not os.path.exists(os.path.join(self.menuActionPath,menuActionFile)):
+			if not os.path.exists(self.menuActionPath):
+				os.makedirs(self.menuActionPath)
+
+			try:
+				self.spaceMenuAction=menuActionFile
+				shutil.copy(self.menuActionDesktopTemplate,os.path.join(self.menuActionPath,menuActionFile))		
+				actionName="Backup_%s"%self.spaceSuffixName
+				with open(os.path.join(self.menuActionPath,menuActionFile),'r') as fd:
+					content=fd.readlines()
+
+				with open(os.path.join(self.menuActionPath,menuActionFile),'w') as fd:
+					for line in content:
+						if 'ACTION_NAME' in line:
+							line=line.replace("{{ACTION_NAME}}",actionName)
+						elif 'LOCAL_FOLDER' in line:
+							line=line.replace("{{LOCAL_FOLDER}}",os.path.join(self.spaceLocalFolder,self.backupFolder))
+						
+						fd.write(line)
+			
+				cmd="chmod +x %s"%(os.path.join(self.menuActionPath,menuActionFile))
+				os.system(cmd)
+			except Exception as e:
+				print(str(e))
+
+	#def _createMenuAction
+
+	def _removeMenuAction(self):
+
+		actionFile=os.path.join(self.menuActionPath,self.spaceMenuAction)
+		if os.path.exists(actionFile):
+			os.remove(actionFile)
+
+	#def _removeSystemdConfig
 
 #class OnedriveManager

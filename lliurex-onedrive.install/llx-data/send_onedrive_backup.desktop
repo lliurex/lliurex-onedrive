@@ -9,5 +9,6 @@ Actions=sendToOneDriveBackup
 Name=Send to {{ACTION_NAME}}
 Name[es]=Enviar a {{ACTION_NAME}}
 Name[ca@valencia]=Envia a {{ACTION_NAME}}
+Name[ca]=Envia a {{ACTION_NAME}}
 Icon=lliurex-onedrive-backup
 Exec=/usr/bin/sendToOneDriveBackup.py "%U" {{LOCAL_FOLDER}}
