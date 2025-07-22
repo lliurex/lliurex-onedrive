@@ -36,8 +36,8 @@ ApplicationWindow {
     	
     	Layout.minimumWidth:450
     	Layout.maximumWidth:450
-    	Layout.minimumHeight:155
-    	Layout.maximumHeight:155
+    	Layout.minimumHeight:!bridge.showProgressBar?145:155
+    	Layout.maximumHeight:!bridge.showProgressBar?145:155
     	
 	   	GridLayout {
 	   		id: grid
@@ -159,10 +159,12 @@ ApplicationWindow {
 	 		case -1:
 	 		case -2:
 	 		case -3:
+	 		case -4:
 	 			return "/usr/share/icons/breeze/status/64/dialog-error.svg"
 	 		case 0:
-	 			return "/usr/share/icons/breeze/status/64/dialog-information.svg"
 	 		case 1:
+	 			return "/usr/share/icons/breeze/status/64/dialog-information.svg"
+	 		case 2:
 	 			return "/usr/share/icons/breeze/status/64/dialog-positive.svg"
 	 	}
 	 }
@@ -176,9 +178,13 @@ ApplicationWindow {
 	 			return i18nd("lliurex-onedrive","Folder to copy files not exist")
 	 		case -3:
 	 			return i18nd("lliurex-onedrive","Copying has finished with errors.\nErrors detected:")+" "+bridge.errorsDetected
-	 		case 0:
-	 			return i18nd("lliurex-onedrive","Copying. Wait a moment...")
+	 		case -4:
+		 		return i18nd("lliurex-onedrive","Invalid arguments")
+ 			case 0:
+	 			return i18nd("lliurex-onedrive","Checking. Wait a moment...")
 	 		case 1:
+	 			return i18nd("lliurex-onedrive","Copying. Wait a moment...")
+	 		case 2:
 	 			return i18nd("lliurex-onedrive","Copying completed successfully")
 	 	}
 	}

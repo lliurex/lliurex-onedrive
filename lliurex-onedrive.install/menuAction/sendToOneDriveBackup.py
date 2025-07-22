@@ -11,7 +11,41 @@ import time
 import tempfile
 import threading
 
-class Worker(QObject):
+class CheckWorker(QObject):
+
+	NO_FILES_TO_COPY=-1
+	NO_DEST_PATH=-2
+
+	_finished=Signal('QVariantList')
+
+	def __init__(self,*args):
+
+		QObject.__init__(self)
+		self.filesToCopy=sys.argv[1]
+		self.destPath=sys.argv[2]
+	
+	#def __init__
+
+	def run(self):
+
+		time.sleep(1)
+
+		filesToCopy=self.filesToCopy.split(" ")
+
+		if len(filesToCopy)>0:
+			if os.path.exists(self.destPath):
+				errorsReportPath=tempfile.mkstemp('_oneDriveBackupError.txt')[1]
+				self._finished.emit([True,filesToCopy,self.destPath,errorsReportPath])
+			else:
+				self._finished.emit([False,CheckWorker.NO_DEST_PATH])
+		else:
+			self._finised.emit([False,CheckWorker.NO_FILES_TO_COPY])
+
+	#def run
+
+#class CheckWorker
+
+class CopyWorker(QObject):
 
 	_finished=Signal(int)
 	_progress=Signal('QVariantList')
@@ -34,6 +68,7 @@ class Worker(QObject):
 		for item in self.filesToCopy:
 			filesProgress+=1
 			self._progress.emit([filesProgress,item])
+			time.sleep(0.05)
 			try:
 				cmd="cp -r %s %s"%(item,self.destPath)
 				ret=subprocess.run(cmd,shell=True,check=True)
@@ -54,21 +89,21 @@ class Worker(QObject):
 	
 	#def run
 
-#class Worker
+#class CopyWorker
 
 class SendToOnedriveBackup(QObject):
 
-	NO_FILES_TO_COPY=-1
-	NO_DEST_PATH=-2
 	ERROR_COPY_FILES=-3
+	INVALID_ARGUMENTS=-4
 
-	COPY_FILES=0
-	COPY_FILES_SUCCESS=1
+	CHECKING_INFO=0
+	COPY_FILES=1
+	COPY_FILES_SUCCESS=2
 
 	def __init__(self):
 		
 		QObject.__init__(self)
-		self._dialogMsgCode=SendToOnedriveBackup.COPY_FILES
+		self._dialogMsgCode=SendToOnedriveBackup.CHECKING_INFO
 		self._filesToCopy=0
 		self._filesProgress=0
 		self._fileProcessed=""
@@ -76,8 +111,7 @@ class SendToOnedriveBackup(QObject):
 		self._showErrorBtn=False
 		self._errorsDetected=0
 		self.canClose=False
-		self.errorsReportPath=tempfile.mkstemp('_oneDriveBackupError.txt')[1]
-		self.copyFiles()
+		self.checkInfo()
 
 	#def __init
 
@@ -179,35 +213,55 @@ class SendToOnedriveBackup(QObject):
 
 	#def _setErrorsDetected
 
-	def copyFiles(self):
+	def checkInfo(self):
 
-		filesToCopy=sys.argv[1].split(" ")
-
-		self.filesToCopy=len(filesToCopy)
-		self.filesProgress=0
-		destPath=sys.argv[2]
-		errorCount=0
-		
-		if self.filesToCopy>0:
-			if os.path.exists(destPath):
-				self.showProgressBar=True
-				self.copyFilesT=QThread()
-				self.worker=Worker(filesToCopy,destPath,self.errorsReportPath)
-				self.worker.moveToThread(self.copyFilesT)
-				self.copyFilesT.started.connect(self.worker.run)
-				self.worker._finished.connect(self._copyFilesRet)
-				self.worker._progress.connect(self._updateProgress)
-				self.copyFilesT.start()
-				
-			else:
-				self.dialogMsgCode=SendToOnedriveBackup.NO_DEST_PATH
-				self.canClose=True
-		else:
-			self.dialogMsgCode=SendToOnedriveBackup.NO_FILES_TO_COPY
+		self.showProgressBar=True
+		try:
+			self.checkInfoT=QThread()
+			self.checkWorker=CheckWorker()
+			self.checkWorker.moveToThread(self.checkInfoT)
+			self.checkInfoT.started.connect(self.checkWorker.run)
+			self.checkWorker._finished.connect(self._checkInfoT)
+			self.checkInfoT.start()
+		except:
+			self.showProgressBar=False
+			self.dialogMsgCode=SendToOnedriveBackup.INVALID_ARGUMENTS
 			self.canClose=True
 
-	#def copyFiles
+	#def checkInfo
 
+	def _checkInfoT(self,ret):
+
+		self.checkInfoT.quit()
+
+		if ret[0]:
+			self.filesToCopy=ret[1]
+			self.destPath=ret[2]
+			self.errorsReportPath=ret[3]
+			self.copyFiles()
+		else:
+			self.showProgressBar=False
+			self.dialogMsgCode=ret[1]
+			self.canClose=True
+
+	#def _checkInfoT
+
+	def copyFiles(self):
+
+		self.filesProgress=0
+		errorCount=0
+		
+		self.dialogMsgCode=SendToOnedriveBackup.COPY_FILES
+		self.copyFilesT=QThread()
+		self.copyWorker=CopyWorker(self.filesToCopy,self.destPath,self.errorsReportPath)
+		self.copyWorker.moveToThread(self.copyFilesT)
+		self.copyFilesT.started.connect(self.copyWorker.run)
+		self.copyWorker._finished.connect(self._copyFilesRet)
+		self.copyWorker._progress.connect(self._updateProgress)
+		self.copyFilesT.start()
+				
+	#def copyFiles
+	
 	def _copyFilesRet(self,ret):
 
 		self.copyFilesT.quit

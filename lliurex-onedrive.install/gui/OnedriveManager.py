@@ -819,7 +819,8 @@ class OnedriveManager:
 			tmp["driveId"]=spaceInfo[4]
 		else:
 			tmp["driveId"]=""
-
+		tmp["created"]=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+		
 		self.spaceId=tmp["id"]
 		self.onedriveConfig["spacesList"].append(tmp)
 		self.onedriveConfig["spacesList"]=sorted(self.onedriveConfig["spacesList"],key=lambda d:(d["spaceType"],d["localFolder"]))
@@ -1465,6 +1466,7 @@ class OnedriveManager:
 				if not self.isConfigured():
 					self._removeSystemdConfig()
 					self._removeEnvConfigFiles()
+					self._removeMenuAction()
 					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
 					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
 						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
