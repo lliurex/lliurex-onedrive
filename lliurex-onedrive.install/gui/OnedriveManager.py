@@ -2329,6 +2329,7 @@ class OnedriveManager:
 		clear=False
 		versionFile="/home/%s/.config/lliurex-onedrive.conf"%self.user
 		cachePath1="/home/%s/.cache/lliurex-onedrive"%self.user
+		cachePath2="/home/%s/.cache/sendToOneDriveBackup.py"%self.user
 		installedVersion=self.getPackageVersion()
 
 		if not os.path.exists(versionFile):
@@ -2352,6 +2353,8 @@ class OnedriveManager:
 		if clear:
 			if os.path.exists(cachePath1):
 				shutil.rmtree(cachePath1)
+			if os.path.exists(cachePath2):
+				shutil.rmtree(cachePath2)
 
 	#def clearCache
 
