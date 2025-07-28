@@ -31,7 +31,7 @@ class CheckWorker(QObject):
 		time.sleep(1)
 
 		filesToCopy=self.filesToCopy.split(" ")
-
+		
 		if len(filesToCopy)>0:
 			if os.path.exists(self.destPath):
 				errorsReportPath=tempfile.mkstemp('_oneDriveBackupError.txt')[1]
@@ -104,7 +104,7 @@ class SendToOnedriveBackup(QObject):
 		
 		QObject.__init__(self)
 		self._dialogMsgCode=SendToOnedriveBackup.CHECKING_INFO
-		self._filesToCopy=0
+		self._totalFilesToCopy=0
 		self._filesProgress=0
 		self._fileProcessed=""
 		self._showProgressBar=False
@@ -129,19 +129,19 @@ class SendToOnedriveBackup(QObject):
 
 	#def _setDialogMsgCode
 
-	def _getFilesToCopy(self):
+	def _getTotalFilesToCopy(self):
 
-		return self._filesToCopy
+		return self._totalFilesToCopy
 
-	#def _getFilesToCopu
+	#def _getTotalFilesToCopy
 
-	def _setFilesToCopy(self,filesToCopy):
+	def _setTotalFilesToCopy(self,totalFilesToCopy):
 
-		if self._filesToCopy!=filesToCopy:
-			self._filesToCopy=filesToCopy
-			self.on_filesToCopy.emit()
+		if self._totalFilesToCopy!=totalFilesToCopy:
+			self._totalFilesToCopy=totalFilesToCopy
+			self.on_totalFilesToCopy.emit()
 
-	#def _setFilesToCopy
+	#def _setTotalFilesToCopy
 
 	def _getFilesProgress(self):
 
@@ -236,6 +236,7 @@ class SendToOnedriveBackup(QObject):
 
 		if ret[0]:
 			self.filesToCopy=ret[1]
+			self.totalFilesToCopy=len(self.filesToCopy)
 			self.destPath=ret[2]
 			self.errorsReportPath=ret[3]
 			self.copyFiles()
@@ -318,8 +319,8 @@ class SendToOnedriveBackup(QObject):
 	on_dialogMsgCode=Signal()
 	dialogMsgCode=Property(int,_getDialogMsgCode,_setDialogMsgCode,notify=on_dialogMsgCode)
 
-	on_filesToCopy=Signal()
-	filesToCopy=Property(int,_getFilesToCopy,_setFilesToCopy,notify=on_filesToCopy)
+	on_totalFilesToCopy=Signal()
+	totalFilesToCopy=Property(int,_getTotalFilesToCopy,_setTotalFilesToCopy,notify=on_totalFilesToCopy)
 
 	on_filesProgress=Signal()
 	filesProgress=Property(int,_getFilesProgress,_setFilesProgress,notify=on_filesProgress)	

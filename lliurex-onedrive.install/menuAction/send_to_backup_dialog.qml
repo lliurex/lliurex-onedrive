@@ -11,9 +11,9 @@ ApplicationWindow {
 	color:"#eff0f1"
 	width: 400
 	height: mainLayout.implicitHeight + 2 * margin
-	minimumWidth: 450
+	minimumWidth: 455
 	minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
-	maximumWidth: 450
+	maximumWidth: 455
 	maximumHeight: mainLayout.Layout.maximumHeight + 2 * margin
 	Component.onCompleted: {
 	    x = Screen.width/2 - width/2 
@@ -34,10 +34,10 @@ ApplicationWindow {
     	anchors.fill: parent
     	anchors.margins: margin
     	
-    	Layout.minimumWidth:450
-    	Layout.maximumWidth:450
-    	Layout.minimumHeight:!bridge.showProgressBar?145:155
-    	Layout.maximumHeight:!bridge.showProgressBar?145:155
+    	Layout.minimumWidth:455
+    	Layout.maximumWidth:455
+    	Layout.minimumHeight:!bridge.showProgressBar?165:160
+    	Layout.maximumHeight:!bridge.showProgressBar?165:160
     	
 	   	GridLayout {
 	   		id: grid
@@ -171,13 +171,21 @@ ApplicationWindow {
 
 	function getMsg(code){
 
+	 	var info=i18nd("lliurex-onedrive","These files will now send to your OneDrive space\nPlease verifiy that the transfer is successful")
+
 	 	switch(code){
 	 		case -1:
 	 			return i18nd("lliurex-onedrive","No files/folders selected to copy")
 	 		case -2:
 	 			return i18nd("lliurex-onedrive","Folder to copy files not exist")
 	 		case -3:
-	 			return i18nd("lliurex-onedrive","Copying has finished with errors.\nErrors detected:")+" "+bridge.errorsDetected
+	 			var msg=i18nd("lliurex-onedrive","Copying to local folder has finished with errors.\nErrors detected:")+" "+bridge.errorsDetected
+	 			
+	 			if (bridge.totalFilesToCopy-bridge.errorsDetected>0){
+	 				return msg+"\n"+info
+	 			}else{
+	 				return msg
+	 			}
 	 		case -4:
 		 		return i18nd("lliurex-onedrive","Invalid arguments")
  			case 0:
@@ -185,7 +193,7 @@ ApplicationWindow {
 	 		case 1:
 	 			return i18nd("lliurex-onedrive","Copying. Wait a moment...")
 	 		case 2:
-	 			return i18nd("lliurex-onedrive","Copying completed successfully")
+	 			return i18nd("lliurex-onedrive","Copying to local folder completed successfully")+"\n"+info
 	 	}
 	}
 }  		
