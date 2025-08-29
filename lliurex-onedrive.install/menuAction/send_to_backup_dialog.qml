@@ -11,9 +11,9 @@ ApplicationWindow {
 	color:"#eff0f1"
 	width: 400
 	height: mainLayout.implicitHeight + 2 * margin
-	minimumWidth: 455
+	minimumWidth: 500
 	minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
-	maximumWidth: 455
+	maximumWidth: 500
 	maximumHeight: mainLayout.Layout.maximumHeight + 2 * margin
 	Component.onCompleted: {
 	    x = Screen.width/2 - width/2 
@@ -34,10 +34,10 @@ ApplicationWindow {
     	anchors.fill: parent
     	anchors.margins: margin
     	
-    	Layout.minimumWidth:455
-    	Layout.maximumWidth:455
-    	Layout.minimumHeight:!bridge.showProgressBar?165:160
-    	Layout.maximumHeight:!bridge.showProgressBar?165:160
+    	Layout.minimumWidth:500
+    	Layout.maximumWidth:500
+    	Layout.minimumHeight:!bridge.showProgressBar?170:165
+    	Layout.maximumHeight:!bridge.showProgressBar?170:165
     	
 	   	GridLayout {
 	   		id: grid
@@ -45,7 +45,7 @@ ApplicationWindow {
 	   		Layout.bottomMargin: 0
 	   		rows: 5
 	   		columns: 2
-	   		rowSpacing:10
+	   		rowSpacing:15
 
 	   		Rectangle {
 	   			color:"transparent"
@@ -63,7 +63,8 @@ ApplicationWindow {
 	   			color:"transparent"
 	   			Layout.rowSpan: 1
 	   			Layout.columnSpan: 1
-	   			height:50
+	   			height:60
+	   			width:450
 	   			Layout.fillWidth: true
 	   			Layout.leftMargin:10
 	   			Text{
@@ -71,7 +72,9 @@ ApplicationWindow {
 	   				text:getMsg(bridge.dialogMsgCode)
 	   				font.pointSize: 11
 	   				anchors.left: parent.left
-	   				anchors.verticalCenter:parent.verticalCenter
+	   				/*anchors.verticalCenter:parent.verticalCenter*/
+	   				width:400
+	   				wrapMode:Text.WordWrap
 	   			}
 	   		}
 	   		Rectangle {
@@ -104,7 +107,7 @@ ApplicationWindow {
 	   				font.italic:true 
 	   				font.pointSize: 10
 	   				anchors.verticalCenter:parent.verticalCenter
-	   				width:400
+	   				width:420
 	   				elide:Text.ElideMiddle
 	   			}
 	   		}
@@ -171,7 +174,7 @@ ApplicationWindow {
 
 	function getMsg(code){
 
-	 	var info=i18nd("lliurex-onedrive","These files will now send to your OneDrive space\nPlease verifiy that the transfer is successful")
+	 	var info=i18nd("lliurex-onedrive","These files will be send to your OneDrive account as soon as posible. Once sent, the will be deleted from your local folder.\nPlease verifiy that the transfer is successful")
 
 	 	switch(code){
 	 		case -1:
