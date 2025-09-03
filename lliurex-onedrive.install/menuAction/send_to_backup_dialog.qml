@@ -36,8 +36,8 @@ ApplicationWindow {
     	
     	Layout.minimumWidth:500
     	Layout.maximumWidth:500
-    	Layout.minimumHeight:!bridge.showProgressBar?170:165
-    	Layout.maximumHeight:!bridge.showProgressBar?170:165
+    	Layout.minimumHeight:!bridge.showProgressBar?190:185
+    	Layout.maximumHeight:!bridge.showProgressBar?190:185
     	
 	   	GridLayout {
 	   		id: grid
@@ -45,7 +45,7 @@ ApplicationWindow {
 	   		Layout.bottomMargin: 0
 	   		rows: 5
 	   		columns: 2
-	   		rowSpacing:15
+	   		rowSpacing:20
 
 	   		Rectangle {
 	   			color:"transparent"
@@ -122,7 +122,8 @@ ApplicationWindow {
 	   			Layout.fillWidth: true
 	   			Layout.rightMargin:10
 	   			Layout.leftMargin:10
-	   			height:40
+	   			Layout.topMargin:20
+	   			Layout.fillHeight:true
 	   			
 	   			Button {
 		            id:reportBtn

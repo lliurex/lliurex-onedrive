@@ -21,7 +21,7 @@ class CheckWorker(QObject):
 	def __init__(self,*args):
 
 		QObject.__init__(self)
-		self.filesToCopy=sys.argv[1]
+		self.filesToCopy=sys.argv[1].replace(" /","#/")
 		self.destPath=sys.argv[2]
 	
 	#def __init__
@@ -30,8 +30,8 @@ class CheckWorker(QObject):
 
 		time.sleep(1)
 
-		filesToCopy=self.filesToCopy.split(" ")
-		
+		filesToCopy=self.filesToCopy.split("#")
+	
 		if len(filesToCopy)>0:
 			if os.path.exists(self.destPath):
 				errorsReportPath=tempfile.mkstemp('_oneDriveBackupError.txt')[1]
@@ -70,7 +70,7 @@ class CopyWorker(QObject):
 			self._progress.emit([filesProgress,item])
 			time.sleep(0.05)
 			try:
-				cmd="cp -r %s %s"%(item,self.destPath)
+				cmd="cp -r '%s' %s"%(item,self.destPath)
 				ret=subprocess.run(cmd,shell=True,check=True)
 			except subprocess.CalledProcessError as e:
 				errorCount.append("- %s - Error: %s"%(item,str(e)))
