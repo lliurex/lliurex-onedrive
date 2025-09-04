@@ -33,7 +33,7 @@ class checkSpaceLocalFolder():
 		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
 		updatedToken=os.path.join(spaceConfigPath,".run/updatedToken")
 		onedriveVersionToken="/var/lib/lliurex-onedrive/version"
-		backupFolder="LLIUREX_BACKUP"
+		backupFolder="LLIUREX_ONEDRIVE_BACKUP"
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
@@ -415,7 +415,7 @@ class getSpaceStatusWorker():
 
 	def _getFilesPendigUpload(self,spaceLocalFolder):
 
-		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_BACKUP")
+		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_ONEDRIVE_BACKUP")
 		pendingFiles=0
 
 		try:

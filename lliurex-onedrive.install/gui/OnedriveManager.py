@@ -30,6 +30,7 @@ class OnedriveManager:
 		self.configBackupTemplatePath="/usr/share/lliurex-onedrive/llx-data/config_backup"
 		self.syncListBackup="/usr/share/lliurex-onedrive/llx-data/sync_list_backup"
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
+		self.serviceBackupTemplatePath="/usr/share/lliurex-onedrive/llx-data/template_backup.service"
 		self.userSystemdPath="/home/%s/.config/systemd/user"%self.user
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
 		self.aCServicePath="/usr/share/lliurex-onedrive/llx-data/"
@@ -94,7 +95,7 @@ class OnedriveManager:
 		self.forceMonitorIntervalUpdated=False
 		self.updateRequiredToken=".run/updateRequiredToken"
 		self.updatedToken=".run/updatedToken"
-		self.backupFolder="LLIUREX_BACKUP"
+		self.backupFolder="LLIUREX_ONEDRIVE_BACKUP"
 		self.menuActionPath="/home/%s/.local/share/kio/servicemenus"%(self.user)
 		self.menuActionDesktopTemplate="/usr/share/lliurex-onedrive/llx-data/send_onedrive_backup.desktop"
 
@@ -465,7 +466,8 @@ class OnedriveManager:
 			else:
 				self._createMenuAction()
 				self._createLocalFolder()
-				ret=self._syncResync()
+				#ret=self._syncResync()
+				ret=True
 				
 		else:
 			ret=False
@@ -523,7 +525,7 @@ class OnedriveManager:
 			shutil.copy(self.configTemplatePath,self.spaceConfPath)
 		elif spaceType=="onedriveBackup":
 			shutil.copy(self.configBackupTemplatePath,os.path.join(self.spaceConfPath,"config"))
-			shutil.copy(self.syncListBackup,os.path.join(self.spaceConfPath,"sync_list"))
+			#shutil.copy(self.syncListBackup,os.path.join(self.spaceConfPath,"sync_list"))
 		
 		with open(os.path.join(self.spaceConfPath,"config"),'r') as fd:
 			lines=fd.readlines()
@@ -767,14 +769,17 @@ class OnedriveManager:
 
 		if spaceType=="onedrive":
 			self.spaceServiceFile="onedrive_%s.service"%self.spaceSuffixName.lower()
+			serviceTemplatePath=self.serviceTemplatePath
 		elif spaceType=="onedriveBackup":
 			self.spaceServiceFile="onedriveBackup_%s.service"%self.spaceSuffixName.lower()
+			serviceTemplatePath=self.serviceBackupTemplatePath
 		else:
 			tmpSuffixName=re.sub('[^0-9a-zA-Z]+', '_',self.folderSuffixName).lower()
 			self.spaceServiceFile="sharepoint_%s.service"%tmpSuffixName
-
+			serviceTemplatePath=self.serviceTemplatePath
+		
 		if not os.path.exists(os.path.join(self.userSystemdPath,self.spaceServiceFile)):
-			shutil.copyfile(self.serviceTemplatePath,os.path.join(self.userSystemdPath,self.spaceServiceFile))
+			shutil.copyfile(serviceTemplatePath,os.path.join(self.userSystemdPath,self.spaceServiceFile))
 			configFile=configparser.ConfigParser()
 			configFile.optionxform=str
 			configFile.read(os.path.join(self.userSystemdPath,self.spaceServiceFile))
@@ -2776,6 +2781,8 @@ class OnedriveManager:
 
 		updatedToken=os.path.join(self.spaceConfPath,self.updatedToken)
 		
+		if not os.path.exists(os.path.join(self.spaceConfPath,".run")):
+			os.mkdir(os.path.join(self.spaceConfPath,".run"))
 		if not os.path.exists(updatedToken):
 			with open(updatedToken,'w') as fd:
 				pass
@@ -2834,8 +2841,11 @@ class OnedriveManager:
 	def _removeMenuAction(self):
 
 		actionFile=os.path.join(self.menuActionPath,self.spaceMenuAction)
-		if os.path.exists(actionFile):
-			os.remove(actionFile)
+		try:
+			if os.path.exists(actionFile):
+				os.remove(actionFile)
+		except:
+			pass
 
 	#def _removeSystemdConfig
 

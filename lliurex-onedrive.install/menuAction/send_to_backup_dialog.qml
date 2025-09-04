@@ -36,8 +36,8 @@ ApplicationWindow {
     	
     	Layout.minimumWidth:500
     	Layout.maximumWidth:500
-    	Layout.minimumHeight:!bridge.showProgressBar?190:185
-    	Layout.maximumHeight:!bridge.showProgressBar?190:185
+    	Layout.minimumHeight:!bridge.showProgressBar?200:195
+    	Layout.maximumHeight:!bridge.showProgressBar?200:195
     	
 	   	GridLayout {
 	   		id: grid
@@ -63,7 +63,7 @@ ApplicationWindow {
 	   			color:"transparent"
 	   			Layout.rowSpan: 1
 	   			Layout.columnSpan: 1
-	   			height:60
+	   			height:70
 	   			width:450
 	   			Layout.fillWidth: true
 	   			Layout.leftMargin:10
@@ -175,7 +175,7 @@ ApplicationWindow {
 
 	function getMsg(code){
 
-	 	var info=i18nd("lliurex-onedrive","These files will be send to your OneDrive account as soon as posible. Once sent, the will be deleted from your local folder.\nPlease verifiy that the transfer is successful")
+	 	var info=i18nd("lliurex-onedrive","These files will be send to your OneDrive account as soon as posible. Once sent, the will be deleted from your local folder.\nPlease verifiy that the transfer is successful by accessing the LLIUREX_ONEDRIVE_BACKUP folder in your OneDrive account")
 
 	 	switch(code){
 	 		case -1:
