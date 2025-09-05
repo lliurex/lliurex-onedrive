@@ -1303,7 +1303,11 @@ class OnedriveManager:
 
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
-			cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
+			if self.spaceBasicInfo[2]!="onedriveBackup":
+				cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
+			else:
+				cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
+
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			try:
 				poutput,perror=p.communicate(timeout=90)
@@ -2233,13 +2237,17 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		else:
+			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
+			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" --disable-notifications --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
+		
+		p=subprocess.call(cmdDisplay,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		p=subprocess.call(cmdSync,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		return
 
@@ -2270,7 +2278,10 @@ class OnedriveManager:
 
 	def _syncResync(self):
 
-		cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
+		else:
+			cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
@@ -2758,7 +2769,10 @@ class OnedriveManager:
 
 	def updateOneDrive(self):
 
-		cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s"'%self.spaceConfPath
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s"'%self.spaceConfPath
+		else:
+			cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()

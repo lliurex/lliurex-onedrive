@@ -239,7 +239,11 @@ class getSpaceStatusWorker():
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
-					cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
+					if spaceType!="onedriveBackup": 
+						cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
+					else:
+						cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
+	
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
 						poutput,perror=p.communicate(timeout=90)
