@@ -11,9 +11,9 @@ ApplicationWindow {
 	color:"#eff0f1"
 	width: 400
 	height: mainLayout.implicitHeight + 2 * margin
-	minimumWidth: 500
+	minimumWidth: 600
 	minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
-	maximumWidth: 500
+	maximumWidth: 600
 	maximumHeight: mainLayout.Layout.maximumHeight + 2 * margin
 	Component.onCompleted: {
 	    x = Screen.width/2 - width/2 
@@ -34,8 +34,8 @@ ApplicationWindow {
     	anchors.fill: parent
     	anchors.margins: margin
     	
-    	Layout.minimumWidth:500
-    	Layout.maximumWidth:500
+    	Layout.minimumWidth:600
+    	Layout.maximumWidth:600
     	Layout.minimumHeight:!bridge.showProgressBar?200:195
     	Layout.maximumHeight:!bridge.showProgressBar?200:195
     	
@@ -64,7 +64,7 @@ ApplicationWindow {
 	   			Layout.rowSpan: 1
 	   			Layout.columnSpan: 1
 	   			height:70
-	   			width:450
+	   			width:550
 	   			Layout.fillWidth: true
 	   			Layout.leftMargin:10
 	   			Text{
@@ -73,7 +73,7 @@ ApplicationWindow {
 	   				font.pointSize: 11
 	   				anchors.left: parent.left
 	   				/*anchors.verticalCenter:parent.verticalCenter*/
-	   				width:400
+	   				width:500
 	   				wrapMode:Text.WordWrap
 	   			}
 	   		}
@@ -88,7 +88,7 @@ ApplicationWindow {
 	   				indeterminate:true
 	   				visible:bridge.showProgressBar
 	   				anchors.centerIn:parent
-	   				implicitWidth:250
+	   				implicitWidth:300
 	   				height:25
 	   			}
    			}
@@ -107,7 +107,7 @@ ApplicationWindow {
 	   				font.italic:true 
 	   				font.pointSize: 10
 	   				anchors.verticalCenter:parent.verticalCenter
-	   				width:420
+	   				width:520
 	   				elide:Text.ElideMiddle
 	   			}
 	   		}

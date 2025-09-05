@@ -363,6 +363,7 @@ class getSpaceStatusWorker():
 						if filesPendingUpload>0:
 							code=UPLOADING_PENDING_CHANGES_BACKUP
 						else:
+							self._removeEmptyFolders(spaceLocalFolder)
 							if code==OUT_OF_SYNC_MSG:
 								code=ALL_SYNCHRONIZE_MSG
 
@@ -430,6 +431,22 @@ class getSpaceStatusWorker():
 		return pendingFiles
 
 	#def _getFilesPendigUpload
+
+	def _removeEmptyFolders(self,spaceLocalFolder):
+
+		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_ONEDRIVE_BACKUP")
+
+		if os.path.exists(folderToCheck):
+			for base,dirs,files in os.walk(folderToCheck,topdown=False):
+				for directory in dirs:
+					dirPath=os.path.join(base,directory)
+					if not os.listdir(dirPath):
+						try:
+							os.rmdir(dirPath)
+						except:
+							pass
+
+	#def _removeEmptyFolders
 
 #class getSpaceStatusWorker
 
