@@ -79,20 +79,20 @@ Rectangle{
                 Layout.alignment:Qt.AlignTop
 
                 RadioButton{
-                    id:oneDriveBackupOption
-                    checked:addSpaceStackBridge.formData[1]==3?true:false
-                    text:i18nd("lliurex-onedrive","OneDrive-Backup")
+                    id:oneDriveOption
+                    checked:addSpaceStackBridge.formData[1]==0?true:false
+                    text:i18nd("lliurex-onedrive","OneDrive")
                     onToggled:{
                         if (checked){
                             addSpaceStackBridge.resetSharePoints()
                         }
                     }
                 }
-                
+
                 RadioButton{
-                    id:oneDriveOption
-                    checked:addSpaceStackBridge.formData[1]==0?true:false
-                    text:i18nd("lliurex-onedrive","OneDrive-Sync")
+                    id:oneDriveBackupOption
+                    checked:addSpaceStackBridge.formData[1]==3?true:false
+                    text:i18nd("lliurex-onedrive","OneDrive-Backup")
                     onToggled:{
                         if (checked){
                             addSpaceStackBridge.resetSharePoints()
