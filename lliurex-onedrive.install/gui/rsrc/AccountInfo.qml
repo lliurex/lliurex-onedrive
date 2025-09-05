@@ -72,7 +72,7 @@ Rectangle{
                 text:{
                     switch(spaceStackBridge.spaceBasicInfo[2]){
                         case "onedrive":
-                            var msg=i18nd("lliurex-onedrive","OneDrive-Sync")
+                            var msg=i18nd("lliurex-onedrive","OneDrive")
                             break;
                         case "onedriveBackup":
                             var msg=i18nd("lliurex-onedrive","OneDrive-Backup")

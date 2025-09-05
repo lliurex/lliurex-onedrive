@@ -282,7 +282,7 @@ Rectangle{
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:addSpaceStackBridge.showBackupDialog
-        dialogMsg:i18nd("lliurex-onedrive","You're going to set up a space that will only send files from your computer to the LLIUREX_ONEDRIVE_BACKUP folder in your OneDrive account. Remember:\n- Don't delete o rename the LLIUREX_ONEDRIVE_BACKUP folder from your computer\n- Files copied to the local folder LLIUREX_ONEDRIVE_BACKUP on your computer will be deleted from it once they are sent to the corresponding OneDrive account")
+        dialogMsg:i18nd("lliurex-onedrive","You're going to set up a space that will only send files and folders from your computer to the LLIUREX_ONEDRIVE_BACKUP folder in your OneDrive account. Remember:\n- Don't delete o rename the LLIUREX_ONEDRIVE_BACKUP folder\n- Files and folders copied to the local folder LLIUREX_ONEDRIVE_BACKUP on your computer will be deleted from it once they are sent to the corresponding OneDrive account")
         dialogWidth:700
         dialogHeight:140
         btnAcceptVisible:true
