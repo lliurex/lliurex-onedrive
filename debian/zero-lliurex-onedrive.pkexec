@@ -1,0 +1,27 @@
+[
+    {
+        "prefix": "net.lliurex.zero-center.zero-lliurex-onedrive",
+        "cmd": "/usr/share/zero-center/zmds/zero-lliurex-onedrive.zmd",
+        "nameaction": "launcher",
+        "icon": "zero-lliurex-onedrive",
+        "default_auth": {
+            "any": "no",
+            "inactive": "no",
+            "active": "no"
+        },
+        "auths": [
+            {
+                "type": "group",
+                "members": [
+                    "admins",
+                    "admin",
+                    "sudo",
+                    "teachers"
+                ],
+                "any": "yes",
+                "inactive": "yes",
+                "active": "yes"
+            }
+        ]
+    }
+]
