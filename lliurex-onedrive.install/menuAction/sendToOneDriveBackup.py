@@ -266,8 +266,7 @@ class SendToOnedriveBackup(QObject):
 	def _copyFilesRet(self,ret):
 
 		self.copyFilesT.quit
-		self.showProgressBar=False
-		
+				
 		if ret==0:
 			self.dialogMsgCode=SendToOnedriveBackup.COPY_FILES_SUCCESS
 		else:
@@ -275,6 +274,7 @@ class SendToOnedriveBackup(QObject):
 			self.showErrorBtn=True
 			self.errorsDetected=ret
 
+		self.showProgressBar=False
 		self.canClose=True
 
 	#def _copyFilesRet
