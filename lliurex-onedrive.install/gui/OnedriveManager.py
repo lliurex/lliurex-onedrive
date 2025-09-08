@@ -461,13 +461,12 @@ class OnedriveManager:
 		self._createOneDriveACService()
 		self._createAuxVariables()
 		if self.isConfigured():
-			if spaceInfo[1] in ["onedrive","sharepoint"]:
-				ret=self.getInitialDownload()
-			else:
+			if spaceInfo[1]=="onedriveBackup":
 				self._createMenuAction()
 				self._createLocalFolder()
 				#ret=self._syncResync()
-				ret=True
+
+			ret=self.getInitialDownload()
 				
 		else:
 			ret=False
@@ -2861,6 +2860,6 @@ class OnedriveManager:
 		except:
 			pass
 
-	#def _removeSystemdConfig
+	#def _removeMenuAction
 
 #class OnedriveManager
