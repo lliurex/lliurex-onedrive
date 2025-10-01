@@ -1,8 +1,8 @@
 #! /usr/bin/python3
-from PySide2.QtWidgets import QApplication
-from PySide2.QtCore import QUrl, QObject, Slot, Signal, Property,QThread
-from PySide2.QtQml import QQmlApplicationEngine
-from PySide2.QtGui import QIcon
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QUrl, QObject, Slot, Signal, Property,QThread
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtGui import QIcon
 
 import os
 import sys
@@ -265,7 +265,7 @@ class SendToOnedriveBackup(QObject):
 	
 	def _copyFilesRet(self,ret):
 
-		self.copyFilesT.quit
+		self.copyFilesT.quit()
 				
 		if ret==0:
 			self.dialogMsgCode=SendToOnedriveBackup.COPY_FILES_SUCCESS
@@ -342,6 +342,7 @@ class SendToOnedriveBackup(QObject):
 if __name__=="__main__":
 
 	app = QApplication()
+	app.setDesktopFileName("lliurex-onedrive");
 	engine = QQmlApplicationEngine()
 	engine.clearComponentCache()
 	context=engine.rootContext()
@@ -355,8 +356,8 @@ if __name__=="__main__":
 		sys.exit(-1)
 
 	engine.quit.connect(app.quit)
-	app.setWindowIcon(QIcon("/usr/share/icons/hicolor/32x32/apps/lliurex-onedrive-backup"));
-	ret=app.exec_()
+	#app.setWindowIcon(QIcon("/usr/share/icons/hicolor/32x32/apps/lliurex-onedrive-backup"));
+	ret=app.exec()
 	del engine
 	del app
 	sys.exit(ret)

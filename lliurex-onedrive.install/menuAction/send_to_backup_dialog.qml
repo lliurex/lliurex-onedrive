@@ -1,8 +1,8 @@
-import org.kde.plasma.core 2.0 as PlasmaCore
-import QtQuick 2.6
-import QtQuick.Controls 2.6
-import QtQuick.Layouts 1.15
-import QtQuick.Window 2.2
+import org.kde.plasma.core as PlasmaCore
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
 
 ApplicationWindow {
 	visible: true
@@ -10,7 +10,7 @@ ApplicationWindow {
 	property int margin: 1
 	color:"#eff0f1"
 	width: 400
-	height: mainLayout.implicitHeight + 2 * margin
+	height: 195
 	minimumWidth: 600
 	minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
 	maximumWidth: 600
@@ -21,7 +21,7 @@ ApplicationWindow {
 
     }
 
-    onClosing: {
+    onClosing:(close)=> {
      	if (bridge.closed(true))
      		close.accepted=true;
         else
@@ -43,9 +43,10 @@ ApplicationWindow {
 	   		id: grid
 	   		Layout.topMargin: 5
 	   		Layout.bottomMargin: 0
-	   		rows: 5
+	   		rows: 6
 	   		columns: 2
 	   		rowSpacing:20
+
 
 	   		Rectangle {
 	   			color:"transparent"
