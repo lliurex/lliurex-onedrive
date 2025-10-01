@@ -1,3 +1,9 @@
+lliurex-onedrive (3.15.7.1) noble-testing; urgency=medium
+
+  * Added backup mode
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 01 Oct 2025 11:33:30 +0200
+
 lliurex-onedrive (3.15.7) noble; urgency=medium
 
   * Improved transitions between stacks
