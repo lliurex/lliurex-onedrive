@@ -117,6 +117,7 @@ class Bridge(QObject):
 		self.removeAction=False
 		self._isUpdateRequired=False
 		self._showUpdateRequiredDialog=False
+		self._filesPendingUpload=0
 
 	#def __init__
 	
@@ -288,6 +289,20 @@ class Bridge(QObject):
 
 	#def _setShowUpdateRequiredDialog
 
+	def _getFilesPendingUpload(self):
+
+		return self._filesPendingUpload
+
+	#def _getFilesPendingUpload
+
+	def _setFilesPendingUpload(self,filesPendingUpload):
+
+		if self._filesPendingUpload!=filesPendingUpload:
+			self._filesPendingUpload=filesPendingUpload
+			self.on_filesPendingUpload.emit()
+
+	#def _setFilesPendingUpload
+
 	@Slot(int)
 	def moveToManageOption(self,option):
 		
@@ -417,6 +432,7 @@ class Bridge(QObject):
 		self.freeSpace=Bridge.onedriveManager.freeSpace
 		self.core.syncStack._folderModel.resetModel()
 		self.core.syncStack.skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
+		self.filesPendingUpload=Bridge.onedriveManager.filesPendingUpload
 
 	#def _initializeVars
 
@@ -467,7 +483,7 @@ class Bridge(QObject):
 		else:
 			msg=Bridge.STOP_SYNC_MESSAGE
 
-		self.core.mainStack.closePopup=[False,msg]
+		self.core.mainStack.closePopUp=[False,msg]
 		self.manageSyncT=ManageSync(self.startSync)
 		self.manageSyncT.start()
 		self.manageSyncT.finished.connect(self._manageSync)
@@ -516,6 +532,7 @@ class Bridge(QObject):
 		self.core.mainStack._updateSpacesModelInfo("status")
 		self.accountStatus=self.getAccountStatus.ret[1]
 		self.freeSpace=self.getAccountStatus.ret[2]
+		self.filesPendingUpload=self.getAccountStatus.ret[3]
 
 	#def _checkAccountStatus 
 
@@ -638,6 +655,9 @@ class Bridge(QObject):
 
 	on_showUpdateRequiredDialog=Signal()
 	showUpdateRequiredDialog=Property(bool,_getShowUpdateRequiredDialog,_setShowUpdateRequiredDialog,notify=on_showUpdateRequiredDialog)
+
+	on_filesPendingUpload=Signal()
+	filesPendingUpload=Property(int,_getFilesPendingUpload,_setFilesPendingUpload,notify=on_filesPendingUpload)
 
 #class Bridge
 
