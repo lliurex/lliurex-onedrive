@@ -240,9 +240,9 @@ class getSpaceStatusWorker():
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					if spaceType!="onedriveBackup": 
-						cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%spaceConfigPath
+						cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
 					else:
-						cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
+						cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
 	
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
@@ -356,11 +356,7 @@ class getSpaceStatusWorker():
 				else:
 					error=True
 					code=WITH_OUT_CONFIG
-				'''
-				if code==OUT_OF_SYNC_MSG:
-					if pendingChanges==lastPendingChanges:
-						code=ALL_SYNCHRONIZE_MSG
-				'''
+		
 				if spaceType=="onedriveBackup":
 					filesPendingUpload=self._getFilesPendigUpload(spaceLocalFolder)
 					if not error:
@@ -370,7 +366,11 @@ class getSpaceStatusWorker():
 							self._removeEmptyFolders(spaceLocalFolder)
 							if code==OUT_OF_SYNC_MSG:
 								code=ALL_SYNCHRONIZE_MSG
-
+				else:
+					if code==OUT_OF_SYNC_MSG:
+						if pendingChanges==lastPendingChanges:
+							code=ALL_SYNCHRONIZE_MSG
+				
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
