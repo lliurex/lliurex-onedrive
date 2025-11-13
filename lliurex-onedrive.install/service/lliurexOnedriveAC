@@ -240,9 +240,9 @@ class getSpaceStatusWorker():
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					if spaceType!="onedriveBackup": 
-						cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
+						cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%spaceConfigPath
 					else:
-						cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
+						cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
 	
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
