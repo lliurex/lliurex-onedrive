@@ -1303,9 +1303,9 @@ class OnedriveManager:
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
 			if self.spaceBasicInfo[2]!="onedriveBackup":
-				cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
+				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%self.spaceConfPath
 			else:
-				cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
+				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			try:
@@ -1621,56 +1621,52 @@ class OnedriveManager:
 
 	def _processingResyncOut(self,out):
 
-		for i in range(len(out)-1,-1,-1):
-			if 'local directory' in out[i]:
-					pass
-			else:
-				if 'creating file' in out[i]:
-					pass
-				else:
-					out.pop(i)				
+		tmpOut=[]
+		for i in range(0,len(out)-1,1):
+			if out[i].startswith('Creating local directory'):
+				tmpItem=out[i].split(":")[1].strip().replace("./","")
+				if tmpItem not in tmpOut:
+					tmpOut.append(tmpItem)
+	
 
 		folderResyncStruct=[]
-		if len(out)>0:
-			for item in out:
-				if 'local directory' in item:
-					item=item.replace("./","")
-					countChildren=0
-					tmpList={}
-					tmpEntry=item.split(":")[1].strip()
-					tmpList["path"]=tmpEntry
-					parentPath=os.path.dirname(tmpEntry)
-					tmpEntry=tmpEntry.split("/")
-					tmpList["isChecked"]=True
-					tmpList["isExpanded"]=True
-					tmpList["hide"]=False
-					if len(tmpEntry)==1:
-						tmpList["name"]=tmpEntry[0]
-						tmpList["type"]="OneDrive"
-						tmpList["subtype"]="parent"
-						tmpList["level"]=3
-						tmpList["parentPath"]="OneDrive"
+		if len(tmpOut)>0:
+			for item in tmpOut:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item
+				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
-					else:
-						tmpList["name"]=tmpEntry[-1]
-						tmpList["type"]=tmpEntry[-2]
-						tmpList["subtype"]="parent"
-						tmpList["level"]=len(tmpEntry)*3
-						tmpList["parentPath"]=parentPath
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+					tmpList["parentPath"]=parentPath
 
-					for j in range(0,len(out),1):
-						tmpItem2=out[j]
-						if 'local directory' in tmpItem2:
-							tmpEntry2=out[j].split(":")[1].strip()
-							tmpPath=tmpList["path"]+"/"
-							if tmpPath in tmpEntry2:
-								countChildren+=1
+				for element in tmpOut:
+					tmpEntry2=element
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
 
-					if countChildren>0:
-						tmpList["canExpanded"]=True 
-					else:
-						tmpList["canExpanded"]=False
-					folderResyncStruct.append(tmpList)	
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+				
+				folderResyncStruct.append(tmpList)	
 
 		return folderResyncStruct
 
@@ -1678,71 +1674,54 @@ class OnedriveManager:
 
 	def _processingSyncOut(self,syncOut):		
 		
-		for i in range(len(syncOut)-1,-1,-1):
-			if 'Processing:' in syncOut[i]:
-				pass
-			else:
-				if 'The directory' in syncOut[i]:
-					pass
-				else:
-					if 'The file' in syncOut[i]:
-						pass
-					else:
-						syncOut.pop(i)				
-
-		for i in range(len(syncOut)-1,-1,-1):
-			try:
-				if 'local state' in syncOut[i]:
-					syncOut.pop(i)
-				if 'last modified time' in syncOut[i]:
-					syncOut.pop(i)	
-			except:
-				pass
+		tmpOut=[]
+		
+		for i in range(0,len(syncOut)-1,1):
+			if syncOut[i].startswith("Processing:"):
+				if syncOut[i+1].startswith('The directory'):
+					tmpItem=syncOut[i].split("Processing:")[1].strip().replace("./","")
+					if tmpItem not in tmpOut:
+						tmpOut.append(tmpItem)
 		
 		folderSyncStruct=[]
-		if len(syncOut)>0:
-			for i in range(0,len(syncOut)-1,2):
-				tmp={}
-				tmpItem=syncOut[i]+": "+syncOut[i+1]
-				if 'The directory' in tmpItem:
-					countChildren=0
-					tmpList={}
-					tmpEntry=syncOut[i].split("Processing:")[1].strip()
-					tmpEntry=tmpEntry.replace("./","")
-					tmpList["path"]=tmpEntry
-					parentPath=os.path.dirname(tmpEntry)
-					tmpEntry=tmpEntry.split("/")
-					tmpList["isChecked"]=True
-					tmpList["isExpanded"]=True
-					tmpList["hide"]=False
-					if len(tmpEntry)==1:
-						tmpList["name"]=tmpEntry[0]
-						tmpList["type"]="OneDrive"
-						tmpList["subtype"]="parent"
-						tmpList["level"]=3
-						tmpList["parentPath"]="OneDrive"
+		if len(tmpOut)>0:
+			
+			for item in tmpOut:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item
+				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
-					else:
-						tmpList["name"]=tmpEntry[-1]
-						tmpList["type"]=tmpEntry[-2]
-						tmpList["subtype"]="parent"
-						tmpList["level"]=len(tmpEntry)*3
-						tmpList["parentPath"]=parentPath
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+					tmpList["parentPath"]=parentPath
 					
-					for j in range(0,len(syncOut)-1,2):
-						tmpItem2=syncOut[j]+": "+syncOut[j+1]
-						if 'The directory' in tmpItem2:
-							tmpEntry2=syncOut[j].split("Processing:")[1].strip()
-							tmpPath=tmpList["path"]+"/"
-							if tmpPath in tmpEntry2:
-								countChildren+=1
+				for element in tmpOut:
+					tmpEntry2=element
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
 
-					if countChildren>0:
-						tmpList["canExpanded"]=True 
-					else:
-						tmpList["canExpanded"]=False
-					
-					folderSyncStruct.append(tmpList)	
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+						
+				folderSyncStruct.append(tmpList)	
 				
 			try:
 				folderSyncStruct.pop(0)
@@ -1826,7 +1805,6 @@ class OnedriveManager:
 					tmpList["parentPath"]=parentPath
 
 				for j in range(0,len(tmpFolders),1):
-					tmpItem2=tmpFolders[j]
 					tmpEntry2=tmpFolders[j]
 					tmpPath=tmpList["path"]+"/"
 					if tmpPath in tmpEntry2:
