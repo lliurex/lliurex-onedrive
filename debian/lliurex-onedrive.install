@@ -1,3 +1,5 @@
 lliurex-onedrive.install/gui/* /usr/share/lliurex-onedrive/
 lliurex-onedrive.install/llx-data/* /usr/share/lliurex-onedrive/llx-data/
 lliurex-onedrive.install/service/* /usr/bin/
+lliurex-onedrive.install/menuAction/sendToOneDriveBackup.py /usr/bin/
+lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml /usr/share/lliurex-onedrive/rsrc/
