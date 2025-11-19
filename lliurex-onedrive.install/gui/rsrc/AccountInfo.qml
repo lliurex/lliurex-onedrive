@@ -69,7 +69,20 @@ Rectangle{
 
            Text{
                 id:spaceTypeValue
-                text:spaceStackBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
+                text:{
+                    switch(spaceStackBridge.spaceBasicInfo[2]){
+                        case "onedrive":
+                            var msg=i18nd("lliurex-onedrive","OneDrive")
+                            break;
+                        case "onedriveBackup":
+                            var msg=i18nd("lliurex-onedrive","OneDrive-Backup")
+                            break;
+                        case "sharepoint":
+                            var msg="SharePoint"
+                            break
+                    }
+                    return msg
+                }
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -416,6 +429,9 @@ Rectangle{
                 break;
             case 3:
                 var msg=i18nd("lliurex-onedrive","Information not available");
+                break;
+            case 5:
+                var msg=spaceStackBridge.filesPendingUpload+ " "+i18nd("lliurex-onedrive","files pending to upload")
                 break;
             case 20:
                 var msg=i18nd("lliurex-onedrive","Configuration migration completed successfully");

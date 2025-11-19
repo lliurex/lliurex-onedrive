@@ -81,13 +81,24 @@ Rectangle{
                 RadioButton{
                     id:oneDriveOption
                     checked:addSpaceStackBridge.formData[1]==0?true:false
-                    text:"OneDrive"
+                    text:i18nd("lliurex-onedrive","OneDrive")
                     onToggled:{
                         if (checked){
                             addSpaceStackBridge.resetSharePoints()
                         }
                     }
-                  }
+                }
+
+                RadioButton{
+                    id:oneDriveBackupOption
+                    checked:addSpaceStackBridge.formData[1]==3?true:false
+                    text:i18nd("lliurex-onedrive","OneDrive-Backup")
+                    onToggled:{
+                        if (checked){
+                            addSpaceStackBridge.resetSharePoints()
+                        }
+                    }
+                }
 
                 RadioButton{
                     id:sharePointOption
@@ -100,6 +111,7 @@ Rectangle{
                         }else{
                             sharePointOption.checked=false
                             oneDriveOption.checked=true
+                            oneDriveBackupOption.checked=false
                         }
                     }
                 }
@@ -165,8 +177,12 @@ Rectangle{
                 if (oneDriveOption.checked){
                     type="onedrive"
                 }else{
-                    if (sharePointOption.checked){
-                        type="sharepoint"
+                    if (oneDriveBackupOption.checked){
+                        type="onedriveBackup"
+                    }else{
+                        if (sharePointOption.checked){
+                            type="sharepoint"
+                        }
                     }
                 }
                 addSpaceStackBridge.checkData([spaceMailEntry.text,type,spaceSharePointEntry.currentText,spaceLibraryEntry.currentText,spaceLibraryEntry.currentValue])
@@ -261,6 +277,35 @@ Rectangle{
     
     }
 
+    ChangesDialog{
+        id:backupDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
+        dialogVisible:addSpaceStackBridge.showBackupDialog
+        dialogMsg:i18nd("lliurex-onedrive","You're going to set up a space that will only send files and folders from your computer to the LLIUREX_ONEDRIVE_BACKUP folder in your OneDrive account. Remember:\n- Don't delete o rename the LLIUREX_ONEDRIVE_BACKUP folder\n- Files and folders copied to the local folder LLIUREX_ONEDRIVE_BACKUP on your computer will be deleted from it once they are sent to the corresponding OneDrive account")
+        dialogWidth:700
+        dialogHeight:140
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Start now")
+        btnDiscardText:i18nd("lliurex-onedrive","Review settings")
+        btnDiscardIcon:"configure.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:backupDialog
+            function onDialogApplyClicked(){
+                addSpaceStackBridge.manageBackupDialog("Start")
+            }
+            function onDiscardDialogClicked(){
+                addSpaceStackBridge.manageBackupDialog("Custom")
+            }
+            function onRejectDialogClicked(){
+                addSpaceStackBridge.manageBackupDialog("Cancel")
+            }
+        }               
+    
+    }
+
     function getTextMessage(){
         switch (addSpaceStackBridge.showSpaceFormMessage[1]){
             case -1:
@@ -301,7 +346,7 @@ Rectangle{
 
         var correctMail=spaceMailEntry.acceptableInput
         if (correctMail){
-            if (oneDriveOption.checked){
+            if (oneDriveOption.checked || oneDriveBackupOption.checked){
                 return true
             }else{
                 if ((spaceSharePointEntry.length!=0) && (spaceLibraryEntry.currentText!="")){
