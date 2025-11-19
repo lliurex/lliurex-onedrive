@@ -51,7 +51,7 @@ Rectangle {
                 }
 
             }
-            color:"white"
+            color:"transparent"
 
             states: State {
                 name: "expanded"

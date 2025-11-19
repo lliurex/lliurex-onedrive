@@ -20,7 +20,7 @@
 #check_nomount = "false"
 
 ## This config option is useful to prevent the sync of a *local* directory to Microsoft OneDrive. It will *not* check for this file online to prevent the download of directories to your local system.
-#check_nosync = "false"
+check_nosync = "false"
 
 ## This config option defines the number of children in a path that is locally removed which will be classified as a 'big data delete' to safeguard large data removals - which are typically accidental local delete events.
 #classify_as_big_delete = "1000"
@@ -47,13 +47,13 @@
 #disable_download_validation = "false"
 
 ## This setting controls whether GUI notifications are sent from the client to your display manager session.
-#disable_notifications = "false"
+disable_notifications = "false"
 
 ## This setting controls whether the application will set the permissions on files and directories using the values of 'sync_dir_permissions' and 'sync_file_permissions'.
 #disable_permission_set = "false"
 
 ## This option determines whether the client will conduct integrity validation on files uploaded to Microsoft OneDrive.
-#disable_upload_validation = "false"
+disable_upload_validation = "true"
 
 ## This option will include the running config of the application at application startup.
 #display_running_config = "false"
@@ -107,10 +107,10 @@ monitor_interval = "300"
 #monitor_log_frequency = "12"
 
 ## This configuration option controls whether local deletes are replicated to OneDrive when using --upload-only.
-#no_remote_delete = "false"
+no_remote_delete = "true"
 
 ## This setting controls whether the client logs GUI notifications when file actions occur.
-#notify_file_actions = "false"
+notify_file_actions = "true"
 
 ## This configuration controls the maximum amount of time a file operation is allowed to take.
 #operation_timeout = "3600"
@@ -128,7 +128,10 @@ rate_limit = "10485760"
 #recycle_bin_path = "/path/to/desired/location/"
 
 ## This option removes the local file after a successful upload to OneDrive.
-#remove_source_files = "false"
+remove_source_files = "true"
+
+## This option removes the local folder after a successful upload to OneDrive.
+remove_source_folders = "true"
 
 ## This configuration controls whether a full resync is performed at application startup.
 #resync = "false"
@@ -179,7 +182,7 @@ sync_dir = "{{LOCAL_FOLDER}}"
 #transfer_order = "default"
 
 ## Only upload changes to OneDrive, do not download from cloud.
-#upload_only = "false"
+upload_only = "true"
 
 ## Authenticate using the Microsoft OAuth2 Device Authorisation Flow
 #use_device_auth = "true"

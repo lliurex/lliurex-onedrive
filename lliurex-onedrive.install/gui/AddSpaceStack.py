@@ -115,9 +115,9 @@ class Bridge(QObject):
 		self._hddFreeSpace=""
 		self._showDownloadDialog=False
 		self._initialDownload=""
-		self._showDownloadDialog=False
 		self.core.toolStack.updateSpaceAuth=False
 		self._withHDDSpace=True
+		self._showBackupDialog=False
 
 	#def _init__
 
@@ -245,6 +245,21 @@ class Bridge(QObject):
 
 	#def _setWithHDDSpace
 
+	def _getShowBackupDialog(self):
+
+		return self._showBackupDialog
+
+	#def _getShowBackupDialog
+
+	def _setShowBackupDialog(self,showBackupDialog):
+
+		if self._showBackupDialog!=showBackupDialog:
+			self._showBackupDialog=showBackupDialog
+			self.on_showBackupDialog.emit()
+
+	#def _setShowBackupDialog
+
+
 	def _updateSharePointModel(self):
 
 		ret=self._sharePointModel.clear()
@@ -359,6 +374,8 @@ class Bridge(QObject):
 		self.formData[0]=spaceInfo[0]
 		if spaceInfo[1]=="onedrive":
 			self.formData[1]=0
+		elif spaceInfo[1]=="onedriveBackup":
+			self.formData[1]=3
 		elif spaceInfo[1]=="sharepoint":
 			self.formData[1]=1
 		else:
@@ -442,7 +459,7 @@ class Bridge(QObject):
 
 	def createSpace(self):
 
-		if self.spaceInfo[1]=="onedrive":
+		if self.spaceInfo[1] in ["onedrive","onedriveBackup"]:
 			if self.checkDuplicate[1]:
 				self.reuseToken=True
 				self.addSpace()
@@ -478,13 +495,16 @@ class Bridge(QObject):
 		if self.createSpaceT.ret:
 			self.core.spaceStack._initializeVars()
 			self.core.settingsStack._getInitialSettings()
-			self.hddFreeSpace=Bridge.onedriveManager.getHddFreeSpace()
-			self.initialDownload=Bridge.onedriveManager.initialDownload
 			self.core.syncStack.showSynchronizeMessage=[False,self.core.syncStack.DISABLE_SYNC_OPTIONS,"Information"]
 			self.core.syncStack.showFolderStruct=False
 
-			self.withHDDSpace=Bridge.onedriveManager.thereAreHDDAvailableSpace(True)
-			self.showDownloadDialog=True
+			if self.spaceInfo[1]!="onedriveBackup":
+				self.hddFreeSpace=Bridge.onedriveManager.getHddFreeSpace()
+				self.initialDownload=Bridge.onedriveManager.initialDownload
+				self.withHDDSpace=Bridge.onedriveManager.thereAreHDDAvailableSpace(True)
+				self.showDownloadDialog=True
+			else:
+				self.showBackupDialog=True
 		else:
 			self.core.mainStack.closePopUp=[True,""]
 			self.core.mainStack.closeGui=True
@@ -496,7 +516,27 @@ class Bridge(QObject):
 	def manageDownloadDialog(self,option):
 
 		self.showDownloadDialog=False
+		
 		if option=="All":
+			self.core.spaceStack._initialStartUp()
+		elif option=="Custom":
+			self.core.mainStack.currentStack=2
+			self.core.spaceStack.manageCurrentOption=2
+			self.core.mainStack.spacesCurrentOption=0
+			self.core.mainStack.closePopUp=[True,""]
+			self.core.mainStack.closeGui=True
+			self.core.spaceStack.accountStatus=3
+		else:
+			self.core.spaceStack.removeAccount()
+
+	#def manageDownloadDialog
+
+	@Slot(str)
+	def manageBackupDialog(self,option):
+
+		self.showBackupDialog=False
+		
+		if option=="Start":
 			self.core.spaceStack._initialStartUp()
 		elif option=="Custom":
 			self.core.mainStack.currentStack=2
@@ -534,6 +574,9 @@ class Bridge(QObject):
 	on_withHDDSpace=Signal()
 	withHDDSpace=Property(bool,_getWithHDDSpace,_setWithHDDSpace,notify=on_withHDDSpace)
 	
+	on_showBackupDialog=Signal()
+	showBackupDialog=Property(bool,_getShowBackupDialog,_setShowBackupDialog,notify=on_showBackupDialog)
+
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)
 
