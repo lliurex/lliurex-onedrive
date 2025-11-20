@@ -27,7 +27,10 @@ class OnedriveManager:
 		self.librariesConfigData=[]
 		self.userTokenPath="/home/%s/.onedriveAuth/"%(self.user)
 		self.configTemplatePath="/usr/share/lliurex-onedrive/llx-data/config"
+		self.configBackupTemplatePath="/usr/share/lliurex-onedrive/llx-data/config_backup"
+		self.syncListBackup="/usr/share/lliurex-onedrive/llx-data/sync_list_backup"
 		self.serviceTemplatePath="/usr/share/lliurex-onedrive/llx-data/template.service"
+		self.serviceBackupTemplatePath="/usr/share/lliurex-onedrive/llx-data/template_backup.service"
 		self.userSystemdPath="/home/%s/.config/systemd/user"%self.user
 		self.userSystemdAutoStartPath=os.path.join(self.userSystemdPath,"default.target.wants")
 		self.aCServicePath="/usr/share/lliurex-onedrive/llx-data/"
@@ -77,6 +80,7 @@ class OnedriveManager:
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		self.oneDriveDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDrive"
+		self.oneDriveBackupDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveBackup"
 		self.organizationDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOrganization"
 		self.sharePointDirectoryFile="/usr/share/lliurex-onedrive/llx-data/directorySharePoint"
 		self.limitHDDSpace=5368709120
@@ -91,6 +95,9 @@ class OnedriveManager:
 		self.forceMonitorIntervalUpdated=False
 		self.updateRequiredToken=".run/updateRequiredToken"
 		self.updatedToken=".run/updatedToken"
+		self.backupFolder="LLIUREX_ONEDRIVE_BACKUP"
+		self.menuActionPath="/home/%s/.local/share/kio/servicemenus"%(self.user)
+		self.menuActionDesktopTemplate="/usr/share/lliurex-onedrive/llx-data/send_onedrive_backup.desktop"
 
 	#def __init__
 
@@ -194,6 +201,7 @@ class OnedriveManager:
 		error=False
 		code=3
 		freeSpace=''
+		filesPendingUpload=0
 
 		spaceStatusToken=os.path.join(spaceConfPath,".run/statusToken")
 
@@ -201,15 +209,19 @@ class OnedriveManager:
 			with open(spaceStatusToken,'r') as fd:
 				lines=fd.readlines()
 
-			if len(lines)==4:
+			if len(lines)>=4:
 				error=lines[0].strip()
 				code=lines[1].strip()
 				freeSpace=lines[2].strip()
+				try:
+					filesPendingUpload=lines[4].strip()
+				except:
+					pass
 				'''
 				if freeSpace!="":
 					freeSpace=self._formatFreeSpace(freeSpace)
 				'''
-		return [error,code,freeSpace]
+		return [error,code,freeSpace,filesPendingUpload]
 
 	#def readSpaceStatusToken
 
@@ -220,6 +232,7 @@ class OnedriveManager:
 		self.spaceLocalFolder=""
 		self.spaceConfPath=""
 		self.spaceServiceFile=""
+		self.spaceMenuAction=""
 		self.spaceSuffixName=""
 		self.folderSuffixName=""
 		self.tempConfigPath=""	
@@ -255,6 +268,7 @@ class OnedriveManager:
 		self.localFolderRemoved=False
 		self.showFolderStruct=False
 		self.isUpdateRequired=False
+		self.filesPendingUpload=0
 	
 	#def initSpacesSettings
 
@@ -353,9 +367,9 @@ class OnedriveManager:
 
 		if self.checkIfEmailExists(spaceEmail):
 			existsMail=True
-			if spaceType=="onedrive":
+			if spaceType in ["onedrive","onedriveBackup"]:
 				for item in self.onedriveConfig["spacesList"]:
-					if item["email"]==spaceEmail and item["spaceType"]=="onedrive":
+					if item["email"]==spaceEmail and item["spaceType"] in ["onedrive","onedriveBackup"]:
 						duplicateSpace=True
 						break
 			elif spaceType=="sharepoint":
@@ -374,7 +388,9 @@ class OnedriveManager:
 
 		self._getSpaceSuffixName(spaceInfo)
 
-		if spaceInfo[1]=="onedrive":
+		if spaceInfo[1]=="onedriveBackup":
+			self.spaceLocalFolder="/home/%s/OneDriveBackup-%s"%(self.user,self.spaceSuffixName)
+		elif spaceInfo[1]=="onedrive":
 			self.spaceLocalFolder="/home/%s/OneDrive-%s"%(self.user,self.spaceSuffixName)
 		else:
 			self.spaceLocalFolder="/home/%s/%s/%s"%(self.user,self.spaceSuffixName,self.folderSuffixName)
@@ -412,7 +428,7 @@ class OnedriveManager:
 			- 4: spaceDriveId
 		'''
 		spaceAccountType=""
-		if spaceInfo[1]=="onedrive":
+		if spaceInfo[1] in ["onedrive","onedriveBackup"]:
 			spaceInfo[2]=""
 			spaceInfo[3]=""
 			spaceInfo[4]=""
@@ -445,7 +461,13 @@ class OnedriveManager:
 		self._createOneDriveACService()
 		self._createAuxVariables()
 		if self.isConfigured():
+			if spaceInfo[1]=="onedriveBackup":
+				self._createMenuAction()
+				self._createLocalFolder()
+				#ret=self._syncResync()
+
 			ret=self.getInitialDownload()
+				
 		else:
 			ret=False
 
@@ -473,6 +495,11 @@ class OnedriveManager:
 			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
 			if not os.path.exists(self.spaceConfPath):
 				createConfig=True
+		elif spaceType=="onedriveBackup":
+			tmpFolder="onedriveBackup_%s"%self.spaceSuffixName.lower()
+			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
+			if not os.path.exists(self.spaceConfPath):
+				createConfig=True
 		else:
 			tmpSuffixName=re.sub('[^0-9a-zA-Z]+', '_',self.folderSuffixName).lower()
 			tmpFolder="sharepoint_%s"%tmpSuffixName
@@ -493,7 +520,11 @@ class OnedriveManager:
 		
 		self._createUpdatedToken()
 		
-		shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		if spaceType in ["onedrive","sharepoint"]:
+			shutil.copy(self.configTemplatePath,self.spaceConfPath)
+		elif spaceType=="onedriveBackup":
+			shutil.copy(self.configBackupTemplatePath,os.path.join(self.spaceConfPath,"config"))
+			#shutil.copy(self.syncListBackup,os.path.join(self.spaceConfPath,"sync_list"))
 		
 		with open(os.path.join(self.spaceConfPath,"config"),'r') as fd:
 			lines=fd.readlines()
@@ -518,6 +549,10 @@ class OnedriveManager:
 			if len(customParam)>0:
 				self.updateConfigFile(customParam)
 			self.skipFileExtensions=[False,[]]
+		else:
+			if spaceType=="onedriveBackup":
+				self.fileNotificationsEnabled=True
+				self.currentConfig[5]=self.fileNotificationsEnabled
 
 	#def _createSpaceConfFolder
 
@@ -566,13 +601,18 @@ class OnedriveManager:
 							self.fileNotificationsEnabled=False
 					else:
 						self.logEnabled=False
-						self.fileNotificationsEnabled=False
+						
+						if customParam["notify_file_actions"]=="true":
+							self.fileNotificationsEnabled=True
+						else:
+							self.fileNotificationsEnabled=False
 
 					self.currentConfig[4]=self.logEnabled
 					self.currentConfig[5]=self.fileNotificationsEnabled
 					self.skipFileExtensions=customParam["skip_file"]
 					
-				except:
+				except Exception as e:
+					print("Error: %s"%str(e))
 					pass
 			
 	#def updateCustomParam
@@ -682,7 +722,10 @@ class OnedriveManager:
 								line=line
 						elif param=="notify_file_actions":
 							if 'notify_file_actions' in tmpLine[0]:
-								line=line
+								if customParam[param]=="false":
+									line=param+' = '+'"'+str(customParam[param])+'"\n'
+								else:
+									line=line
 								addedNotifyFileActionsParam=False
 						else:
 							if param==tmpLine[0].strip():
@@ -725,12 +768,17 @@ class OnedriveManager:
 
 		if spaceType=="onedrive":
 			self.spaceServiceFile="onedrive_%s.service"%self.spaceSuffixName.lower()
+			serviceTemplatePath=self.serviceTemplatePath
+		elif spaceType=="onedriveBackup":
+			self.spaceServiceFile="onedriveBackup_%s.service"%self.spaceSuffixName.lower()
+			serviceTemplatePath=self.serviceBackupTemplatePath
 		else:
 			tmpSuffixName=re.sub('[^0-9a-zA-Z]+', '_',self.folderSuffixName).lower()
 			self.spaceServiceFile="sharepoint_%s.service"%tmpSuffixName
-
+			serviceTemplatePath=self.serviceTemplatePath
+		
 		if not os.path.exists(os.path.join(self.userSystemdPath,self.spaceServiceFile)):
-			shutil.copyfile(self.serviceTemplatePath,os.path.join(self.userSystemdPath,self.spaceServiceFile))
+			shutil.copyfile(serviceTemplatePath,os.path.join(self.userSystemdPath,self.spaceServiceFile))
 			configFile=configparser.ConfigParser()
 			configFile.optionxform=str
 			configFile.read(os.path.join(self.userSystemdPath,self.spaceServiceFile))
@@ -770,11 +818,13 @@ class OnedriveManager:
 		tmp["localFolder"]=self.spaceLocalFolder
 		tmp["configPath"]=self.spaceConfPath
 		tmp["systemd"]=self.spaceServiceFile
+		tmp["menuAction"]=self.spaceMenuAction
 		if spaceInfo[4]!=None:
 			tmp["driveId"]=spaceInfo[4]
 		else:
 			tmp["driveId"]=""
-
+		tmp["created"]=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+		
 		self.spaceId=tmp["id"]
 		self.onedriveConfig["spacesList"].append(tmp)
 		self.onedriveConfig["spacesList"]=sorted(self.onedriveConfig["spacesList"],key=lambda d:(d["spaceType"],d["localFolder"]))
@@ -1011,6 +1061,11 @@ class OnedriveManager:
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
+				try:
+					self.spaceMenuAction=item["menuAction"]
+				except:
+					self.spaceMenuAction=""
+
 				self.logFolder="%s/log"%self.spaceConfPath
 				matchSpace=True
 				break
@@ -1024,8 +1079,11 @@ class OnedriveManager:
 				self.currentConfig[0]=False
 
 			if self.existsFilterFile():
-				self.syncAll=False
-				self.readFilterFile()
+				if self.spaceBasicInfo[2]!="onedriveBackup":
+					self.syncAll=False
+					self.readFilterFile()
+				else:
+					self.syncAll=True
 			else:
 				self.syncAll=True
 
@@ -1039,6 +1097,7 @@ class OnedriveManager:
 			statusInfo=self._readSpaceStatusToken(self.spaceConfPath)
 			self.accountStatus=int(statusInfo[1])
 			self.freeSpace=statusInfo[2]
+			self.filesPendingUpload=int(statusInfo[3])
 			self.localFolderEmpty,self.localFolderRemoved=self.checkLocalFolder(self.spaceConfPath)
 			logFile="%s.onedrive.log"%self.user
 			self.logPath=os.path.join(self.logFolder,logFile)
@@ -1190,6 +1249,11 @@ class OnedriveManager:
 			if self.spaceBasicInfo[2]=="onedrive":
 				if not os.path.exists(self.spaceLocalFolder):
 					os.mkdir(self.spaceLocalFolder)
+			elif self.spaceBasicInfo[2]=="onedriveBackup":
+				if not os.path.exists(self.spaceLocalFolder):
+					os.mkdir(self.spaceLocalFolder)
+				if not os.path.exists(os.path.join(self.spaceLocalFolder,self.backupFolder)):
+					os.mkdir(os.path.join(self.spaceLocalFolder,self.backupFolder))
 			else:
 				if self.spaceSuffixName!="":
 					organizationFolder="/home/%s/%s"%(self.user,self.spaceSuffixName)
@@ -1225,6 +1289,7 @@ class OnedriveManager:
 		WITH_OUT_CONFIG=1
 		INFORMATION_NOT_AVAILABLE=3
 		UPLOADING_PENDING_CHANGES=4
+		UPLOADING_PENDING_CHANGES_BACKUP=5
 
 		error=False
 		code=INFORMATION_NOT_AVAILABLE
@@ -1232,11 +1297,16 @@ class OnedriveManager:
 		freespace=""
 		pendingChanges="0 KB"
 		lastPendingChanges=[0,pendingChanges]
+		filesPendingUpload=0
 
 
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
-			cmd='/usr/bin/onedrive --display-sync-status --verbose --confdir="%s"'%self.spaceConfPath
+			if self.spaceBasicInfo[2]!="onedriveBackup":
+				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%self.spaceConfPath
+			else:
+				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
+
 			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 			try:
 				poutput,perror=p.communicate(timeout=90)
@@ -1270,13 +1340,13 @@ class OnedriveManager:
 							code=DATABASE_ERROR
 						elif 'Unauthorized' in item:
 							code=UNAUTHORIZED_ERROR
-						elif '416' in item:
+						elif '416' in item and 'included by' not in item:
 							code=UPLOADING_PENDING_CHANGES
 							break
 						elif 'Unable to query OneDrive' in item:
 							code=UNAUTHORIZED_ERROR
 							break
-						elif '503' in item:
+						elif '503' in item and 'included by' not in item:
 							code=SERVICE_UNAVAILABLE
 						elif 'Free Space' in item:
 							tmp_freespace=item.split(':')[1].strip()
@@ -1311,7 +1381,7 @@ class OnedriveManager:
 						elif 'Unauthorized' in item:
 							code=UNAUTHORIZED_ERROR
 							error=True
-						elif '416' in item:
+						elif '416' in item and 'included by' not in item:
 							code=UPLOADING_PENDING_CHANGES
 							error=True
 							break
@@ -1319,12 +1389,12 @@ class OnedriveManager:
 							code=UNAUTHORIZED_ERROR
 							error=True
 							break
-						elif '503' in item:
+						elif '503' in item and 'included by' not in item:
 							code=SERVICE_UNAVAILABLE
 							error=True
 						
 						if not error:
-							if 'Uploading' in item:
+							if 'Uploading' in item and '...done' not in item:
 								code=UPLOADING_PENDING_CHANGES
 								break;
 							if 'no pending' in item:
@@ -1361,8 +1431,18 @@ class OnedriveManager:
 		else:
 			paramValue=0
 
+		if spaceType=="onedriveBackup":
+			filesPendingUpload=self._getFilesPendigUpload()
+			if not error:
+				if filesPendingUpload>0:
+					code=UPLOADING_PENDING_CHANGES_BACKUP
+				else:
+					if code==OUT_OF_SYNC_MSG:
+						code=ALL_SYNCHRONIZE_MSG		
+		
 		self._updateSpaceConfigData('status',paramValue)
-		return [error,code,freespace]
+		
+		return [error,code,freespace,filesPendingUpload]
 
 	#def getAccountStatus
 	
@@ -1394,10 +1474,17 @@ class OnedriveManager:
 				if not self.isConfigured():
 					self._removeSystemdConfig()
 					self._removeEnvConfigFiles()
+					self._removeMenuAction()
 					self.organizationFolder=os.path.dirname(self.spaceLocalFolder)
 					if os.path.exists(os.path.join(self.spaceLocalFolder,".directory")):
 						os.remove(os.path.join(self.spaceLocalFolder,".directory"))
-					self.manageFoldersDirectory(False)
+					
+					if self.spaceBasicInfo[2]=="onedriveBackup":
+						tmpPath=os.path.join(self.spaceLocalFolder,self.backupFolder)
+						if os.path.exists(os.path.join(tmpPath,".directory")):
+							os.remove(os.path.join(tmpPath,".directory"))
+					else:
+						self.manageFoldersDirectory(False)
 					return True
 				else:
 					return False
@@ -1534,56 +1621,52 @@ class OnedriveManager:
 
 	def _processingResyncOut(self,out):
 
-		for i in range(len(out)-1,-1,-1):
-			if 'local directory' in out[i]:
-					pass
-			else:
-				if 'creating file' in out[i]:
-					pass
-				else:
-					out.pop(i)				
+		tmpOut=[]
+		for i in range(0,len(out)-1,1):
+			if out[i].startswith('Creating local directory'):
+				tmpItem=out[i].split(":")[1].strip().replace("./","")
+				if tmpItem not in tmpOut:
+					tmpOut.append(tmpItem)
+	
 
 		folderResyncStruct=[]
-		if len(out)>0:
-			for item in out:
-				if 'local directory' in item:
-					item=item.replace("./","")
-					countChildren=0
-					tmpList={}
-					tmpEntry=item.split(":")[1].strip()
-					tmpList["path"]=tmpEntry
-					parentPath=os.path.dirname(tmpEntry)
-					tmpEntry=tmpEntry.split("/")
-					tmpList["isChecked"]=True
-					tmpList["isExpanded"]=True
-					tmpList["hide"]=False
-					if len(tmpEntry)==1:
-						tmpList["name"]=tmpEntry[0]
-						tmpList["type"]="OneDrive"
-						tmpList["subtype"]="parent"
-						tmpList["level"]=3
-						tmpList["parentPath"]="OneDrive"
+		if len(tmpOut)>0:
+			for item in tmpOut:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item
+				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
-					else:
-						tmpList["name"]=tmpEntry[-1]
-						tmpList["type"]=tmpEntry[-2]
-						tmpList["subtype"]="parent"
-						tmpList["level"]=len(tmpEntry)*3
-						tmpList["parentPath"]=parentPath
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+					tmpList["parentPath"]=parentPath
 
-					for j in range(0,len(out),1):
-						tmpItem2=out[j]
-						if 'local directory' in tmpItem2:
-							tmpEntry2=out[j].split(":")[1].strip()
-							tmpPath=tmpList["path"]+"/"
-							if tmpPath in tmpEntry2:
-								countChildren+=1
+				for element in tmpOut:
+					tmpEntry2=element
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
 
-					if countChildren>0:
-						tmpList["canExpanded"]=True 
-					else:
-						tmpList["canExpanded"]=False
-					folderResyncStruct.append(tmpList)	
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+				
+				folderResyncStruct.append(tmpList)	
 
 		return folderResyncStruct
 
@@ -1591,71 +1674,54 @@ class OnedriveManager:
 
 	def _processingSyncOut(self,syncOut):		
 		
-		for i in range(len(syncOut)-1,-1,-1):
-			if 'Processing:' in syncOut[i]:
-				pass
-			else:
-				if 'The directory' in syncOut[i]:
-					pass
-				else:
-					if 'The file' in syncOut[i]:
-						pass
-					else:
-						syncOut.pop(i)				
-
-		for i in range(len(syncOut)-1,-1,-1):
-			try:
-				if 'local state' in syncOut[i]:
-					syncOut.pop(i)
-				if 'last modified time' in syncOut[i]:
-					syncOut.pop(i)	
-			except:
-				pass
+		tmpOut=[]
+		
+		for i in range(0,len(syncOut)-1,1):
+			if syncOut[i].startswith("Processing:"):
+				if syncOut[i+1].startswith('The directory'):
+					tmpItem=syncOut[i].split("Processing:")[1].strip().replace("./","")
+					if tmpItem not in tmpOut:
+						tmpOut.append(tmpItem)
 		
 		folderSyncStruct=[]
-		if len(syncOut)>0:
-			for i in range(0,len(syncOut)-1,2):
-				tmp={}
-				tmpItem=syncOut[i]+": "+syncOut[i+1]
-				if 'The directory' in tmpItem:
-					countChildren=0
-					tmpList={}
-					tmpEntry=syncOut[i].split("Processing:")[1].strip()
-					tmpEntry=tmpEntry.replace("./","")
-					tmpList["path"]=tmpEntry
-					parentPath=os.path.dirname(tmpEntry)
-					tmpEntry=tmpEntry.split("/")
-					tmpList["isChecked"]=True
-					tmpList["isExpanded"]=True
-					tmpList["hide"]=False
-					if len(tmpEntry)==1:
-						tmpList["name"]=tmpEntry[0]
-						tmpList["type"]="OneDrive"
-						tmpList["subtype"]="parent"
-						tmpList["level"]=3
-						tmpList["parentPath"]="OneDrive"
+		if len(tmpOut)>0:
+			
+			for item in tmpOut:
+				countChildren=0
+				tmpList={}
+				tmpEntry=item
+				tmpList["path"]=tmpEntry
+				parentPath=os.path.dirname(tmpEntry)
+				tmpEntry=tmpEntry.split("/")
+				tmpList["isChecked"]=True
+				tmpList["isExpanded"]=True
+				tmpList["hide"]=False
+				if len(tmpEntry)==1:
+					tmpList["name"]=tmpEntry[0]
+					tmpList["type"]="OneDrive"
+					tmpList["subtype"]="parent"
+					tmpList["level"]=3
+					tmpList["parentPath"]="OneDrive"
 
-					else:
-						tmpList["name"]=tmpEntry[-1]
-						tmpList["type"]=tmpEntry[-2]
-						tmpList["subtype"]="parent"
-						tmpList["level"]=len(tmpEntry)*3
-						tmpList["parentPath"]=parentPath
+				else:
+					tmpList["name"]=tmpEntry[-1]
+					tmpList["type"]=tmpEntry[-2]
+					tmpList["subtype"]="parent"
+					tmpList["level"]=len(tmpEntry)*3
+					tmpList["parentPath"]=parentPath
 					
-					for j in range(0,len(syncOut)-1,2):
-						tmpItem2=syncOut[j]+": "+syncOut[j+1]
-						if 'The directory' in tmpItem2:
-							tmpEntry2=syncOut[j].split("Processing:")[1].strip()
-							tmpPath=tmpList["path"]+"/"
-							if tmpPath in tmpEntry2:
-								countChildren+=1
+				for element in tmpOut:
+					tmpEntry2=element
+					tmpPath=tmpList["path"]+"/"
+					if tmpPath in tmpEntry2:
+						countChildren+=1
 
-					if countChildren>0:
-						tmpList["canExpanded"]=True 
-					else:
-						tmpList["canExpanded"]=False
-					
-					folderSyncStruct.append(tmpList)	
+				if countChildren>0:
+					tmpList["canExpanded"]=True 
+				else:
+					tmpList["canExpanded"]=False
+						
+				folderSyncStruct.append(tmpList)	
 				
 			try:
 				folderSyncStruct.pop(0)
@@ -1739,7 +1805,6 @@ class OnedriveManager:
 					tmpList["parentPath"]=parentPath
 
 				for j in range(0,len(tmpFolders),1):
-					tmpItem2=tmpFolders[j]
 					tmpEntry2=tmpFolders[j]
 					tmpPath=tmpList["path"]+"/"
 					if tmpPath in tmpEntry2:
@@ -2149,13 +2214,17 @@ class OnedriveManager:
 
 		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
+		else:
+			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
+			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" --disable-notifications --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
+		
+		p=subprocess.call(cmdDisplay,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
 		os.system(cmd)
-		cmd='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-		p=subprocess.call(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		p=subprocess.call(cmdSync,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 		return
 
@@ -2186,7 +2255,10 @@ class OnedriveManager:
 
 	def _syncResync(self):
 
-		cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s"'%self.spaceConfPath
+		else:
+			cmd='/usr/bin/onedrive --sync --resync --resync-auth --disable-notifications --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
@@ -2250,6 +2322,7 @@ class OnedriveManager:
 		clear=False
 		versionFile="/home/%s/.config/lliurex-onedrive.conf"%self.user
 		cachePath1="/home/%s/.cache/lliurex-onedrive"%self.user
+		cachePath2="/home/%s/.cache/sendToOneDriveBackup.py"%self.user
 		installedVersion=self.getPackageVersion()
 
 		if not os.path.exists(versionFile):
@@ -2273,6 +2346,8 @@ class OnedriveManager:
 		if clear:
 			if os.path.exists(cachePath1):
 				shutil.rmtree(cachePath1)
+			if os.path.exists(cachePath2):
+				shutil.rmtree(cachePath2)
 
 	#def clearCache
 
@@ -2433,6 +2508,10 @@ class OnedriveManager:
 		if os.path.exists(self.spaceLocalFolder):
 			if spaceType=="onedrive":
 				shutil.copyfile(self.oneDriveDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+			elif spaceType=="onedriveBackup":
+				shutil.copyfile(self.oneDriveBackupDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
+				tmpFolder=os.path.join(self.spaceLocalFolder,self.backupFolder)
+				shutil.copyfile(self.oneDriveFolderSyncDirectoryFile,os.path.join(tmpFolder,".directory"))
 			else:
 				shutil.copyfile(self.sharePointDirectoryFile,os.path.join(self.spaceLocalFolder,".directory"))
 				addOrganizationDirectory=True
@@ -2667,7 +2746,10 @@ class OnedriveManager:
 
 	def updateOneDrive(self):
 
-		cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s"'%self.spaceConfPath
+		if self.spaceBasicInfo[2]!="onedriveBackup":
+			cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s"'%self.spaceConfPath
+		else:
+			cmd='/usr/bin/onedrive --sync --disable-notifications --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		ret=p.communicate()
@@ -2690,10 +2772,72 @@ class OnedriveManager:
 
 		updatedToken=os.path.join(self.spaceConfPath,self.updatedToken)
 		
+		if not os.path.exists(os.path.join(self.spaceConfPath,".run")):
+			os.mkdir(os.path.join(self.spaceConfPath,".run"))
 		if not os.path.exists(updatedToken):
 			with open(updatedToken,'w') as fd:
 				pass
 
 	#def _createUpdatedToken
+
+	def _getFilesPendigUpload(self):
+
+		folderToCheck=os.path.join(self.spaceLocalFolder,self.backupFolder)
+		pendingFiles=0
+
+		try:
+			if os.path.exists(folderToCheck):
+				for base,_,files in os.walk(folderToCheck):
+					for item in files:
+						if item != ".directory":
+							pendingFiles+=1
+		except:
+			pass
+
+		return pendingFiles
+
+	#def _getFilesPendigUpload
+
+	def _createMenuAction(self):
+
+		menuActionFile="send_onedriveBackup_%s.desktop"%self.spaceSuffixName
+		
+		if not os.path.exists(os.path.join(self.menuActionPath,menuActionFile)):
+			if not os.path.exists(self.menuActionPath):
+				os.makedirs(self.menuActionPath)
+
+			try:
+				self.spaceMenuAction=menuActionFile
+				shutil.copy(self.menuActionDesktopTemplate,os.path.join(self.menuActionPath,menuActionFile))		
+				actionName="Backup_%s"%self.spaceSuffixName
+				with open(os.path.join(self.menuActionPath,menuActionFile),'r') as fd:
+					content=fd.readlines()
+
+				with open(os.path.join(self.menuActionPath,menuActionFile),'w') as fd:
+					for line in content:
+						if 'ACTION_NAME' in line:
+							line=line.replace("{{ACTION_NAME}}",actionName)
+						elif 'LOCAL_FOLDER' in line:
+							line=line.replace("{{LOCAL_FOLDER}}",os.path.join(self.spaceLocalFolder,self.backupFolder))
+						
+						fd.write(line)
+			
+				cmd="chmod +x %s"%(os.path.join(self.menuActionPath,menuActionFile))
+				os.system(cmd)
+			except Exception as e:
+				print(str(e))
+
+	#def _createMenuAction
+
+	def _removeMenuAction(self):
+
+		actionFile=os.path.join(self.menuActionPath,self.spaceMenuAction)
+		try:
+			if os.path.exists(actionFile):
+				os.remove(actionFile)
+		except:
+			pass
+
+	#def _removeMenuAction
 
 #class OnedriveManager
