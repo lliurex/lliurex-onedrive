@@ -50,6 +50,7 @@ GridLayout{
                     id:synchronizeItem
                     optionText:i18nd("lliurex-onedrive","Synchronize")
                     optionIcon:"/usr/share/icons/breeze/actions/22/view-refresh.svg"
+                    visible:spaceStackBridge.spaceBasicInfo[2]=="onedriveBackup"?false:true
                     Connections{
                         function onMenuOptionClicked(){
                             spaceStackBridge.moveToManageOption(1)
@@ -114,7 +115,7 @@ GridLayout{
                 property: "opacity"
                 from: 0
                 to:1
-                duration: 600
+                duration: 60
             }
         }
         replaceExit: Transition {
@@ -122,7 +123,7 @@ GridLayout{
                 property: "opacity"
                 from: 1
                 to:0
-                duration: 600
+                duration: 60
             }
         }
 

@@ -42,6 +42,34 @@ Rectangle{
             Layout.topMargin: messageToolLabel.visible?0:50
 
             Text{
+                id:updateText
+                text:i18nd("lliurex-onedrive","Run the consolidation process for the new client version:")
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCente
+                visible:spaceStackBridge.isUpdateRequired
+            }
+
+            Button {
+                id:updateBtn
+                display:AbstractButton.TextBesideIcon
+                icon.name:"dblatex.svg"
+                Layout.preferredHeight: 30
+                Layout.bottomMargin:20
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                hoverEnabled:true
+                enabled:!spaceStackBridge.isOnedriveRunning
+                visible:spaceStackBridge.isUpdateRequired
+                ToolTip.delay: 1000
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered
+                ToolTip.text:i18nd("lliurex-onedrive","Click to run the consolidation process for the new version of client")
+
+                onClicked:{
+                    updateProcessDialog.open();
+                }
+            }
+
+            Text{
                 id:testText
                 text:i18nd("lliurex-onedrive","Run a LliureX-OneDrive test:")
                 Layout.bottomMargin:20
@@ -56,7 +84,13 @@ Rectangle{
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 hoverEnabled:true
-                enabled:!spaceStackBridge.localFolderRemoved 
+                enabled:{
+                    if (spaceStackBridge.localFolderRemoved || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -82,7 +116,14 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
+                enabled:{
+                    if (spaceStackBridge.isOnedriveRunning || spaceStackBridge.localFolderEmpty || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
+
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -106,7 +147,13 @@ Rectangle{
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 Layout.bottomMargin:20
                 hoverEnabled:true
-                enabled:!spaceStackBridge.isOnedriveRunning && !spaceStackBridge.localFolderEmpty
+                enabled:{
+                    if (spaceStackBridge.isOnedriveRunning || spaceStackBridge.localFolderEmpty || spaceStackBridge.isUpdateRequired){
+                        return false
+                    }else{
+                        return true
+                    }
+                }
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
@@ -121,7 +168,6 @@ Rectangle{
                 text:i18nd("lliurex-onedrive","Identification of the folders included in the sync:")
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                visible:!spaceStackBridge.syncAll
             }
 
             Button {
@@ -132,12 +178,11 @@ Rectangle{
                 Layout.bottomMargin:20
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 hoverEnabled:true
-                enabled:true 
+                enabled:!spaceStackBridge.isUpdateRequired
                 ToolTip.delay: 1000
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered
                 ToolTip.text:i18nd("lliurex-onedrive","Click to manage the identifier to the folders included in the synchronization")
-                visible:!spaceStackBridge.syncAll
 
                 onClicked:{
                     onClicked:optionsMenu.open();
@@ -158,6 +203,7 @@ Rectangle{
                     MenuItem{
                         icon.name:"hint.svg"
                         text:i18nd("lliurex-onedrive","Hide the identification")
+                        visible:!syncStackBridge.syncAll
                         onClicked:{
                             toolStackBridge.manageFoldersDirectory(false)
                         }
@@ -173,6 +219,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
         dialogMsg:spaceStackBridge.localFolderRemoved?i18nd("lliurex-onedrive","Local space folder not exists.\nAre you sure you want to resynchronize the space?\nThis action can lead to deletion of files stored on OneDrive/SharePoint"):i18nd("lliurex-onedrive","Running this action may cause local files to be overwritten with older versions\ndownloaded from OneDrive/SharePoint.\nAre you sure you want to resynchronize the space?")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -198,6 +245,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
         dialogMsg:i18nd("lliurex-onedrive","This action will update the authorization to sync this space.\nAre you sure you want to continue?")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -215,7 +263,33 @@ Rectangle{
                 updateAuthDialog.close()
             }
         }
-    }        
+    }
+
+    ChangesDialog{
+        id:updateProcessDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+        dialogMsg:i18nd("lliurex-onedrive","Running this action may take a long time.\nAre you sure you want to launch the consolidation process?")
+        dialogWidth:560
+        dialogHeight:120
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Accept")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:updateProcessDialog
+            function onDiscardDialogClicked(){
+                updateProcessDialog.close()
+                toolStackBridge.updateOneDrive()  
+            }
+            function onRejectDialogClicked(){
+                updateProcessDialog.close()
+            }
+        }
+    }         
     CustomPopup{
         id:toolsPopup
     }
@@ -233,8 +307,14 @@ Rectangle{
             case 19:
                 var msg=i18nd("lliurex-onedrive","The authorization to sync the space has been updated")
                 break;
+            case 24:
+                var msg=i18nd("lliurex-onedrive","The consolidation process has ended successfully")
+                break;
             case -16:
                 var msg=i18nd("lliurex-onedrive","It is not possible to update the authorization to syn the space.\nWait a moment and try again")
+                break
+            case -17:
+                var msg=i18nd("lliurex-onedrive","The consolidation process has ended with errors")
                 break
         }
         return msg

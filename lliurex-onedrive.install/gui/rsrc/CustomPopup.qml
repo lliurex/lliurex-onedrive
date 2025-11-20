@@ -97,6 +97,9 @@ Popup {
             case 22:
                 var msg=i18nd("lliurex-onedrive","Removing folders indentification. Wait a moment...")
                 break
+            case 23:
+                var msg=i18nd("lliurex-onedrive","The consolidation process is running. Wait a moment...")
+                break
             default:
                 var msg=""
                 break;

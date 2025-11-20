@@ -40,8 +40,8 @@ ApplicationWindow {
         id: mainLayout
         anchors.fill: parent
         anchors.margins: margin
-        Layout.minimumWidth:800
-        Layout.minimumHeight:635
+        Layout.minimumWidth:820
+        Layout.minimumHeight:680
 
         RowLayout {
             id: bannerBox
@@ -91,7 +91,7 @@ ApplicationWindow {
                     property: "opacity"
                     from: 0
                     to:1
-                    duration: 600
+                    duration: 60
                 }
             }
             replaceExit: Transition {
@@ -99,7 +99,7 @@ ApplicationWindow {
                     property: "opacity"
                     from: 1
                     to:0
-                    duration: 600
+                    duration: 60
                 }
             }
 

@@ -11,7 +11,7 @@ import psutil
 import shutil
 
 MAX_CHECK_FOLDER_INTERVAL=5
-MAX_CHECK_STATUS_INTERVAL=90
+MAX_CHECK_STATUS_INTERVAL=150
 MAX_CHECK_FREE_SPACE=150
 FREE_SPACE_LIMIT=5368709120
 
@@ -26,31 +26,41 @@ class checkSpaceLocalFolder():
 
 	def checkFolder(self,spaceInfo):
 
-		spaceLocalFolder,spaceConfigPath,spaceService,self.userSystemdAutoStartPath=spaceInfo
+		spaceLocalFolder,spaceConfigPath,spaceService,spaceType,self.userSystemdAutoStartPath=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,".run/localFolderEmptyToken");
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 		emptyToken=os.path.join(spaceConfigPath,".run/emptyToken")
 		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
 		updatedToken=os.path.join(spaceConfigPath,".run/updatedToken")
 		onedriveVersionToken="/var/lib/lliurex-onedrive/version"
+		backupFolder="LLIUREX_ONEDRIVE_BACKUP"
 
 		isRunning=self._isOnedriveRunning(spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
-			content=os.listdir(spaceLocalFolder)
-			
-			if (len(content)>1) or (len(content)>0 and ".directory" not in content):
-				self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
-				if os.path.exists(emptyToken):
-					os.remove(emptyToken)
-			else:
-				if not os.path.exists(emptyToken):
-					if not os.path.exists(localFolderEmptyToken):
-						self._manageFolderToken(False,True,localFolderRemovedToken,localFolderEmptyToken)
-					
-					if isRunning:
-						self._stopClient(spaceConfigPath,spaceService)
-				else:
+			if spaceType!="onedriveBackup":
+				content=os.listdir(spaceLocalFolder)
+				if (len(content)>1) or (len(content)>0 and ".directory" not in content):
 					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
+					if os.path.exists(emptyToken):
+						os.remove(emptyToken)
+				else:
+					if not os.path.exists(emptyToken):
+						if not os.path.exists(localFolderEmptyToken):
+							self._manageFolderToken(False,True,localFolderRemovedToken,localFolderEmptyToken)
+						
+						if isRunning:
+							self._stopClient(spaceConfigPath,spaceService)
+					else:
+						self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
+			else:
+				folderToCheck=os.path.join(spaceLocalFolder,backupFolder)
+				if os.path.exists(folderToCheck):
+					self._manageFolderToken(False,False,localFolderRemovedToken,localFolderEmptyToken)
+					if os.path.exists(emptyToken):
+						os.remove(emptyToken)
+				else:
+					os.mkdir(folderToCheck)
+					self._checkBackupDirectory(spaceLocalFolder,backupFolder)
 		else:
 			if not os.path.exists(emptyToken):
 				if not os.path.exists(localFolderRemovedToken):
@@ -165,6 +175,24 @@ class checkSpaceLocalFolder():
 
 	#def _isOnedriveRunning
 
+	def _checkBackupDirectory(self,spaceFolder,backupFolder):
+
+		directoryFile="/usr/share/lliurex-onedrive/llx-data/directoryOneDriveSync"
+		tmpFolder=os.path.join(spaceFolder,backupFolder)
+		tmpDirectory=os.path.join(tmpFolder,".directory")
+
+		if not os.path.exists(tmpDirectory):
+			shutil.copyfile(directoryFile,tmpDirectory)
+
+		content=os.listdir(spaceFolder)
+		for item in content:
+			tmpPath=os.path.join(spaceFolder,item)
+			if os.path.isdir(tmpPath) and tmpPath!=tmpFolder:
+				if os.path.exists(os.path.join(tmpPath,".directory")):
+					os.remove(os.path.join(tmpPath,".directory"))
+					
+	#def _checkBackupDirectory
+
 #class checkSpaceLocalFolder
 
 class getSpaceStatusWorker():
@@ -177,7 +205,7 @@ class getSpaceStatusWorker():
 
 	def checkStatus(self,spaceInfo):
 
-		spaceConfigPath,spaceType=spaceInfo
+		spaceConfigPath,spaceType,spaceLocalFolder=spaceInfo
 		localFolderEmptyToken=os.path.join(spaceConfigPath,'.run/localFolderEmptyToken')
 		localFolderRemovedToken=os.path.join(spaceConfigPath,".run/localFolderRemovedToken");
 		updateRequiredToken=os.path.join(spaceConfigPath,".run/updateRequiredToken")
@@ -198,18 +226,24 @@ class getSpaceStatusWorker():
 		WITH_OUT_CONFIG=1
 		INFORMATION_NOT_AVAILABLE=3
 		UPLOADING_PENDING_CHANGES=4
+		UPLOADING_PENDING_CHANGES_BACKUP=5
 
 		error=False
 		code=INFORMATION_NOT_AVAILABLE
 		freespace=""
 		pendingChanges="0 KB"
 		lastPendingChanges="0 KB"
+		filesPendingUpload=0
 
 		if self._isOnedriveRunning(spaceConfigPath):
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
 				if os.path.join(spaceConfigPath,'refresh_token'):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
-					cmd='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s"'%spaceConfigPath
+					if spaceType!="onedriveBackup": 
+						cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%spaceConfigPath
+					else:
+						cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s" --single-directory "LLIUREX_ONEDRIVE_BACKUP"'%spaceConfigPath
+	
 					p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 					try:
 						poutput,perror=p.communicate(timeout=90)
@@ -243,40 +277,78 @@ class getSpaceStatusWorker():
 									code=DATABASE_ERROR
 								elif 'Unauthorized' in item:
 									code=UNAUTHORIZED_ERROR
-								elif '416' in item:
+								elif '416' in item and 'included by' not in item:
 									code=UPLOADING_PENDING_CHANGES
 									break
 								elif 'Unable to query OneDrive' in item:
 									code=UNAUTHORIZED_ERROR
 									error=True
 									break
-								elif '503' in item:
+								elif '503' in item and 'included by' not in item:
 									code=SERVICE_UNAVAILABLE
 								elif 'Free Space' in item:
 									tmp_freespace=item.split(':')[1].strip()
 									if not 'Not Available' in tmp_freespace:
-										freespace=tmp_freespace
+										tmp_freespace=tmp_freespace.split(" ")
+										freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 						if not error:
 							if len(poutput)>0:
 								poutput=poutput.split('\n')
 								for item in poutput:
-									if 'Uploading' in item:
-										code=UPLOADING_PENDING_CHANGES
-										break;
-									if 'No pending' in item or 'no pending' in item:
-										code=ALL_SYNCHRONIZE_MSG
-									elif 'out of sync' in item:
-										code=OUT_OF_SYNC_MSG
-									elif 'HTTP 403 - Forbidden' in item or 'Authentication scope needs' in item:
-										code=FORBIDDEN_USER
+									if 'OneDrive API returned an error' in item:
+										code=MICROSOFT_API_ERROR
+										error=True
+									elif 'Cannot connect to' in item:
+										code=UNABLE_CONNECT_MICROSOFT_ERROR
 										error=True
 										break
-									elif 'download from OneDrive:' in item or 'download from Microsoft OneDrive' in item:
-										pendingChanges=item.split(':')[1].strip()
-									elif 'Free Space' in item:
-										tmp_freespace=item.split(':')[1].strip()
-										if not 'Not Available' in tmp_freespace:
-											freespace=tmp_freespace
+									elif 'local file system' in item:
+										code=LOCAL_FILE_SYSTEM_ERROR
+										error=True
+									elif 'zero space available' in item:
+										code=ZERO_SPACE_AVAILABLE_ERROR
+										error=True
+										break
+									elif 'quota information' in item:
+										if spaceType!="sharepoint":
+											code=QUOTA_RESTRICTED_ERROR
+											error=True
+									elif 'database access error' in item or 'database cannot be opened' in item:
+										code=DATABASE_ERROR
+										error=True
+									elif 'Unauthorized' in item:
+										code=UNAUTHORIZED_ERROR
+										error=True
+									elif '416' in item and 'included by' not in item:
+										code=UPLOADING_PENDING_CHANGES
+										error=True
+										break
+									elif 'Unable to query OneDrive' in item:
+										code=UNAUTHORIZED_ERROR
+										error=True
+										break
+									elif '503' in item and 'included by' not in item:
+										code=SERVICE_UNAVAILABLE
+										error=True
+									if not error:
+										if 'Uploading' in item and '...done' not in item:
+											code=UPLOADING_PENDING_CHANGES
+											break;
+										if 'no pending' in item:
+											code=ALL_SYNCHRONIZE_MSG
+										elif 'out of sync' in item:
+											code=OUT_OF_SYNC_MSG
+										elif 'Authentication scope needs' in item:
+											code=FORBIDDEN_USER
+											error=True
+											break
+										elif 'download from Microsoft OneDrive:' in item:
+											pendingChanges=item.split(':')[1].strip()
+										elif 'Free Space' in item:
+											tmp_freespace=item.split(':')[1].strip()
+											if not 'Not Available' in tmp_freespace:
+												tmp_freespace=tmp_freespace.split(" ")
+												freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 					except:
 						p.kil()
 						error=True
@@ -284,11 +356,21 @@ class getSpaceStatusWorker():
 				else:
 					error=True
 					code=WITH_OUT_CONFIG
-
-				if code==OUT_OF_SYNC_MSG:
-					if pendingChanges==lastPendingChanges:
-						code=ALL_SYNCHRONIZE_MSG
-						
+		
+				if spaceType=="onedriveBackup":
+					filesPendingUpload=self._getFilesPendigUpload(spaceLocalFolder)
+					if not error:
+						if filesPendingUpload>0:
+							code=UPLOADING_PENDING_CHANGES_BACKUP
+						else:
+							#self._removeEmptyFolders(spaceLocalFolder)
+							if code==OUT_OF_SYNC_MSG:
+								code=ALL_SYNCHRONIZE_MSG
+				else:
+					if code==OUT_OF_SYNC_MSG:
+						if pendingChanges==lastPendingChanges:
+							code=ALL_SYNCHRONIZE_MSG
+				
 				try:
 					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
 						tmpLine=str(error)+("\n")
@@ -297,9 +379,11 @@ class getSpaceStatusWorker():
 						fd.write(tmpLine)
 						tmpLine=str(freespace)+("\n")
 						fd.write(tmpLine)
-						tmpLine=str(pendingChanges)
+						tmpLine=str(pendingChanges)+("\n")
 						fd.write(tmpLine)
-				except Exception as e:
+						tmpLine=str(filesPendingUpload)
+						fd.write(tmpLine)
+				except:
 					pass
 		else:
 			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
@@ -334,6 +418,40 @@ class getSpaceStatusWorker():
 
 	#def _getLastPendingChanges
 
+	def _getFilesPendigUpload(self,spaceLocalFolder):
+
+		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_ONEDRIVE_BACKUP")
+		pendingFiles=0
+
+		try:
+			if os.path.exists(folderToCheck):
+				for base,_,files in os.walk(folderToCheck):
+					for item in files:
+						if item != ".directory":
+							pendingFiles+=1
+		except:
+			pass
+
+		return pendingFiles
+
+	#def _getFilesPendigUpload
+
+	def _removeEmptyFolders(self,spaceLocalFolder):
+
+		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_ONEDRIVE_BACKUP")
+
+		if os.path.exists(folderToCheck):
+			for base,dirs,files in os.walk(folderToCheck,topdown=False):
+				for directory in dirs:
+					dirPath=os.path.join(base,directory)
+					if not os.listdir(dirPath):
+						try:
+							os.rmdir(dirPath)
+						except:
+							pass
+
+	#def _removeEmptyFolders
+
 #class getSpaceStatusWorker
 
 class LliurexOneDriveAC:
@@ -353,7 +471,7 @@ class LliurexOneDriveAC:
 		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
-		
+		self.envConfFiles=[".config.backup",".config.hash"]
 		self.fixSpacesConfigFile()
 		self.initWorker()
 
@@ -362,7 +480,7 @@ class LliurexOneDriveAC:
 	def fixSpacesConfigFile(self):
 
 		oneDriveSpaces=self.readOneDriveConfig()
-		paramsToCheck=["space_reservation"]
+		paramsToCheck=["space_reservation","force_http_11","ip_protocol_version","skip_file"]
 
 		for space in oneDriveSpaces:
 			tmpConfigPath=space["configPath"]
@@ -378,10 +496,13 @@ class LliurexOneDriveAC:
 					for line in lines:
 						for param in paramsToCheck:
 							if param in line:
-								if param=="space_reservation":
+								if 'skip_file' in line:
+									if '*.partial' not in line or '*.swp' not in line:
+										changeParam=True
+								else:
 									if line.startswith("#"):
 										changeParam=True
-								break
+										break
 
 					if changeParam:
 						backupConfigFile=os.path.join(tmpConfigPath,"config_back")
@@ -391,18 +512,33 @@ class LliurexOneDriveAC:
 							for line in lines:
 								for param in paramsToCheck:
 									if param in line:
-										if param=="space_reservation":
-											if line.startswith("#"):
+										if line.startswith("#"):
+											if param=="space_reservation":
 												newLine='%s = "5120"\n'%param
-												line=newLine
-										break
+											elif param=="force_http_11":
+												newLine='%s = "true"\n'%param
+											elif param=="ip_protocol_version":
+												newLine='%s = "1"\n'%param
+											line=newLine
+										else:
+											if 'skip_file' in line:
+												newLine=line.split("=")[1]
+												newLine=newLine.strip().replace('"',"")
+												if "*.partial" not in line:
+													newLine='%s|*.partial'%newLine
+												if "*.swp" not in line:
+													newLine='%s|*.swp'%newLine
+												
+												line='%s = "%s"\n'%(param,newLine)
 								fd.write(line)
 
 						fd.close()
 
 						if os.path.exists(backupConfigFile):
 						 	os.remove(backupConfigFile)
-				
+
+						self._cleanEnvFiles(tmpConfigPath)
+					
 				except Exception as e:
 					if os.path.exists(backupConfigFile):
 						shutil.copyfile(backupConfigFile,tmpConfigFile)
@@ -410,6 +546,15 @@ class LliurexOneDriveAC:
 					pass
 
 	#def fixSpacesConfigFile
+
+	def _cleanEnvFiles(self,configPath):
+
+		for item in self.envConfFiles:
+			tmpFile=os.path.join(configPath,item)
+			if os.path.exists(tmpFile):
+				os.remove(tmpFile)
+
+	#def _cleanEnvFiles
 
 	def initWorker(self):
 
@@ -443,7 +588,7 @@ class LliurexOneDriveAC:
 						futures=[]
 						for space in oneDriveSpaces:
 							tmp=[]
-							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],self.userSystemdAutoStartPath] 
+							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],space["spaceType"],self.userSystemdAutoStartPath] 
 							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
 
 						for future in concurrent.futures.as_completed(futures):
@@ -472,7 +617,7 @@ class LliurexOneDriveAC:
 						futures=[]
 						for space in oneDriveSpaces:
 							tmp=[]
-							tmpInfo=[space['configPath'],space['spaceType']]
+							tmpInfo=[space['configPath'],space['spaceType'],space["localFolder"]]
 							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
 						
 						for future in concurrent.futures.as_completed(futures):

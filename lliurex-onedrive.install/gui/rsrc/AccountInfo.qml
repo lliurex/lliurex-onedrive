@@ -69,7 +69,20 @@ Rectangle{
 
            Text{
                 id:spaceTypeValue
-                text:spaceStackBridge.spaceBasicInfo[2]=="onedrive"?  "OneDrive":"SharePoint"
+                text:{
+                    switch(spaceStackBridge.spaceBasicInfo[2]){
+                        case "onedrive":
+                            var msg=i18nd("lliurex-onedrive","OneDrive")
+                            break;
+                        case "onedriveBackup":
+                            var msg=i18nd("lliurex-onedrive","OneDrive-Backup")
+                            break;
+                        case "sharepoint":
+                            var msg="SharePoint"
+                            break
+                    }
+                    return msg
+                }
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 Layout.alignment:Qt.AlignLeft
@@ -209,7 +222,21 @@ Rectangle{
                     ToolTip.visible: hovered
                     ToolTip.text:spaceStackBridge.isOnedriveRunning?i18nd("lliurex-onedrive","Click to stop syncing with space"):i18nd("lliurex-onedrive","Click to start syncing with space")
                     hoverEnabled:true
-                    enabled:!spaceStackBridge.localFolderRemoved
+                    enabled:{
+                        if (spaceStackBridge.localFolderRemoved){
+                            return false
+                        }else{
+                            if (spaceStackBridge.isOnedriveRunning){
+                                return true
+                            }else{
+                                if (spaceStackBridge.isUpdateRequired){
+                                    return false
+                                }else{
+                                    return true
+                                }
+                            }
+                        }
+                    }
                     onClicked:{
                         if (!spaceStackBridge.localFolderEmpty){
                             changeSyncStatus()
@@ -259,7 +286,13 @@ Rectangle{
                     Layout.bottomMargin:10
                     anchors.verticalCenter:parent.verticalCenter
                     hoverEnabled:true
-                    enabled:!spaceStackBridge.localFolderRemoved
+                    enabled:{
+                        if (spaceStackBridge.localFolderRemoved || spaceStackBridge.isUpdateRequired){
+                            return false
+                        }else{
+                            return true
+                        }
+                    }
                     ToolTip.delay: 1000
                     ToolTip.timeout: 3000
                     ToolTip.visible: hovered
@@ -305,6 +338,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to unlink this computer from this space?.\nThe files will stop syncing, but the contents of the space\nwill not be erased")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -329,6 +363,7 @@ Rectangle{
         dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
         dialogMsg:i18nd("lliurex-onedrive","The local folder of space is empty.\nAre you sure you want to start the synchronization?\nThis action can lead to deletion of files stored on OneDrive/SharePoint")
         dialogWidth:560
+        dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
@@ -344,6 +379,33 @@ Rectangle{
             }
             function onRejectDialogClicked(){
                 startEmptyDialog.close()
+            }
+        }        
+
+    }
+    ChangesDialog{
+        id:updateRequiredDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogMsg:i18nd("lliurex-onedrive","The OneDrive client has been updated.\nThe new version requires a data consolidation process to be run, which can take a long time.\nIf the synchronization is running, it will be necessary to stop it in order to launch the consolidation process and be able to start the synchronization again.")
+        dialogVisible:spaceStackBridge.showUpdateRequiredDialog
+        dialogWidth:700
+        dialogHeight:140
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardText:i18nd("lliurex-onedrive","Launch consolidation")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+
+        Connections{
+            target:updateRequiredDialog
+            function onDiscardDialogClicked(){
+                spaceStackBridge.moveToManageOption(3)
+                spaceStackBridge.updateRequiredDialogResponse()
+            }
+            function onRejectDialogClicked(){
+                spaceStackBridge.updateRequiredDialogResponse()
             }
         }        
 
@@ -367,6 +429,9 @@ Rectangle{
                 break;
             case 3:
                 var msg=i18nd("lliurex-onedrive","Information not available");
+                break;
+            case 5:
+                var msg=spaceStackBridge.filesPendingUpload+ " "+i18nd("lliurex-onedrive","files pending to upload")
                 break;
             case 20:
                 var msg=i18nd("lliurex-onedrive","Configuration migration completed successfully");
