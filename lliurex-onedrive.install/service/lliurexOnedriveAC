@@ -362,8 +362,9 @@ class getSpaceStatusWorker():
 					if not error:
 						if filesPendingUpload>0:
 							code=UPLOADING_PENDING_CHANGES_BACKUP
-						else:
-							self._removeEmptyFolders(spaceLocalFolder)
+
+							#self._removeEmptyFolders(spaceLocalFolder)
+
 							if code==OUT_OF_SYNC_MSG:
 								code=ALL_SYNCHRONIZE_MSG
 				else:
