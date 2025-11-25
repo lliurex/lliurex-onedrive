@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-25 16:33+0100\n"
-"PO-Revision-Date: 2025-11-25 16:34+0100\n"
+"POT-Creation-Date: 2025-11-25 16:45+0100\n"
+"PO-Revision-Date: 2025-11-25 16:45+0100\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -65,7 +65,7 @@ msgstr "D'acord"
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:289
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:186
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:223
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:250
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:249
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:345
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:369
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:395
@@ -153,7 +153,7 @@ msgstr "Biblioteca a sincronitzar:"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:170
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:168
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:247
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:246
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:270
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:306
 msgid "Apply"
@@ -297,7 +297,6 @@ msgid "Continue"
 msgstr "Continua"
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:15
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:241
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:51
 msgid "Synchronize"
 msgstr "Sincronització"
@@ -347,7 +346,7 @@ msgstr "Sí, suprimeix les carpetes no seleccionades"
 msgid "No, keep folders unselected"
 msgstr "No, conserva les carpetes no seleccionades"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:243
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:242
 msgid ""
 "There are pending changes related to synchronization.\n"
 "Do you want apply the changes or discard them?"
@@ -355,20 +354,20 @@ msgstr ""
 "Les preferències de l'espai han canviat.\n"
 "Voleu aplicar els canvis o descartar-los?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:248
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:247
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:307
 msgid "Discard"
 msgstr "Descarta"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:287
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:286
 msgid "Functionality available only if sync is stopped"
 msgstr "Funcionalitat disponible només si la sincronització està parada"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:291
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:290
 msgid "Changes applied correctly"
 msgstr "Els canvis s'han aplicat correctament"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:295
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:294
 msgid ""
 "An error occurred while applying the changes. Press Cancel and resync the "
 "space"
@@ -376,7 +375,7 @@ msgstr ""
 "No s'han pogut aplicar els canvis. Feu clic a Cancel·la i resincronitze "
 "l'espai"
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:299
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:298
 msgid "An error occurred while getting the space folder structure"
 msgstr "S'ha produït un error en obtindre l'estructura de carpetes de l'espai"
 
