@@ -1,12 +1,11 @@
 import QtQuick      
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Dialogs
+import org.kde.plasma.components as PC
 
-Dialog {
+Popup {
     id: customDialog
     property alias dialogIcon:dialogIcon.source
-    property alias dialogTitle:customDialog.title
     property alias dialogVisible:customDialog.visible
     property alias dialogMsg:dialogText.text
     property alias dialogWidth:container.implicitWidth
@@ -22,8 +21,9 @@ Dialog {
     signal rejectDialogClicked
 
     visible:dialogVisible
-    title:dialogTitle
     modal:true
+    focus:true
+    closePolicy:Popup.NoAutoClose
     anchors.centerIn:Overlay.overlay
     background:Rectangle{
         color:"#ebeced"
@@ -34,16 +34,13 @@ Dialog {
     
     contentItem: Rectangle {
         id:container
-        color: "#ebeced"
-        implicitWidth: dialogWidth
-        implicitHeight: dialogHeight
-        anchors.topMargin:5
-        anchors.leftMargin:5
-
+        color: "transparent"
+        width: dialogWidth
+        height: dialogHeight
+        anchors.topMargin:10
         Image{
             id:dialogIcon
             source:dialogIcon
-
         }
         
         Text {
@@ -55,18 +52,20 @@ Dialog {
             anchors.verticalCenter:dialogIcon.verticalCenter
             anchors.leftMargin:10
             width:600
-            height:60
             wrapMode:Text.WordWrap
         
         }
       
-        DialogButtonBox {
-            buttonLayout:DialogButtonBox.KdeLayout
+        RowLayout {
+            id:bntBox
             anchors.bottom:parent.bottom
             anchors.right:parent.right
-            anchors.topMargin:15
+            anchors.topMargin:5
+            anchors.bottomMargin:5
+            anchors.rightMargin:10
+            spacing:10
 
-            Button {
+            PC.Button {
                 id:dialogApplyBtn
                 display:AbstractButton.TextBesideIcon
                 icon.name:"dialog-ok.svg"
@@ -75,10 +74,9 @@ Dialog {
                 visible:btnAcceptVisible
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                Keys.onReturnPressed: dialogApplyBtn.clicked()
-                Keys.onEnterPressed: dialogApplyBtn.clicked()
-
+                onClicked:{
+                    dialogApplyClicked()
+                }
             }
 
             Button {
@@ -89,14 +87,14 @@ Dialog {
                 focus:true
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-                Keys.onReturnPressed: dialogDiscardBtn.clicked()
-                Keys.onEnterPressed: dialogDiscardBtn.clicked()
+                onClicked:{
+                    discardDialogClicked()
+                }
 
 
             }
 
-            Button {
+            PC.Button {
                 id:dialogCancelBtn
                 display:AbstractButton.TextBesideIcon
                 icon.name:btnCancelIcon
@@ -104,22 +102,10 @@ Dialog {
                 focus:true
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
-                DialogButtonBox.buttonRole:DialogButtonBox.RejectRole
-                Keys.onReturnPressed: dialogCancelBtn.clicked()
-                Keys.onEnterPressed: dialogCancelBtn.clicked()
+                onClicked:{
+                    rejectDialogClicked()
+                }
         
-            }
-
-            onApplied:{
-                dialogApplyClicked()
-            }
-
-            onDiscarded:{
-                discardDialogClicked()
-            }
-
-            onRejected:{
-                rejectDialogClicked()
             }
         }
     }

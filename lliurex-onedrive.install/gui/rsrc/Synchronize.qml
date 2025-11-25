@@ -199,7 +199,6 @@ Rectangle{
     ChangesDialog{
         id:syncDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
         dialogVisible:syncStackBridge.showSynchronizeDialog
         dialogMsg:{
             if (!syncAll.checked){

@@ -218,9 +218,8 @@ Rectangle{
     ChangesDialog{
         id:previousFolderDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:addSpaceStackBridge.showPreviousFolderDialog
-        dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder\nwill be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
+        dialogMsg:i18nd("lliurex-onedrive","The local folder (with content) to be used for synchronization has been detected.\nIf you link this computer with this OneDrive/SharePoint space, the existing content in that folder will be added to OneDrive/SharePoint.\nDo you want to continue with the pairing process?")
         dialogWidth:700
         dialogHeight:120
         btnAcceptVisible:false
@@ -246,7 +245,6 @@ Rectangle{
     ChangesDialog{
         id:downloadDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:addSpaceStackBridge.showDownloadDialog
         dialogMsg:i18nd("lliurex-onedrive","Its content in OneDrive/SharePoint is approximately ")+addSpaceStackBridge.initialDownload+i18nd("lliurex-onedrive","\nThe space available on the computer is ")+addSpaceStackBridge.hddFreeSpace+getLastMessage()
         dialogWidth:710
@@ -280,7 +278,6 @@ Rectangle{
     ChangesDialog{
         id:backupDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:addSpaceStackBridge.showBackupDialog
         dialogMsg:i18nd("lliurex-onedrive","You're going to set up a space that will only send files and folders from your computer to the LLIUREX_ONEDRIVE_BACKUP folder in your OneDrive account. Remember:\n- Don't delete o rename the LLIUREX_ONEDRIVE_BACKUP folder\n- Files and folders copied to the local folder LLIUREX_ONEDRIVE_BACKUP on your computer will be deleted from it once they are sent to the corresponding OneDrive account")
         dialogWidth:700
