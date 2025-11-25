@@ -79,7 +79,6 @@ Rectangle{
     ChangesDialog{
         id:informationDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
         dialogVisible:false
         dialogMsg:i18nd("lliurex-onedrive","The content that is synchronized will reduce available space on the computer.\nDo you want to continue with the pairing process?")
         dialogWidth:550

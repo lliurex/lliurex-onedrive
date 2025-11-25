@@ -298,7 +298,6 @@ Rectangle{
     ChangesDialog{
         id:settingsChangesDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogVisible:settingsStackBridge.showSettingsDialog
         dialogMsg:i18nd("lliurex-onedrive","The settings of space have changed.\nDo you want apply the changes or discard them?")
         dialogWidth:400
@@ -328,7 +327,6 @@ Rectangle{
     ChangesDialog{
         id:removeLogDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-question.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Settings")
         dialogMsg:i18nd("lliurex-onedrive","Are you sure you want to delete log file?")
         dialogWidth:400
         dialogHeight:120
