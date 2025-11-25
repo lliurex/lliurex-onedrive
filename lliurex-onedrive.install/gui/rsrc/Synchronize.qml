@@ -238,7 +238,6 @@ Rectangle{
     ChangesDialog{
         id:pendingDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
-        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Synchronize")
         dialogVisible:syncStackBridge.showSynchronizePendingDialog
         dialogMsg:i18nd("lliurex-onedrive","There are pending changes related to synchronization.\nDo you want apply the changes or discard them?")
         dialogWidth:450

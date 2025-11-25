@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-25 16:33+0100\n"
+"POT-Creation-Date: 2025-11-25 16:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,7 +61,7 @@ msgstr ""
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:289
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:186
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:223
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:250
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:249
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:345
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:369
 #: ../lliurex-onedrive.install/gui/rsrc/AccountInfo.qml:395
@@ -145,7 +145,7 @@ msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceForm.qml:170
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:168
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:247
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:246
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:270
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:306
 msgid "Apply"
@@ -257,7 +257,6 @@ msgid "Continue"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:15
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:241
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:51
 msgid "Synchronize"
 msgstr ""
@@ -300,32 +299,32 @@ msgstr ""
 msgid "No, keep folders unselected"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:243
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:242
 msgid ""
 "There are pending changes related to synchronization.\n"
 "Do you want apply the changes or discard them?"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:248
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:247
 #: ../lliurex-onedrive.install/gui/rsrc/Settings.qml:307
 msgid "Discard"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:287
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:286
 msgid "Functionality available only if sync is stopped"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:291
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:290
 msgid "Changes applied correctly"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:295
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:294
 msgid ""
 "An error occurred while applying the changes. Press Cancel and resync the "
 "space"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:299
+#: ../lliurex-onedrive.install/gui/rsrc/Synchronize.qml:298
 msgid "An error occurred while getting the space folder structure"
 msgstr ""
 
