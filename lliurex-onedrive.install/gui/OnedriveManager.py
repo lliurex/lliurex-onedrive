@@ -2404,8 +2404,10 @@ class OnedriveManager:
 				
 			else:
 				return False
-		
-		return ret
+		else:
+			return False
+			
+		return True
 
 	#def migrateSpace
 
