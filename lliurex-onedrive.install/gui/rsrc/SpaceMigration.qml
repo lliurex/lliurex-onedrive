@@ -50,7 +50,7 @@ Rectangle{
             Keys.onReturnPressed: applyBtn.clicked()
             Keys.onEnterPressed: applyBtn.clicked()
             onClicked:{
-                spaceStackBridge.moveToSpaceOption(1)
+                mainStackBridge.moveToSpaceOption(1)
             }
        }
     } 
