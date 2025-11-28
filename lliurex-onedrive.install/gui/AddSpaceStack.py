@@ -400,7 +400,7 @@ class Bridge(QObject):
 	def migrateSpace(self):
 
 		self.core.mainStack.closePopUp=[False,Bridge.SPACE_MIGRATION_MESSAGE]
-		self.coee.mainStack.closeGui=False
+		self.core.mainStack.closeGui=False
 		self.migrateSpaceT=MigrateSpace(self.spaceInfo)
 		self.migrateSpaceT.start()
 		self.migrateSpaceT.finished.connect(self._migrateSpace)
