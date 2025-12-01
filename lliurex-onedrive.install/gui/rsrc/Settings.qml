@@ -304,6 +304,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
         btnDiscardIcon:"delete.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
@@ -332,6 +333,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")

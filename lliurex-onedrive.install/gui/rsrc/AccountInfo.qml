@@ -340,6 +340,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
@@ -364,6 +365,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
@@ -390,6 +392,7 @@ Rectangle{
         dialogHeight:140
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Launch consolidation")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
