@@ -382,19 +382,17 @@ class Bridge(QObject):
 			self.formData[1]=2
 
 		if not self.core.mainStack.requiredMigration:
-			self.checkDuplicate=Bridge.onedriveManager.checkDuplicate(spaceInfo)
+		self.checkDuplicate=Bridge.onedriveManager.checkDuplicate(spaceInfo)
 			
-			if not self.checkDuplicate[0]:
-				ret=Bridge.onedriveManager.checkPreviousLocalFolder(spaceInfo)
-				if ret:
-					self.showPreviousFolderDialog=True
-				else:
-					self.createSpace()
+		if not self.checkDuplicate[0]:
+			ret=Bridge.onedriveManager.checkPreviousLocalFolder(spaceInfo)
+			if ret:
+				self.showPreviousFolderDialog=True
 			else:
-				self.showSpaceFormMessage=[True,Bridge.SPACE_DUPLICATE_ERROR,"Error"]
+				self.createSpace()
 		else:
-			self.migrateSpace()
-
+			self.showSpaceFormMessage=[True,Bridge.SPACE_DUPLICATE_ERROR,"Error"]
+		
 	#def checkData
 
 	def migrateSpace(self):
