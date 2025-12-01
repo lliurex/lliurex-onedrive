@@ -381,7 +381,6 @@ class Bridge(QObject):
 		else:
 			self.formData[1]=2
 
-		if not self.core.mainStack.requiredMigration:
 		self.checkDuplicate=Bridge.onedriveManager.checkDuplicate(spaceInfo)
 			
 		if not self.checkDuplicate[0]:
