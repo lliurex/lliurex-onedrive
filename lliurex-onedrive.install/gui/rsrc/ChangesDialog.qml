@@ -14,6 +14,7 @@ Dialog {
     property alias dialogHeight:container.implicitHeight
     property alias btnAcceptVisible:dialogApplyBtn.visible
     property alias btnAcceptText:dialogApplyBtn.text
+    property alias btnDiscardVisible:dialogDiscardBtn.visible
     property alias btnDiscardText:dialogDiscardBtn.text
     property alias btnDiscardIcon:dialogDiscardBtn.icon.name
     property alias btnCancelText:dialogCancelBtn.text
@@ -81,6 +82,7 @@ Dialog {
                 icon.name:btnDiscardIcon
                 text: btnDiscardText
                 focus:true
+                visible:btnDiscardVisible
                 font.family: "Quattrocento Sans Bold"
                 font.pointSize: 10
                 DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole

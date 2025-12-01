@@ -58,6 +58,7 @@ Rectangle{
         Button {
             id:applyBtn
             visible:true
+            enabled:mainStackBridge.showIncompatibilityWarning?false:true
             focus:true
             display:AbstractButton.TextBesideIcon
             icon.name:"list-add.svg"
@@ -86,6 +87,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
@@ -99,6 +101,31 @@ Rectangle{
             }
             function onRejectDialogClicked(){
                 informationDialog.close()
+                                
+            }
+        }
+    } 
+
+    ChangesDialog{
+        id:incompatibilityDialog
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Incompatible use")
+        dialogVisible:mainStackBridge.showIncompatibilityWarning
+        dialogMsg:i18nd("lliurex-onedrive","A onedrive client configuration has been detected that is incompatible with LliureX-OneDrive.\nSee the help for more information")
+        dialogWidth:700
+        dialogHeight:120
+        btnAcceptVisible:false
+        btnAcceptText:""
+        btnDiscardVisible:false
+        btnDiscardText:""
+        btnCancelText:i18nd("lliurex-onedrive","Close")
+        btnCancelIcon:"dialog-close.svg"
+
+        Connections{
+            target:incompatibilityDialog
+
+            function onRejectDialogClicked(){
+                incompatibilityDialog.close()
                                 
             }
         }
