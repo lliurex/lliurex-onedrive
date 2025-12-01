@@ -211,6 +211,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:!syncAll.checked
         btnAcceptText:i18nd("lliurex-onedrive","Yes, delete unselected folders")
+        btnDiscardVisible:true
         btnDiscardText:{
             if (!syncAll.checked){
                 i18nd("lliurex-onedrive","No, keep folders unselected")
@@ -244,6 +245,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Apply")
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Discard")
         btnDiscardIcon:"delete.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")

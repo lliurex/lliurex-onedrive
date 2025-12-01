@@ -45,6 +45,7 @@ class Bridge(QObject):
 		self._closePopUp=[True,""]
 		self._showSpaceSettingsMessage=[False,"","Information"]
 		self._requiredMigration=False
+		self._showIncompatibilityWarning=False
 		self.checkGlobalLocalFolderTimer=QTimer(None)
 		self.checkGlobalLocalFolderTimer.timeout.connect(self.getGlobalLocalFolderInfo)
 		self.checkGlobalStatusTimer=QTimer(None)
@@ -69,22 +70,20 @@ class Bridge(QObject):
 	
 	def _loadConfig(self):
 
-		if not os.path.exists(Bridge.onedriveManager.oldConfigPath):
-			self.checkGlobalLocalFolderTimer.start(1000)
-			self.checkGlobalStatusTimer.start(30000)
-			if len(Bridge.onedriveManager.onedriveConfig['spacesList'])>0:
-				if Bridge.onedriveManager.globalOneDriveFolderWarning or Bridge.onedriveManager.globalOneDriveStatusWarning:
-					self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
+		self.checkGlobalLocalFolderTimer.start(1000)
+		self.checkGlobalStatusTimer.start(30000)
+		if len(Bridge.onedriveManager.onedriveConfig['spacesList'])>0:
+			if Bridge.onedriveManager.globalOneDriveFolderWarning or Bridge.onedriveManager.globalOneDriveStatusWarning:
+				self.showSpaceSettingsMessage=[True,Bridge.SPACE_GLOBAL_WARNING,"Warning"]
 				
-				self._updateSpacesModel()
-			if self.spaceToManage!="":
-				self.core.spaceStack.loadSpace(self.spaceToManage)
-			else:	
-				self.currentStack=1
-		else:
-			self.requiredMigration=True
+			self._updateSpacesModel()
+		if self.spaceToManage!="":
+			self.core.spaceStack.loadSpace(self.spaceToManage)
+		else:	
 			self.currentStack=1
-			self.spacesCurrentOption=3
+		
+		if os.path.exists(Bridge.onedriveManager.oldConfigPath):
+			self.showIncompatibilityWarning=True
 
 	#def _loadConfig
 
@@ -175,6 +174,20 @@ class Bridge(QObject):
 		if self._requiredMigration!=requiredMigration:
 			self._requiredMigration=requiredMigration
 			self.on_requiredMigration.emit()
+
+	#def _setRequiredMigration
+
+	def _getShowIncompatibilityWarning(self):
+
+		return self._showIncompatibilityWarning
+
+	#def _getShowIncompatibilityWarning
+
+	def _setShowIncompatibilityWarning(self,showIncompatibilityWarning):
+
+		if self._showIncompatibilityWarning!=showIncompatibilityWarning:
+			self._showIncompatibilityWarning=showIncompatibilityWarning
+			self.on_showIncompatibilityWarning.emit()
 
 	#def setRequiredMigration
 
@@ -319,7 +332,10 @@ class Bridge(QObject):
 	showSpaceSettingsMessage=Property('QVariantList',_getShowSpaceSettingsMessage,_setShowSpaceSettingsMessage, notify=on_showSpaceSettingsMessage)
 
 	on_requiredMigration=Signal()
-	requiredMigration=Property(bool,_getRequiredMigration,_setRequiredMigration, notify=on_requiredMigration)
+	requiredMigration=Property(bool,_getRequiredMigration,_setRequiredMigration,notify=on_requiredMigration)
+
+	on_showIncompatibilityWarning=Signal()
+	showIncompatibilityWarning=Property(bool,_getShowIncompatibilityWarning,_setShowIncompatibilityWarning, notify=on_showIncompatibilityWarning)
 
 	spacesModel=Property(QObject,_getSpacesModel,constant=True)
 
