@@ -77,7 +77,7 @@ Rectangle{
                 id:typeOptions
                 spacing:5
                 Layout.alignment:Qt.AlignTop
-                enabled:mainStack.requiredMigration?false:true
+                enabled:mainStackBridge.requiredMigration?false:true
 
                 RadioButton{
                     id:oneDriveOption
