@@ -1,3 +1,10 @@
+lliurex-onedrive (2.15.0) jammy; urgency=medium
+
+  * Supported new version of onedrive client
+  * Added backup mode
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 10 Dec 2025 08:26:08 +0100
+
 lliurex-onedrive (2.14.5) jammy; urgency=medium
 
   * Fixed service again
