@@ -1,3 +1,10 @@
+lliurex-onedrive (3.16.0) noble; urgency=medium
+
+  * Supported new version of onedrive
+  * Added backup mode
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 10 Dec 2025 08:29:13 +0100
+
 lliurex-onedrive (3.15.7) noble; urgency=medium
 
   * Improved transitions between stacks
