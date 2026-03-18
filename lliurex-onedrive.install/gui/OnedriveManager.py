@@ -540,8 +540,7 @@ class OnedriveManager:
 				else:
 					if spaceType=="sharepoint" and 'drive_id' in line:
 						newLine='drive_id = "%s"'%spaceDriveId
-						tmpLine=line.replace('# drive_id = ""',newLine)
-						fd.write(tmpLine)
+						fd.write(newLine)
 					else:
 						fd.write(line)
 		
