@@ -225,6 +225,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Accept")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
@@ -252,6 +253,7 @@ Rectangle{
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
+        btnDiscardVisible:true
         btnDiscardText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Start syncing all content"):i18nd("lliurex-onedrive","Select content to synchronize and/or review settings")
         btnDiscardIcon:addSpaceStackBridge.withHDDSpace?"dialog-ok.svg":"configure.svg"
         btnCancelText:addSpaceStackBridge.withHDDSpace?i18nd("lliurex-onedrive","Select content to synchronize and/or review settings"):i18nd("lliurex-onedrive","Cancel")
@@ -285,6 +287,7 @@ Rectangle{
         dialogHeight:140
         btnAcceptVisible:true
         btnAcceptText:i18nd("lliurex-onedrive","Start now")
+        btnDiscardVisible:true
         btnDiscardText:i18nd("lliurex-onedrive","Review settings")
         btnDiscardIcon:"configure.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")
