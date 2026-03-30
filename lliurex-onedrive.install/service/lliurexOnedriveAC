@@ -474,9 +474,6 @@ class LliurexOneDriveAC:
 		self.folderWorker=False
 		self.statusWorker=False
 		self.freeSpaceWorker=False
-		self.lastFolderCheck=MAX_CHECK_FOLDER_INTERVAL
-		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
-		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		self.envConfFiles=[".config.backup",".config.hash"]
@@ -612,8 +609,6 @@ class LliurexOneDriveAC:
 
 		try:
 			oneDriveSpaces=self.readOneDriveConfig()
-			#checkSpaceStatus=getSpaceStatusWorker()
-
 			with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
 				futures = [
 					executor.submit(self.checkStatusWorker.checkStatus, [space['configPath'], space['spaceType'], space['localFolder']])
