@@ -82,7 +82,7 @@ Rectangle{
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogVisible:false
         dialogMsg:i18nd("lliurex-onedrive","The content that is synchronized will reduce available space on the computer.\nDo you want to continue with the pairing process?")
-        dialogWidth:550
+        dialogWidth:400
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
