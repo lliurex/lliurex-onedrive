@@ -3,7 +3,7 @@
 import os
 import subprocess
 import json
-from threading import Thread
+import threading
 import concurrent.futures
 
 import time
@@ -35,7 +35,7 @@ class checkSpaceLocalFolder():
 		onedriveVersionToken="/var/lib/lliurex-onedrive/version"
 		backupFolder="LLIUREX_ONEDRIVE_BACKUP"
 
-		isRunning=self._isOnedriveRunning(spaceConfigPath)
+		isRunning=self._isOnedriveRunning(spaceService,spaceConfigPath)
 		if os.path.exists(spaceLocalFolder):
 			if spaceType!="onedriveBackup":
 				content=os.listdir(spaceLocalFolder)
@@ -153,15 +153,13 @@ class checkSpaceLocalFolder():
 		    			pass
 
 	#def _manageAutoStart
-
-	def _isOnedriveRunning(self,spaceConfigPath=None):
-
-		runToken=os.path.join(spaceConfigPath,".run/runToken")
+	
+	def _isOnedriveRunning(self,spaceService,spaceConfigPath=None):
 
 		if spaceConfigPath!=None:
-			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
-
-			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+			runToken=os.path.join(spaceConfigPath,".run/runToken")
+			status = subprocess.run(['systemctl', '--user', 'is-active', spaceService],capture_output=True, text=True)
+			if status.stdout.strip() == "active":
 				if not os.path.exists(runToken):
 					with open(runToken,'w') as fd:
 						pass
@@ -170,9 +168,7 @@ class checkSpaceLocalFolder():
 				if os.path.exists(runToken):
 					os.remove(runToken)
 				return False
-
-		return False
-
+				
 	#def _isOnedriveRunning
 
 	def _checkBackupDirectory(self,spaceFolder,backupFolder):
@@ -232,12 +228,12 @@ class getSpaceStatusWorker():
 		code=INFORMATION_NOT_AVAILABLE
 		freespace=""
 		pendingChanges="0 KB"
-		lastPendingChanges="0 KB"
+		lastPendingChanges=""
 		filesPendingUpload=0
 
 		if self._isOnedriveRunning(spaceConfigPath):
 			if not os.path.exists(localFolderEmptyToken) and not os.path.exists(localFolderRemovedToken) and not os.path.exists(updateRequiredToken):
-				if os.path.join(spaceConfigPath,'refresh_token'):
+				if os.path.exists(os.path.join(spaceConfigPath,'refresh_token')):
 					lastPendingChanges=self._getLastPendingChanges(spaceConfigPath)
 					if spaceType!="onedriveBackup": 
 						cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%spaceConfigPath
@@ -258,6 +254,9 @@ class getSpaceStatusWorker():
 							perror=perror.split('\n')
 							error=True
 							for item in perror:
+								if 'JSONException' in item:
+									if code==INFORMATION_NOT_AVAILABLE:
+										error=False
 								if 'OneDrive API returned an error' in item:
 									code=MICROSOFT_API_ERROR
 								elif 'Cannot connect to' in item:
@@ -350,7 +349,7 @@ class getSpaceStatusWorker():
 												tmp_freespace=tmp_freespace.split(" ")
 												freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 					except:
-						p.kil()
+						p.kill()
 						error=True
 						code=UNABLE_CONNECT_MICROSOFT_ERROR
 				else:
@@ -363,26 +362,24 @@ class getSpaceStatusWorker():
 						if filesPendingUpload>0:
 							code=UPLOADING_PENDING_CHANGES_BACKUP
 						else:
-							#self._removeEmptyFolders(spaceLocalFolder)
 							if code==OUT_OF_SYNC_MSG:
 								code=ALL_SYNCHRONIZE_MSG
 				else:
 					if code==OUT_OF_SYNC_MSG:
-						if pendingChanges==lastPendingChanges:
-							code=ALL_SYNCHRONIZE_MSG
+						if lastPendingChanges!="":
+							try:
+								previousChanges=lastPendingChanges.split("\n")[3].strip()
+								if pendingChanges==lastPendingChanges:
+									code=ALL_SYNCHRONIZE_MSG
+							except:
+								pass
 				
 				try:
-					with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
-						tmpLine=str(error)+("\n")
-						fd.write(tmpLine)
-						tmpLine=str(code)+("\n")
-						fd.write(tmpLine)
-						tmpLine=str(freespace)+("\n")
-						fd.write(tmpLine)
-						tmpLine=str(pendingChanges)+("\n")
-						fd.write(tmpLine)
-						tmpLine=str(filesPendingUpload)
-						fd.write(tmpLine)
+					newContent = "\n".join([str(error),str(code),str(freespace),str(pendingChanges),str(filesPendingUpload)])
+					if lastPendingChanges!=newContent.strip():
+						with open(os.path.join(spaceConfigPath,".run/statusToken"),'w') as fd:
+							fd.write(newContent)
+							
 				except:
 					pass
 		else:
@@ -396,12 +393,12 @@ class getSpaceStatusWorker():
 	def _isOnedriveRunning(self,spaceConfigPath=None):
 
 		if spaceConfigPath!=None:
-			onedriveCommand='onedrive --monitor --confdir="%s"'%spaceConfigPath
-			if os.system('ps -ef | grep "%s" | grep -v "grep" 1>/dev/null'%onedriveCommand)==0:
+			runToken=os.path.join(spaceConfigPath,".run/runToken")
+			if os.path.exists(runToken):
 				return True
 			else:
 				return False
-
+		
 		return False
 
 	#def _isOnedriveRunning
@@ -412,7 +409,7 @@ class getSpaceStatusWorker():
 		if spaceConfigPath!=None:
 			if os.path.exists(os.path.join(spaceConfigPath,".run/statusToken")):
 				with open(os.path.join(spaceConfigPath,".run/statusToken"),'r') as fd:
-					lastPendingChanges=fd.readlines()[-1].strip()
+					lastPendingChanges=fd.read().strip()
 		
 		return lastPendingChanges
 
@@ -423,16 +420,27 @@ class getSpaceStatusWorker():
 		folderToCheck=os.path.join(spaceLocalFolder,"LLIUREX_ONEDRIVE_BACKUP")
 		pendingFiles=0
 
-		try:
-			if os.path.exists(folderToCheck):
-				for base,_,files in os.walk(folderToCheck):
-					for item in files:
-						if item != ".directory":
-							pendingFiles+=1
-		except:
-			pass
-
-		return pendingFiles
+		if not os.path.exists(folderToCheck):
+			return pendingFiles
+			
+		def countRecursive(path):
+			count = 0
+			try:
+				with os.scandir(path) as entries:
+					for entry in entries:
+						if entry.is_file():
+							if entry.name != ".directory":
+								count += 1
+						elif entry.is_dir():
+							count += countRecursive(entry.path)
+			except PermissionError:
+				pass
+			
+			return count
+				
+		#def countRecursive
+		
+		return countRecursive(folderToCheck)
 
 	#def _getFilesPendigUpload
 
@@ -466,12 +474,11 @@ class LliurexOneDriveAC:
 		self.folderWorker=False
 		self.statusWorker=False
 		self.freeSpaceWorker=False
-		self.lastFolderCheck=MAX_CHECK_FOLDER_INTERVAL
-		self.lastStatusCheck=MAX_CHECK_STATUS_INTERVAL
-		self.lastFreeSpaceCheck=MAX_CHECK_FREE_SPACE
 		self.freeSpaceWarningToken=os.path.join(self.llxOnedriveConfigDir,".run/hddWarningToken")
 		self.freeSpaceErrorToken=os.path.join(self.llxOnedriveConfigDir,".run/hddErrorToken")
 		self.envConfFiles=[".config.backup",".config.hash"]
+		self.checkFolderWorker=checkSpaceLocalFolder()
+		self.checkStatusWorker=getSpaceStatusWorker()
 		self.fixSpacesConfigFile()
 		self.initWorker()
 
@@ -558,117 +565,103 @@ class LliurexOneDriveAC:
 
 	def initWorker(self):
 
-		self.folderWorkerThread=Thread(target=self.checkSpaceFolder)
-		self.folderWorkerThread.daemon=True
-		self.folderWorkerThread.start()
-		
-		self.statusWorkerThread=Thread(target=self.checkSpaceStatus)
-		self.statusWorkerThread.daemon=True
-		self.statusWorkerThread.start()
+		self.checkSpaceFolder()
+		self.checkSpaceStatus()
+		self.checkFreeSpace()
 
-		self.freeSpaceWorkerThread=Thread(target=self.checkFreeSpace)
-		self.freeSpaceWorkerThread.daemon=True
-		self.freeSpaceWorkerThread.start()
-		
 	#def initWorker
 
 	def checkSpaceFolder(self):
 
-		while True:
-			if not self.folderWorker:
-				time.sleep(1)
-				self.lastFolderCheck+=1
-				if self.lastFolderCheck > MAX_CHECK_FOLDER_INTERVAL:
-					#folderQ=Queue()
-					self.folderWorker=True
-					oneDriveSpaces=self.readOneDriveConfig()
-					checkSpaceFolder=checkSpaceLocalFolder()
+		if self.folderWorker:
+			return
 
-					with concurrent.futures.ThreadPoolExecutor() as executor:
-						futures=[]
-						for space in oneDriveSpaces:
-							tmp=[]
-							tmpInfo=[space["localFolder"],space["configPath"],space["systemd"],space["spaceType"],self.userSystemdAutoStartPath] 
-							futures.append(executor.submit(checkSpaceFolder.checkFolder,tmpInfo))
+		t = threading.Timer(MAX_CHECK_FOLDER_INTERVAL, self.checkSpaceFolder)
+		t.daemon = True
+		t.start()
 
-						for future in concurrent.futures.as_completed(futures):
-							pass	
+		self.folderWorker=True
+		try:
+			oneDriveSpaces=self.readOneDriveConfig()
 
-						self.folderWorker=False
-						self.lastFolderCheck=0
-				
-				else:
-					self.lastFolderCheck+=1
+			with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+				futures = [
+					executor.submit(self.checkFolderWorker.checkFolder, [space['localFolder'], space['configPath'],space["systemd"], space['spaceType'], self.userSystemdAutoStartPath])
+					for space in oneDriveSpaces
+				]
+				concurrent.futures.wait(futures)
+
+		finally:
+			self.folderWorker = False
 
 	#def checkSpaceFolder
-	
+
 	def checkSpaceStatus(self):
 
-		while True:
-			if not self.statusWorker:
-				time.sleep(1)
-				self.lastStatusCheck+=1
-				if self.lastStatusCheck > MAX_CHECK_STATUS_INTERVAL:
-					self.statusWorker=True
-					oneDriveSpaces=self.readOneDriveConfig()
-					checkSpaceStatus=getSpaceStatusWorker()
-					
-					with concurrent.futures.ThreadPoolExecutor() as executor:
-						futures=[]
-						for space in oneDriveSpaces:
-							tmp=[]
-							tmpInfo=[space['configPath'],space['spaceType'],space["localFolder"]]
-							futures.append(executor.submit(checkSpaceStatus.checkStatus,tmpInfo))
-						
-						for future in concurrent.futures.as_completed(futures):
-							pass	
+		if self.statusWorker:
+			return
 
-					self.statusWorker=False
-					self.lastStatusCheck=0
-				else:
-					self.lastStatusCheck+=1
+		t = threading.Timer(MAX_CHECK_STATUS_INTERVAL, self.checkSpaceStatus)
+		t.daemon = True
+		t.start()
+
+		self.statusWorker=True
+
+		try:
+			oneDriveSpaces=self.readOneDriveConfig()
+			with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+				futures = [
+					executor.submit(self.checkStatusWorker.checkStatus, [space['configPath'], space['spaceType'], space['localFolder']])
+					for space in oneDriveSpaces
+				]
+				concurrent.futures.wait(futures)
+
+		finally:
+			self.statusWorker = False
 	
 	#def checkSpaceStatus
 
 	def checkFreeSpace(self):
 
-		while True:
-			if not self.freeSpaceWorker:
-				time.sleep(1)
-				self.lastFreeSpaceCheck+=1
-				if self.lastFreeSpaceCheck>MAX_CHECK_FREE_SPACE:
-					self.freeSpaceWorker=True
-					hdd=psutil.disk_usage('/home')
-					if hdd.free<=(2*FREE_SPACE_LIMIT):
-						if hdd.free<=(FREE_SPACE_LIMIT):
-							if os.path.exists(self.freeSpaceErrorToken):
-								os.remove(self.freeSpaceErrorToken)
-							with open(self.freeSpaceErrorToken,'w') as fd:
-								tmpLine=str(hdd.free)+("\n")
-								fd.write(tmpLine)
-							if os.path.exists(self.freeSpaceWarningToken):
-								os.remove(self.freeSpaceWarningToken)
-						else:
-							if os.path.exists(self.freeSpaceWarningToken):
-								os.remove(self.freeSpaceWarningToken)
-							with open(self.freeSpaceWarningToken,'w') as fd:
-								tmpLine=str(hdd.free)+("\n")
-								fd.write(tmpLine)
-							if os.path.exists(self.freeSpaceErrorToken):
-								os.remove(self.freeSpaceErrorToken)
-					else:
-						if os.path.exists(self.freeSpaceWarningToken):
-							os.remove(self.freeSpaceWarningToken)
-						if os.path.exists(self.freeSpaceErrorToken):
-							os.remove(self.freeSpaceErrorToken)
+	    t = threading.Timer(MAX_CHECK_FREE_SPACE, self.checkFreeSpace)
+	    t.daemon = True
+	    t.start()
 
+	    if self.freeSpaceWorker:
+	        return
 
-					self.freeSpaceWorker=False
-					self.lastFreeSpaceCheck=0
-				else:
-					self.lastFreeSpaceCheck+=1
+	    self.freeSpaceWorker = True
+
+	    try:
+	        hdd = psutil.disk_usage('/home')
+	        
+	        if hdd.free <= FREE_SPACE_LIMIT:
+	            self._writeFreeSpaceToken(self.freeSpaceErrorToken, hdd.free)
+	            self._removeFreeSpaceToken(self.freeSpaceWarningToken)
+	        elif hdd.free <= (2 * FREE_SPACE_LIMIT):
+	            self._writeFreeSpaceToken(self.freeSpaceWarningToken, hdd.free)
+	            self._removeFreeSpaceToken(self.freeSpaceErrorToken)
+	        else:
+	            self._removeFreeSpaceToken(self.freeSpaceWarningToken)
+	            self._removeFreeSpaceToken(self.freeSpaceErrorToken)
+	    finally:
+	        self.freeSpaceWorker = False
 
 	#def checkFreeSpace
+
+	def _writeFreeSpaceToken(self, path, space):
+		
+		with open(path, 'w') as fd:
+			fd.write(f"{space}\n")
+			
+	#def _writeFreeSpaceToken
+	
+	def _removeFreeSpaceToken(self, path):
+		
+		if os.path.exists(path):
+		    os.remove(path)
+
+	#def _removeFreeSpaceToken
 	
 	def readOneDriveConfig(self):
 
@@ -685,6 +678,7 @@ class LliurexOneDriveAC:
 		return tmpSpacesList
 	
 	#def readOneDriveConfig
+
 
 #class LliurexOneDriveAC
 
