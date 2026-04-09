@@ -25,6 +25,7 @@ Popup {
     modal:true
     focus:true
     closePolicy:Popup.NoAutoClose
+    padding:20
     anchors.centerIn:Overlay.overlay
     background:Rectangle{
         color:"#ebeced"
@@ -33,37 +34,40 @@ Popup {
         radius:5.0
     }
     
-    contentItem: Rectangle {
+    contentItem: ColumnLayout {
         id:container
-        color: "transparent"
         width: dialogWidth
         height: dialogHeight
-        anchors.topMargin:10
-        Image{
-            id:dialogIcon
-            source:dialogIcon
-        }
+        spacing:20
+
+        RowLayout {
+            Layout.alignment: Qt.AlignTop
+            spacing: 20
         
-        Text {
-            id:dialogText
-            text:dialogMsg
-            font.family: "Quattrocento Sans Bold"
-            font.pointSize: 10
-            anchors.left:dialogIcon.right
-            anchors.verticalCenter:dialogIcon.verticalCenter
-            anchors.leftMargin:10
-            width:600
-            wrapMode:Text.WordWrap
-        
+
+            Image{
+                id:dialogIcon
+                source:dialogIcon
+                Layout.alignment: Qt.AlignTop 
+            }
+                
+            Text {
+                id:dialogText
+                text:dialogMsg
+                font.family: "Quattrocento Sans Bold"
+                font.pointSize: 10
+                Layout.preferredWidth:550
+                Layout.alignment: Qt.AlignTop 
+                wrapMode:Text.WordWrap
+                
+            }
         }
-      
         RowLayout {
             id:bntBox
-            anchors.bottom:parent.bottom
-            anchors.right:parent.right
+            Layout.alignment:Qt.AlignRight
+            /*anchors.right:parent.right
             anchors.topMargin:5
-            anchors.bottomMargin:5
-            anchors.rightMargin:10
+            anchors.rightMargin:10*/
             spacing:10
 
             PC.Button {
