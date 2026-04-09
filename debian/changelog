@@ -1,3 +1,10 @@
+lliurex-onedrive (3.16.3) noble; urgency=medium
+
+  * Improved AC service to control synchronize spaces
+  * Fixed GUI Dialogs
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 09 Apr 2026 14:07:50 +0200
+
 lliurex-onedrive (3.16.2) noble; urgency=medium
 
   * Dummy upgrade
