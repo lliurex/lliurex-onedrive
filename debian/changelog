@@ -1,3 +1,9 @@
+lliurex-onedrive (2.15.3) jammy; urgency=medium
+
+  * Improved AC service to control all synchronized spaces
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 09 Apr 2026 12:52:29 +0200
+
 lliurex-onedrive (2.15.2) jammy; urgency=medium
 
   * Dummy upgrade
