@@ -2195,7 +2195,7 @@ class OnedriveManager:
 				with open(configFile,'w') as fd:
 
 					for line in lines:
-						if  param in line:
+						if  line.startswith(param) or line.startswith(f"#{param}"):
 							if param =="skip_size":
 								self.matchParam=True
 								if value[0]: 
