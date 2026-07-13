@@ -100,7 +100,10 @@ Popup {
             case 23:
                 var msg=i18nd("lliurex-onedrive","The consolidation process is running. Wait a moment...")
                 break
-            default:
+          case 25:
+                var msg=i18nd("lliurex-onedrive","Updating authorization. Wait a moment..")
+                break;
+          default:
                 var msg=""
                 break;
         }

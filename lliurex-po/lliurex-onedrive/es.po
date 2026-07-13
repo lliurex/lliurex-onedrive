@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-01 11:57+0100\n"
-"PO-Revision-Date: 2025-12-01 11:58+0100\n"
+"POT-Creation-Date: 2026-07-13 14:00+0200\n"
+"PO-Revision-Date: 2026-07-13 14:00+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -926,6 +926,10 @@ msgstr "Eliminando la identificación de las carpetas. Espere un momento..."
 #: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:101
 msgid "The consolidation process is running. Wait a moment..."
 msgstr "Ejecutando el proceso de consolidación. Espere un momento..."
+
+#: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:104
+msgid "Updating authorization. Wait a moment.."
+msgstr "Actualizando la autorización. Espere un momento..."
 
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:135
 msgid "View errors report"
