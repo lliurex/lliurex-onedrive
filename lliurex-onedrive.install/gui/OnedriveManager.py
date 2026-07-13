@@ -681,7 +681,7 @@ class OnedriveManager:
 										customParam[param]=tmpValue
 										pass
 							elif param=="monitor_interval":
-								if "monitor_interval" in tmpLine[0]:
+								if tmpLine[0].startswith("monitor_interval"):
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
 									if int(value)<300:
 										customParam[param]="300"
