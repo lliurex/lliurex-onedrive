@@ -52,8 +52,20 @@
 ## This setting controls whether the application will set the permissions on files and directories using the values of 'sync_dir_permissions' and 'sync_file_permissions'.
 #disable_permission_set = "false"
 
+## This setting controls whether the client uses hash values calculated while streaming file uploads.
+#disable_upload_hash_streaming = "false"
+
 ## This option determines whether the client will conduct integrity validation on files uploaded to Microsoft OneDrive.
 #disable_upload_validation = "false"
+
+## This setting controls whether the application checks for newer versions of the client.
+#disable_version_check = "false"
+
+## Disable Microsoft OneDrive WebSocket support and use polling based change detection instead.
+#disable_websocket_support = "false"
+
+## This setting controls whether integration with the desktop display manager is enabled.
+#display_manager_integration = "false"
 
 ## This option will include the running config of the application at application startup.
 #display_running_config = "false"
@@ -85,6 +97,9 @@ force_http_11 = "true"
 ## This option, when enabled, forces the client to use a 'session' upload, which, when the 'file' is uploaded by the session, this includes the local timestamp of the file
 #force_session_upload = "false"
 
+## Delay in seconds before processing inotify events.
+#inotify_delay = "5"
+
 ## This setting controls the application IP protocol used when communicating with Microsoft OneDrive.
 ip_protocol_version = "1"
 
@@ -96,6 +111,17 @@ log_dir = "{{LOG_FOLDER}}"
 
 ## This configuration option controls the number of seconds a cURL engine is considered stale and destroyed after last use.
 #max_curl_idle = "120"
+
+## Mirror local file and folder state to OneDrive when using local-first synchronisation.
+#mirror_local_state = "false"
+
+## Controls when --monitor --download-only --cleanup-local-files performs
+## authoritative cleanup using a generated delta/full online state pass.
+## API-signal-triggered syncs are fastest with monitor_interval or
+## monitor_fullscan_frequency.
+## Valid values: monitor_and_signal | monitor_interval | monitor_fullscan_frequency
+## Default: monitor_and_signal
+#monitor_authoritative_sync = "monitor_and_signal"
 
 ## This configuration option controls how often a full scan of your data is performed in monitor mode.
 #monitor_fullscan_frequency = "12"
@@ -129,6 +155,9 @@ rate_limit = "10485760"
 
 ## This option removes the local file after a successful upload to OneDrive.
 #remove_source_files = "false"
+
+## This option removes the local folder after a successful upload to OneDrive.
+#remove_source_folders = "false"
 
 ## This configuration controls whether a full resync is performed at application startup.
 #resync = "false"
@@ -182,16 +211,16 @@ sync_dir = "{{LOCAL_FOLDER}}"
 #upload_only = "false"
 
 ## Authenticate using the Microsoft OAuth2 Device Authorisation Flow
-#use_device_auth = "true"
+#use_device_auth = "false"
 
 ## Single Sign-On (SSO) via Intune using the Microsoft Identity Device Broker
-#use_intune_sso = "true"
+#use_intune_sso = "false"
 
 ## This configuration option controls the application function to move online deleted files to a 'Recycle Bin' on your system.
 #use_recycle_bin = "false"
 
-## Custom User-Agent string for requests to OneDrive. If you change this, you will get throttled by the Microsoft Graph API. Change with caution.
-#user_agent = "ISV|abraunegg|OneDrive Client for Linux/vX.Y.Z-A-bcdefghi"
+## Custom User-Agent string for requests to OneDrive. The default value is generated dynamically from the compiled client version. If you change this, you will get throttled by the Microsoft Graph API. Change with caution.
+#user_agent = "ISV|abraunegg|OneDrive Client for Linux/<compiled-version>"
 
 ## Enable webhook-based remote update notifications in monitor mode.
 #webhook_enabled = "false"
@@ -199,8 +228,8 @@ sync_dir = "{{LOCAL_FOLDER}}"
 ## Time in seconds before webhook subscription expires.
 #webhook_expiration_interval = "600"
 
-## IP address to listen on for incoming webhook updates.
-#webhook_listening_host = "0.0.0.0"
+## Optional IP address or host to bind for incoming webhook updates. Empty uses the runtime default listener binding.
+#webhook_listening_host = ""
 
 ## TCP port to listen on for incoming webhook updates.
 #webhook_listening_port = "8888"
@@ -216,3 +245,26 @@ sync_dir = "{{LOCAL_FOLDER}}"
 
 ## Write xattr metadata fields (createdBy, lastModifiedBy) to synced files.
 #write_xattr_data = "false"
+
+###################################################################################################
+## Developer / diagnostic options.
+## These options are primarily intended for debugging, performance analysis, testing and controlled 
+## development scenarios.
+
+## Display application memory usage while running.
+#display_memory = "false"
+
+## Exit monitor mode after this many monitor loops. A value of 0 disables this limit.
+#monitor_max_loop = "0"
+
+## Display sync option state passed into sync processing.
+#display_sync_options = "false"
+
+## Force the client to use /children rather than /delta when querying changes.
+#force_children_scan = "false"
+
+## Display internal function processing times when debug logging is enabled.
+#display_processing_time = "false"
+
+## Force active file transfers to abort during application shutdown.
+#force_xfer_abort = "false"

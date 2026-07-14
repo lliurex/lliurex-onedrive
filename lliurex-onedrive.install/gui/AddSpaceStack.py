@@ -292,7 +292,8 @@ class Bridge(QObject):
 		self.reuseToken=True
 		self.tempConfig=False
 		self.tmpSpaceEmail=data[0]
-		
+		self.gatherSharePoints()
+		'''
 		if Bridge.onedriveManager.checkIfEmailExists(data[0]):
 			self.gatherSharePoints()
 		else:
@@ -300,7 +301,7 @@ class Bridge(QObject):
 			self.tempConfig=True
 			self.formData=[data[0],data[1]]
 			self.core.mainStack.spacesCurrentOption=2
-
+		'''
 	#def getSpaceSharePoints
 
 	def gatherSharePoints(self):
@@ -461,9 +462,10 @@ class Bridge(QObject):
 				self.reuseToken=True
 				self.addSpace()
 			else:
-				self.authUrl=self.loginUrl+self.spaceInfo[0]
+				#self.authUrl=self.loginUrl+self.spaceInfo[0]
 				self.reuseToken=False
-				self.core.mainStack.spacesCurrentOption=2
+				#self.core.mainStack.spacesCurrentOption=2
+				self.addSpace()
 		else:
 			if self.reuseToken:
 				self.addSpace()

@@ -75,14 +75,33 @@ class UpdateOneDrive(QThread):
 
 	#def run
 
-
 #class UpdateOneDrive
+
+class RefreshAuthorization(QThread):
+
+	def __init(self,*args):
+		QThread.__init__(self)
+		self.ret=False
+
+	#def __init__
+
+	def run (self):
+
+		time.sleep(1)
+		self.ret=Bridge.onedriveManager.updateSpaceAuth()
+
+	#def run
+
+#class RefreshAuthorization
 
 class Bridge(QObject):
 
+	
 	SPACE_RUNNING_TEST_MESSAGE=13
 	SPACE_RUNNING_REPAIR_MESSAGE=14
 	TOOLS_DEFAULT_MESSAGE=18
+	UPDATE_TOKEN_RUNNING=25
+
 	UPDATE_TOKEN_MESSAGE=19
 	FOLDERS_DIRECTOY_APPLY_RUNNING=21
 	FOLDERS_DIRECTOY_REMOVE_RUNNING=22
@@ -156,22 +175,27 @@ class Bridge(QObject):
 	@Slot()
 	def updateAuth(self):
 
-		self.core.addSpaceStack.authUrl=self.core.addSpaceStack.loginUrl+self.core.spaceStack.spaceBasicInfo[0]
+		#self.core.addSpaceStack.authUrl=self.core.addSpaceStack.loginUrl+self.core.spaceStack.spaceBasicInfo[0]
 		self.updateSpaceAuth=True
-		self.core.spaceStack.manageCurrentOption=4
+		self.core.mainStack.closePopUp=[False,Bridge.UPDATE_TOKEN_RUNNING]
+		self.updateAuthT=RefreshAuthorization()
+		self.updateAuthT.start()
+		self.updateAuthT.finished.connect(self._updateSpaceAuthorizationRet)
+		#self.core.spaceStack.manageCurrentOption=4
 
 	#def updateAuth
 
-	def updateSpaceAuthorization(self):
+	def _updateSpaceAuthorizationRet(self):
 
-		ret=Bridge.onedriveManager.updateSpaceAuth()
+		#ret=Bridge.onedriveManager.updateSpaceAuth()
+		self.core.mainStack.closePopUp=[True,""]
 		
-		if ret:
+		if self.updateAuthT.ret:
 			self.showToolsMessage=[True,Bridge.UPDATE_TOKEN_MESSAGE,"Ok"]
 		else:
 			self.showToolsMessage=[True,Bridge.UPDATE_TOKEN_ERROR,"Error"]
 		
-	#def updateSpaceAuthorization
+	#def _updateSpaceAuthorization
 
 	@Slot(bool)
 	def manageFoldersDirectory(self,enable):

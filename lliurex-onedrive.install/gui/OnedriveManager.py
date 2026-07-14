@@ -1,6 +1,7 @@
 import threading
 import time
 import os
+import signal
 import subprocess
 import json
 import math
@@ -303,7 +304,7 @@ class OnedriveManager:
 			else:
 				return False
 
-		cmd='onedrive --get-O365-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
+		cmd='onedrive --get-sharepoint-drive-id "listAllSharePoints" --dry-run --confdir="%s"'%(self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		try:
 			pout,perror=p.communicate(timeout=90)
@@ -327,7 +328,7 @@ class OnedriveManager:
 
 		self.librariesConfigData=[]
 		
-		cmd='onedrive --get-O365-drive-id "%s" --dry-run --confdir="%s"'%(sharePoint,self.tmpConfDir)
+		cmd='onedrive --get-sharepoint-drive-id "%s" --dry-run --confdir="%s"'%(sharePoint,self.tmpConfDir)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		
 		try:
@@ -443,10 +444,24 @@ class OnedriveManager:
 		if reuseToken:
 			self._copyToken(spaceInfo[0])
 		else:
-			cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-			poutput=p.communicate()
-			rc=p.returncode
+			#cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
+			cmd=['/usr/bin/onedrive', f'--confdir="{self.spaceConfPath}"']
+			
+			try:
+				p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,preexec_fn=os.setsid)
+				poutput,perror=p.communicate(timeout=180)
+				rc=p.returncode
+			except subprocess.TimeoutExpired:
+				try:
+					os.killpg(os.getpgid(p.pid),signal.SIGKILL)
+				except ProcessLookupError:
+					pass
+
+				if p.stdout:p.stdout.close()
+				if p.stderr:p.stderr.close()
+				p.wait()
+				rc=-1
+
 			if rc not in [0,1]:
 				return False
 			else:
@@ -666,7 +681,7 @@ class OnedriveManager:
 										customParam[param]=tmpValue
 										pass
 							elif param=="monitor_interval":
-								if "monitor_interval" in tmpLine[0]:
+								if tmpLine[0].startswith("monitor_interval"):
 									value=tmpLine[1].split("\n")[0].strip().split('"')[1]
 									if int(value)<300:
 										customParam[param]="300"
@@ -913,10 +928,33 @@ class OnedriveManager:
 				else:
 					fd.write(line)
 
-		cmd='/usr/bin/onedrive --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.tempConfigPath)
+		'''
+		cmd='/usr/bin/onedrive --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.tempConfigPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()
 		rc=p.returncode
+		'''
+		cmd=['/usr/bin/onedrive', f'--confdir="{self.tempConfigPath}"']
+			
+		try:
+			p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,preexec_fn=os.setsid)
+			poutput,perror=p.communicate(timeout=180)
+			rc=p.returncode
+		except subprocess.TimeoutExpired:
+			try:
+				os.killpg(os.getpgid(p.pid),signal.SIGKILL)
+			except ProcessLookupError:
+				pass
+
+			if p.stdout:p.stdout.close()
+			if p.stderr:p.stderr.close()
+			p.wait()
+			rc=-1
+
+		if rc not in [0,1]:
+			return False
+
+		return True
 		if rc not in [0,1]:
 			return False
 
@@ -2157,7 +2195,7 @@ class OnedriveManager:
 				with open(configFile,'w') as fd:
 
 					for line in lines:
-						if  param in line:
+						if  line.startswith(param) or line.startswith(f"#{param}"):
 							if param =="skip_size":
 								self.matchParam=True
 								if value[0]: 
@@ -2241,10 +2279,33 @@ class OnedriveManager:
 
 	def updateSpaceAuth(self):
 
+		'''
 		cmd='/usr/bin/onedrive --reauth --auth-files %s:%s --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.spaceConfPath)
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		poutput=p.communicate()
 		rc=p.returncode
+		if rc not in [0,1]:
+			return False
+
+		return True
+		'''
+		cmd=['/usr/bin/onedrive', '--reauth',f'--confdir="{self.spaceConfPath}"']
+			
+		try:
+			p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,preexec_fn=os.setsid)
+			poutput,perror=p.communicate(timeout=180)
+			rc=p.returncode
+		except subprocess.TimeoutExpired:
+			try:
+				os.killpg(os.getpgid(p.pid),signal.SIGKILL)
+			except ProcessLookupError:
+				pass
+
+			if p.stdout:p.stdout.close()
+			if p.stderr:p.stderr.close()
+			p.wait()
+			rc=-1
+
 		if rc not in [0,1]:
 			return False
 
