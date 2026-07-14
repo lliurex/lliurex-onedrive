@@ -1,3 +1,9 @@
+lliurex-onedrive (3.16.4) noble; urgency=medium
+
+  * Changed to support onedrive v2.5.11
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 14 Jul 2026 08:04:04 +0200
+
 lliurex-onedrive (3.16.3) noble; urgency=medium
 
   * Improved AC service to control synchronize spaces
