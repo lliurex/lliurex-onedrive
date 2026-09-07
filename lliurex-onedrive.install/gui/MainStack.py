@@ -27,11 +27,34 @@ class GatherInfo(QThread):
 
 #class GatherInfo
 
+class RemoveConfig(QThread):
+
+	def __init__(self,*args):
+		
+		QThread.__init__(self)
+		self.ret=False
+
+	#def _init__
+
+	def run(self,*args):
+		
+		time.sleep(1)
+		self.ret=Bridge.onedriveManager.removeConflictingConfiguration()
+
+	#def run
+
+#class RemoveConfig
+
+
 class Bridge(QObject):
 
 	SPACE_GLOBAL_WARNING=15
+	REMOVING_CONFIG=26
+
+	REMOVING_CONFIG_OK=16
 
 	HDD_SPACE_AVAILABLE_ERROR=-20
+	REMOVING_CONFIG_ERROR=-21
 
 	def __init__(self,ticket=None):
 
@@ -210,6 +233,30 @@ class Bridge(QObject):
 				self._spacesModel.setData(index,param,updatedInfo[i][param])
 
 	#def _updateSpacesModelInfo
+
+	@Slot()
+	def removeConflictingConfig (self):
+
+		self.closeGui=False
+		self.closePopUp=[False,Bridge.REMOVING_CONFIG]
+		self.removingConfigT=RemoveConfig()
+		self.removingConfigT.start()
+		self.removingConfigT.finished.connect(self._removingConfigRet)
+
+	#def removeConflictingConfig
+
+	def _removingConfigRet(self):
+
+		self.closePopUp=[True,""]
+		self.closeGui=True
+
+		if self.removingConfigT.ret:
+			self.showIncompatibilityWarning=False
+			self.showSpaceSettingsMessage=[True,Bridge.REMOVING_CONFIG_OK,"Ok"]
+		else:
+			self.showSpaceSettingsMessage=[True,Bridge.REMOVING_CONFIG_ERROR,"Error"]
+
+	#def _removingConfigRet
 
 	@Slot(int)
 	def moveToSpaceOption(self,option):

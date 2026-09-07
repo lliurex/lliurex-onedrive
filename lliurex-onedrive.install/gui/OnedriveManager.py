@@ -13,6 +13,7 @@ import unicodedata
 import configparser
 import tempfile
 import hashlib
+from pathlib import Path
 
 
 class OnedriveManager:
@@ -441,6 +442,9 @@ class OnedriveManager:
 		
 		self._createSpaceConfFolder(spaceInfo[1],spaceInfo[4])
 		
+		if self.spaceConfPath=="":
+			return False
+
 		if reuseToken:
 			self._copyToken(spaceInfo[0])
 		else:
@@ -521,6 +525,9 @@ class OnedriveManager:
 			self.spaceConfPath=os.path.join(self.onedriveConfigDir,tmpFolder)
 			if not os.path.exists(self.spaceConfPath):
 				createConfig=True 
+
+		if self.spaceConfPath=="":
+			return
 
 		logFolder=os.path.join(self.spaceConfPath,'log/')
 
@@ -910,9 +917,14 @@ class OnedriveManager:
 	def createTempConfig(self,tmpType):
 
 		self.deleteTempConfig()
-		if tmpType=="sharepoint":
-			self.tempConfigPath=tempfile.mkdtemp("_sharepoint")
+		if tmpType!="sharepoint":
+			return False
+
+		self.tempConfigPath=tempfile.mkdtemp("_sharepoint")
 		
+		if not os.path.exists(self.tempConfigPath):
+			return False
+
 		self.tempFolder=os.path.join(self.tempConfigPath,tmpType)
 
 		shutil.copy(self.configTemplatePath,self.tempConfigPath)
@@ -928,12 +940,6 @@ class OnedriveManager:
 				else:
 					fd.write(line)
 
-		'''
-		cmd='/usr/bin/onedrive --confdir="%s"'%(self.urlDoc,self.tokenDoc,self.tempConfigPath)
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		poutput=p.communicate()
-		rc=p.returncode
-		'''
 		cmd=['/usr/bin/onedrive', f'--confdir="{self.tempConfigPath}"']
 			
 		try:
@@ -1098,6 +1104,10 @@ class OnedriveManager:
 				self.spaceLocalFolder=item["localFolder"]
 				self.spaceConfPath=item["configPath"]
 				self.spaceServiceFile=item["systemd"]
+
+				if self.spaceConfPath=="":
+					break
+
 				try:
 					self.spaceMenuAction=item["menuAction"]
 				except:
@@ -2901,5 +2911,119 @@ class OnedriveManager:
 			pass
 
 	#def _removeMenuAction
+
+	def removeConflictingConfiguration(self):
+
+		self._checkConflictingService()
+
+		if not os.path.exists(os.path.join(self.onedriveConfigDir,"config")):
+			retExec=self._checkConflictingExecution()
+		else:
+			retExec=self._checkConflictingExecution(True)
+		
+		if not retExec:
+			return False
+
+		retToken=self._removeConflictingToken()
+
+		return retToken
+
+	#def removeConflictingConfiguration
+
+	def _checkConflictingService(self):
+
+		serviceToCheck="onedrive.service"
+
+		retActive=subprocess.run(
+			["systemctl","--user","is-active",serviceToCheck],
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True
+		)
+
+		try:
+			if retActive.returncode==0:
+				subprocess.run(["systemctl","--user","stop",serviceToCheck],check=True)
+
+			subprocess.run(["systemctl","--user","disable",serviceToCheck],check=True)
+
+		except subprocess.CalledProcessError as e:
+			print(f"Error checking service: {e}")
+
+	#def _checkConflictingService
+
+	def _checkConflictingExecution(self,withConfDir=False):
+
+		try:
+			ret=subprocess.run(["pgrep","-a","onedrive"],capture_output=True,text=True)
+
+			if not ret.stdout.strip():
+				return True
+
+			lines=ret.stdout.strip().split("\n")
+			processToKill=[]
+			for line in lines:
+				parts=line.split(' ',1)
+
+				if len(parts)==2:
+					pid=int(parts[0])
+					command=parts[1].strip()
+					if not withConfDir:
+						if "--confdir" not in command:
+							processToKill.append(pid)
+					else:
+						match = re.search(r'--confdir=([^\s]+)', command)
+						if match:
+							commandConfdir = match.group(1).rstrip('/')
+							if commandConfdir==self.onedriveConfigDir:
+								processToKill.append(pid)
+	
+			if processToKill:
+				for pid in processToKill:
+					try:
+						os.kill(pid,signal.SIGINT)
+					except ProcessLookupError:
+						pass
+
+				time.sleep(1)
+
+				for pid in processToKill:
+					try:
+						os.kill(pid,signal.SIGKILL)
+					except ProcessLookupError:
+						pass
+
+			return True
+
+		except Exception as e:
+			print(f"Unable to kill process: {e}")
+			return False
+
+	#def _checkConflictingExecution
+
+	def _removeConflictingToken(self):
+
+		try:
+			subprocess.run(
+				["onedrive","--logout"],
+				stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE,
+				text=True,
+				check=True
+			)
+
+			tmpDir=Path(self.onedriveConfigDir)
+			if not os.path.exists(self.oldConfigPath):
+				for element in tmpDir.iterdir():
+					if element.is_file():
+						element.unlink()
+				return True
+			else:
+				return False
+		except subprocess.CalledProcessError as e:
+			print(f"Error removing token: {e}")
+			return False
+
+	#def _removeConflictingToken
 
 #class OnedriveManager
