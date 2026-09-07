@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 13:02+0200\n"
-"PO-Revision-Date: 2026-07-13 13:03+0200\n"
+"POT-Creation-Date: 2026-09-07 13:51+0200\n"
+"PO-Revision-Date: 2026-09-07 13:54+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Valencian <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/ca@valencia/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesOptions.qml:26
 #: ../lliurex-onedrive.install/gui/rsrc/AccountOptions.qml:18
@@ -82,45 +82,56 @@ msgstr "Cancel·la"
 msgid ""
 "A onedrive client configuration has been detected that is incompatible with "
 "LliureX-OneDrive.\n"
-"See the help for more information"
+"Do you want to remove it so you can use LliureX OneDrive?"
 msgstr ""
 "S'ha detectat una configuració del client de onedrive no compatible amb "
 "LllureX-Onedrive\n"
-"Consulteu l'ajuda per a més informació"
+"Desitgeu eliminar-la per a poder usar LliureX-OneDrive?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:119
-#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:150
-msgid "Close"
-msgstr "Tanca"
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:118
+msgid "Yes"
+msgstr "Si"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:136
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:120
+msgid "No"
+msgstr "No"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:142
 msgid "The new space to synchronize has been configured successfully"
 msgstr "El nou espai ha sincronitzar s'ha configurat correctament"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:139
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:145
 msgid "One or more spaces require your attention"
 msgstr "Un o més espais requereixen la seua atenció"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:142
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:148
+msgid "The incompatibiliy configuration has been successfully removed"
+msgstr "La configuració incompatible ha sigut eliminada correctament"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:151
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
 "S'ha produït un error durant la instal·lació. Espereu un moment i torneu-ho "
 "a provar"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:145
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:154
 msgid "The available space in HDD is less than 10 GB"
 msgstr "L'espai disponible en el disc dur és menor de 10 GB"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:148
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:157
 msgid ""
 "The available space in HDD is less than 5 GB. No more content will be synced"
 msgstr ""
 "L'espai disponible en el disc dur és menor de 5 GB. No se sincronitzarà mes "
 "contingut"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:151
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:160
 msgid "There is not enough space in HDD to sync more spaces"
 msgstr "No hi ha espai disponible en el disc dur per a sincronitzar més espais"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:163
+msgid "Unable to remove incompatibility configuration"
+msgstr "No s'ha pogut eliminar la configuració incompatible"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceList.qml:51
 msgid "No space is being sinced"
@@ -905,9 +916,17 @@ msgstr "S'està executant el procés de consolidació. Espereu un moment..."
 msgid "Updating authorization. Wait a moment.."
 msgstr "S'està actualitzant l'autorització. Espereu un moment..."
 
+#: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:107
+msgid "Removing incompatible configuration..."
+msgstr "S'està eliminant la configuració incompatible..."
+
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:136
 msgid "View errors report"
 msgstr "Veure informe d'errors"
+
+#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:150
+msgid "Close"
+msgstr "Tanca"
 
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:179
 msgid ""
