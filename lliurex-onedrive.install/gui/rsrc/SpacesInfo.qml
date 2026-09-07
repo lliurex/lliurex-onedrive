@@ -109,18 +109,24 @@ Rectangle{
         id:incompatibilityDialog
         dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
         dialogVisible:mainStackBridge.showIncompatibilityWarning
-        dialogMsg:i18nd("lliurex-onedrive","A onedrive client configuration has been detected that is incompatible with LliureX-OneDrive.\nSee the help for more information")
+        dialogMsg:i18nd("lliurex-onedrive","A onedrive client configuration has been detected that is incompatible with LliureX-OneDrive.\nDo you want to remove it so you can use LliureX OneDrive?")
         dialogWidth:700
         dialogHeight:120
         btnAcceptVisible:false
         btnAcceptText:""
-        btnDiscardVisible:false
-        btnDiscardText:""
-        btnCancelText:i18nd("lliurex-onedrive","Close")
-        btnCancelIcon:"dialog-close.svg"
+        btnDiscardVisible:true
+        btnDiscardText:i18nd("lliurex-onedrive","Yes")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","No")
+        btnCancelIcon:"dialog-cancel.svg"
 
         Connections{
             target:incompatibilityDialog
+
+             function onDiscardDialogClicked(){
+                incompatibilityDialog.close()
+                mainStackBridge.removeConflictingConfig()                 
+            }
 
             function onRejectDialogClicked(){
                 incompatibilityDialog.close()
@@ -138,6 +144,9 @@ Rectangle{
             case 15:
                 var msg=i18nd("lliurex-onedrive","One or more spaces require your attention")
                 break;
+            case 16:
+                var msg=i18nd("lliurex-onedrive","The incompatibiliy configuration has been successfully removed")
+                break;
             case -3:
                 var msg=i18nd("lliurex-onedrive","An error occurred during setup. Wait a moment and try again")
                 break;
@@ -149,6 +158,9 @@ Rectangle{
                 break;
             case -20:
                 var msg=i18nd("lliurex-onedrive","There is not enough space in HDD to sync more spaces")
+                break;
+            case -21:
+                var msg=i18nd("lliurex-onedrive","Unable to remove incompatibility configuration")
                 break;
             default:
                 var msg=""
