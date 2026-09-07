@@ -100,8 +100,11 @@ Popup {
             case 23:
                 var msg=i18nd("lliurex-onedrive","The consolidation process is running. Wait a moment...")
                 break
-          case 25:
+            case 25:
                 var msg=i18nd("lliurex-onedrive","Updating authorization. Wait a moment..")
+                break;
+            case 26:
+                var msg=i18nd("lliurex-onedrive","Removing incompatible configuration...")
                 break;
           default:
                 var msg=""

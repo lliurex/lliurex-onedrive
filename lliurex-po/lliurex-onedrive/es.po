@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 14:00+0200\n"
-"PO-Revision-Date: 2026-07-13 14:00+0200\n"
+"POT-Creation-Date: 2026-09-07 12:44+0200\n"
+"PO-Revision-Date: 2026-09-07 12:51+0200\n"
 "Last-Translator: d33475574v <gimenez_angcam@gva.es>\n"
 "Language-Team: Spanish <https://weblate.gva.es/projects/lliurex-onedrive/"
 "lliurex-onedrive/es/>\n"
@@ -91,46 +91,57 @@ msgstr "Uso incompatible"
 msgid ""
 "A onedrive client configuration has been detected that is incompatible with "
 "LliureX-OneDrive.\n"
-"See the help for more information"
+"Do you want to remove it so you can use LliureX OneDrive?"
 msgstr ""
 "Se ha detectado una configuración del cliente de onedrive no compatible con "
 "LliureX-OneDrive.\n"
-"Consulte la ayuda para más información"
+"¿Desea eliminarla para poder usar LliureX OneDrive?"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:121
-#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:149
-msgid "Close"
-msgstr "Cerrar"
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:120
+msgid "Yes"
+msgstr "Si"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:138
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:122
+msgid "No"
+msgstr "No"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:144
 msgid "The new space to synchronize has been configured successfully"
 msgstr "El nuevo espacio ha sincronizar se ha configurado correctamente"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:141
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:147
 msgid "One or more spaces require your attention"
 msgstr "Uno o más espacios requieren su atención"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:144
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:150
+msgid "The incompatibiliy configuration has been successfully removed"
+msgstr "La configuración incompatible ha sido eliminada correctamente"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:153
 msgid "An error occurred during setup. Wait a moment and try again"
 msgstr ""
 "Ha ocurrido un error durante la configuración. Espere un momento e inténtelo "
 "de nuevo"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:147
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:156
 msgid "The available space in HDD is less than 10 GB"
 msgstr "El espacio disponible en el disco duro es menor de 10 GB"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:150
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:159
 msgid ""
 "The available space in HDD is less than 5 GB. No more content will be synced"
 msgstr ""
 "El espacio disponible en el disco duro es menos de 5 GB. No se sincronizará "
 "más contenido"
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:153
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:162
 msgid "There is not enough space in HDD to sync more spaces"
 msgstr ""
 "No hay espacio suficiente en el disco duro para sincronizar más espacios"
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:165
+msgid "Unable to remove incompatibility configuration"
+msgstr "No se ha podido eliminar la configuración incompatible"
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceList.qml:51
 msgid "No space is being sinced"
@@ -931,9 +942,17 @@ msgstr "Ejecutando el proceso de consolidación. Espere un momento..."
 msgid "Updating authorization. Wait a moment.."
 msgstr "Actualizando la autorización. Espere un momento..."
 
+#: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:107
+msgid "Removing incompatible configuration..."
+msgstr "Eliminado la configuración incompatible..."
+
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:135
 msgid "View errors report"
 msgstr "Ver informe de errores"
+
+#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:149
+msgid "Close"
+msgstr "Cerrar"
 
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:178
 msgid ""

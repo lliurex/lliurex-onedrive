@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 14:00+0200\n"
+"POT-Creation-Date: 2026-09-07 12:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,37 +86,48 @@ msgstr ""
 msgid ""
 "A onedrive client configuration has been detected that is incompatible with "
 "LliureX-OneDrive.\n"
-"See the help for more information"
+"Do you want to remove it so you can use LliureX OneDrive?"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:121
-#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:149
-msgid "Close"
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:120
+msgid "Yes"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:138
-msgid "The new space to synchronize has been configured successfully"
-msgstr ""
-
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:141
-msgid "One or more spaces require your attention"
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:122
+msgid "No"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:144
-msgid "An error occurred during setup. Wait a moment and try again"
+msgid "The new space to synchronize has been configured successfully"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:147
-msgid "The available space in HDD is less than 10 GB"
+msgid "One or more spaces require your attention"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:150
+msgid "The incompatibiliy configuration has been successfully removed"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:153
+msgid "An error occurred during setup. Wait a moment and try again"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:156
+msgid "The available space in HDD is less than 10 GB"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:159
 msgid ""
 "The available space in HDD is less than 5 GB. No more content will be synced"
 msgstr ""
 
-#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:153
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:162
 msgid "There is not enough space in HDD to sync more spaces"
+msgstr ""
+
+#: ../lliurex-onedrive.install/gui/rsrc/SpacesInfo.qml:165
+msgid "Unable to remove incompatibility configuration"
 msgstr ""
 
 #: ../lliurex-onedrive.install/gui/rsrc/SpaceList.qml:51
@@ -825,8 +836,16 @@ msgstr ""
 msgid "Updating authorization. Wait a moment.."
 msgstr ""
 
+#: ../lliurex-onedrive.install/gui/rsrc/CustomPopup.qml:107
+msgid "Removing incompatible configuration..."
+msgstr ""
+
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:135
 msgid "View errors report"
+msgstr ""
+
+#: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:149
+msgid "Close"
 msgstr ""
 
 #: ../lliurex-onedrive.install/menuAction/send_to_backup_dialog.qml:178
