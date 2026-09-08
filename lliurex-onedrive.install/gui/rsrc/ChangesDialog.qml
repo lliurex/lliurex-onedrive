@@ -84,7 +84,7 @@ Popup {
                 }
             }
 
-            Button {
+            PC.Button {
                 id:dialogDiscardBtn
                 display:AbstractButton.TextBesideIcon
                 icon.name:btnDiscardIcon
