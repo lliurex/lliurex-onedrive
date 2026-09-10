@@ -1,3 +1,9 @@
+lliurex-onedrive (3.16.5) noble; urgency=medium
+
+  * Added method to remove conflicting configurations
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 10 Sep 2026 11:20:59 +0200
+
 lliurex-onedrive (3.16.4.1) noble; urgency=medium
 
   * Changed to support onedrive v2.5.11
