@@ -1,3 +1,9 @@
+lliurex-onedrive (2.15.6) jammy; urgency=medium
+
+  * Increased timeout for the initial download test
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 18 Sep 2026 13:31:00 +0200
+
 lliurex-onedrive (2.15.5) jammy; urgency=medium
 
   * Added method to remove conflicting configurations
