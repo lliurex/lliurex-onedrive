@@ -1030,7 +1030,7 @@ class OnedriveManager:
 		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 		
 		try:
-			poutput=p.communicate(timeout=90)[0]
+			poutput=p.communicate(timeout=300)[0]
 			rc=p.returncode
 			if rc==0:
 				if type(poutput) is bytes:
