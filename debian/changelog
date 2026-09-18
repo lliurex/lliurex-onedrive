@@ -1,3 +1,9 @@
+lliurex-onedrive (3.16.6) noble; urgency=medium
+
+  * Increased timeout for initial download test
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 18 Sep 2026 13:33:34 +0200
+
 lliurex-onedrive (3.16.5) noble; urgency=medium
 
   * Added method to remove conflicting configurations
