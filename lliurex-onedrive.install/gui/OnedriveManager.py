@@ -1766,25 +1766,17 @@ class OnedriveManager:
 					return
 
 			if p.returncode == 0:
-				output=poutLines
-				syncOut=copy.deepcopy(output)
-			
-				folderResyncStruct=self._processingResyncOut(output)
-				folderSyncStruct=self._processingSyncOut(syncOut)
+		
+				folderResyncStruct=self._processingResyncOut(poutLines)
+				folderSyncStruct=self._processingSyncOut(poutLines)
 
-				if len(folderResyncStruct)>0:
+				if folderResyncStruct:
+					existingPath = {element["path"] for element in folderResyncStruct}
 					for item in folderSyncStruct:
-						match=0
-						for element in folderResyncStruct:
-							if item["path"]==element["path"]:
-								match=0
-								break
-							else:
-								match+=1
-						if match>0:
+						if item["path"] not in existingPath:
 							folderResyncStruct.append(item)
 				else:
-					folderResyncStruct=folderSyncStruct
+					folderResyncStruct = folderSyncStruct
 
 				self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
 				self._processingFolderStruct()			
@@ -1800,116 +1792,79 @@ class OnedriveManager:
 
 	def _processingResyncOut(self,out):
 
-		tmpOut=[]
-		for i in range(0,len(out)-1,1):
-			if out[i].startswith('Creating local directory'):
-				tmpItem=out[i].split(":")[1].strip().replace("./","")
-				if tmpItem not in tmpOut:
-					tmpOut.append(tmpItem)
-	
+		uniqueItems={}
+		for line in out[:-1]:
+			if line.startswith('Creating local directory'):
+				tmpItem=line.split(":",1).strip().replace("./","")
+				uniqueItems[tmpItem]=None
 
-		folderResyncStruct=[]
-		if len(tmpOut)>0:
-			for item in tmpOut:
-				countChildren=0
-				tmpList={}
-				tmpEntry=item
-				tmpList["path"]=tmpEntry
-				parentPath=os.path.dirname(tmpEntry)
-				tmpEntry=tmpEntry.split("/")
-				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=True
-				tmpList["hide"]=False
-				if len(tmpEntry)==1:
-					tmpList["name"]=tmpEntry[0]
-					tmpList["type"]="OneDrive"
-					tmpList["subtype"]="parent"
-					tmpList["level"]=3
-					tmpList["parentPath"]="OneDrive"
+		if not uniqueItems:
+			return []
 
-				else:
-					tmpList["name"]=tmpEntry[-1]
-					tmpList["type"]=tmpEntry[-2]
-					tmpList["subtype"]="parent"
-					tmpList["level"]=len(tmpEntry)*3
-					tmpList["parentPath"]=parentPath
-
-				for element in tmpOut:
-					tmpEntry2=element
-					tmpPath=tmpList["path"]+"/"
-					if tmpPath in tmpEntry2:
-						countChildren+=1
-
-				if countChildren>0:
-					tmpList["canExpanded"]=True 
-				else:
-					tmpList["canExpanded"]=False
-				
-				folderResyncStruct.append(tmpList)	
-
-		return folderResyncStruct
+		foldersWithChildren = {os.path.dirname(item) for item in uniqueItems if "/" in item}
+		
+		return [
+			self._buildFolderItem(item, item in foldersWithChildren)
+			for item in  uniqueItems
+		]
 
 	#def _processingResyncOut
 
 	def _processingSyncOut(self,syncOut):		
 		
-		tmpOut=[]
+		uniqueItems={}
 		
-		for i in range(0,len(syncOut)-1,1):
-			if syncOut[i].startswith("Processing:"):
-				if syncOut[i+1].startswith('The directory'):
-					tmpItem=syncOut[i].split("Processing:")[1].strip().replace("./","")
-					if tmpItem not in tmpOut:
-						tmpOut.append(tmpItem)
+		for i in range(len(syncOut)-1):
+			if syncOut[i].startswith("Processing:") and syncOut[i+1].startswith('The directory'):
+				tmpItem=syncOut[i].split("Processing:",1)[1].strip().replace("./","")
+				uniqueItems[tmpItem]=None
 		
-		folderSyncStruct=[]
-		if len(tmpOut)>0:
-			
-			for item in tmpOut:
-				countChildren=0
-				tmpList={}
-				tmpEntry=item
-				tmpList["path"]=tmpEntry
-				parentPath=os.path.dirname(tmpEntry)
-				tmpEntry=tmpEntry.split("/")
-				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=True
-				tmpList["hide"]=False
-				if len(tmpEntry)==1:
-					tmpList["name"]=tmpEntry[0]
-					tmpList["type"]="OneDrive"
-					tmpList["subtype"]="parent"
-					tmpList["level"]=3
-					tmpList["parentPath"]="OneDrive"
+		itemList = list(uniqueItems.keys())[1:]
 
-				else:
-					tmpList["name"]=tmpEntry[-1]
-					tmpList["type"]=tmpEntry[-2]
-					tmpList["subtype"]="parent"
-					tmpList["level"]=len(tmpEntry)*3
-					tmpList["parentPath"]=parentPath
-					
-				for element in tmpOut:
-					tmpEntry2=element
-					tmpPath=tmpList["path"]+"/"
-					if tmpPath in tmpEntry2:
-						countChildren+=1
+		if not itemList:
+			return []
 
-				if countChildren>0:
-					tmpList["canExpanded"]=True 
-				else:
-					tmpList["canExpanded"]=False
-						
-				folderSyncStruct.append(tmpList)	
-				
-			try:
-				folderSyncStruct.pop(0)
-			except Exception as e:
-				pass
+		foldersWithChildren={os.path.dirname(item) for item in uniqueItems if "/" in item}
 
-		return folderSyncStruct
-
+		return [
+			self._buildFolderItem(item, item in foldersWithChildren)
+			for item in itemList
+		]
+		
 	#def _processingSyncOut
+
+	def _buildFolderItem(self,item,canExpanded):
+
+		parentPath = os.path.dirname(item)
+		parts = item.split("/")
+		numParts = len(parts)
+
+		if numParts == 1:
+			name = parts[0]
+			itemType = "OneDrive"
+			level = 3
+			parentPathEnd = "OneDrive"
+
+		else:
+			name = parts[-1]
+			itemType = parts[-2]
+			level = numParts*3
+			parentPathEnd = parentPath
+
+		return {
+			"path":item,
+			"isChecked": True,
+			"isExpanded": True,
+			"hide": False,
+			"name":name,
+			"type":itemType,
+			"subtype": "parent",
+			"level":level,
+			"parentPath":parentPathEnd,
+			"canExpanded":canExpanded
+		}
+
+	#def _buildFolderItem
 
 	def _processingFolderStruct(self):
 
