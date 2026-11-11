@@ -307,6 +307,34 @@ Rectangle{
     
     }
 
+    ChangesDialog{
+        id:retryInitialCheck
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","New space")
+        dialogVisible:addSpaceStackBridge.showRetryCheckDialog[0]
+        dialogMsg:i18nd("lliurex-onedrive","Warning %1\nInitial check has been running for %2 minutes\nDo you want to wait 10 more minutes, let it run until finishes or cancel?",addSpaceStackBridge.showRetryCheckDialog[1],addSpaceStackBridge.showRetryCheckDialog[2])
+        dialogWidth:600
+        dialogHeight:120
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Run until finished")
+        btnDiscardText:i18nd("lliurex-onedrive","Wait 10 minutes")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:retryInitialCheck
+            function onDialogApplyClicked(){
+                addSpaceStackBridge.userResponse(0)
+            } 
+            function onDiscardDialogClicked(){
+                addSpaceStackBridge.userResponse(1)
+            }
+            function onRejectDialogClicked(){
+                addSpaceStackBridge.userResponse(2)
+            }
+        }  
+    }
+
     function getTextMessage(){
         switch (addSpaceStackBridge.showSpaceFormMessage[1]){
             case -1:

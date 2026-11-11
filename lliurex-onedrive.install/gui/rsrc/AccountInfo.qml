@@ -414,6 +414,34 @@ Rectangle{
 
     }
 
+    ChangesDialog{
+        id:retryStatusCheck
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Account")
+        dialogVisible:spaceStackBridge.showRetryStatusDialog[0]
+        dialogMsg:i18nd("lliurex-onedrive","Warning %1\nStatus check has been running for %2 minutes\nDo you want to wait 10 more minutes, let it run until finishes or cancel?",spaceStackBridge.showRetryStatusDialog[1],spaceStackBridge.showRetryStatusDialog[2])
+        dialogWidth:600
+        dialogHeight:120
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Run until finished")
+        btnDiscardText:i18nd("lliurex-onedrive","Wait 10 minutes")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:retryStatusCheck
+            function onDialogApplyClicked(){
+                spaceStackBridge.userResponse(0)
+            } 
+            function onDiscardDialogClicked(){
+                spaceStackBridge.userResponse(1)
+            }
+            function onRejectDialogClicked(){
+                spaceStackBridge.userResponse(2)
+            }
+        }  
+    }
+
     CustomPopup{
         id:accountPopup
     }

@@ -292,7 +292,36 @@ Rectangle{
                 updateProcessDialog.close()
             }
         }
-    }         
+    }
+
+    ChangesDialog{
+        id:retryTest
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogTitle:"Lliurex Onedrive"+" - "+i18nd("lliurex-onedrive","Tools")
+        dialogVisible:toolStackBridge.showRetryTestDialog[0]
+        dialogMsg:i18nd("lliurex-onedrive","Warning %1\nTest has been running for %2 minutes\nDo you want to wait 10 more minutes, let it run until finishes or cancel?",toolStackBridge.showRetryTestDialog[1],toolStackBridge.showRetryTestDialog[2])
+        dialogWidth:600
+        dialogHeight:120
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Run until finished")
+        btnDiscardText:i18nd("lliurex-onedrive","Wait 10 minutes")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:retryTest
+            function onDialogApplyClicked(){
+                toolStackBridge.userResponse(0)
+            } 
+            function onDiscardDialogClicked(){
+                toolStackBridge.userResponse(1)
+            }
+            function onRejectDialogClicked(){
+                toolStackBridge.userResponse(2)
+            }
+        }  
+    } 
+            
     CustomPopup{
         id:toolsPopup
     }

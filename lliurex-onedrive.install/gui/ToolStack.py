@@ -120,6 +120,9 @@ class Bridge(QObject):
 
 		self._showToolsMessage=[False,Bridge.TOOLS_DEFAULT_MESSAGE,"Information"]
 		self.updateSpaceAuth=False
+		self._showRetryTestDialog=[False,0,0]
+		self._timeout_event = threading.Event()
+		self.continueWithCheck = 2
 
 	#def __init__
 	
@@ -137,6 +140,21 @@ class Bridge(QObject):
 
 	#def _setShowToolsMessage
 
+	def _getShowRetryTestDialog(self):
+
+		return self._showRetryTestDialog
+
+	#def _getShowRetryTestDialog
+
+	def _setShowRetryTestDialog(self,showRetryTestDialog):
+
+		if self._showRetryTestDialog != showRetryTestDialog:
+			self._showRetryTestDialog = showRetryTestDialog
+			self.on_showRetryTestDialog.emit()
+
+	#def _setShowRetryStatusDialog
+
+
 	@Slot()
 	def testOnedrive(self):
 
@@ -146,6 +164,24 @@ class Bridge(QObject):
 		self.testOnedriveT.finished.connect(self._testOnedrive)
 
 	#def testOnedrive
+
+	def waitForUser(self, attempts,accumulateTime):
+
+		self._timeout_event.clear()
+		self.showRetryTestDialog=[True,attempts,accumulateTime]
+		self._timeout_event.wait()
+		return self.continueWithCheck
+
+	#def waitForUser
+
+	@Slot(int)
+	def userResponse(self,response):
+
+		self.showRetryTestDialog=[False,0,0]
+		self.continueWithCheck = response
+		self._timeout_event.set()
+
+	#def userResponse
 	
 	def _testOnedrive(self):
 
@@ -241,6 +277,9 @@ class Bridge(QObject):
 
 	on_showToolsMessage=Signal()
 	showToolsMessage=Property('QVariantList',_getShowToolsMessage,_setShowToolsMessage,notify=on_showToolsMessage)
+
+	on_showRetryTestDialog = Signal()
+	showRetryTestDialog = Property('QVariantList',_getShowRetryTestDialog,_setShowRetryTestDialog,notify=on_showRetryTestDialog)
 
 #class Bridge
 

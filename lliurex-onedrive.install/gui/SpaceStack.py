@@ -118,6 +118,9 @@ class Bridge(QObject):
 		self._isUpdateRequired=False
 		self._showUpdateRequiredDialog=False
 		self._filesPendingUpload=0
+		self._showRetryStatusDialog=[False,0,0]
+		self._timeout_event = threading.Event()
+		self.continueWithCheck = 2
 
 	#def __init__
 	
@@ -302,6 +305,20 @@ class Bridge(QObject):
 			self.on_filesPendingUpload.emit()
 
 	#def _setFilesPendingUpload
+
+	def _getShowRetryStatusDialog(self):
+
+		return self._showRetryStatusDialog
+
+	#def _getShowRetryStatusDialog
+
+	def _setShowRetryStatusDialog(self,showRetryStatusDialog):
+
+		if self._showRetryStatusDialog != showRetryStatusDialog:
+			self._showRetryStatusDialog = showRetryStatusDialog
+			self.on_showRetryStatusDialog.emit()
+
+	#def _setShowRetryStatusDialog
 
 	@Slot(int)
 	def moveToManageOption(self,option):
@@ -518,6 +535,24 @@ class Bridge(QObject):
 
 	#def checkAccountStatus
 
+	def waitForUser(self, attempts,accumulateTime):
+
+		self._timeout_event.clear()
+		self.showRetryStatusDialog=[True,attempts,accumulateTime]
+		self._timeout_event.wait()
+		return self.continueWithCheck
+
+	#def waitForUser
+
+	@Slot(int)
+	def userResponse(self,response):
+
+		self.showRetryStatusDialog=[False,0,0]
+		self.continueWithCheck = response
+		self._timeout_event.set()
+
+	#def userResponse
+
 	def _checkAccountStatus(self):
 
 		if self.initStartUp:
@@ -658,6 +693,9 @@ class Bridge(QObject):
 
 	on_filesPendingUpload=Signal()
 	filesPendingUpload=Property(int,_getFilesPendingUpload,_setFilesPendingUpload,notify=on_filesPendingUpload)
+
+	on_showRetryStatusDialog = Signal()
+	showRetryStatusDialog = Property('QVariantList',_getShowRetryStatusDialog,_setShowRetryStatusDialog,notify=on_showRetryStatusDialog)
 
 #class Bridge
 

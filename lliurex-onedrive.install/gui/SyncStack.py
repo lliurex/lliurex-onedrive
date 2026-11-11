@@ -81,6 +81,9 @@ class Bridge(QObject):
 		self._fileExtensionsModel=FileExtensionsModel.FileExtensionsModel()
 		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
 		self._skipFileChanged=False
+		self._showRetrySyncDialog=[False,0,0]
+		self._timeout_event = threading.Event()
+		self.continueWithCheck = 2
 
 	#def __init__
 	
@@ -208,6 +211,20 @@ class Bridge(QObject):
 
 	#def _setSkipFileChanged
 
+	def _getShowRetrySyncDialog(self):
+
+		return self._showRetrySyncDialog
+
+	#def _getShowRetrySyncDialog
+
+	def _setShowRetrySyncDialog(self,showRetrySyncDialog):
+
+		if self._showRetrySyncDialog != showRetrySyncDialog:
+			self._showRetrySyncDialog = showRetrySyncDialog
+			self.on_showRetrySyncDialog.emit()
+
+	#def _setShowRetrySyncDialog
+
 	def _updateFileExtensionsModel(self):
 
 		ret=self._fileExtensionsModel.clear()
@@ -238,6 +255,24 @@ class Bridge(QObject):
 		self.getFolderStruct.finished.connect(self._updateFolderStruct)
 
 	#def updateFolderStruct
+
+	def waitForUser(self, attempts,accumulateTime):
+
+		self._timeout_event.clear()
+		self.showRetrySyncDialog=[True,attempts,accumulateTime]
+		self._timeout_event.wait()
+		return self.continueWithCheck
+
+	#def waitForUser
+
+	@Slot(int)
+	def userResponse(self,response):
+
+		self.showRetrySyncDialog=[False,0,0]
+		self.continueWithCheck = response
+		self._timeout_event.set()
+
+	#def userResponse
 
 	def _updateFolderStruct(self):
 
@@ -552,6 +587,9 @@ class Bridge(QObject):
 
 	on_skipFileChanged=Signal()
 	skipFileChanged=Property(bool,_getSkipFileChanged,_setSkipFileChanged,notify=on_skipFileChanged)
+
+	on_showRetrySyncDialog = Signal()
+	showRetrySyncDialog = Property('QVariantList',_getShowRetrySyncDialog,_setShowRetrySyncDialog,notify=on_showRetrySyncDialog)
 
 	folderModel=Property(QObject,_getFolderModel,constant=True)
 	fileExtensionsModel=Property(QObject,_getFileExtensionsModel,constant=True)
