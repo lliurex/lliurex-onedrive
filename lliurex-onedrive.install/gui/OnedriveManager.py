@@ -1188,7 +1188,9 @@ class OnedriveManager:
 			self.logPath=os.path.join(self.logFolder,logFile)
 			self.logSize=self.getLogFileSize()
 			self.isUpdateRequired=self.checkIfUpdateIsRequired()
+			
 			return True
+		
 		return False
 		
 	#def loadSpaceSettings
@@ -1210,34 +1212,38 @@ class OnedriveManager:
 
 		filterFile=os.path.join(self.spaceConfPath,self.filterFile)
 
+		self.foldersSelected.clear()
+		self.foldersUnSelected.clear()
+
+		if not os.path.exists(filterFile):
+			return
+
 		with open(filterFile,'r') as fd:
-			lines=fd.readlines()
-			fd.close()
+			for line in fd:
+				tmpLine=line.strip()
+				if not tmpLine or tmpLine.startswith("#"):
+					continue
 
-			for line in lines:
-				tmpLine=line.split("\n")[0]
-				if tmpLine.startswith("!"):
-					if tmpLine.endswith("/*"):
-						tmpLine=tmpLine.split("!")[1].split("/*")[0]
-					elif tmpLine.endswith("/"):
-						tmpLine=tmpLine.split("!")[1][:-1]
+				isExcluded=tmpLine.startswith("!")
+				if isExcluded:
+					tmpLine=tmpLine[1:].strip()
 
-					if tmpLine.startswith("/"):
-						tmpLine=tmpLine[1:]
+				if tmpLine.endswith("/*"):
+					tmpLine=tmpLine[:-2]
+
+				tmpLine=tmpLine.strip("/")
+
+				if not tmpLine:
+					continue
+
+				if isExcluded:
 					if tmpLine not in self.foldersUnSelected:
 						self.foldersUnSelected.append(tmpLine)
 				else:
-					tmpLine=tmpLine.split("/*")[0]
-					if tmpLine.endswith("/*"):
-						tmpLine=tmpLine.split("/*")[0]
-					elif tmpLine.endswith("/"):
-						tmpLine=tmpLine.split("/")[0][:-1]
-
-					if tmpLine.startswith("/"):
-						tmpLine=tmpLine[1:]
 					if tmpLine not in self.foldersSelected:
 						self.foldersSelected.append(tmpLine)
 
+	
 	#def readFilterFile	
 
 	def isOnedriveRunning(self,spaceConfPath=None,oldCommand=False):

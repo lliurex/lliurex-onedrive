@@ -278,7 +278,7 @@ Rectangle{
         dialogWidth:600
         dialogHeight:140
         btnAcceptVisible:true
-        btnAcceptText:i18nd("lliurex-onedrive","Wait 10 minutes")
+        btnAcceptText:i18nd("lliurex-onedrive","Wait for 10 minutes")
         btnDiscardText:i18nd("lliurex-onedrive","Run until finished")
         btnDiscardIcon:"dialog-ok.svg"
         btnCancelText:i18nd("lliurex-onedrive","Cancel")

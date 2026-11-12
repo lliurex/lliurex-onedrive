@@ -412,6 +412,7 @@ class Bridge(QObject):
 			self.core.syncStack._updateFolderStruct()
 		else:
 			self.core.syncStack._folderModel.resetModel()
+			self.core.syncStack._proxyFolderModel.invalidateFilter()
 			self.core.syncStack.showFolderStruct=False
 			
 		self.core.syncStack._updateFileExtensionsModel()

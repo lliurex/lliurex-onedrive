@@ -70,6 +70,8 @@ class Bridge(QObject):
 		self._showSynchronizeDialog=False
 		self._showSynchronizePendingDialog=False
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self._baseCheckedFolders=set(filter(None,self.initialSyncConfig[1]))-{"OneDrive"}
+		self._baseUncheckedFolders=set(filter(None,self.initialSyncConfig[2]))-{"OneDrive"}
 		self._syncAll=Bridge.onedriveManager.syncAll
 		self._syncCustomChanged=False
 		self._showFolderStruct=Bridge.onedriveManager.showFolderStruct
@@ -282,6 +284,10 @@ class Bridge(QObject):
 		self._insertModelEntries()
 		self.core.mainStack.closePopUp=[True,""]
 		self.showFolderStruct=True
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self._baseCheckedFolders=set(filter(None,self.initialSyncConfig[1]))-{"OneDrive"}
+		self._baseUncheckedFolders=set(filter(None,self.initialSyncConfig[2]))-{"OneDrive"}
+
 		if self.errorGetFolder:
 			self.showSynchronizeMessage=[True,Bridge.CHANGE_SYNC_FOLDERS_ERROR,"Error"]
 
@@ -306,11 +312,11 @@ class Bridge(QObject):
 		foldersChanges = dict(changedItems)
 		Bridge.onedriveManager.updateCheckFolderBatch(foldersChanges)
 
-		foldersChecked = set(self.initialSyncConfig[1])
-		foldersUnChecked = set(self.initialSyncConfig[2])
+		foldersChecked = set(filter(None,self.initialSyncConfig[1]))
+		foldersUnChecked = set(filter(None,self.initialSyncConfig[2]))
 
 		for itemPath,checked in changedItems:
-			if itemPath== "Onedrive":
+			if itemPath== "OneDrive" or itemPath is None:
 				continue
 			if checked:
 				foldersChecked.add(itemPath)
@@ -319,29 +325,20 @@ class Bridge(QObject):
 				foldersChecked.discard(itemPath)
 				foldersUnChecked.add(itemPath)
 
-		foldersChecked.discard(None)
-		foldersUnChecked.discard(None)
-
 		self.initialSyncConfig[1] = sorted(foldersChecked)
 		self.initialSyncConfig[2] = sorted(foldersUnChecked)
 
-		if None in Bridge.onedriveManager.currentSyncConfig[1]:
-			Bridge.onedriveManager.currentSyncConfig[1].remove(None)
-		Bridge.onedriveManager.currentSyncConfig[1].sort()
+		draftChecked = foldersChecked - {"OneDrive"}
+		draftUnChecked = foldersUnChecked - {"OneDrive"}
+
+		if not draftChecked or not draftUnChecked:
+			self.syncCustomChanged = False
+			return 
+
+		self.syncCustomChanged = (
+			draftChecked != self._baseCheckedFolders or draftUnChecked != self._baseUncheckedFolders
+		)
 		
-		if None in Bridge.onedriveManager.currentSyncConfig[2]:
-			Bridge.onedriveManager.currentSyncConfig[2].remove(None)
-		Bridge.onedriveManager.currentSyncConfig[2].sort()
-
-		if not foldersUnChecked or not foldersChecked:
-			self.syncCustomChanged=False
-			return
-
-		if (self.initialSyncConfig[1]!=Bridge.onedriveManager.currentSyncConfig[1] or 
-			self.initialSyncConfig[2]!=Bridge.onedriveManager.currentSyncConfig[2]):
-			self.syncCustomChanged=True
-		else:
-			self.syncCustomChanged=False
 	
 	#def checkFolder
 	
