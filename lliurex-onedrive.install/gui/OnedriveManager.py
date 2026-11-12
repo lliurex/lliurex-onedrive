@@ -1063,10 +1063,10 @@ class OnedriveManager:
 				maintainExecution = self.core.addSpaceStack.waitForUser(attempts,round(accumulateTime/60))
 
 				if maintainExecution == 0:
-					waitTime = None
+					waitTime = extraTime
 					p.send_signal(signal.SIGCONT)
 				elif maintainExecution == 1:
-					waitTime = extraTime
+					waitTime = None
 					p.send_signal(signal.SIGCONT)
 				else:
 					p.kill()
@@ -1425,10 +1425,10 @@ class OnedriveManager:
 					maintainExecution = self.core.spaceStack.waitForUser(attempts,round(accumulateTime/60))
 
 					if maintainExecution == 0:
-						waitTime = None
+						waitTime = extraTime
 						p.send_signal(signal.SIGCONT)
 					elif maintainExecution == 1:
-						waitTime = extraTime
+						waitTime = None
 						p.send_signal(signal.SIGCONT)
 					else:
 						p.kill()
@@ -1748,10 +1748,10 @@ class OnedriveManager:
 					maintainExecution = self.core.syncStack.waitForUser(attempts,round(accumulateTime/60))
 
 					if maintainExecution == 0:
-						waitTime = None
+						waitTime = extraTime
 						p.send_signal(signal.SIGCONT)
 					elif maintainExecution == 1:
-						waitTime = extraTime
+						waitTime = None
 						p.send_signal(signal.SIGCONT)
 					else:
 						p.kill()
@@ -2413,10 +2413,10 @@ class OnedriveManager:
 					maintainExecution = self.core.toolStack.waitForUser(attempts,round(accumulateTime/60))
 
 					if maintainExecution == 0:
-						waitTime = None
+						waitTime = extraTime
 						p.send_signal(signal.SIGCONT)
 					elif maintainExecution == 1:
-						waitTime = extraTime
+						waitTime = None
 						p.send_signal(signal.SIGCONT)
 					else:
 						p.kill()
