@@ -2144,13 +2144,13 @@ class OnedriveManager:
 
 	#def manageFileFilter
 
-	def updateCheckFolder(self,path,checked):
+	def updateCheckFolderBatch(self,folderChanges):
 
 		for item in self.folderStruct:
-			if item["path"]==path:
-				item["isChecked"]=checked
+			if item["path"] in folderChanges:
+				item["isChecked"] = folderChanges[item["path"]]
 
-	#def updateCheckFolder
+	#def updateCheckFolderBatch
 
 	def cancelSyncChanges(self):
 

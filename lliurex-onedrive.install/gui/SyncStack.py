@@ -78,6 +78,8 @@ class Bridge(QObject):
 		self.changedSyncWorked=False
 		self.folderEntries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True,"parentPath":""}]
 		self._folderModel=FolderModel.FolderModel(self.folderEntries)
+		self._proxyFolderModel = FolderModel.FolderFilterProxyModel(self)
+		self._proxyFolderModel.setSourceModel(self._folderModel)
 		self._fileExtensionsModel=FileExtensionsModel.FileExtensionsModel()
 		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
 		self._skipFileChanged=False
@@ -88,8 +90,8 @@ class Bridge(QObject):
 	#def __init__
 	
 	def _getFolderModel(self):
-		
-		return self._folderModel
+
+		return self._proxyFolderModel
 
 	#def _getFolderModel
 
@@ -285,66 +287,70 @@ class Bridge(QObject):
 
 	#def _updateFolderStruct
 
-	@Slot('QVariantList')
-	def folderChecked(self,info):
+	@Slot(str, bool)
+	def expandFolder(self, path, is_expanded):
 
-		Bridge.onedriveManager.updateCheckFolder(info[0],info[1])
-		path=info[0]
-		if info[1]:
-			if path not in self.initialSyncConfig[1]:
-				self.initialSyncConfig[1].append(path)
-			if path in self.initialSyncConfig[2]:
-				self.initialSyncConfig[2].remove(path)
-		else:
-			if path not in self.initialSyncConfig[2]:
-				self.initialSyncConfig[2].append(path)
-			if path in self.initialSyncConfig[1]:
-				self.initialSyncConfig[1].remove(path)
+		self._folderModel.expandFolder(path, is_expanded)
+		self._proxyFolderModel.invalidateFilter()
 
-		if None in self.initialSyncConfig[1]:
-			self.initialSyncConfig[1].remove(None)
-		self.initialSyncConfig[1].sort()
-		if None in self.initialSyncConfig[2]:
-			self.initialSyncConfig[2].remove(None)
-		self.initialSyncConfig[2].sort()
+	#def expandFolder
+
+	@Slot(str, bool)
+	def checkFolder(self, path, is_checked):
+
+		changedItems = self._folderModel.checkFolderBatch(path, is_checked)
+		
+		if not changedItems:
+			return 
+
+		foldersChanges = dict(changedItems)
+		Bridge.onedriveManager.updateCheckFolderBatch(foldersChanges)
+
+		foldersChecked = set(self.initialSyncConfig[1])
+		foldersUnChecked = set(self.initialSyncConfig[2])
+
+		for itemPath,checked in changedItems:
+			if itemPath== "Onedrive":
+				continue
+			if checked:
+				foldersChecked.add(itemPath)
+				foldersUnChecked.discard(itemPath)
+			else:
+				foldersChecked.discard(itemPath)
+				foldersUnChecked.add(itemPath)
+
+		foldersChecked.discard(None)
+		foldersUnChecked.discard(None)
+
+		self.initialSyncConfig[1] = sorted(foldersChecked)
+		self.initialSyncConfig[2] = sorted(foldersUnChecked)
+
 		if None in Bridge.onedriveManager.currentSyncConfig[1]:
 			Bridge.onedriveManager.currentSyncConfig[1].remove(None)
 		Bridge.onedriveManager.currentSyncConfig[1].sort()
+		
 		if None in Bridge.onedriveManager.currentSyncConfig[2]:
 			Bridge.onedriveManager.currentSyncConfig[2].remove(None)
 		Bridge.onedriveManager.currentSyncConfig[2].sort()
 
-		if self.initialSyncConfig[1]!=Bridge.onedriveManager.currentSyncConfig[1]:
+		if not foldersUnChecked or not foldersChecked:
+			self.syncCustomChanged=False
+			return
+
+		if (self.initialSyncConfig[1]!=Bridge.onedriveManager.currentSyncConfig[1] or 
+			self.initialSyncConfig[2]!=Bridge.onedriveManager.currentSyncConfig[2]):
 			self.syncCustomChanged=True
 		else:
-			if self.initialSyncConfig[2]!=Bridge.onedriveManager.currentSyncConfig[2]:
-				self.syncCustomChanged=True
-			else:
-				self.syncCustomChanged=False
-
-	#def folderChecked
-
-	@Slot(int,result='QVariant')
-	def getModelData(self,index):
-		
-		return self.folderEntries[index]
-
-	#def getModelData
-
-	@Slot('QVariantList')
-	def updateModel(self,info):
-		
-		index = self._folderModel.index(info[0])
-		self._folderModel.setData(index,info[1],info[2])
+			self.syncCustomChanged=False
 	
-	#def updateModel
-
+	#def checkFolder
+	
 	def _insertModelEntries(self):
 
 		ret=self._folderModel.resetModel()
 		entries=Bridge.onedriveManager.folderStruct
-		for item in entries:
-			self._folderModel.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"],item["parentPath"])
+		self._folderModel.appendRows(entries)
+		self._proxyFolderModel.invalidateFilter()
 
 	#def _insertModelEntries
 
