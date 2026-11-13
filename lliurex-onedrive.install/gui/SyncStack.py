@@ -70,6 +70,8 @@ class Bridge(QObject):
 		self._showSynchronizeDialog=False
 		self._showSynchronizePendingDialog=False
 		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self._baseCheckedFolders=set(filter(None,self.initialSyncConfig[1]))-{"OneDrive"}
+		self._baseUncheckedFolders=set(filter(None,self.initialSyncConfig[2]))-{"OneDrive"}
 		self._syncAll=Bridge.onedriveManager.syncAll
 		self._syncCustomChanged=False
 		self._showFolderStruct=Bridge.onedriveManager.showFolderStruct
@@ -78,15 +80,20 @@ class Bridge(QObject):
 		self.changedSyncWorked=False
 		self.folderEntries=[{"path":"OneDrive", "name": "OneDrive","isChecked":True, "isExpanded": True,"type":"parent","subtype":"root","hide":False,"level":1,"canExpanded":True,"parentPath":""}]
 		self._folderModel=FolderModel.FolderModel(self.folderEntries)
+		self._proxyFolderModel = FolderModel.FolderFilterProxyModel(self)
+		self._proxyFolderModel.setSourceModel(self._folderModel)
 		self._fileExtensionsModel=FileExtensionsModel.FileExtensionsModel()
 		self._skipFileExtensions=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig[3])
 		self._skipFileChanged=False
+		self._showRetrySyncDialog=[False,0,0]
+		self._timeout_event = threading.Event()
+		self.continueWithCheck = 2
 
 	#def __init__
 	
 	def _getFolderModel(self):
-		
-		return self._folderModel
+
+		return self._proxyFolderModel
 
 	#def _getFolderModel
 
@@ -208,6 +215,20 @@ class Bridge(QObject):
 
 	#def _setSkipFileChanged
 
+	def _getShowRetrySyncDialog(self):
+
+		return self._showRetrySyncDialog
+
+	#def _getShowRetrySyncDialog
+
+	def _setShowRetrySyncDialog(self,showRetrySyncDialog):
+
+		if self._showRetrySyncDialog != showRetrySyncDialog:
+			self._showRetrySyncDialog = showRetrySyncDialog
+			self.on_showRetrySyncDialog.emit()
+
+	#def _setShowRetrySyncDialog
+
 	def _updateFileExtensionsModel(self):
 
 		ret=self._fileExtensionsModel.clear()
@@ -239,77 +260,94 @@ class Bridge(QObject):
 
 	#def updateFolderStruct
 
+	def waitForUser(self, attempts,accumulateTime):
+
+		self._timeout_event.clear()
+		self.showRetrySyncDialog=[True,attempts,accumulateTime]
+		self._timeout_event.wait()
+		return self.continueWithCheck
+
+	#def waitForUser
+
+	@Slot(int)
+	def userResponse(self,response):
+
+		self.showRetrySyncDialog=[False,0,0]
+		self.continueWithCheck = response
+		self._timeout_event.set()
+
+	#def userResponse
+
 	def _updateFolderStruct(self):
 
 		self.errorGetFolder=Bridge.onedriveManager.errorFolder
 		self._insertModelEntries()
 		self.core.mainStack.closePopUp=[True,""]
 		self.showFolderStruct=True
+		self.initialSyncConfig=copy.deepcopy(Bridge.onedriveManager.currentSyncConfig)
+		self._baseCheckedFolders=set(filter(None,self.initialSyncConfig[1]))-{"OneDrive"}
+		self._baseUncheckedFolders=set(filter(None,self.initialSyncConfig[2]))-{"OneDrive"}
+
 		if self.errorGetFolder:
 			self.showSynchronizeMessage=[True,Bridge.CHANGE_SYNC_FOLDERS_ERROR,"Error"]
 
 	#def _updateFolderStruct
 
-	@Slot('QVariantList')
-	def folderChecked(self,info):
+	@Slot(str, bool)
+	def expandFolder(self, path, is_expanded):
 
-		Bridge.onedriveManager.updateCheckFolder(info[0],info[1])
-		path=info[0]
-		if info[1]:
-			if path not in self.initialSyncConfig[1]:
-				self.initialSyncConfig[1].append(path)
-			if path in self.initialSyncConfig[2]:
-				self.initialSyncConfig[2].remove(path)
-		else:
-			if path not in self.initialSyncConfig[2]:
-				self.initialSyncConfig[2].append(path)
-			if path in self.initialSyncConfig[1]:
-				self.initialSyncConfig[1].remove(path)
+		self._folderModel.expandFolder(path, is_expanded)
+		self._proxyFolderModel.invalidateFilter()
 
-		if None in self.initialSyncConfig[1]:
-			self.initialSyncConfig[1].remove(None)
-		self.initialSyncConfig[1].sort()
-		if None in self.initialSyncConfig[2]:
-			self.initialSyncConfig[2].remove(None)
-		self.initialSyncConfig[2].sort()
-		if None in Bridge.onedriveManager.currentSyncConfig[1]:
-			Bridge.onedriveManager.currentSyncConfig[1].remove(None)
-		Bridge.onedriveManager.currentSyncConfig[1].sort()
-		if None in Bridge.onedriveManager.currentSyncConfig[2]:
-			Bridge.onedriveManager.currentSyncConfig[2].remove(None)
-		Bridge.onedriveManager.currentSyncConfig[2].sort()
+	#def expandFolder
 
-		if self.initialSyncConfig[1]!=Bridge.onedriveManager.currentSyncConfig[1]:
-			self.syncCustomChanged=True
-		else:
-			if self.initialSyncConfig[2]!=Bridge.onedriveManager.currentSyncConfig[2]:
-				self.syncCustomChanged=True
+	@Slot(str, bool)
+	def checkFolder(self, path, is_checked):
+
+		changedItems = self._folderModel.checkFolderBatch(path, is_checked)
+		
+		if not changedItems:
+			return 
+
+		foldersChanges = dict(changedItems)
+		Bridge.onedriveManager.updateCheckFolderBatch(foldersChanges)
+
+		foldersChecked = set(filter(None,self.initialSyncConfig[1]))
+		foldersUnChecked = set(filter(None,self.initialSyncConfig[2]))
+
+		for itemPath,checked in changedItems:
+			if itemPath== "OneDrive" or itemPath is None:
+				continue
+			if checked:
+				foldersChecked.add(itemPath)
+				foldersUnChecked.discard(itemPath)
 			else:
-				self.syncCustomChanged=False
+				foldersChecked.discard(itemPath)
+				foldersUnChecked.add(itemPath)
 
-	#def folderChecked
+		self.initialSyncConfig[1] = sorted(foldersChecked)
+		self.initialSyncConfig[2] = sorted(foldersUnChecked)
 
-	@Slot(int,result='QVariant')
-	def getModelData(self,index):
+		draftChecked = foldersChecked - {"OneDrive"}
+		draftUnChecked = foldersUnChecked - {"OneDrive"}
+
+		if not draftChecked or not draftUnChecked:
+			self.syncCustomChanged = False
+			return 
+
+		self.syncCustomChanged = (
+			draftChecked != self._baseCheckedFolders or draftUnChecked != self._baseUncheckedFolders
+		)
 		
-		return self.folderEntries[index]
-
-	#def getModelData
-
-	@Slot('QVariantList')
-	def updateModel(self,info):
-		
-		index = self._folderModel.index(info[0])
-		self._folderModel.setData(index,info[1],info[2])
 	
-	#def updateModel
-
+	#def checkFolder
+	
 	def _insertModelEntries(self):
 
 		ret=self._folderModel.resetModel()
 		entries=Bridge.onedriveManager.folderStruct
-		for item in entries:
-			self._folderModel.appendRow(item["path"],item["name"],item["isChecked"],item["isExpanded"],item["type"],item["subtype"],item["hide"],item["level"],item["canExpanded"],item["parentPath"])
+		self._folderModel.appendRows(entries)
+		self._proxyFolderModel.invalidateFilter()
 
 	#def _insertModelEntries
 
@@ -552,6 +590,9 @@ class Bridge(QObject):
 
 	on_skipFileChanged=Signal()
 	skipFileChanged=Property(bool,_getSkipFileChanged,_setSkipFileChanged,notify=on_skipFileChanged)
+
+	on_showRetrySyncDialog = Signal()
+	showRetrySyncDialog = Property('QVariantList',_getShowRetrySyncDialog,_setShowRetrySyncDialog,notify=on_showRetrySyncDialog)
 
 	folderModel=Property(QObject,_getFolderModel,constant=True)
 	fileExtensionsModel=Property(QObject,_getFileExtensionsModel,constant=True)

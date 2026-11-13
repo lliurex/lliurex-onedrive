@@ -265,6 +265,34 @@ Rectangle{
         }    
     }
 
+
+    ChangesDialog{
+        id:retrySync
+        dialogIcon:"/usr/share/icons/breeze/status/64/dialog-warning.svg"
+        dialogVisible:syncStackBridge.showRetrySyncDialog[0]
+        dialogMsg:i18nd("lliurex-onedrive","Warning %1\nThe process of retrieving the folder structure has been running for %2 minutes\nDo you want to wait 10 more minutes, let it run until finishes or cancel?",syncStackBridge.showRetrySyncDialog[1],syncStackBridge.showRetrySyncDialog[2])
+        dialogWidth:600
+        dialogHeight:140
+        btnAcceptVisible:true
+        btnAcceptText:i18nd("lliurex-onedrive","Wait for 10 minutes")
+        btnDiscardText:i18nd("lliurex-onedrive","Run until finished")
+        btnDiscardIcon:"dialog-ok.svg"
+        btnCancelText:i18nd("lliurex-onedrive","Cancel")
+        btnCancelIcon:"dialog-cancel.svg"
+        Connections{
+            target:retrySync
+            function onDialogApplyClicked(){
+                syncStackBridge.userResponse(0)
+            } 
+            function onDiscardDialogClicked(){
+                syncStackBridge.userResponse(1)
+            }
+            function onRejectDialogClicked(){
+                syncStackBridge.userResponse(2)
+            }
+        }  
+    } 
+
     CustomPopup{
         id:synchronizePopup
     }

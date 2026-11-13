@@ -118,6 +118,9 @@ class Bridge(QObject):
 		self.core.toolStack.updateSpaceAuth=False
 		self._withHDDSpace=True
 		self._showBackupDialog=False
+		self._showRetryCheckDialog=[False,0,0]
+		self._timeout_event = threading.Event()
+		self.continueWithCheck = 2
 
 	#def _init__
 
@@ -259,6 +262,19 @@ class Bridge(QObject):
 
 	#def _setShowBackupDialog
 
+	def _getShowRetryCheckDialog(self):
+
+		return self._showRetryCheckDialog
+
+	#def _getShowRetryCheckDialog
+
+	def _setShowRetryCheckDialog(self,showRetryCheckDialog):
+
+		if self._showRetryCheckDialog != showRetryCheckDialog:
+			self._showRetryCheckDialog = showRetryCheckDialog
+			self.on_showRetryCheckDialog.emit()
+
+	#def _setShowRetryCheckDialog
 
 	def _updateSharePointModel(self):
 
@@ -482,6 +498,28 @@ class Bridge(QObject):
 
 	#def createSpace
 
+	def waitForUser(self, attempts,accumulateTime):
+
+		self._timeout_event.clear()
+		self.showRetryCheckDialog=[True,attempts,accumulateTime]
+		self._timeout_event.wait()
+		return self.continueWithCheck
+
+	#def waitForUser
+
+	@Slot(int)
+	def userResponse(self,response):
+
+		self.showRetryCheckDialog=[False,0,0]
+		self.continueWithCheck = response
+		self._timeout_event.set()
+
+	#def userResponse
+
+
+
+	#def _waitForUser
+
 	def _addSpace(self):
 
 		self.core.mainStack._updateSpacesModel()
@@ -578,6 +616,9 @@ class Bridge(QObject):
 
 	sharePointModel=Property(QObject,_getSharePointModel,constant=True)
 	libraryModel=Property(QObject,_getLibraryModel,constant=True)
+
+	on_showRetryCheckDialog = Signal()
+	showRetryCheckDialog = Property('QVariantList',_getShowRetryCheckDialog,_setShowRetryCheckDialog,notify=on_showRetryCheckDialog)
 
 #class Bridge
 

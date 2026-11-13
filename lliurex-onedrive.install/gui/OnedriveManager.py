@@ -20,6 +20,7 @@ class OnedriveManager:
 	
 	def __init__(self):
 
+		self.core=Core.Core.get_core()
 		self.user=os.environ["USER"]
 		self.llxOnedriveConfigDir="/home/%s/.config/lliurex-onedrive-config/"%(self.user)
 		self.onedriveConfigFile=os.path.join(self.llxOnedriveConfigDir,"onedriveConfig.json")
@@ -1025,33 +1026,70 @@ class OnedriveManager:
 		self.initialDownload="0 B"
 		self.spaceAccountType=""
 		self.initialDownloadBytes=0
-		
-		cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --disable-notifications --confdir="%s"'%(self.spaceConfPath)
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		
-		try:
-			poutput=p.communicate(timeout=300)[0]
-			rc=p.returncode
-			if rc==0:
-				if type(poutput) is bytes:
-					poutput=poutput.decode()
-					poutput=poutput.split("\n")
 
-					for line in poutput:
-						if 'data to download' in line:
-							tmpLine=line.split(":")[1].strip()
-							if tmpLine!="":
-								self.initialDownload=self._formatInitialDownload(tmpLine)
-						elif 'Account Type:' in line:
-							self.spaceAccountType=line.split(":")[1].strip()
-				
-					return True
-			else:
+		cmd=[
+			'/usr/bin/onedrive',
+			'--display-sync-status',
+			'--dry-run',
+			'--disable-notifications',
+			f'--confdir={self.spaceConfPath}',
+		]
+
+		p = subprocess.Popen(
+			cmd,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True,
+			errors='replace'
+			)
+
+		poutput = ""
+		waitTime = 600
+		extraTime = 600
+		attempts = 0
+		accumulateTime = 0
+
+		while True:
+			try:
+				out,_ = p.communicate(timeout=waitTime)
+				poutput += out
+				break
+			except subprocess.TimeoutExpired:
+				p.send_signal(signal.SIGSTOP)
+
+				attempts += 1
+				accumulateTime += 600
+
+				maintainExecution = self.core.addSpaceStack.waitForUser(attempts,round(accumulateTime/60))
+
+				if maintainExecution == 0:
+					waitTime = extraTime
+					p.send_signal(signal.SIGCONT)
+				elif maintainExecution == 1:
+					waitTime = None
+					p.send_signal(signal.SIGCONT)
+				else:
+					p.kill()
+					p.communicate()
+					return False
+
+			except Exception as e:
+				p.kill()
 				return False
-		except Exception as e:
-			p.kill()
-			return False	
-	
+
+		if p.returncode == 0:
+			for line in poutput.split("\n"):
+				if 'data to download' in line:
+					tmpLine=line.split(":")[1].strip()
+					if tmpLine!="":
+						self.initialDownload=self._formatInitialDownload(tmpLine)
+				elif 'Account Type:' in line:
+					self.spaceAccountType=line.split(":")[1].strip()
+				
+			return True
+		else:
+			return False
+		
 	#def getInitialDownload
 
 	def _formatInitialDownload(self,value):
@@ -1150,7 +1188,9 @@ class OnedriveManager:
 			self.logPath=os.path.join(self.logFolder,logFile)
 			self.logSize=self.getLogFileSize()
 			self.isUpdateRequired=self.checkIfUpdateIsRequired()
+			
 			return True
+		
 		return False
 		
 	#def loadSpaceSettings
@@ -1172,34 +1212,38 @@ class OnedriveManager:
 
 		filterFile=os.path.join(self.spaceConfPath,self.filterFile)
 
+		self.foldersSelected.clear()
+		self.foldersUnSelected.clear()
+
+		if not os.path.exists(filterFile):
+			return
+
 		with open(filterFile,'r') as fd:
-			lines=fd.readlines()
-			fd.close()
+			for line in fd:
+				tmpLine=line.strip()
+				if not tmpLine or tmpLine.startswith("#"):
+					continue
 
-			for line in lines:
-				tmpLine=line.split("\n")[0]
-				if tmpLine.startswith("!"):
-					if tmpLine.endswith("/*"):
-						tmpLine=tmpLine.split("!")[1].split("/*")[0]
-					elif tmpLine.endswith("/"):
-						tmpLine=tmpLine.split("!")[1][:-1]
+				isExcluded=tmpLine.startswith("!")
+				if isExcluded:
+					tmpLine=tmpLine[1:].strip()
 
-					if tmpLine.startswith("/"):
-						tmpLine=tmpLine[1:]
+				if tmpLine.endswith("/*"):
+					tmpLine=tmpLine[:-2]
+
+				tmpLine=tmpLine.strip("/")
+
+				if not tmpLine:
+					continue
+
+				if isExcluded:
 					if tmpLine not in self.foldersUnSelected:
 						self.foldersUnSelected.append(tmpLine)
 				else:
-					tmpLine=tmpLine.split("/*")[0]
-					if tmpLine.endswith("/*"):
-						tmpLine=tmpLine.split("/*")[0]
-					elif tmpLine.endswith("/"):
-						tmpLine=tmpLine.split("/")[0][:-1]
-
-					if tmpLine.startswith("/"):
-						tmpLine=tmpLine[1:]
 					if tmpLine not in self.foldersSelected:
 						self.foldersSelected.append(tmpLine)
 
+	
 	#def readFilterFile	
 
 	def isOnedriveRunning(self,spaceConfPath=None,oldCommand=False):
@@ -1346,133 +1390,159 @@ class OnedriveManager:
 		lastPendingChanges=[0,pendingChanges]
 		filesPendingUpload=0
 
-
 		if self.isConfigured():
 			lastPendingChanges=self._getLastPendingChanges()
-			if self.spaceBasicInfo[2]!="onedriveBackup":
-				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s"'%self.spaceConfPath
-			else:
-				cmd='/usr/bin/onedrive --display-sync-status --dry-run --verbose --confdir="%s" --single-directory "%s"'%(self.spaceConfPath,self.backupFolder)
 
-			p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-			try:
-				poutput,perror=p.communicate(timeout=90)
+			cmd=[
+			'/usr/bin/onedrive',
+			'--display-sync-status',
+			'--dry-run',
+			'--disable-notifications',
+			f'--confdir={self.spaceConfPath}',
+			]
 
-				if type(poutput) is bytes:
-					poutput=poutput.decode()
+			if self.spaceBasicInfo[2]=="onedriveBackup":
+				cmd.extend([f"--single-directory {self.backupFolder}"])
 
-				if type(perror) is bytes:
-					perror=perror.decode()
+			p = subprocess.Popen(
+				cmd,
+				stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE,
+				text=True,
+				errors='replace'
+			)
+			poutput = ""
+			perror = ""
+			waitTime = 600
+			extraTime = 600
+			attempts = 0
+			accumulateTime = 0
 
-				if len(perror)>0:
-					perror=perror.split('\n')
+			while True:
+				try:
+					out,err = p.communicate(timeout=waitTime)
+					poutput += out
+					perror += err
+					break
+				except subprocess.TimeoutExpired:
+					p.send_signal(signal.SIGSTOP)
+					attempts += 1
+					accumulateTime += 600
+					maintainExecution = self.core.spaceStack.waitForUser(attempts,round(accumulateTime/60))
+
+					if maintainExecution == 0:
+						waitTime = extraTime
+						p.send_signal(signal.SIGCONT)
+					elif maintainExecution == 1:
+						waitTime = None
+						p.send_signal(signal.SIGCONT)
+					else:
+						p.kill()
+						p.communicate()
+						break
+
+				except Exception as e:
+					p.kill()
+					break
+
+			if perror != "":
+				for line in perror.split("\n"):
 					error=True
-					for item in perror:
-						if 'OneDrive API returned an error' in item:
+					for line in perror:
+						if 'OneDrive API returned an error' in line:
 							code=MICROSOFT_API_ERROR
-						elif 'Cannot connect to' in item:
+						elif 'Cannot connect to' in line:
 							code=UNABLE_CONNECT_MICROSOFT_ERROR
 							break
-						elif 'local file system' in item:
+						elif 'local file system' in line:
 							code=LOCAL_FILE_SYSTEM_ERROR
-						elif 'zero space available' in item:
+						elif 'zero space available' in line:
 							code=ZERO_SPACE_AVAILABLE_ERROR
 							break
-						elif 'quota information' in item:
+						elif 'quota information' in line:
 							if spaceType!="sharepoint":
 								code=QUOTA_RESTRICTED_ERROR
 							else:
 								error=False
-						elif 'database' in item:
+						elif 'database' in line:
 							code=DATABASE_ERROR
-						elif 'Unauthorized' in item:
+						elif 'Unauthorized' in line:
 							code=UNAUTHORIZED_ERROR
-						elif '416' in item and 'included by' not in item:
+						elif '416' in line and 'included by' not in line:
 							code=UPLOADING_PENDING_CHANGES
 							break
-						elif 'Unable to query OneDrive' in item:
+						elif 'Unable to query OneDrive' in line:
 							code=UNAUTHORIZED_ERROR
 							break
-						elif '503' in item and 'included by' not in item:
+						elif '503' in line and 'included by' not in line:
 							code=SERVICE_UNAVAILABLE
-						elif 'Free Space' in item:
-							tmp_freespace=item.split(':')[1].strip()
+						elif 'Free Space' in line:
+							tmp_freespace=line.split(':')[1].strip()
 							if not 'Not Available' in tmp_freespace:
 								tmp_freespace=tmp_freespace.split(" ")
 								freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 
-				if not error and len(poutput)>0:
-					poutput=poutput.split('\n')
-					for item in poutput:
-						if 'OneDrive API returned an error' in item:
-							code=MICROSOFT_API_ERROR
+			if not error and poutput!=0:
+				for line in poutput.split("\n"):
+					if 'OneDrive API returned an error' in line:
+						code=MICROSOFT_API_ERROR
+						error=True
+					elif 'Cannot connect to' in line:
+						code=UNABLE_CONNECT_MICROSOFT_ERROR
+						error=True
+						break
+					elif 'local file system' in line:
+						code=LOCAL_FILE_SYSTEM_ERROR
+						error=True
+					elif 'zero space available' in line:
+						code=ZERO_SPACE_AVAILABLE_ERROR
+						error=True
+						break
+					elif 'quota information' in line:
+						if spaceType!="sharepoint":
+							code=QUOTA_RESTRICTED_ERROR
 							error=True
-						elif 'Cannot connect to' in item:
-							code=UNABLE_CONNECT_MICROSOFT_ERROR
-							error=True
-							break
-						elif 'local file system' in item:
-							code=LOCAL_FILE_SYSTEM_ERROR
-							error=True
-						elif 'zero space available' in item:
-							code=ZERO_SPACE_AVAILABLE_ERROR
-							error=True
-							break
-						elif 'quota information' in item:
-							if spaceType!="sharepoint":
-								code=QUOTA_RESTRICTED_ERROR
-								error=True
-						elif 'database access error' in item or 'database cannot be opened' in item:
-							code=DATABASE_ERROR
-							error=True
-						elif 'Unauthorized' in item:
-							code=UNAUTHORIZED_ERROR
-							error=True
-						elif '416' in item and 'included by' not in item:
-							code=UPLOADING_PENDING_CHANGES
-							error=True
-							break
-						elif 'Unable to query OneDrive' in item:
-							code=UNAUTHORIZED_ERROR
-							error=True
-							break
-						elif '503' in item and 'included by' not in item:
-							code=SERVICE_UNAVAILABLE
-							error=True
+					elif 'database access error' in line or 'database cannot be opened' in line:
+						code=DATABASE_ERROR
+						error=True
+					elif 'Unauthorized' in line:
+						code=UNAUTHORIZED_ERROR
+						error=True
+					elif '416' in line and 'included by' not in line:
+						code=UPLOADING_PENDING_CHANGES
+						error=True
+						break
+					elif 'Unable to query OneDrive' in line:
+						code=UNAUTHORIZED_ERROR
+						error=True
+						break
+					elif '503' in line and 'included by' not in line:
+						code=SERVICE_UNAVAILABLE
+						error=True
 						
-						if not error:
-							if 'Uploading' in item and '...done' not in item:
-								code=UPLOADING_PENDING_CHANGES
-								break;
-							if 'no pending' in item:
-								code=ALL_SYNCHRONIZE_MSG
-							elif 'out of sync' in item:
-								code=OUT_OF_SYNC_MSG
-							elif 'Authentication scope needs' in item:
-								code=UNAUTHORIZED_ERROR
-								error=True
-								break
-							elif 'download from Microsoft OneDrive:' in item:
-								pendingChanges=item.split(':')[1].strip()
-							elif 'Free Space' in item:
-								tmp_freespace=item.split(':')[1].strip()
-								if not 'Not Available' in tmp_freespace:
-									tmp_freespace=tmp_freespace.split(" ")
-									freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
-			except:
-				p.kill()
-				error=True
-				code=UNABLE_CONNECT_MICROSOFT_ERROR
+					if not error:
+						if 'Uploading' in line and '...done' not in line:
+							code=UPLOADING_PENDING_CHANGES
+							break;
+						if 'no pending' in line:
+							code=ALL_SYNCHRONIZE_MSG
+						elif 'out of sync' in line:
+							code=OUT_OF_SYNC_MSG
+						elif 'Authentication scope needs' in line:
+							code=UNAUTHORIZED_ERROR
+							error=True
+							break
+						elif 'download from Microsoft OneDrive:' in line:
+							pendingChanges=line.split(':')[1].strip()
+						elif 'Free Space' in line:
+							tmp_freespace=line.split(':')[1].strip()
+							if not 'Not Available' in tmp_freespace:
+								tmp_freespace=tmp_freespace.split(" ")
+								freespace="%s %s"%(tmp_freespace[0],tmp_freespace[1])
 		else:
 			error=True
 			code=WITH_OUT_CONFIG
 
-		'''
-		if code==OUT_OF_SYNC_MSG:
-			if pendingChanges==lastPendingChanges[1]:
-				if lastPendingChanges[0]==0:
-					code=ALL_SYNCHRONIZE_MSG
-		'''
 		if error:
 			paramValue=1
 		else:
@@ -1626,158 +1696,181 @@ class OnedriveManager:
 	def getCloudFolderStruct(self):
 		
 		self.errorFolder=False
+		filterMoved = False
+
 		if not self.isOnedriveRunning():
 			self.manageFileFilter("move")
+			filterMoved=True
 
-		cmd='onedrive --sync --resync --resync-auth --dry-run --disable-notifications --verbose --skip-file="*.*" --confdir="%s"'%self.spaceConfPath
-		p=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-		out=p.communicate()[0]
-		out=out.decode().split("\n")
-		syncOut=copy.deepcopy(out)
-		rc=p.returncode
+		try:
+			cmd = [
+				'stdbuf','-oL',
+				'/usr/bin/onedrive',
+				'--sync',
+				'--resync',
+				'--resync-auth',
+				'--dry-run',
+				'--disable-notifications',
+				'--verbose',
+				'--skip-file=*.*',
+				f'--confdir={self.spaceConfPath}'
+			]
 
-		if not self.isOnedriveRunning():
-			self.manageFileFilter("restore")
+			p = subprocess.Popen(
+				cmd,
+				stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE,
+				text=True,
+				errors='replace',
+				bufsize=1
+			)
+
+			poutLines = []
+
+			def read_output():
+				for line in iter(p.stdout.readline,''):
+					poutLines.append(line.rstrip('\r\n'))
+				p.stdout.close()
+
+			readed_thread = threading.Thread(target=read_output,daemon=True )
+			readed_thread.start()
+
+			waitTime = 600
+			extraTime = 600
+			attempts = 0
+			accumulateTime = 0
+
+			while True:
+				try:
+					p.wait(timeout=waitTime)
+					readed_thread.join(timeout=2)
+					break
+				except subprocess.TimeoutExpired:
+					p.send_signal(signal.SIGSTOP)
+
+					attempts += 1
+					accumulateTime += 600
+
+					maintainExecution = self.core.syncStack.waitForUser(attempts,round(accumulateTime/60))
+
+					if maintainExecution == 0:
+						waitTime = extraTime
+						p.send_signal(signal.SIGCONT)
+					elif maintainExecution == 1:
+						waitTime = None
+						p.send_signal(signal.SIGCONT)
+					else:
+						p.kill()
+						p.wait()
+						self.errorFolder=True
+						return
+
+				except Exception as e:
+					p.kill()
+					p.wait()
+					self.errorFolder=True
+					return
+
+			if p.returncode == 0:
 		
-		if rc==0:
-			folderResyncStruct=self._processingResyncOut(out)
-			folderSyncStruct=self._processingSyncOut(syncOut)
+				folderResyncStruct=self._processingResyncOut(poutLines)
+				folderSyncStruct=self._processingSyncOut(poutLines)
 
-			if len(folderResyncStruct)>0:
-				for item in folderSyncStruct:
-					match=0
-					for element in folderResyncStruct:
-						if item["path"]==element["path"]:
-							match=0
-							break
-						else:
-							match+=1
-					if match>0:
-						folderResyncStruct.append(item)
+				if folderResyncStruct:
+					existingPath = {element["path"] for element in folderResyncStruct}
+					for item in folderSyncStruct:
+						if item["path"] not in existingPath:
+							folderResyncStruct.append(item)
+				else:
+					folderResyncStruct = folderSyncStruct
+
+				self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
+				self._processingFolderStruct()			
+				self.folderStructBack=copy.deepcopy(self.folderStruct)
 			else:
-				folderResyncStruct=folderSyncStruct
-
-			self.folderStruct=sorted(folderResyncStruct,key=lambda d: d['path'])
-			self._processingFolderStruct()			
-			self.folderStructBack=copy.deepcopy(self.folderStruct)
-		else:
-			self.errorFolder=True
-		
+				self.errorFolder=True
+		finally:
+			if filterMoved:
+				self.manageFileFilter("restore")
+			
 
 	#def getCloudFolderStruct
 
 	def _processingResyncOut(self,out):
 
-		tmpOut=[]
-		for i in range(0,len(out)-1,1):
-			if out[i].startswith('Creating local directory'):
-				tmpItem=out[i].split(":")[1].strip().replace("./","")
-				if tmpItem not in tmpOut:
-					tmpOut.append(tmpItem)
-	
+		uniqueItems={}
+		for line in out[:-1]:
+			if line.startswith('Creating local directory'):
+				tmpItem=line.split(":",1).strip().replace("./","")
+				uniqueItems[tmpItem]=None
 
-		folderResyncStruct=[]
-		if len(tmpOut)>0:
-			for item in tmpOut:
-				countChildren=0
-				tmpList={}
-				tmpEntry=item
-				tmpList["path"]=tmpEntry
-				parentPath=os.path.dirname(tmpEntry)
-				tmpEntry=tmpEntry.split("/")
-				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=True
-				tmpList["hide"]=False
-				if len(tmpEntry)==1:
-					tmpList["name"]=tmpEntry[0]
-					tmpList["type"]="OneDrive"
-					tmpList["subtype"]="parent"
-					tmpList["level"]=3
-					tmpList["parentPath"]="OneDrive"
+		if not uniqueItems:
+			return []
 
-				else:
-					tmpList["name"]=tmpEntry[-1]
-					tmpList["type"]=tmpEntry[-2]
-					tmpList["subtype"]="parent"
-					tmpList["level"]=len(tmpEntry)*3
-					tmpList["parentPath"]=parentPath
-
-				for element in tmpOut:
-					tmpEntry2=element
-					tmpPath=tmpList["path"]+"/"
-					if tmpPath in tmpEntry2:
-						countChildren+=1
-
-				if countChildren>0:
-					tmpList["canExpanded"]=True 
-				else:
-					tmpList["canExpanded"]=False
-				
-				folderResyncStruct.append(tmpList)	
-
-		return folderResyncStruct
+		foldersWithChildren = {os.path.dirname(item) for item in uniqueItems if "/" in item}
+		
+		return [
+			self._buildFolderItem(item, item in foldersWithChildren)
+			for item in  uniqueItems
+		]
 
 	#def _processingResyncOut
 
 	def _processingSyncOut(self,syncOut):		
 		
-		tmpOut=[]
+		uniqueItems={}
 		
-		for i in range(0,len(syncOut)-1,1):
-			if syncOut[i].startswith("Processing:"):
-				if syncOut[i+1].startswith('The directory'):
-					tmpItem=syncOut[i].split("Processing:")[1].strip().replace("./","")
-					if tmpItem not in tmpOut:
-						tmpOut.append(tmpItem)
+		for i in range(len(syncOut)-1):
+			if syncOut[i].startswith("Processing:") and syncOut[i+1].startswith('The directory'):
+				tmpItem=syncOut[i].split("Processing:",1)[1].strip().replace("./","")
+				uniqueItems[tmpItem]=None
 		
-		folderSyncStruct=[]
-		if len(tmpOut)>0:
-			
-			for item in tmpOut:
-				countChildren=0
-				tmpList={}
-				tmpEntry=item
-				tmpList["path"]=tmpEntry
-				parentPath=os.path.dirname(tmpEntry)
-				tmpEntry=tmpEntry.split("/")
-				tmpList["isChecked"]=True
-				tmpList["isExpanded"]=True
-				tmpList["hide"]=False
-				if len(tmpEntry)==1:
-					tmpList["name"]=tmpEntry[0]
-					tmpList["type"]="OneDrive"
-					tmpList["subtype"]="parent"
-					tmpList["level"]=3
-					tmpList["parentPath"]="OneDrive"
+		itemList = list(uniqueItems.keys())[1:]
 
-				else:
-					tmpList["name"]=tmpEntry[-1]
-					tmpList["type"]=tmpEntry[-2]
-					tmpList["subtype"]="parent"
-					tmpList["level"]=len(tmpEntry)*3
-					tmpList["parentPath"]=parentPath
-					
-				for element in tmpOut:
-					tmpEntry2=element
-					tmpPath=tmpList["path"]+"/"
-					if tmpPath in tmpEntry2:
-						countChildren+=1
+		if not itemList:
+			return []
 
-				if countChildren>0:
-					tmpList["canExpanded"]=True 
-				else:
-					tmpList["canExpanded"]=False
-						
-				folderSyncStruct.append(tmpList)	
-				
-			try:
-				folderSyncStruct.pop(0)
-			except Exception as e:
-				pass
+		foldersWithChildren={os.path.dirname(item) for item in uniqueItems if "/" in item}
 
-		return folderSyncStruct
-
+		return [
+			self._buildFolderItem(item, item in foldersWithChildren)
+			for item in itemList
+		]
+		
 	#def _processingSyncOut
+
+	def _buildFolderItem(self,item,canExpanded):
+
+		parentPath = os.path.dirname(item)
+		parts = item.split("/")
+		numParts = len(parts)
+
+		if numParts == 1:
+			name = parts[0]
+			itemType = "OneDrive"
+			level = 3
+			parentPathEnd = "OneDrive"
+
+		else:
+			name = parts[-1]
+			itemType = parts[-2]
+			level = numParts*3
+			parentPathEnd = parentPath
+
+		return {
+			"path":item,
+			"isChecked": True,
+			"isExpanded": True,
+			"hide": False,
+			"name":name,
+			"type":itemType,
+			"subtype": "parent",
+			"level":level,
+			"parentPath":parentPathEnd,
+			"canExpanded":canExpanded
+		}
+
+	#def _buildFolderItem
 
 	def _processingFolderStruct(self):
 
@@ -2057,13 +2150,13 @@ class OnedriveManager:
 
 	#def manageFileFilter
 
-	def updateCheckFolder(self,path,checked):
+	def updateCheckFolderBatch(self,folderChanges):
 
 		for item in self.folderStruct:
-			if item["path"]==path:
-				item["isChecked"]=checked
+			if item["path"] in folderChanges:
+				item["isChecked"] = folderChanges[item["path"]]
 
-	#def updateCheckFolder
+	#def updateCheckFolderBatch
 
 	def cancelSyncChanges(self):
 
@@ -2259,23 +2352,88 @@ class OnedriveManager:
 		if os.path.exists(self.testPath):
 			os.remove(self.testPath)
 
-		cmd="echo SYNC-DISPLAY-STATUS >>%s"%self.testPath
-		os.system(cmd)
-		if self.spaceBasicInfo[2]!="onedriveBackup":
-			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" >>%s 2>&1'%(self.spaceConfPath,self.testPath)
-		else:
-			cmdDisplay='/usr/bin/onedrive --display-sync-status --verbose --dry-run --confdir="%s" --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
-			cmdSync='/usr/bin/onedrive --sync --dry-run --verbose --confdir="%s" --disable-notifications --single-directory "%s" >>%s 2>&1'%(self.spaceConfPath,self.backupFolder,self.testPath)
+		cmdDisplay=[
+			'/usr/bin/onedrive',
+			'--display-sync-status',
+			'--verbose',
+			'--dry-run',
+			'--disable-notifications',
+			f'--confdir={self.spaceConfPath}'
+		]
+
+		cmdSync=[
+			'/usr/bin/onedrive',
+			'--sync',
+			'--verbose',
+			'--dry-run',
+			f'--confdir={self.spaceConfPath}'
+		]
+
+		if self.spaceBasicInfo[2]=="onedriveBackup":
+			cmdDisplay.extend([f'--single-directory={self.backupFolder}'])
+			cmdSync.extend([f'--single-directory={self.backupFolder}'])
 		
-		p=subprocess.call(cmdDisplay,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		cmd="echo TEST SYNCHRONIZE >>%s"%self.testPath
-		os.system(cmd)
-		p=subprocess.call(cmdSync,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		with open(self.testPath,"w",encoding="utf-8") as fd:
+			fd.write("SYNC DISPLAY STATUS\n")
+
+		ret_display=self._runTestWithTimeOut(cmdDisplay)
+
+		if not ret_display:
+			return
+
+		with open(self.testPath,"a",encoding="utf-8") as fd:
+			fd.write("TEST SYNCHRONIZE\n")
+
+		ret_sync=self._runTestWithTimeOut(cmdSync)
 
 		return
 
 	#def testOnedrive
+
+	def _runTestWithTimeOut(self,cmd):
+
+		poutput = ""
+		perror = ""
+		waitTime = 600
+		extraTime = 600
+		attempts = 0
+		accumulateTime = 0
+
+		with open(self.testPath,"a",encoding="utf-8",errors="replace") as testPath:
+			p = subprocess.Popen(
+				cmd,
+				stdout=testPath,
+				stderr=subprocess.PIPE,
+				text=True,
+				errors='replace'
+			)
+
+			while True:
+				try:
+					p.wait(timeout=waitTime)
+					return p.returncode==0
+				except subprocess.TimeoutExpired:
+					p.send_signal(signal.SIGSTOP)
+					attempts += 1
+					accumulateTime += 600
+					maintainExecution = self.core.toolStack.waitForUser(attempts,round(accumulateTime/60))
+
+					if maintainExecution == 0:
+						waitTime = extraTime
+						p.send_signal(signal.SIGCONT)
+					elif maintainExecution == 1:
+						waitTime = None
+						p.send_signal(signal.SIGCONT)
+					else:
+						p.kill()
+						p.wait()
+						return False
+				except Exception as e:
+					p.kill()
+					break
+					return False
+
+	#def _runTestWithTimeOut
 
 	def repairOnedrive(self):
 
@@ -3027,3 +3185,5 @@ class OnedriveManager:
 	#def _removeConflictingToken
 
 #class OnedriveManager
+
+import Core
